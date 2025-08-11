@@ -6,6 +6,7 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import svgr from 'vite-plugin-svgr';
 import VitePWA from 'vite-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
 	const isDev = mode === 'development';
@@ -13,6 +14,7 @@ export default defineConfig(({ mode }) => {
 	return {
 		plugins: [
 			react(),
+			tailwindcss(),
 			VitePWA({ spa: true }),
 			tsconfigPaths(),
 			AutoImport({
