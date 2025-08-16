@@ -1,7 +1,6 @@
 import react from '@vitejs/plugin-react-swc';
 import AutoImport from 'unplugin-auto-import/vite';
 import { defineConfig } from 'vite';
-import compression from 'vite-plugin-compression';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import svgr from 'vite-plugin-svgr';
 import VitePWA from 'vite-pwa';
@@ -22,12 +21,6 @@ export default defineConfig(({ mode }) => {
 				dts: 'src/auto-imports.d.ts'
 			}),
 			svgr(),
-			compression({
-				algorithm: 'brotliCompress',
-				ext: '.br',
-				threshold: 10240,
-				deleteOriginFile: false
-			}),
 			ViteImageOptimizer({
 				jpg: { quality: 75 },
 				png: { quality: 80 },
