@@ -5,6 +5,6 @@ const Button: React.FC<IButtonProps> = memo(({ children }) => {
 	return <div>{children}</div>;
 });
 
-Button.displayName = "_Button_";
+Button.displayName = '_Button_';
 
 export { Button };
