@@ -1,10 +1,10 @@
 import React from 'react';
 
-type SvgIconProps = React.SVGProps<SVGSVGElement> & {
+type SvgIIconProps = React.SVGProps<SVGSVGElement> & {
 	src: string;
 };
 
-export const SvgIcon: React.FC<SvgIconProps> = ({ src, ...props }) => {
+const SvgIcon: React.FC<SvgIIconProps> = memo(({ src, ...props }) => {
 	const Icon = lazy(() => import(`../../../assets/${src}.svg?react`));
 
 	return (
@@ -12,4 +12,8 @@ export const SvgIcon: React.FC<SvgIconProps> = ({ src, ...props }) => {
 			<Icon {...props} />
 		</React.Suspense>
 	);
-};
+});
+
+SvgIcon.displayName = '_SvgIcon_';
+
+export { SvgIcon };
