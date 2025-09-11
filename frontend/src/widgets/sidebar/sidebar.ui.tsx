@@ -10,7 +10,7 @@ export const Sidebar: React.FC<{ navigations: INavigationItem[] }> = React.memo(
 		const isActive = useActivePath();
 
 		return (
-			<aside className='w-[300px] border-r border-c3 h-screen py-8 px-6 flex flex-col'>
+			<aside className='w-[300px] border-r border-c3 bg-white h-screen py-8 px-6 flex flex-col'>
 				<div className='mb-8'>
 					<img
 						src={Assets.Logo}
@@ -39,7 +39,7 @@ export const Sidebar: React.FC<{ navigations: INavigationItem[] }> = React.memo(
 							>
 								{item.icon}
 							</span>
-							<span className='lt font-normal text-base leading-[22px]'>
+							<span className='ls-base font-normal text-base leading-[22px]'>
 								{item.label}
 							</span>
 						</Link>

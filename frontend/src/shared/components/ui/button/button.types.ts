@@ -4,9 +4,12 @@ export interface IButtonProps extends React.PropsWithChildren {
 	variant?: TVariants;
 	color?: TColors;
 	roundedFull?: boolean;
-	square?: boolean;
+	wFull?: boolean;
 	disabled?: boolean;
 	type?: 'button' | 'submit' | 'reset';
 	onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-	icon?: IIconProps | string;
+	iconStart?: IIconProps | string;
+	iconEnd?: IIconProps | string;
+	className?: string;
+	ariaLabel: string
 }

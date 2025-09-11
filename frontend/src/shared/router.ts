@@ -4,7 +4,9 @@ export const routePaths = {
 
 	// Auth
 	auth: {
-		login: '/auth/login'
+		login: '/auth/login',
+		forgot: '/auth/forgot',
+		resetPass: '/auth/reset-pass'
 	},
 
 	// Customer
