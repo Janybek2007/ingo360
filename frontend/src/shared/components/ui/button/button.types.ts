@@ -1,9 +1,8 @@
-import type { IIconProps } from '../icon'
+import type { IIconProps } from '../icon';
 
 export interface IButtonProps extends React.PropsWithChildren {
 	variant?: TVariants;
 	color?: TColors;
-	size?: TSizes;
 	roundedFull?: boolean;
 	square?: boolean;
 	disabled?: boolean;

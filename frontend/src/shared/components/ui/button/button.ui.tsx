@@ -1,7 +1,7 @@
 import React from 'react';
 import type { IButtonProps } from './button.types';
 
-const Button: React.FC<IButtonProps> = memo(({ children }) => {
+const Button: React.FC<IButtonProps> = React.memo(({ children }) => {
 	return <div>{children}</div>;
 });
 

@@ -1,11 +1,10 @@
-import { mainLayout } from '#/pages/main/layout/main-layout.route';
-import { homePageRoute } from '#/pages/main/pages/home/home-page.route';
-import { page404Route } from '#/pages/page-404/page-404.route';
-import { pathKeys } from '#/shared/router';
+import { page404Route } from '#/routes/404/404.route';
+import { administratorLayoutRoute } from '#/routes/administrator/layout';
+import { authLayoutRoute } from '#/routes/auth/layout';
+import { customerLayoutRoute } from '#/routes/customer/layout';
+import { operatorLayoutRoute } from '#/routes/operator/layout';
 import {
 	createBrowserRouter,
-	Outlet,
-	redirect,
 	RouterProvider,
 	useRouteError
 } from 'react-router';
@@ -15,27 +14,21 @@ export function BootstrappedRouter() {
 	return <RouterProvider router={browserRouter()} />;
 }
 
-const browserRouter = () =>
-	createBrowserRouter([
+const browserRouter = () => {
+	return createBrowserRouter([
 		{
 			errorElement: <BubbleError />,
 			element: <RootLayout />,
 			children: [
-				{
-					lazy: mainLayout,
-					children: [homePageRoute]
-				},
-				{
-					element: <Outlet />,
-					children: [page404Route]
-				},
-				{
-					path: '*',
-					loader: async () => redirect(pathKeys.page404)
-				}
+				administratorLayoutRoute,
+				customerLayoutRoute,
+				operatorLayoutRoute,
+				authLayoutRoute,
+				page404Route
 			]
 		}
 	]);
+};
 
 function BubbleError(): null {
 	const error = useRouteError();

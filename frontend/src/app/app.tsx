@@ -1,3 +1,4 @@
+import '#/shared/assets/fonts/fonts.css';
 import React from 'react';
 import { ReactQueryProvider } from '../shared/libs/react-query';
 import { BootstrappedRouter } from './browser-router';

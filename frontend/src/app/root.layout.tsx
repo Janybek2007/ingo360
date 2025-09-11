@@ -1,4 +1,4 @@
-import { SessionProvider } from '#/shared/contexts/session';
+import { SessionProvider } from '#/shared/session';
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import React from 'react';
 import { Outlet } from 'react-router';
