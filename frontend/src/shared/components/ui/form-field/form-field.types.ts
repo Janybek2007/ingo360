@@ -8,11 +8,10 @@ export interface IFormFieldProps {
 	register?: UseFormRegisterReturn;
 	isPasswordToggleShow?: boolean;
 	classNames?: Partial<{
-		root: string;
 		wrapper: string;
 		input: string;
-		label: string;
 	}>;
 	color?: TColors;
 	variant?: TVariants;
+	error?: string
 }

@@ -1,26 +1,23 @@
 import { cn } from '#/shared/utils/cn';
 import React from 'react';
-import type { CheckboxProps } from './checkbox.types';
+import type { ICheckboxProps } from './checkbox.types';
 
-const Checkbox: React.FC<CheckboxProps> = React.memo(
-	({ name, classNames, checked: checkedProp, register }) => {
-		const [checked, setChecked] = React.useState(checkedProp || false);
-
+const Checkbox: React.FC<ICheckboxProps> = React.memo(
+	({ name, classNames, checked, onChecked }) => {
 		return (
-			<div className={cn('flex items-center justify-center', classNames?.root)}>
+			<div className={cn('flexCenter', classNames?.root)}>
 				<label className='inline-flex items-center cursor-pointer select-none'>
 					<input
 						type='checkbox'
 						name={name}
 						checked={checked}
-						onChange={() => setChecked(prev => !prev)}
-						{...register}
+						onChange={() => onChecked?.(!checked)}
 						id={name + '_for'}
 						className='sr-only'
 					/>
 					<span
 						className={cn(
-							'w-5 h-5 rounded-md border border-gray-300 flex items-center justify-center',
+							'w-5 h-5 rounded-md border border-gray-300 flexCenter',
 							'transition-all duration-200',
 							checked ? 'bg-blue-500 border-blue-500' : 'bg-white'
 						)}

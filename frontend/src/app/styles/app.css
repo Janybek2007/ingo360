@@ -5,10 +5,9 @@
 
 	/* !Colors */
 
-
 	--color-primary: #002496;
 	--color-danger: #D34645;
-	--color-default: #F3F3F3;
+	--color-default: #f0f0f0;
 
 	--color-c1: #171923;
 	/* default text color */
@@ -31,8 +30,6 @@
 	/* secondary border color */
 }
 
-
-
 :root {
 
 	font-family: 'Gotham Pro', Arial, Helvetica, sans-serif;
@@ -53,6 +50,10 @@ button {
 	letter-spacing: -0.7%;
 }
 
+@utility flexCenter {
+	@apply flex items-center justify-center;
+}
+
 @utility b_input {
 
 	&:-webkit-autofill,
@@ -64,4 +65,14 @@ button {
 		transition: background-color 5000s ease-in-out 0s;
 		box-shadow: inset 0 0 1.4rem 1.4rem transparent;
 	}
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 80;
 }

@@ -14,7 +14,8 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
 		type = 'text',
 		classNames,
 		color = 'default',
-		variant = 'outlined'
+		variant = 'outlined',
+		error
 	}) => {
 		const [showPassword, setShowPassword] = React.useState(false);
 		const inputType = isPasswordToggleShow
@@ -24,14 +25,11 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
 			: type;
 
 		return (
-			<div className={cn(classNames?.root)}>
+			<div>
 				{label && (
 					<label
 						htmlFor={`${name}_for`}
-						className={cn(
-							'text-c1__1 font-medium text-base ls-base leading-5',
-							classNames?.label
-						)}
+						className={'text-c1__1 font-medium text-base ls-base leading-5'}
 					>
 						{label}
 					</label>
@@ -39,7 +37,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
 
 				<div
 					className={cn(
-						'mt-4 flex items-center relative overflow-hidden',
+						'mt-2 flex items-center relative overflow-hidden rounded-xl transition-all',
 						uiSet.colorVariant(color, variant),
 						classNames?.wrapper
 					)}
@@ -49,14 +47,15 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
 						id={`${name}_for`}
 						placeholder={placeholder}
 						className={cn(
-							'placeholder:text-c1__3 focus:outline-none w-[90%]',
-							'text-base leading-5',
+							'placeholder:text-c1__3 focus:outline-none',
+							'text-base leading-5 py-[14px] px-3',
+							isPasswordToggleShow ? 'w-[90%]' : 'w-full',
 							classNames?.input
 						)}
 						{...register}
 					/>
 
-					{isPasswordToggleShow && (
+					{isPasswordToggleShow && type === 'password' && (
 						<button
 							type='button'
 							onClick={() => setShowPassword(prev => !prev)}
@@ -70,6 +69,12 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
 						</button>
 					)}
 				</div>
+				{error && (
+					<div className='mt-1 flex items-center gap-2 text-sm text-red-600 font-medium animate-fadeIn'>
+						<Icon name='lucide:alert-circle' size={16} />
+						<p>{error}</p>
+					</div>
+				)}
 			</div>
 		);
 	}
