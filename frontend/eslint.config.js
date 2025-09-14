@@ -1,4 +1,3 @@
-import js from '@eslint/js';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
@@ -20,52 +19,8 @@ export default [
       'lint-staged.config.js',
     ],
   },
-  js.configs.recommended,
   {
-    files: ['**/*.{js,jsx}'], // Для JavaScript-файлов без TypeScript
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-        React: 'readonly',
-      },
-    },
-    plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin,
-      'jsx-a11y': jsxA11yPlugin,
-      import: importPlugin,
-      'simple-import-sort': simpleImportSort,
-    },
-    rules: {
-      ...reactPlugin.configs.recommended.rules,
-      ...reactHooksPlugin.configs.recommended.rules,
-      ...jsxA11yPlugin.configs.recommended.rules,
-      ...importPlugin.configs.recommended.rules,
-      ...prettierConfig.rules,
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error',
-      'import/first': 'error',
-      'import/newline-after-import': 'error',
-      'import/no-duplicates': 'error',
-      'react/prop-types': 'off',
-      'react/react-in-jsx-scope': 'off',
-      'react/display-name': 'warn',
-      'no-undef': ['error', { typeof: true }],
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-      'import/resolver': {
-        node: {}, // Используем node-резолвер для JS-файлов
-      },
-    },
-  },
-  {
-    files: ['**/*.{ts,tsx}'], // Для TypeScript-файлов
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
