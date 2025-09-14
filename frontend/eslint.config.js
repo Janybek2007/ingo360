@@ -1,3 +1,4 @@
+import path from 'path';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
@@ -16,7 +17,6 @@ export default [
       'build/**',
       'coverage/**',
       'eslint.config.js',
-      'lint-staged.config.js',
     ],
   },
   {
@@ -34,7 +34,10 @@ export default [
         ecmaFeatures: {
           jsx: true,
         },
-        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+        project: [
+          path.resolve(process.cwd(), './tsconfig.app.json'),
+          path.resolve(process.cwd(), './tsconfig.node.json'),
+        ],
         tsconfigRootDir: process.cwd(),
       },
     },
@@ -74,7 +77,10 @@ export default [
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: ['./tsconfig.app.json', './tsconfig.node.json'],
+          project: [
+            path.resolve(process.cwd(), './tsconfig.app.json'),
+            path.resolve(process.cwd(), './tsconfig.node.json'),
+          ],
         },
       },
     },
