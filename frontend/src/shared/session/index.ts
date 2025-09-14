@@ -1,3 +1,3 @@
-export { SessionProvider } from './session.provider';
+export { CheckSession } from './check-session';
 export { useSession } from './session.context';
-export {CheckSession} from './check-session'
+export { SessionProvider } from './session.provider';

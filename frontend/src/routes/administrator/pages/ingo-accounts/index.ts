@@ -1,1 +1,1 @@
-export {ingoAccountsPageRoute} from './ingo-accounts-page.route'
+export { ingoAccountsPageRoute } from './ingo-accounts-page.route';

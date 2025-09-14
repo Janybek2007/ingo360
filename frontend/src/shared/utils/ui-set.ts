@@ -1,22 +1,23 @@
 import type { IIconProps } from '../components/ui/icon';
 import { colorVariants } from '../constants/color-variants';
+import type { TColors, TVariants } from '../types';
 
 // !Icon
 
 const setIcon = (
-	icon: string | IIconProps,
-	args?: Omit<IIconProps, 'name'>
+  icon: string | IIconProps,
+  args?: Omit<IIconProps, 'name'>
 ): IIconProps =>
-	typeof icon === 'string' ? { name: icon, ...args } : { ...args, ...icon };
+  typeof icon === 'string' ? { name: icon, ...args } : { ...args, ...icon };
 
 // !Color-Variants
 
 const setColorVariant = (color: TColors, variant: TVariants): string =>
-	colorVariants[color][variant];
+  colorVariants[color][variant];
 
 // !Common
 
 export const uiSet = {
-	icon: setIcon,
-	colorVariant: setColorVariant
+  icon: setIcon,
+  colorVariant: setColorVariant,
 };

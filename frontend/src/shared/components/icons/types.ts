@@ -1,4 +1,4 @@
 export type CIconProps = {
-	color?: string
-	size?: string | number
+  color?: string;
+  size?: string | number;
 };

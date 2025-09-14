@@ -1,15 +1,17 @@
-import { page404Route } from '#/routes/404/404.route';
-import { administratorLayoutRoute } from '#/routes/administrator/layout';
-import { authLayoutRoute } from '#/routes/auth/layout';
-import { customerLayoutRoute } from '#/routes/customer/layout';
-import { operatorLayoutRoute } from '#/routes/operator/layout';
-import { routePaths } from '#/shared/router';
 import {
 	createBrowserRouter,
 	redirect,
 	RouterProvider,
 	useRouteError
 } from 'react-router';
+
+import { page404Route } from '#/routes/404/404.route';
+import { administratorLayoutRoute } from '#/routes/administrator/layout';
+import { authLayoutRoute } from '#/routes/auth/layout';
+import { customerLayoutRoute } from '#/routes/customer/layout';
+import { operatorLayoutRoute } from '#/routes/operator/layout';
+import { routePaths } from '#/shared/router';
+
 import RootLayout from './root.layout';
 
 export function BootstrappedRouter() {

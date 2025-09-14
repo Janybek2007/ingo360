@@ -20,3 +20,5 @@ export const VisitActivityIcon: React.FC<CIconProps> = React.memo(
     );
   }
 );
+
+VisitActivityIcon.displayName = '_VisitActivityIcon_';

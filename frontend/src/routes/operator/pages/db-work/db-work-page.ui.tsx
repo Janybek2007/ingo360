@@ -1,9 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 const DbWorkPage: React.FC = () => {
-  return (
-	 <main>DbWorkPage</main>
-  )
-}
+  return <main>DbWorkPage</main>;
+};
 
-export default DbWorkPage
+export default DbWorkPage;

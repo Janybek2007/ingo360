@@ -1,1 +1,1 @@
-export {LoginForm}from './login/login.ui'
+export { LoginForm } from './login/login.ui';

@@ -1,9 +1,9 @@
 export interface IModalAction {
-	onAction: VoidFunction;
-	text?: string;
+  onAction: VoidFunction;
+  text?: string;
 }
 
 export interface IActionButtonsProps {
-	primary?: IModalAction;
-	cancel?: IModalAction;
+  primary?: IModalAction;
+  cancel?: IModalAction;
 }

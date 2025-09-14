@@ -1,9 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 const IngoCccountsPage: React.FC = () => {
-  return (
-	 <main>IngoCccountsPage</main>
-  )
-}
+  return <main>IngoCccountsPage</main>;
+};
 
-export default IngoCccountsPage
+export default IngoCccountsPage;
