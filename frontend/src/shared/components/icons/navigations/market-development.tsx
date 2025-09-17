@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { CIconProps } from '../types';
 
-export const MarketDevelopmentKRIcon: React.FC<CIconProps> = React.memo(
+export const MarketDevelopmentIcon: React.FC<CIconProps> = React.memo(
   ({ color = 'currentColor', size = 24 }) => {
     return (
       <svg
@@ -21,4 +21,4 @@ export const MarketDevelopmentKRIcon: React.FC<CIconProps> = React.memo(
   }
 );
 
-MarketDevelopmentKRIcon.displayName = '_MarketDevelopmentKRIcon_';
+MarketDevelopmentIcon.displayName = '_MarketDevelopmentIcon_';

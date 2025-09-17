@@ -1,78 +1,109 @@
 @import 'tailwindcss';
 
 @theme {
-	--font-poppins: "Poppins", sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
 
-	/* !Colors */
+  /* !Colors */
 
-	--color-primary: #002496;
-	--color-danger: #D34645;
-	--color-default: #f0f0f0;
+  --color-primary: #002496;
+  --color-secondary: #E97030;
+  --color-danger: #d34645;
+  --color-default: #f0f0f0;
 
-	--color-c1: #171923;
-	/* default text color */
+  --color-c1: #171923;
+  /* default text color */
 
-	--color-c1__1: #718096;
-	/* secondary text color */
+  --color-c1__1: #718096;
+  /* secondary text color */
 
-	--color-c1__2: #1C4532;
-	/* tertiary text color */
+  --color-c1__2: #1c4532;
+  /* tertiary text color */
 
-	--color-c1__3: #4A5568;
-	/* placeholder color */
+  --color-c1__3: #4a5568;
+  /* placeholder color */
 
-	--color-c2: #F2F2F2;
-	/* default background color */
+  --color-c2: #f2f2f2;
+  /* default background color */
 
-	--color-c3: #E2E8F0;
-	/* default border color */
-	--color-c3__1: #CBD5E0;
-	/* secondary border color */
+  --color-c3: #e2e8f0;
+  /* default border color */
+  --color-c3__1: #cbd5e0;
+  /* secondary border color */
 }
 
 :root {
-
-	font-family: 'Gotham Pro', Arial, Helvetica, sans-serif;
-	color: var(--color-c1);
+  font-family: 'Gotham Pro', Arial, Helvetica, sans-serif;
+  color: var(--color-c1);
 }
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 body {
-	background: var(--color-c2);
+  background: var(--color-c2);
 }
 
 button {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .ls-base {
-	letter-spacing: -0.7%;
+  letter-spacing: -0.7%;
 }
 
 @utility flexCenter {
-	@apply flex items-center justify-center;
+  @apply flex items-center justify-center;
 }
 
 @utility b_input {
 
-	&:-webkit-autofill,
-	&:-webkit-autofill:hover,
-	&:-webkit-autofill:focus,
-	&:-webkit-autofill:active {
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: var(--current-color, var(--color-c1));
-		transition: background-color 5000s ease-in-out 0s;
-		box-shadow: inset 0 0 1.4rem 1.4rem transparent;
-	}
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: var(--current-color, var(--color-c1));
+    transition: background-color 5000s ease-in-out 0s;
+    box-shadow: inset 0 0 1.4rem 1.4rem transparent;
+  }
 }
 
 .overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
-	z-index: 80;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 80;
+}
+
+.wrapper {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+  height: 100%;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+
+  & main {
+    padding: 24px;
+    width: 100%;
+    overflow-y: scroll;
+    max-height: 100vh;
+
+    &::-webkit-scrollbar {
+      width: 0;
+    }
+  }
+}
+
+
+.recharts-wrapper:focus,
+.recharts-wrapper svg:focus {
+  outline: none;
+  border: none;
 }

@@ -2,11 +2,12 @@ import { routePaths } from '#/shared/router';
 
 import {
   HomeIcon,
-  MarketDevelopmentKRIcon,
+  MarketDevelopmentIcon,
   PrimarySalesIcon,
   SecondarySalesIcon,
   VisitActivityIcon,
 } from '../components/icons';
+import { Icon } from '../components/ui/icon';
 import type { SessionRole } from '../types';
 
 export interface INavigationItem {
@@ -33,9 +34,9 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
       icon: <SecondarySalesIcon />,
     },
     {
-      href: routePaths.customer.marketDevelopmentKR,
+      href: routePaths.customer.marketDevelopment,
       label: 'Развитие рынков КР',
-      icon: <MarketDevelopmentKRIcon />,
+      icon: <MarketDevelopmentIcon />,
     },
     {
       href: routePaths.customer.visitActivity,
@@ -47,44 +48,44 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
     {
       href: routePaths.administrator.ingoAccounts,
       label: 'Учетные записи Индиго',
-      icon: 'mdi:account-multiple',
+      icon: <Icon name="mdi:account-multiple" />,
     },
     {
       href: routePaths.administrator.clientAccounts,
       label: 'Учетные записи Клиентов',
-      icon: 'mdi:account-group',
+      icon: <Icon name="mdi:account-group" />,
     },
     {
       href: routePaths.administrator.companyManagement,
       label: 'Управление компаниями',
-      icon: 'mdi:office-building',
+      icon: <Icon name="mdi:office-building" />,
     },
     {
       href: routePaths.administrator.settingsAdmin,
       label: 'Настройки',
-      icon: 'mdi:cog',
+      icon: <Icon name="mdi:cog" />,
     },
   ],
   operator: [
     {
       href: routePaths.operator.dbWork,
       label: 'Работа с БД',
-      icon: 'mdi:database',
+      icon: <Icon name="mdi:database" />,
     },
     {
       href: routePaths.operator.referenceWork,
       label: 'Работа со справочниками',
-      icon: 'mdi:book-open-page-variant',
+      icon: <Icon name="mdi:book-open-page-variant" />,
     },
     {
       href: routePaths.operator.logs,
       label: 'Посмотреть логи от...',
-      icon: 'mdi:file-document-outline',
+      icon: <Icon name="mdi:file-document-outline" />,
     },
     {
       href: routePaths.operator.settingsOperator,
       label: 'Настройки',
-      icon: 'mdi:cog',
+      icon: <Icon name="mdi:cog" />,
     },
   ],
 };

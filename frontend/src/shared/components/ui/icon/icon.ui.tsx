@@ -9,8 +9,8 @@ const Icon: React.FC<IIconProps> = React.memo(({ name, ...props }) => {
     <IconifyIcon
       icon={name}
       className={props.className}
-      width={props.size}
-      height={props.size}
+      width={props.size || 24}
+      height={props.size || 24}
       {...props}
     />
   );

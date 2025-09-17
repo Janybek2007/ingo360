@@ -5,13 +5,13 @@ import { Outlet } from 'react-router';
 import { SessionProvider } from '#/shared/session';
 
 const RootLayout: React.FC = () => {
-	return (
-		<NuqsAdapter>
-			<SessionProvider>
-				<Outlet />
-			</SessionProvider>
-		</NuqsAdapter>
-	);
+  return (
+    <NuqsAdapter>
+      <SessionProvider>
+        <Outlet />
+      </SessionProvider>
+    </NuqsAdapter>
+  );
 };
 
 export default RootLayout;

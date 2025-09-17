@@ -7,11 +7,11 @@ import { ReactQueryProvider } from '../shared/libs/react-query';
 import { BootstrappedRouter } from './browser-router';
 
 const Application: React.FC = () => {
-	return (
-		<ReactQueryProvider>
-			<BootstrappedRouter />
-		</ReactQueryProvider>
-	);
+  return (
+    <ReactQueryProvider>
+      <BootstrappedRouter />
+    </ReactQueryProvider>
+  );
 };
 
 export default Application;

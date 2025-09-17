@@ -1,6 +1,7 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 
+import { useRouter } from '../hooks/use-router';
 import { routePaths } from '../router';
 import type { SessionRole } from '../types';
 import { useSession } from './session.context';
@@ -18,7 +19,7 @@ export const CheckSession: React.FC<CheckSessionProps> = ({
 }) => {
   const { user } = useSession();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { navigate } = useRouter();
 
   React.useEffect(() => {
     const isAuthPage = pathname.startsWith('/auth');

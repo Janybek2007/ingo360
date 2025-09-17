@@ -14,7 +14,7 @@ export const routePaths = {
     home: '/',
     primarySales: '/primary-sales',
     secondarySales: '/secondary-sales',
-    marketDevelopmentKR: '/market-development-kr',
+    marketDevelopment: '/market-development',
     visitActivity: '/visit-activity',
   },
 

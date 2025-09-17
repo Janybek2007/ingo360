@@ -11,7 +11,10 @@ export const Sidebar: React.FC<{ navigations: INavigationItem[] }> = React.memo(
     const isActive = useActivePath();
 
     return (
-      <aside className="w-[300px] border-r border-c3 bg-white h-screen py-8 px-6 flex flex-col">
+      <aside
+        id="sidebar"
+        className="min-w-[300px] max-w-[300px] border-r border-c3 bg-white h-screen py-8 px-6 flex flex-col"
+      >
         <div className="mb-8">
           <img
             src={Assets.Logo}
