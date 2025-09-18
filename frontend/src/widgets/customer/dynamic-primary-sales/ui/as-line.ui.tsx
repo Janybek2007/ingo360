@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   CartesianGrid,
   LabelList,
@@ -9,10 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { PageSection } from '#/shared/components/page-section';
-import { Colors } from '#/shared/constants/colors';
 import { Month } from '#/shared/constants/months';
-import { useSize } from '#/shared/hooks/use-size';
 
 const yearlyData: Record<
   number,
@@ -48,36 +45,13 @@ const yearlyData: Record<
   ],
 };
 
-export const DynamicPartialSales: React.FC = React.memo(() => {
-  const years = [2024, 2025];
-  const [selectedYear, setSelectedYear] = useState(2024);
-  const mainSize = useSize('main');
-
-  return (
-    <PageSection
-      title="Динамика привычных продаж"
-      titleBadge={{ label: '↗ 41.67%', color: '#1CC741' }}
-      legends={[{ label: 'Первичные продажи', fill: '#0B5A7C' }]}
-      headerEnd={
-        <select
-          className="border px-3 py-1 rounded cursor-pointer"
-          value={selectedYear}
-          onChange={e => setSelectedYear(Number(e.target.value))}
-        >
-          {years.map(year => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
-      }
-      background="white"
-      variant="background"
-    >
-      <div>
+export const DynamicPrimarySalesAsLine: React.FC<{ year: number }> = React.memo(
+  ({ year: selectedYear }) => {
+    return (
+      <div className="font-poppins">
         <LineChart
           className="-ml-4"
-          width={mainSize.width - 80}
+          width={1064}
           height={300}
           data={yearlyData[selectedYear]}
           margin={{ top: 20, right: 16, bottom: 20 }}
@@ -89,6 +63,7 @@ export const DynamicPartialSales: React.FC = React.memo(() => {
             axisLine={false}
             tickLine={false}
             tickMargin={20}
+            className="text-base text-[#474B4E] leading-full font-normal"
             padding={{ left: 20, right: 20 }}
           />
 
@@ -97,6 +72,7 @@ export const DynamicPartialSales: React.FC = React.memo(() => {
             ticks={[0, 2, 4, 6, 8, 10]}
             axisLine={false}
             tickLine={false}
+            className="text-base text-[#474B4E] leading-full font-normal"
             tickMargin={20}
           />
 
@@ -105,7 +81,7 @@ export const DynamicPartialSales: React.FC = React.memo(() => {
           <Line
             type="linear"
             dataKey="value"
-            stroke={Colors.PRIMARY}
+            stroke={'#0B5A7C'}
             strokeWidth={3}
             dot={false}
             activeDot={{ r: 6 }}
@@ -118,8 +94,8 @@ export const DynamicPartialSales: React.FC = React.memo(() => {
           </Line>
         </LineChart>
       </div>
-    </PageSection>
-  );
-});
+    );
+  }
+);
 
-DynamicPartialSales.displayName = '_DynamicPartialSales_';
+DynamicPrimarySalesAsLine.displayName = '_DynamicPrimarySalesAsLine_';

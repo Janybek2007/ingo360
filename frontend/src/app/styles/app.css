@@ -12,13 +12,10 @@
 
   --color-c1: #171923;
   /* default text color */
-
   --color-c1__1: #718096;
   /* secondary text color */
-
   --color-c1__2: #1c4532;
   /* tertiary text color */
-
   --color-c1__3: #4a5568;
   /* placeholder color */
 
@@ -29,6 +26,8 @@
   /* default border color */
   --color-c3__1: #cbd5e0;
   /* secondary border color */
+  --color-c3__2: #F1F1F1;
+  /* tertiary border color */
 }
 
 :root {
@@ -67,6 +66,11 @@ button {
   }
 }
 
+
+@utility leading-full {
+  line-height: 100%
+}
+
 .overlay {
   position: absolute;
   top: 0;
@@ -89,11 +93,12 @@ button {
   width: 100%;
   margin: 0 auto;
 
+
   & main {
     padding: 24px;
     width: 100%;
-    overflow-y: scroll;
     max-height: 100vh;
+    overflow-y: scroll;
 
     &::-webkit-scrollbar {
       width: 0;

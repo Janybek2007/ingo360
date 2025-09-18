@@ -10,7 +10,9 @@ const CustomerLayout: React.FC<React.PropsWithChildren> = () => {
     <CheckSession userRole="customer">
       <div className="flex items-start">
         <Sidebar navigations={roleNavigations.customer} />
-        <Outlet />
+        <div className="flex flex-col items-start w-full">
+          <Outlet />
+        </div>
       </div>
     </CheckSession>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 
-const MarketDevelopment: React.FC = () => {
+const MarketDevelopmentPage: React.FC = () => {
   return <main>Market Development Page</main>;
 };
 
-export default MarketDevelopment;
+export default MarketDevelopmentPage;
