@@ -9,8 +9,14 @@ import { BootstrappedRouter } from './browser-router';
 const Application: React.FC = () => {
   return (
     <ReactQueryProvider>
+      {/* <ExpHeader />
+      <div className='flex gap-2'>
+        <CompanyRate />
+        <SalesTable />
+      </div> */}
       <BootstrappedRouter />
     </ReactQueryProvider>
+    // <ForgotPassword/>
   );
 };
 
