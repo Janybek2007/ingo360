@@ -13,4 +13,5 @@ export interface IPageSectionProps extends React.PropsWithChildren {
   variant?: 'background' | 'border';
   headerEnd?: React.ReactNode;
   viewHeader?: boolean;
+  isGroupped?: boolean;
 }

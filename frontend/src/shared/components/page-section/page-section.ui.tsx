@@ -14,16 +14,26 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
     variant = 'background',
     viewHeader = true,
     titleBadge,
+    isGroupped = false,
   }) => {
-    const sectionClassName = cn('w-full rounded-xl overflow-hidden', {
+    const sectionClassName = cn('w-full overflow-hidden', {
       'bg-c2': variant === 'background' && background === 'default',
       'bg-white': variant === 'background' && background === 'white',
-      'border border-c3__1': variant === 'border',
+      'border border-c3__2': variant === 'border',
+      'space-y-6 rounded-lg': isGroupped,
+      'rounded-xl': !isGroupped,
     });
 
+    const GruoppedTag = isGroupped ? 'div' : 'section';
+
     return (
-      <section className={sectionClassName}>
-        <div className="w-full p-5 flex flex-col gap-7">
+      <GruoppedTag className={cn(sectionClassName)}>
+        <div
+          className={cn(
+            'w-full flex flex-col gap-7',
+            isGroupped ? 'p-4' : 'p-6'
+          )}
+        >
           {viewHeader && (title || legends || headerEnd) && (
             <div className="flex items-center justify-between gap-2">
               <div className="flex flex-col">
@@ -51,7 +61,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
                           className="inline-block size-[15px] rounded-full"
                           style={{ backgroundColor: l.fill }}
                         ></span>
-                        <span className="text-[#888888] font-normal text-sm leading-[100%] -tracking-[0.2px]">
+                        <span className="text-[#888888] font-normal text-sm leading-full -tracking-[0.2px]">
                           {l.label}
                         </span>
                       </li>
@@ -64,7 +74,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
           )}
           {children}
         </div>
-      </section>
+      </GruoppedTag>
     );
   }
 );

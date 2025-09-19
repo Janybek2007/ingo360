@@ -9,9 +9,7 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
-import { Colors } from '#/shared/constants/colors';
 import { Month } from '#/shared/constants/months';
-import { useSize } from '#/shared/hooks/use-size';
 
 const yearlyData: Record<
   number,
@@ -50,7 +48,6 @@ const yearlyData: Record<
 export const DynamicSales: React.FC = React.memo(() => {
   const years = [2024, 2025];
   const [selectedYear, setSelectedYear] = useState(2024);
-  const mainSize = useSize('main');
 
   return (
     <PageSection
@@ -75,10 +72,10 @@ export const DynamicSales: React.FC = React.memo(() => {
       background="white"
       variant="background"
     >
-      <div>
+      <div className="font-poppins">
         <LineChart
           className="-ml-4"
-          width={mainSize.width - 80}
+          width={1064}
           height={300}
           data={yearlyData[selectedYear]}
           margin={{ top: 20, right: 16, bottom: 20 }}
@@ -89,6 +86,7 @@ export const DynamicSales: React.FC = React.memo(() => {
             axisLine={false}
             tickLine={false}
             tickMargin={20}
+            className="text-base font-normal text-[#474B4E] leading-full"
             padding={{ left: 20, right: 20 }}
           />
           <YAxis
@@ -96,20 +94,21 @@ export const DynamicSales: React.FC = React.memo(() => {
             ticks={[0, 2, 4, 6, 8, 10]}
             axisLine={false}
             tickLine={false}
+            className="text-base font-normal text-[#474B4E] leading-full"
             tickMargin={20}
           />
           <Tooltip />
           <Line
             type="linear"
             dataKey="primaryValue"
-            stroke={Colors.PRIMARY}
+            stroke={'#0B5A7C'}
             strokeWidth={3}
             activeDot={{ r: 6 }}
           />
           <Line
             type="linear"
             dataKey="secondaryValue"
-            stroke={Colors.SECONDARY}
+            stroke={'#E97030'}
             strokeWidth={3}
             activeDot={{ r: 6 }}
           />

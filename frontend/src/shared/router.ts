@@ -13,6 +13,7 @@ export const routePaths = {
   customer: {
     home: '/',
     primarySales: '/primary-sales',
+    tertiarySales: '/tertiary-sales',
     secondarySales: '/secondary-sales',
     marketDevelopment: '/market-development',
     visitActivity: '/visit-activity',

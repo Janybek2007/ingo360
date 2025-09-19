@@ -1,12 +1,5 @@
 import { routePaths } from '#/shared/router';
 
-import {
-  HomeIcon,
-  MarketDevelopmentIcon,
-  PrimarySalesIcon,
-  SecondarySalesIcon,
-  VisitActivityIcon,
-} from '../components/icons';
 import { Icon } from '../components/ui/icon';
 import type { SessionRole } from '../types';
 
@@ -21,27 +14,32 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
     {
       href: routePaths.customer.home,
       label: 'Главная',
-      icon: <HomeIcon />,
+      icon: <Icon name="lucide:layout-dashboard" />,
     },
     {
       href: routePaths.customer.primarySales,
       label: 'Первичные продажи',
-      icon: <PrimarySalesIcon />,
+      icon: <Icon name="solar:chart-2-bold" />,
     },
     {
       href: routePaths.customer.secondarySales,
+      label: 'Вторичные продажи',
+      icon: <Icon name="charm:chart-bar" />,
+    },
+    {
+      href: routePaths.customer.tertiarySales,
       label: 'Третичные продажи',
-      icon: <SecondarySalesIcon />,
+      icon: <Icon name="fluent:arrow-trending-lines-24-regular" />,
     },
     {
       href: routePaths.customer.marketDevelopment,
       label: 'Развитие рынков КР',
-      icon: <MarketDevelopmentIcon />,
+      icon: <Icon name="fluent:data-trending-16-regular" />,
     },
     {
       href: routePaths.customer.visitActivity,
       label: 'Анализ визитной активности',
-      icon: <VisitActivityIcon />,
+      icon: <Icon name="material-symbols:analytics-rounded" />,
     },
   ],
   administrator: [

@@ -1,7 +1,13 @@
 import React from 'react';
 
-const SecondarySales: React.FC = () => {
-  return <main>Secondary Sales Page</main>;
+import { DynamicSecondarySales } from '#/widgets/customer/dynamic-secondary-sales';
+
+const SecondarySalesPage: React.FC = () => {
+  return (
+    <main>
+      <DynamicSecondarySales />
+    </main>
+  );
 };
 
-export default SecondarySales;
+export default SecondarySalesPage;

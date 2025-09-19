@@ -4,6 +4,7 @@ import { homePageRoute } from '../pages/home';
 import { marketDevelopmentPageRoute } from '../pages/market-development';
 import { primarySalesPageRoute } from '../pages/primary-sales';
 import { secondarySalesPageRoute } from '../pages/secondary-sales';
+import { tertiarySalesPageRoute } from '../pages/tertiary-sales';
 import { visitActivityPageRoute } from '../pages/visit-activity';
 
 export const customerLayoutRoute: RouteObject = {
@@ -17,6 +18,7 @@ export const customerLayoutRoute: RouteObject = {
     homePageRoute,
     primarySalesPageRoute,
     secondarySalesPageRoute,
+    tertiarySalesPageRoute,
     marketDevelopmentPageRoute,
     visitActivityPageRoute,
   ],

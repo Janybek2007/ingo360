@@ -6,19 +6,16 @@
   /* !Colors */
 
   --color-primary: #002496;
-  --color-secondary: #E97030;
+  --color-secondary: #e97030;
   --color-danger: #d34645;
   --color-default: #f0f0f0;
 
   --color-c1: #171923;
   /* default text color */
-
   --color-c1__1: #718096;
   /* secondary text color */
-
   --color-c1__2: #1c4532;
   /* tertiary text color */
-
   --color-c1__3: #4a5568;
   /* placeholder color */
 
@@ -29,6 +26,8 @@
   /* default border color */
   --color-c3__1: #cbd5e0;
   /* secondary border color */
+  --color-c3__2: #f1f1f1;
+  /* tertiary border color */
 }
 
 :root {
@@ -55,7 +54,6 @@ button {
 }
 
 @utility b_input {
-
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus,
@@ -65,6 +63,10 @@ button {
     transition: background-color 5000s ease-in-out 0s;
     box-shadow: inset 0 0 1.4rem 1.4rem transparent;
   }
+}
+
+@utility leading-full {
+  line-height: 100%;
 }
 
 .overlay {
@@ -92,15 +94,14 @@ button {
   & main {
     padding: 24px;
     width: 100%;
-    overflow-y: scroll;
     max-height: 100vh;
+    overflow-y: scroll;
 
     &::-webkit-scrollbar {
       width: 0;
     }
   }
 }
-
 
 .recharts-wrapper:focus,
 .recharts-wrapper svg:focus {
