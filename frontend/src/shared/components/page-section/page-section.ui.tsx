@@ -6,12 +6,10 @@ import type { IPageSectionProps } from './page-section.types';
 
 export const PageSection: React.FC<IPageSectionProps> = React.memo(
   ({
-    background = 'white',
     children,
     headerEnd,
     legends,
     title,
-    variant = 'background',
     viewHeader = true,
     titleBadge,
     isGroupped = false,
@@ -19,13 +17,13 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
     beforeHeader,
     afterHeader,
   }) => {
-    const sectionClassName = cn('w-full max-w-[1096px] overflow-hidden', {
-      'bg-c2': variant === 'background' && background === 'default',
-      'bg-white': variant === 'background' && background === 'white',
-      'border border-[#E4E4E4] bg-c2': variant === 'border',
-      'space-y-6 rounded-lg': isGroupped,
-      'rounded-xl': !isGroupped,
-    });
+    const sectionClassName = cn(
+      'w-full max-w-[1096px] overflow-hidden bg-white',
+      {
+        'space-y-6 rounded-lg': isGroupped,
+        'rounded-xl': !isGroupped,
+      }
+    );
 
     const GruoppedTag = isGroupped ? 'div' : 'section';
 
@@ -42,12 +40,12 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
             (beforeHeader || afterHeader || title || legends || headerEnd) && (
               <div className="flex flex-col gap-6">
                 {beforeHeader}
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-0">
                   <div className="flex flex-col">
                     {title && (
                       <h4
                         className={cn(
-                          'font-normal text-xl leading-9 text-[#1D170F]',
+                          'font-normal text-xl leading-6 text-[#1D170F]',
                           classNames?.title
                         )}
                       >

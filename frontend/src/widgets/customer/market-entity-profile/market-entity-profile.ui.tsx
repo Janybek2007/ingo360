@@ -1,16 +1,13 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
+import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
-const ETabs = {
-  COMPANIES: 'companies',
-  BRANDS: 'brands',
-  SEGMENTS: 'segments',
-} as const;
+type ETabs = 'companies' | 'brands' | 'segments';
 
 interface TableRow {
   place: number;
@@ -35,12 +32,17 @@ const COMPANIES = [
 
 const STATUSES = ['Active', 'Pending', 'Inactive', 'Completed'] as const;
 
+const tabItems: { value: ETabs; label: string }[] = [
+  { value: 'companies', label: 'Компании' },
+  { value: 'brands', label: 'Бренды' },
+  { value: 'segments', label: 'Сегменты' },
+];
+
 export const MarketEntityProfile: React.FC = React.memo(() => {
-  const tabItems = [
-    { value: ETabs.COMPANIES, label: 'Компании' },
-    { value: ETabs.BRANDS, label: 'Бренды' },
-    { value: ETabs.SEGMENTS, label: 'Сегменты' },
-  ];
+  const [activeTab, setActiveTab] = useState<ETabs>('companies');
+  const [filterType, setFilterType] = useState<string>('');
+  const [filterPeriod, setFilterPeriod] = useState<string>('');
+  const [filterTop, setFilterTop] = useState<string>('');
 
   const data = useMemo(
     () =>
@@ -75,15 +77,43 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
     <PageSection
       title="Профайл компании, бренда или сегмента"
       headerEnd={
-        <div className="flex gap-4 items-center">
-          <button className="border rounded px-2 py-1">Тип компании</button>
-          <button className="border rounded px-2 py-1">Период</button>
-          <button className="border rounded px-2 py-1">Топ 10</button>
+        <div className="flex gap-4 items-center relative z-100">
+          <Select
+            value={filterType}
+            setValue={setFilterType}
+            items={[
+              { value: 'type1', label: 'Тип 1' },
+              { value: 'type2', label: 'Тип 2' },
+            ]}
+            triggerText="Тип компании"
+            classNames={{ menu: 'min-w-[150px] right-0' }}
+          />
+          <Select
+            value={filterPeriod}
+            setValue={setFilterPeriod}
+            items={[
+              { value: '2023', label: '2023' },
+              { value: '2024', label: '2024' },
+            ]}
+            triggerText="Период"
+            classNames={{ menu: 'min-w-[120px] right-0' }}
+          />
+          <Select
+            value={filterTop}
+            setValue={setFilterTop}
+            items={[
+              { value: 'top5', label: 'Топ 5' },
+              { value: 'top10', label: 'Топ 10' },
+            ]}
+            triggerText="Топ 10"
+            classNames={{ menu: 'min-w-[120px] right-0' }}
+          />
         </div>
       }
       classNames={{ wrapper: 'gap-3' }}
       afterHeader={
         <Tabs
+          saveCurrent={current => setActiveTab(current as ETabs)}
           classNames={{ tabs: 'p-0 rounded-none border-none' }}
           items={tabItems}
         />
@@ -92,7 +122,12 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
       <div className="flex items justify-between h-full font-inter">
         <div className="max-w-[340px] min-w-[340px] flex flex-col justify-between text-[#131313]">
           <h4 className="font-semibold text-xl leading-full -tracking-[0.2px]">
-            Рейтинг компаний
+            Рейтинг{' '}
+            {activeTab === 'companies'
+              ? 'компаний'
+              : activeTab === 'brands'
+                ? 'брендов'
+                : 'сегментов'}
           </h4>
           <div>
             <div className="flex flex-col items-center w-full gap-[18px]">

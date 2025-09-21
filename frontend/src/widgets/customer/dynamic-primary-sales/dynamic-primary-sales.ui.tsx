@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
 import { PageSection } from '#/shared/components/page-section';
+import { Icon } from '#/shared/components/ui/icon';
+import { Select } from '#/shared/components/ui/select';
 
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
 import { DynamicPrimarySalesAsMixed } from './ui/as-mixed.ui';
@@ -27,20 +29,20 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
         }
         legends={AsLegends[as]}
         headerEnd={
-          <select
-            className="border px-3 py-1 rounded cursor-pointer"
-            value={selectedYear}
-            onChange={e => setSelectedYear(Number(e.target.value))}
-          >
-            {years.map(year => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+          <div>
+            <Select<false, number>
+              triggerText={'Год'}
+              items={years.map(y => ({ label: String(y), value: String(y) }))}
+              value={selectedYear}
+              setValue={newValue => setSelectedYear(newValue)}
+              rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+              classNames={{
+                trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+                menu: 'w-full right-0',
+              }}
+            />
+          </div>
         }
-        background="white"
-        variant={as === 'mixed' ? 'border' : 'background'}
       >
         {as == 'line' ? (
           <DynamicPrimarySalesAsLine year={selectedYear} />

@@ -100,8 +100,6 @@ export const SecondarySales: React.FC = React.memo(() => {
           </button>
         </div>
       }
-      variant="background"
-      background="white"
     >
       <Table<SecondarySalesRow>
         columns={columns}

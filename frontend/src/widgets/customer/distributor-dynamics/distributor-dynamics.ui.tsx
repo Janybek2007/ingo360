@@ -10,7 +10,6 @@ import {
 
 import { PageSection } from '#/shared/components/page-section';
 
-// Генерация уникальных данных для каждого дистрибутора
 const distributorsData = [
   { name: 'Эрай', color: '#156082' },
   { name: 'Неман', color: '#E97132' },
@@ -37,8 +36,6 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     <PageSection
       title="Динамика вторичных продаж по дистрам (в сравнении)"
       legends={distributorsData.map(d => ({ label: d.name, fill: d.color }))}
-      background="white"
-      variant="background"
     >
       <div className="font-inter">
         <LineChart

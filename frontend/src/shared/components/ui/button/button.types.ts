@@ -13,5 +13,5 @@ export interface IButtonProps extends React.PropsWithChildren {
   iconStart?: IIconProps | string;
   iconEnd?: IIconProps | string;
   className?: string;
-  ariaLabel: string;
+  ariaLabel?: string;
 }

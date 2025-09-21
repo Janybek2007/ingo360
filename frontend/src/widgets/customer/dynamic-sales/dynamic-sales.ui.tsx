@@ -69,8 +69,6 @@ export const DynamicSales: React.FC = React.memo(() => {
           ))}
         </select>
       }
-      background="white"
-      variant="background"
     >
       <div className="font-inter">
         <LineChart

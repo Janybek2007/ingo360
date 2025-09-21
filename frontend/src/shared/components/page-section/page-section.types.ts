@@ -11,8 +11,6 @@ export interface IPageSectionProps extends React.PropsWithChildren {
   afterHeader?: React.ReactNode;
   titleBadge?: { label: string; color: string };
   legends?: LegendItem[];
-  background?: 'default' | 'white';
-  variant?: 'background' | 'border';
   headerEnd?: React.ReactNode;
   viewHeader?: boolean;
   isGroupped?: boolean;

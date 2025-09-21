@@ -1,8 +1,12 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
+import { Select } from '#/shared/components/ui/select';
+import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface VisitRow {
@@ -24,6 +28,30 @@ const GROUPS = ['-', 'Группа 1', 'Группа 2'];
 
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
+
+  const allColumns: ColumnDef<VisitRow>[] = useMemo(
+    () => [
+      { accessorKey: 'lpu', header: 'ЛПУ', meta: { width: 124 } },
+      { accessorKey: 'year', header: 'Год', meta: { width: 130 } },
+      { accessorKey: 'month', header: 'Месяц', meta: { width: 130 } },
+      {
+        accessorKey: 'specialty',
+        header: 'Специальность',
+        meta: { width: 190 },
+      },
+      { accessorKey: 'employee', header: 'Сотрудник', meta: { width: 159 } },
+      { accessorKey: 'group', header: 'Группа', meta: { width: 220 } },
+      {
+        accessorKey: 'visitsTotal',
+        header: 'Визитов всего',
+        meta: { width: 150 },
+      },
+    ],
+    []
+  );
+
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility(allColumns);
 
   const data = useMemo(() => {
     const allData = generateMocks(20, {
@@ -47,71 +75,26 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     );
   }, [search]);
 
-  const columns = useMemo<ColumnDef<VisitRow>[]>(
-    () => [
-      {
-        accessorKey: 'lpu',
-        header: 'ЛПУ',
-        meta: { width: 124 },
-      },
-      {
-        accessorKey: 'year',
-        header: 'Год',
-        meta: { width: 130 },
-      },
-      {
-        accessorKey: 'month',
-        header: 'Месяц',
-        meta: { width: 130 },
-      },
-      {
-        accessorKey: 'specialty',
-        header: 'Специальность',
-        meta: { width: 190 },
-      },
-      {
-        accessorKey: 'employee',
-        header: 'Сотрудник',
-        meta: { width: 159 },
-      },
-      {
-        accessorKey: 'group',
-        header: 'Группа',
-        meta: { width: 220 },
-      },
-      {
-        accessorKey: 'visitsTotal',
-        header: 'Визитов всего',
-        meta: { width: 150 },
-      },
-    ],
-    []
-  );
-
   return (
     <PageSection
       title="Сумма визитов за выбранный период"
-      variant="background"
-      background="white"
       headerEnd={
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Поиск"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border rounded px-2 py-1"
+        <div className="flex items-center gap-4 relative z-100">
+          <SearchInput saveValue={setSearch} />
+          <Select<true>
+            value={visibleColumns}
+            setValue={setVisibleColumns}
+            items={columnItems}
+            triggerText="Столбцы"
+            checkbox
+            classNames={{ menu: 'min-w-[180px] right-0' }}
           />
-          <button className="border rounded px-2 py-1">Фильтр</button>
-          <button className="border rounded px-2 py-1">Столбцы</button>
-          <button className="border rounded px-2 py-1">
-            Выгрузить в Excel
-          </button>
+          <ExportToExcelButton data={data} fileName="visits.xlsx" />
         </div>
       }
     >
       <Table<VisitRow>
-        columns={columns}
+        columns={columnsForTable}
         data={data}
         isScrollbar
         maxHeight={340}

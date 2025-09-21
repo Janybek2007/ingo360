@@ -34,7 +34,7 @@ export const LoginForm: React.FC = React.memo(() => {
       </div>
       <div className="flex items-center justify-between my-10 rounded">
         <div className="flex items-center gap-2">
-          <Checkbox name="remember-me" {...rememberMeBind} />
+          <Checkbox {...rememberMeBind} />
           <label htmlFor="remember-me_for" className="text-c1__1">
             Запомнить меня
           </label>

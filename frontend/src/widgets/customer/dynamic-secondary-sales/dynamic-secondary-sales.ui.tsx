@@ -32,8 +32,6 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
     <PageSection
       legends={[{ label: 'Вторичное значение', fill: '#E97030' }]}
       title="Динамика вторичных продаж"
-      background="white"
-      variant="background"
     >
       <div className="font-inter">
         <LineChart

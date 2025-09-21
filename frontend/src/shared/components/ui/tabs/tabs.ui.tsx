@@ -5,7 +5,7 @@ import { cn } from '#/shared/utils/cn';
 import type { ITabsProps } from './tabs.types';
 
 export const Tabs: React.FC<ITabsProps> = React.memo(
-  ({ items, children, classNames, defaultValue }) => {
+  ({ items, children, classNames, defaultValue, saveCurrent }) => {
     const [current, setCurrent] = React.useState(
       defaultValue || items[0].value
     );
@@ -36,7 +36,10 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
                   'hover:bg-primary/10',
                   isActive && 'border-primary bg-primary/10'
                 )}
-                onClick={() => setCurrent(t.value)}
+                onClick={() => {
+                  setCurrent(t.value);
+                  saveCurrent(t.value);
+                }}
               >
                 {t.label}
               </button>

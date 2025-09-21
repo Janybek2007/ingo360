@@ -4,7 +4,6 @@ export interface ICheckedBind {
 }
 
 export interface ICheckboxProps extends ICheckedBind {
-  name?: string;
   classNames?: Partial<{
     root: string;
   }>;

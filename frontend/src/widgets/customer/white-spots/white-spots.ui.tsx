@@ -1,8 +1,12 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
+import { Select } from '#/shared/components/ui/select';
+import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface WhiteSpotsRow {
@@ -12,10 +16,9 @@ interface WhiteSpotsRow {
   promoType: string;
   group: string;
   distributor: string;
-  months: number[]; // продажи по 12 месяцам
+  months: number[];
 }
 
-// Константы для генерации
 const SKUS = ['Товар 1', 'Товар 2', 'Товар 3'] as const;
 const BRANDS = ['Бренд 1', 'Бренд 2', 'Бренд 3'] as const;
 const PROMO_TYPES = ['Промо', 'Скидка', 'Акция'] as const;
@@ -25,28 +28,7 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 export const WhiteSpots: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const data = useMemo(() => {
-    const allData = generateMocks(10, {
-      id: () => randomId('retail'),
-      sku: SKUS,
-      brand: BRANDS,
-      promoType: PROMO_TYPES,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      months: () => randomArray(12, 5, 500), // продажи в упаковках
-    });
-
-    return allData.filter(
-      row =>
-        row.sku.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.toLowerCase().includes(search.toLowerCase()) ||
-        row.promoType.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search]);
-
-  const columns = useMemo<ColumnDef<WhiteSpotsRow>[]>(
+  const allColumns: ColumnDef<WhiteSpotsRow>[] = useMemo(
     () => [
       {
         accessorKey: 'sku',
@@ -81,37 +63,59 @@ export const WhiteSpots: React.FC = React.memo(() => {
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: WhiteSpotsRow) => row.months[i],
         id: `month${i + 1}`,
-        header: `2024`,
+        header: `Месяц ${i + 1}`,
         meta: { width: 70 },
       })),
     ],
     []
   );
 
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility(allColumns);
+
+  const data = useMemo(() => {
+    const allData = generateMocks(10, {
+      id: () => randomId('whitespot'),
+      sku: SKUS,
+      brand: BRANDS,
+      promoType: PROMO_TYPES,
+      group: GROUPS,
+      distributor: DISTRIBUTORS,
+      months: () => randomArray(12, 5, 500),
+    });
+
+    return allData.filter(
+      row =>
+        row.sku.toLowerCase().includes(search.toLowerCase()) ||
+        row.brand.toLowerCase().includes(search.toLowerCase()) ||
+        row.promoType.toLowerCase().includes(search.toLowerCase()) ||
+        row.group.toLowerCase().includes(search.toLowerCase()) ||
+        row.distributor.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search]);
+
   return (
     <PageSection
-      title="Анализ аптек где нет препарата (<1 ул)"
-      variant="background"
-      background="white"
+      title="Анализ аптек где нет препарата (&lt;1 ул)"
       headerEnd={
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Поиск"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border rounded px-2 py-1"
+        <div className="flex items-center gap-4 relative z-100">
+          <SearchInput saveValue={setSearch} />
+          <Select<true>
+            value={visibleColumns}
+            setValue={setVisibleColumns}
+            items={columnItems}
+            triggerText="Столбцы"
+            checkbox
+            classNames={{
+              menu: 'min-w-[180px] right-0',
+            }}
           />
-          <button className="border rounded px-2 py-1">Фильтр</button>
-          <button className="border rounded px-2 py-1">Столбцы</button>
-          <button className="border rounded px-2 py-1">
-            Выгрузить в Excel
-          </button>
+          <ExportToExcelButton data={data} fileName="white-spots.xlsx" />
         </div>
       }
     >
       <Table<WhiteSpotsRow>
-        columns={columns}
+        columns={columnsForTable}
         data={data}
         isScrollbar
         maxHeight={340}

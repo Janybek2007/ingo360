@@ -1,8 +1,12 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
+import { Select } from '#/shared/components/ui/select';
+import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { randomId } from '#/shared/utils/mock';
 
 interface MarketRow {
@@ -26,30 +30,7 @@ const DISTRIBUTORS = ['Эрай'] as const;
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const data = useMemo(() => {
-    const allData: MarketRow[] = SKUS.map(sku => ({
-      id: randomId('market'),
-      sku,
-      brand: BRANDS[0],
-      segment: PROMO_TYPES[0],
-      group: GROUPS[0],
-      distributor: DISTRIBUTORS[0],
-      YTD6M23: Math.floor(Math.random() * 10),
-      YTD6M24: Math.floor(Math.random() * 10),
-      YTD6M25: Math.floor(Math.random() * 10),
-    }));
-
-    return allData.filter(
-      row =>
-        row.sku.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.toLowerCase().includes(search.toLowerCase()) ||
-        row.segment.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search]);
-
-  const columns = useMemo<ColumnDef<MarketRow>[]>(
+  const allColumns: ColumnDef<MarketRow>[] = useMemo(
     () => [
       {
         accessorKey: 'sku',
@@ -103,30 +84,54 @@ export const MarketInsights: React.FC = React.memo(() => {
     []
   );
 
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility(allColumns);
+
+  const data = useMemo(() => {
+    const allData: MarketRow[] = SKUS.map(sku => ({
+      id: randomId('market'),
+      sku,
+      brand: BRANDS[0],
+      segment: PROMO_TYPES[0],
+      group: GROUPS[0],
+      distributor: DISTRIBUTORS[0],
+      YTD6M23: Math.floor(Math.random() * 10),
+      YTD6M24: Math.floor(Math.random() * 10),
+      YTD6M25: Math.floor(Math.random() * 10),
+    }));
+
+    return allData.filter(
+      row =>
+        row.sku.toLowerCase().includes(search.toLowerCase()) ||
+        row.brand.toLowerCase().includes(search.toLowerCase()) ||
+        row.segment.toLowerCase().includes(search.toLowerCase()) ||
+        row.group.toLowerCase().includes(search.toLowerCase()) ||
+        row.distributor.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search]);
+
   return (
     <PageSection
       title="Данные по рынкам"
-      variant="background"
-      background="white"
       headerEnd={
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Поиск"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border rounded px-2 py-1"
+        <div className="flex items-center gap-4 relative z-100">
+          <SearchInput saveValue={setSearch} />
+          <Select<true>
+            value={visibleColumns}
+            setValue={setVisibleColumns}
+            items={columnItems}
+            triggerText="Столбцы"
+            checkbox
+            classNames={{
+              menu: 'min-w-[180px] right-0',
+            }}
           />
-          <button className="border rounded px-2 py-1">Фильтр</button>
-          <button className="border rounded px-2 py-1">Столбцы</button>
-          <button className="border rounded px-2 py-1">
-            Выгрузить в Excel
-          </button>
+          <ExportToExcelButton data={data} fileName="market-insights.xlsx" />
         </div>
       }
     >
       <Table<MarketRow>
-        columns={columns}
+        columns={columnsForTable}
         data={data}
         isScrollbar
         maxHeight={340}

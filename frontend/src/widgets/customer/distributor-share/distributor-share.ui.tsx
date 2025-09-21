@@ -1,8 +1,12 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
+import { Select } from '#/shared/components/ui/select';
+import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface DistributorShareRow {
@@ -11,7 +15,7 @@ interface DistributorShareRow {
   brand: string;
   group: string;
   distributor: string;
-  months: number[]; // доли в % по 12 месяцам
+  months: number[];
 }
 
 const SKUS = ['Товар 1', 'Товар 2', 'Товар 3'] as const;
@@ -22,26 +26,7 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 export const DistributorShare: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const data = useMemo(() => {
-    const allData = generateMocks(10, {
-      id: () => randomId('share'),
-      sku: SKUS,
-      brand: BRANDS,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      months: () => randomArray(12, 5, 25), // доли в %
-    });
-
-    return allData.filter(
-      row =>
-        row.sku.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search]);
-
-  const columns = useMemo<ColumnDef<DistributorShareRow>[]>(
+  const allColumns: ColumnDef<DistributorShareRow>[] = useMemo(
     () => [
       {
         accessorKey: 'sku',
@@ -73,42 +58,63 @@ export const DistributorShare: React.FC = React.memo(() => {
           ({
             accessorFn: (row: DistributorShareRow) => row.months[i],
             id: `month${i + 1}`,
-            header: `2024`,
+            header: '2024',
             meta: { width: 70 },
-            cell: info => `${info.getValue()}%`, // отображение с %
+            cell: info => `${info.getValue()}%`,
           }) as ColumnDef<DistributorShareRow>
       ),
     ],
     []
   );
 
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility(allColumns);
+
+  const data = useMemo(() => {
+    const allData = generateMocks(10, {
+      id: () => randomId('share'),
+      sku: SKUS,
+      brand: BRANDS,
+      group: GROUPS,
+      distributor: DISTRIBUTORS,
+      months: () => randomArray(12, 5, 25),
+    });
+
+    return allData.filter(
+      row =>
+        row.sku.toLowerCase().includes(search.toLowerCase()) ||
+        row.brand.toLowerCase().includes(search.toLowerCase()) ||
+        row.group.toLowerCase().includes(search.toLowerCase()) ||
+        row.distributor.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search]);
+
   return (
     <PageSection
       title="Доли Дистров %"
       classNames={{ title: 'font-medium' }}
       headerEnd={
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Search"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border rounded px-2 py-1"
+        <div className="flex items-center gap-4 relative z-100">
+          <SearchInput saveValue={setSearch} />
+          <Select<true>
+            value={visibleColumns}
+            setValue={setVisibleColumns}
+            items={columnItems}
+            triggerText="Столбцы"
+            checkbox
+            classNames={{
+              menu: 'min-w-[180px] right-0',
+            }}
           />
-          <button className="border rounded px-2 py-1">Фильтр</button>
-          <button className="border rounded px-2 py-1">Столбцы</button>
-          <button className="border rounded px-2 py-1">
-            Выгрузить в Excel
-          </button>
+          <ExportToExcelButton data={data} fileName="distributor-share.xlsx" />
         </div>
       }
-      variant="border"
-      background="default"
     >
       <Table<DistributorShareRow>
-        columns={columns}
+        columns={columnsForTable}
         data={data}
         isScrollbar
+        maxHeight={340}
         rounded="none"
       />
     </PageSection>
