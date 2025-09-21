@@ -42,7 +42,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const MixedChart: React.FC = () => {
   return (
-    <div className="font-poppins">
+    <div className="font-inter">
       <ComposedChart width={1000} height={400} data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="month" />
@@ -118,7 +118,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const StackedBarChart: React.FC = () => {
   return (
-    <div className="font-poppins">
+    <div className="font-inter">
       <BarChart width={1000} height={400} data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="month" />
@@ -184,7 +184,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const MultiLineChart: React.FC = () => {
   return (
-    <div className="font-poppins">
+    <div className="font-inter">
       <LineChart width={1000} height={400} data={data}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="month" axisLine={false} tickLine={false} />

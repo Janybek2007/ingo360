@@ -1,0 +1,89 @@
+import type { ColumnDef } from '@tanstack/react-table';
+import React, { useMemo } from 'react';
+
+import { Table } from '#/shared/components/table';
+import { generateMocks, randomId } from '#/shared/utils/mock';
+
+interface TableRow {
+  place: number;
+  company: string;
+  sales: number;
+  status: string;
+  lapseTime: string;
+}
+
+const COMPANIES = [
+  'Google',
+  'Apple',
+  'Microsoft',
+  'Amazon',
+  'Tesla',
+  'Meta',
+  'Adobe',
+  'Samsung',
+  'Nike',
+  'Coca-Cola',
+] as const;
+
+const STATUSES = ['Active', 'Pending', 'Inactive', 'Completed'] as const;
+
+export const LeaderBoard: React.FC = React.memo(() => {
+  const data = useMemo(
+    () =>
+      generateMocks(100, {
+        place: i => i + 1,
+        id: () => randomId('leader'),
+        company: COMPANIES,
+        sales: () => Math.floor(Math.random() * 10000),
+        status: STATUSES,
+        lapseTime: () =>
+          `${Math.floor(Math.random() * 24)}h ${Math.floor(Math.random() * 60)}m`,
+      }),
+    []
+  );
+
+  const columns = useMemo<ColumnDef<TableRow>[]>(
+    () => [
+      { accessorKey: 'place', header: 'Место', meta: { width: 59 } },
+      { accessorKey: 'company', header: 'Компания', meta: { width: 120 } },
+      { accessorKey: 'sales', header: 'Продажи', meta: { width: 100 } },
+      { accessorKey: 'status', header: 'Статус', meta: { width: 100 } },
+      { accessorKey: 'lapseTime', header: 'Время', meta: { width: 80 } },
+    ],
+    []
+  );
+
+  return (
+    <section className="bg-white rounded-lg">
+      <div className="flex items justify-between h-full font-inter">
+        <div className="max-w-[340px] min-w-[340px] px-5 py-6 flex flex-col justify-between text-[#131313]">
+          <h4 className="font-semibold text-xl leading-full -tracking-[0.2px]">
+            Рейтинг компаний
+          </h4>
+          <div>
+            <div className="flex flex-col items-center w-full gap-[18px]">
+              <span className="font-medium text-5xl leading-full -tracking-[0.2px]">
+                34
+              </span>
+              <p className="font-normal text-base leading-full -tracking-[0.2px]">
+                Ваше место в рейтинге
+              </p>
+            </div>
+          </div>
+          <div></div>
+        </div>
+        <div className="w-full">
+          <Table<TableRow>
+            highlightRow={row =>
+              row.place === 34 ? 'bg-yellow-100 font-bold' : ''
+            }
+            columns={columns}
+            data={data}
+          />
+        </div>
+      </div>
+    </section>
+  );
+});
+
+LeaderBoard.displayName = '_LeaderBoard_';

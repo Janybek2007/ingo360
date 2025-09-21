@@ -11,49 +11,30 @@ import {
 
 import { Month } from '#/shared/constants/months';
 
-const yearlyData: Record<
-  number,
-  { month: string; value: number; label: number }[]
-> = {
-  2024: [
-    { month: Month.JAN, value: 3.0, label: 300000 },
-    { month: Month.FEB, value: 4.0, label: 400000 },
-    { month: Month.MAR, value: 3.5, label: 350000 },
-    { month: Month.APR, value: 4.2, label: 420000 },
-    { month: Month.MAY, value: 5.5, label: 550000 },
-    { month: Month.JUN, value: 6.2, label: 620000 },
-    { month: Month.JUL, value: 3.8, label: 380000 },
-    { month: Month.AUG, value: 4.1, label: 410000 },
-    { month: Month.SEP, value: 4.8, label: 480000 },
-    { month: Month.OCT, value: 6.5, label: 650000 },
-    { month: Month.NOV, value: 5.9, label: 590000 },
-    { month: Month.DEC, value: 4.9, label: 490000 },
-  ],
-  2025: [
-    { month: Month.JAN, value: 2.8, label: 280000 },
-    { month: Month.FEB, value: 3.5, label: 350000 },
-    { month: Month.MAR, value: 4.2, label: 420000 },
-    { month: Month.APR, value: 3.9, label: 390000 },
-    { month: Month.MAY, value: 5.0, label: 500000 },
-    { month: Month.JUN, value: 5.8, label: 580000 },
-    { month: Month.JUL, value: 4.0, label: 400000 },
-    { month: Month.AUG, value: 3.9, label: 390000 },
-    { month: Month.SEP, value: 4.5, label: 450000 },
-    { month: Month.OCT, value: 6.0, label: 600000 },
-    { month: Month.NOV, value: 5.3, label: 530000 },
-    { month: Month.DEC, value: 4.2, label: 420000 },
-  ],
-};
+const data: { month: string; value: number; label: number }[] = [
+  { month: Month.JAN, value: 2.8, label: 280000 },
+  { month: Month.FEB, value: 3.5, label: 350000 },
+  { month: Month.MAR, value: 4.2, label: 420000 },
+  { month: Month.APR, value: 3.9, label: 390000 },
+  { month: Month.MAY, value: 5.0, label: 500000 },
+  { month: Month.JUN, value: 5.8, label: 580000 },
+  { month: Month.JUL, value: 4.0, label: 400000 },
+  { month: Month.AUG, value: 3.9, label: 390000 },
+  { month: Month.SEP, value: 4.5, label: 450000 },
+  { month: Month.OCT, value: 6.0, label: 600000 },
+  { month: Month.NOV, value: 5.3, label: 530000 },
+  { month: Month.DEC, value: 4.2, label: 420000 },
+];
 
 export const DynamicPrimarySalesAsLine: React.FC<{ year: number }> = React.memo(
-  ({ year: selectedYear }) => {
+  ({}) => {
     return (
-      <div className="font-poppins">
+      <div className="font-inter">
         <LineChart
           className="-ml-4"
           width={1064}
           height={300}
-          data={yearlyData[selectedYear]}
+          data={data}
           margin={{ top: 20, right: 16, bottom: 20 }}
         >
           <CartesianGrid strokeDasharray="4 4" vertical={false} />
@@ -89,7 +70,7 @@ export const DynamicPrimarySalesAsLine: React.FC<{ year: number }> = React.memo(
             <LabelList
               dataKey="label"
               position="top"
-              className="font-poppins text-xs"
+              className="font-inter text-xs"
             />
           </Line>
         </LineChart>

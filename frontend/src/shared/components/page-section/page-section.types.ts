@@ -7,6 +7,8 @@ export interface LegendItem {
 
 export interface IPageSectionProps extends React.PropsWithChildren {
   title?: string;
+  beforeHeader?: React.ReactNode;
+  afterHeader?: React.ReactNode;
   titleBadge?: { label: string; color: string };
   legends?: LegendItem[];
   background?: 'default' | 'white';
@@ -14,4 +16,8 @@ export interface IPageSectionProps extends React.PropsWithChildren {
   headerEnd?: React.ReactNode;
   viewHeader?: boolean;
   isGroupped?: boolean;
+  classNames?: Partial<{
+    title: string;
+    wrapper: string;
+  }>;
 }

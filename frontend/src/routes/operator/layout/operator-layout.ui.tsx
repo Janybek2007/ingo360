@@ -3,7 +3,7 @@ import { Outlet } from 'react-router';
 
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { CheckSession } from '#/shared/session';
-import { ExpHeader } from '#/widgets/exp-header/exp-header.ui';
+import { ExpHeader } from '#/widgets/exp-header';
 import { Sidebar } from '#/widgets/sidebar';
 
 const OperatorLayout: React.FC = () => {

@@ -19,7 +19,7 @@ const Modal: React.FC<IModalProps> = React.memo(
         >
           <div className={'flex items-center justify-between mb-8'}>
             <div className="flex flex-col gap-0.5">
-              <h4 className="font-poppins text-2xl leading-[100%] font-semibold">
+              <h4 className="font-inter text-2xl leading-[100%] font-semibold">
                 {title}
               </h4>
               {description && <p>{description}</p>}

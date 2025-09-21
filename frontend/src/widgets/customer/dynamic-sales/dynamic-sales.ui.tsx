@@ -72,7 +72,7 @@ export const DynamicSales: React.FC = React.memo(() => {
       background="white"
       variant="background"
     >
-      <div className="font-poppins">
+      <div className="font-inter">
         <LineChart
           className="-ml-4"
           width={1064}

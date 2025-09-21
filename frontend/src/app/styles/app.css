@@ -1,7 +1,8 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-poppins: 'Poppins', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
+  --font-inter: 'Inter', sans-serif;
 
   /* !Colors */
 
@@ -26,8 +27,6 @@
   /* default border color */
   --color-c3__1: #cbd5e0;
   /* secondary border color */
-  --color-c3__2: #f1f1f1;
-  /* tertiary border color */
 }
 
 :root {
@@ -69,6 +68,13 @@ button {
   line-height: 100%;
 }
 
+@utility noscrollbar {
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
 .overlay {
   position: absolute;
   top: 0;
@@ -94,7 +100,7 @@ button {
   & main {
     padding: 24px;
     width: 100%;
-    max-height: 100vh;
+    max-height: calc(100vh - 71px);
     overflow-y: scroll;
 
     &::-webkit-scrollbar {
@@ -104,7 +110,7 @@ button {
 }
 
 .recharts-wrapper:focus,
-.recharts-wrapper svg:focus {
+.recharts-wrapper *:focus {
   outline: none;
   border: none;
 }

@@ -4,4 +4,5 @@ export type IIconProps = {
   className?: string;
   color?: string;
   rotate?: number;
+  style?: React.CSSProperties;
 };

@@ -35,7 +35,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
       background="white"
       variant="background"
     >
-      <div className="font-poppins">
+      <div className="font-inter">
         <LineChart
           className="-ml-2"
           width={1064}
@@ -76,7 +76,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
             <LabelList
               dataKey="value"
               position="top"
-              className="font-poppins text-xs"
+              className="font-inter text-xs"
             />
           </Line>
         </LineChart>

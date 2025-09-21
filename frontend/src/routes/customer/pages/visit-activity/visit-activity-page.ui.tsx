@@ -1,23 +1,21 @@
 import React from 'react';
 
-import { Tabs } from '#/shared/components/ui/tabs';
+import { DoctorsCoverage } from '#/widgets/customer/doctors-coverage';
+import { OverallVisits } from '#/widgets/customer/overall-visits';
+import { SpecialistCoverage } from '#/widgets/customer/specialist-coverage';
+import { TertiarySalesUnits } from '#/widgets/customer/tertiary-sales-units';
+import { TertiaryVisits } from '#/widgets/customer/tertiary-visits';
+import { TotalVisitsPeriod } from '#/widgets/customer/total-visits-period';
 
 const VisitActivityPage: React.FC = () => {
   return (
-    <main>
-      <Tabs
-        items={[
-          { label: 'Анализ визитной активности', value: 'visit_analysis' },
-          { label: 'По третичным продажам', value: 'tertiary_sales' },
-          { label: 'Анализ охват специалистов', value: 'specialist_coverage' },
-        ]}
-      >
-        {({ current }) => (
-          <div>
-            <p>Текущая вкладка: {current}</p>
-          </div>
-        )}
-      </Tabs>
+    <main className="space-y-6">
+      <TotalVisitsPeriod />
+      <OverallVisits />
+      <TertiaryVisits />
+      <TertiarySalesUnits />
+      <SpecialistCoverage />
+      <DoctorsCoverage />
     </main>
   );
 };

@@ -3,7 +3,7 @@ import { Outlet } from 'react-router';
 
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { CheckSession } from '#/shared/session';
-import { ExpHeader } from '#/widgets/exp-header/exp-header.ui';
+import { ExpHeader } from '#/widgets/exp-header';
 import { Sidebar } from '#/widgets/sidebar';
 
 const CustomerLayout: React.FC<React.PropsWithChildren> = () => {
@@ -11,7 +11,7 @@ const CustomerLayout: React.FC<React.PropsWithChildren> = () => {
     <CheckSession userRole="customer">
       <div className="flex items-start">
         <Sidebar navigations={roleNavigations.customer} />
-        <div className="flex flex-col items-start w-full">
+        <div className="h-full w-full">
           <ExpHeader />
           <Outlet />
         </div>

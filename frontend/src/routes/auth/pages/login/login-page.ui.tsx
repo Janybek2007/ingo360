@@ -6,7 +6,7 @@ import { Assets } from '#/shared/assets';
 
 const LoginPage: React.FC = () => {
   return (
-    <main className="h-screen font-poppins">
+    <main className="h-screen font-inter">
       <section className="h-full mx-auto flex items-start">
         <div className="w-1/2 pt-[64px] px-[120px] pb-[40px] h-full flex flex-col justify-between">
           <div className="mb-[140px]">

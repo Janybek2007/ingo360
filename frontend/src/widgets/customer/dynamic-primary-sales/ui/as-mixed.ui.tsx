@@ -89,7 +89,7 @@ const CustomXAxisTick = (props: any) => {
 
 export const DynamicPrimarySalesAsMixed: React.FC = React.memo(() => {
   return (
-    <div className="font-poppins">
+    <div className="font-inter">
       <ComposedChart
         className="-ml-4"
         width={1032}
