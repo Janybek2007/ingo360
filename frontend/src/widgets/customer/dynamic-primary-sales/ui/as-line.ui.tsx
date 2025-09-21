@@ -32,7 +32,7 @@ export const DynamicPrimarySalesAsLine: React.FC<{ year: number }> = React.memo(
       <div className="font-inter">
         <LineChart
           className="-ml-4"
-          width={1064}
+          width={1074}
           height={300}
           data={data}
           margin={{ top: 20, right: 16, bottom: 20 }}

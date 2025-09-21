@@ -13,7 +13,6 @@ export interface IPageSectionProps extends React.PropsWithChildren {
   legends?: LegendItem[];
   headerEnd?: React.ReactNode;
   viewHeader?: boolean;
-  isGroupped?: boolean;
   classNames?: Partial<{
     title: string;
     wrapper: string;

@@ -12,29 +12,19 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
     title,
     viewHeader = true,
     titleBadge,
-    isGroupped = false,
     classNames,
     beforeHeader,
     afterHeader,
   }) => {
     const sectionClassName = cn(
-      'w-full max-w-[1096px] overflow-hidden bg-white',
-      {
-        'space-y-6 rounded-lg': isGroupped,
-        'rounded-xl': !isGroupped,
-      }
+      'w-full max-w-[1122px] overflow-hidden bg-white',
+      'rounded-xl'
     );
 
-    const GruoppedTag = isGroupped ? 'div' : 'section';
-
     return (
-      <GruoppedTag className={cn(sectionClassName)}>
+      <section className={cn(sectionClassName)}>
         <div
-          className={cn(
-            'w-full flex flex-col gap-7',
-            isGroupped ? 'p-4' : 'p-6',
-            classNames?.wrapper
-          )}
+          className={cn('w-full flex flex-col gap-7 p-6', classNames?.wrapper)}
         >
           {viewHeader &&
             (beforeHeader || afterHeader || title || legends || headerEnd) && (
@@ -86,7 +76,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
             )}
           {children}
         </div>
-      </GruoppedTag>
+      </section>
     );
   }
 );

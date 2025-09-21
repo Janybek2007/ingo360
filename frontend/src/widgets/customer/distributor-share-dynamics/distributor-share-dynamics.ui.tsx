@@ -30,7 +30,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   return (
     <PageSection legends={legends} title="Динамика долей дистров в первичке">
       <div className="font-inter">
-        <BarChart className="-ml-4" width={1032} height={360} data={data}>
+        <BarChart className="-ml-4" width={1074} height={360} data={data}>
           <CartesianGrid strokeDasharray="4 4" vertical={false} />
           <XAxis
             axisLine={false}

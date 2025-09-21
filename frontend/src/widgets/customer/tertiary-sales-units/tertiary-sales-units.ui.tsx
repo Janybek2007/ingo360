@@ -33,13 +33,11 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
       title="Третичный продажи, уп."
       titleBadge={{ label: '↗ 41.67%', color: '#1CC741' }}
       legends={[{ label: 'Визиты', fill: '#0B5A7C' }]}
-      background="white"
-      variant={'background'}
     >
       <div className="font-inter">
         <LineChart
           className="-ml-4"
-          width={1064}
+          width={1074}
           height={300}
           data={data}
           margin={{ top: 20, right: 16, bottom: 20 }}

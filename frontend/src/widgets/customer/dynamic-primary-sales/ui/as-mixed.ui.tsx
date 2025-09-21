@@ -92,7 +92,7 @@ export const DynamicPrimarySalesAsMixed: React.FC = React.memo(() => {
     <div className="font-inter">
       <ComposedChart
         className="-ml-4"
-        width={1032}
+        width={1074}
         height={300}
         margin={{ top: 20, right: 16, bottom: 20 }}
         data={processedData}

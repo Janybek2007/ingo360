@@ -40,7 +40,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       <div className="font-inter">
         <LineChart
           className="-ml-4"
-          width={1064}
+          width={1074}
           height={300}
           data={chartData}
           margin={{ top: 20, right: 16, bottom: 20 }}
