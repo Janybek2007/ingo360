@@ -6,6 +6,7 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { Month } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
@@ -21,7 +22,7 @@ interface VisitRow {
 }
 
 const LPUS = ['ОСО', 'ЛПУ2', 'ЛПУ3'];
-const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель'];
+const MONTHS = [Month.JAN, Month.FEB, Month.MAR, Month.APR];
 const SPECIALTIES = ['-', 'Терапевт', 'Кардиолог'];
 const EMPLOYEES = ['-', 'Иванов', 'Петров'];
 const GROUPS = ['-', 'Группа 1', 'Группа 2'];

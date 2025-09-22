@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { randomInt } from '#/shared/utils/mock';
 
 const distributorsData = [
   { name: 'Эрай', color: '#156082' },
@@ -19,7 +20,7 @@ const distributorsData = [
 ];
 
 const getRandomValues = () =>
-  Array.from({ length: 12 }, () => Math.floor(Math.random() * 61));
+  Array.from({ length: 12 }, () => randomInt(0, 61));
 
 export const DistributorDynamics: React.FC = React.memo(() => {
   const chartData = useMemo(() => {

@@ -42,3 +42,18 @@ export const MonthNumber = {
   NOV: 11,
   DEC: 12,
 } as const;
+
+export const allMonths = [
+  MonthFull.JAN,
+  MonthFull.FEB,
+  MonthFull.MAR,
+  MonthFull.MAR,
+  MonthFull.MAY,
+  MonthFull.JUN,
+  MonthFull.JUL,
+  MonthFull.AUG,
+  MonthFull.SEP,
+  MonthFull.OCT,
+  MonthFull.NOV,
+  MonthFull.DEC,
+] as const;

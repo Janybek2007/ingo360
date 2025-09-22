@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { Table } from '#/shared/components/table';
-import { generateMocks, randomId } from '#/shared/utils/mock';
+import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface TableRow {
   place: number;
@@ -34,10 +34,9 @@ export const LeaderBoard: React.FC = React.memo(() => {
         place: i => i + 1,
         id: () => randomId('leader'),
         company: COMPANIES,
-        sales: () => Math.floor(Math.random() * 10000),
+        sales: () => randomInt(0, 10000),
         status: STATUSES,
-        lapseTime: () =>
-          `${Math.floor(Math.random() * 24)}h ${Math.floor(Math.random() * 60)}m`,
+        lapseTime: () => `${randomInt(0, 24)}h ${randomInt(0, 60)}m`,
       }),
     []
   );

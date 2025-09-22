@@ -1,1 +1,1 @@
-export { operatorLayoutRoute } from './operator-route.ui';
+export { operatorLayoutRoute } from './operator-layout.route';

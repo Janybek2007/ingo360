@@ -7,7 +7,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { randomId } from '#/shared/utils/mock';
+import { randomId, randomInt } from '#/shared/utils/mock';
 
 interface MarketRow {
   id: string;
@@ -95,9 +95,9 @@ export const MarketInsights: React.FC = React.memo(() => {
       segment: PROMO_TYPES[0],
       group: GROUPS[0],
       distributor: DISTRIBUTORS[0],
-      YTD6M23: Math.floor(Math.random() * 10),
-      YTD6M24: Math.floor(Math.random() * 10),
-      YTD6M25: Math.floor(Math.random() * 10),
+      YTD6M23: randomInt(0, 10),
+      YTD6M24: randomInt(0, 10),
+      YTD6M25: randomInt(0, 10),
     }));
 
     return allData.filter(

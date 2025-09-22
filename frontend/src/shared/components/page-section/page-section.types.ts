@@ -14,7 +14,6 @@ export interface IPageSectionProps extends React.PropsWithChildren {
   headerEnd?: React.ReactNode;
   viewHeader?: boolean;
   classNames?: Partial<{
-    title: string;
     wrapper: string;
   }>;
 }

@@ -35,6 +35,7 @@ export const Sidebar: React.FC<{ navigations: INavigationItem[] }> = React.memo(
                   ? 'bg-primary text-white font-semibold'
                   : 'hover:bg-primary/10 text-gray-800'
               )}
+              title={item.label}
             >
               <span
                 className={cn(

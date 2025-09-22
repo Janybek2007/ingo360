@@ -11,7 +11,7 @@ const AdministratorLayout: React.FC = () => {
     <CheckSession userRole="administrator">
       <div className="flex items-start">
         <Sidebar navigations={roleNavigations.administrator} />
-        <div>
+        <div className="h-full w-full">
           <ExpHeader />
           <Outlet />
         </div>

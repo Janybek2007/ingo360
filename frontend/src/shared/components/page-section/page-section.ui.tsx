@@ -35,8 +35,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
                     {title && (
                       <h4
                         className={cn(
-                          'font-normal text-xl leading-6 text-[#1D170F]',
-                          classNames?.title
+                          'font-medium text-xl leading-6 text-[#1D170F]'
                         )}
                       >
                         {title}{' '}

@@ -87,7 +87,6 @@ export const Stocks: React.FC = React.memo(() => {
   return (
     <PageSection
       title="Остатки"
-      classNames={{ title: 'font-medium' }}
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />

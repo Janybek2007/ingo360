@@ -7,7 +7,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const session: ISessionContext = {
-    user: { role: 'customer' },
+    user: { role: 'administrator' },
     isLoading: false,
   };
 

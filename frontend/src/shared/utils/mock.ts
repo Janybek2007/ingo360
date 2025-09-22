@@ -10,8 +10,16 @@ export function randomId(prefix = 'id'): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export function randomArray(length: number, min = 0, max = 100): number[] {
-  return Array.from({ length }, () => randomInt(min, max));
+export function randomArray<T extends 'number' | 'string' = 'number'>(
+  length: number,
+  min = 0,
+  max = 100,
+  type?: T
+): T extends 'string' ? string[] : number[] {
+  return Array.from({ length }, () => {
+    const int = randomInt(min, max);
+    return type === 'string' ? int.toString() : int;
+  }) as T extends 'string' ? string[] : number[];
 }
 
 type ValueOrGenerator<T> = readonly T[] | ((index: number) => T);

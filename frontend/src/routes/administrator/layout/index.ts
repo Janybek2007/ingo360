@@ -1,1 +1,1 @@
-export { administratorLayoutRoute } from './administrator-route.ui';
+export { administratorLayoutRoute } from './administrator-layout.route';

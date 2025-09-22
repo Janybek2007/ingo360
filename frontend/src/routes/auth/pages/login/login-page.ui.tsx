@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { SendRequestWrapper } from '#/features/request';
-import { LoginForm } from '#/features/session';
+import { SendRequestWrapper } from '#/features/request/send';
+import { LoginForm } from '#/features/session/login';
 import { Assets } from '#/shared/assets';
 
 const LoginPage: React.FC = () => {

@@ -97,7 +97,6 @@ export const TertiaryVisits: React.FC = React.memo(() => {
   return (
     <PageSection
       title="Третичка"
-      classNames={{ title: 'font-medium' }}
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />

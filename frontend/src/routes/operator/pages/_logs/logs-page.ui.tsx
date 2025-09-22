@@ -4,15 +4,13 @@ import React, { useMemo } from 'react';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
-import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
-interface DbRow {
+interface LogRow {
   id: string;
   pharmacy: string; // Аптека / ЧП
   lpu: string; // ЛПУ
@@ -30,8 +28,8 @@ interface DbRow {
 
 const saleTypes = ['Первичные', 'Вторичные', 'Третичные'];
 
-export const DbWorkPage: React.FC = () => {
-  const allColumns: ColumnDef<DbRow>[] = useMemo(
+const LogsPage: React.FC = () => {
+  const allColumns: ColumnDef<LogRow>[] = useMemo(
     () => [
       { accessorKey: 'pharmacy', header: 'Аптека / ЧП', meta: { width: 124 } },
       { accessorKey: 'lpu', header: 'ЛПУ', meta: { width: 130 } },
@@ -45,37 +43,12 @@ export const DbWorkPage: React.FC = () => {
       { accessorKey: 'indicator', header: 'Показатель', meta: { width: 180 } },
       { accessorKey: 'packs', header: 'Упаковки', meta: { width: 180 } },
       { accessorKey: 'sumUsd', header: 'Сумма $', meta: { width: 180 } },
-      {
-        id: 'actions',
-        header: '',
-        meta: { width: 60 },
-        cell: ({ row }) => (
-          <div className="flex items-center gap-2 pr-10">
-            <button
-              type="button"
-              onClick={() => console.log('Edit', row.original.id)}
-              className="p-1.5 rounded-full text-blue-400 hover:bg-blue-200 transition"
-              title="Редактировать"
-            >
-              <Icon name="mdi:pencil" size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => console.log('Delete', row.original.id)}
-              className="p-1.5 rounded-full text-red-400 hover:bg-red-200 transition"
-              title="Удалить"
-            >
-              <Icon name="mdi:delete" size={18} />
-            </button>
-          </div>
-        ),
-      },
     ],
     []
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns, undefined, ['actions']);
+    useColumnVisibility(allColumns);
 
   const data = useMemo(
     () =>
@@ -101,14 +74,13 @@ export const DbWorkPage: React.FC = () => {
     <main>
       <Tabs
         items={[
-          { label: 'Первичные продажи', value: 'primary_sales' },
-          { label: 'Вторичные продажи', value: 'tertiary_sales' },
-          { label: 'Визиты', value: 'visit_activity' },
-          { label: 'Внешние рынки', value: 'foreign_markets' },
+          { label: 'Аптека', value: 'pharmacy' },
+          { label: 'ЛПУ', value: 'lpu' },
+          { label: 'Бренды', value: 'brands' },
         ]}
       ></Tabs>
       <PageSection
-        title="Все Компании"
+        title="Аптеки"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <Select<true>
@@ -117,22 +89,16 @@ export const DbWorkPage: React.FC = () => {
               items={columnItems}
               triggerText="Столбцы"
               checkbox
-              classNames={{
-                menu: 'min-w-[180px] right-0',
-              }}
+              classNames={{ menu: 'min-w-[220px] right-0' }}
             />
-            <ExportToExcelButton data={data} fileName="dbwork.xlsx" />
-            <Button className="px-4 py-2 rounded-full">
-              Добавить ресурс
-            </Button>{' '}
+            <ExportToExcelButton data={data} fileName="logs.xlsx" />
           </div>
         }
       >
-        <Table<DbRow>
+        <Table<LogRow>
           columns={columnsForTable}
           data={data}
-          maxHeight={340}
-          isScrollbar
+          maxHeight={400}
           rounded="none"
         />
       </PageSection>
@@ -140,4 +106,4 @@ export const DbWorkPage: React.FC = () => {
   );
 };
 
-export default DbWorkPage;
+export default LogsPage;

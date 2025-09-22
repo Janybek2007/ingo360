@@ -38,7 +38,7 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
                 )}
                 onClick={() => {
                   setCurrent(t.value);
-                  saveCurrent(t.value);
+                  saveCurrent?.(t.value);
                 }}
               >
                 {t.label}

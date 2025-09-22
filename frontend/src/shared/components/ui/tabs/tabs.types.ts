@@ -11,7 +11,7 @@ export interface ITabsChildrenProps {
 export interface ITabsProps {
   children?: (arg: ITabsChildrenProps) => React.ReactNode;
   items: ITabItem[];
-  saveCurrent(current: string): void;
+  saveCurrent?(current: string): void;
   defaultValue?: string;
   classNames?: Partial<{
     root: string;

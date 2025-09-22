@@ -84,7 +84,6 @@ export const SecondarySales: React.FC = React.memo(() => {
   return (
     <PageSection
       title="Продажа"
-      classNames={{ title: 'font-medium' }}
       headerEnd={
         <div className="flex items-center gap-4">
           <input

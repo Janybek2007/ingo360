@@ -87,7 +87,6 @@ export const Inventory: React.FC = React.memo(() => {
   return (
     <PageSection
       title="Товарный запас"
-      classNames={{ title: 'font-medium' }}
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />

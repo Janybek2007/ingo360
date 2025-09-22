@@ -3,9 +3,12 @@ import React from 'react';
 import { Assets } from '#/shared/assets';
 import { Icon } from '#/shared/components/ui/icon';
 
+import { HeaderTitle } from './ui/header-title.ui';
+
 export const ExpHeader: React.FC = React.memo(() => {
   return (
-    <header className="bg-white w-full flex justify-end items-center border-b border-c3 px-[43px] py-4">
+    <header className="bg-white w-full flex items-center justify-between border-b border-c3 px-6 py-4">
+      <HeaderTitle />
       <div className="flex justify-end gap-4">
         <div className="group">
           <button className="p-2 border border-[#E7EAE9] rounded-lg">

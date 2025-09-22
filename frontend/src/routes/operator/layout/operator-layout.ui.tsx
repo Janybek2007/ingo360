@@ -11,7 +11,7 @@ const OperatorLayout: React.FC = () => {
     <CheckSession userRole="operator">
       <div className="flex items-start">
         <Sidebar navigations={roleNavigations.operator} />
-        <div className="w-full">
+        <div className="h-full w-full">
           <ExpHeader />
           <Outlet />
         </div>

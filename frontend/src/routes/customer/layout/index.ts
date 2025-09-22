@@ -1,1 +1,1 @@
-export { customerLayoutRoute } from './customer-route.ui';
+export { customerLayoutRoute } from './customer-layout.route';

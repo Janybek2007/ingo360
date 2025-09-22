@@ -1,6 +1,8 @@
 import type { RouteObject } from 'react-router';
 
+import { logsPageRoute } from '../pages/_logs';
 import { dbWorkPageRoute } from '../pages/db-work';
+import { referenceWorkPageRoute } from '../pages/reference-work';
 
 export const operatorLayoutRoute: RouteObject = {
   lazy: async () => {
@@ -9,5 +11,5 @@ export const operatorLayoutRoute: RouteObject = {
     );
     return { Component };
   },
-  children: [dbWorkPageRoute],
+  children: [dbWorkPageRoute, referenceWorkPageRoute, logsPageRoute],
 };
