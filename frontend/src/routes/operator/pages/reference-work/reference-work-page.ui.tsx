@@ -30,13 +30,13 @@ export const ReferenceWorkPage: React.FC = () => {
       {
         id: 'actions',
         header: '',
-        size: 60,
+        size: 100,
         cell: ({ row }) => (
           <div className="flex items-center gap-2 pr-10">
             <button
               type="button"
               onClick={() => console.log('Edit', row.original.id)}
-              className="p-1.5 rounded-full text-blue-400 hover:bg-blue-200 transition"
+              className="p-1.5 rounded-full text-blue-400 hover:bg-blue-100 transition"
               title="Редактировать"
             >
               <Icon name="mdi:pencil" size={18} />
@@ -44,7 +44,7 @@ export const ReferenceWorkPage: React.FC = () => {
             <button
               type="button"
               onClick={() => console.log('Delete', row.original.id)}
-              className="p-1.5 rounded-full text-red-400 hover:bg-red-200 transition"
+              className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
               title="Удалить"
             >
               <Icon name="mdi:delete" size={18} />

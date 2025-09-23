@@ -4,6 +4,7 @@ import { cn } from '#/shared/utils/cn';
 import { uiSet } from '#/shared/utils/ui-set';
 
 import { Icon } from '../icon';
+import { Select } from '../select';
 import type { IFormFieldProps } from './form-field.types';
 
 const FormField: React.FC<IFormFieldProps> = React.memo(
@@ -18,6 +19,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
     color = 'default',
     variant = 'outlined',
     error,
+    select,
   }) => {
     const [showPassword, setShowPassword] = React.useState(false);
     const inputType = isPasswordToggleShow
@@ -27,7 +29,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
       : type;
 
     return (
-      <div>
+      <div className={classNames?.root}>
         {label && (
           <label
             htmlFor={`${name}_for`}
@@ -39,23 +41,46 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
 
         <div
           className={cn(
-            'mt-2 flex items-center relative overflow-hidden rounded-xl transition-all',
+            'mt-2 flex items-center relative rounded-xl transition-all',
             uiSet.colorVariant(color, variant),
             classNames?.wrapper
           )}
         >
-          <input
-            type={inputType}
-            id={`${name}_for`}
-            placeholder={placeholder}
-            className={cn(
-              'placeholder:text-c1__3 focus:outline-none',
-              'text-base leading-5 py-[14px] px-3',
-              isPasswordToggleShow ? 'w-[90%]' : 'w-full',
-              classNames?.input
-            )}
-            {...register}
-          />
+          {!['textarea', 'select'].includes(type) ? (
+            <input
+              type={inputType}
+              id={`${name}_for`}
+              placeholder={placeholder}
+              className={cn(
+                'placeholder:text-c1__3 focus:outline-none',
+                'text-base leading-5 py-[14px] px-3 rounded-xl',
+                isPasswordToggleShow ? 'w-[90%]' : 'w-full',
+                classNames?.input
+              )}
+              {...register}
+            />
+          ) : type === 'select' && select ? (
+            <Select
+              {...select}
+              triggerText={label}
+              rightIcon={
+                <Icon className="text-[#94A3B8]" name="lucide:chevron-down" />
+              }
+              classNames={{
+                root: 'w-full',
+                triggerText: cn(
+                  'text-c1__3 focus:outline-none',
+                  'text-base leading-5',
+                  classNames?.input
+                ),
+                trigger:
+                  'border-none rounded-xl py-[14px] px-3 w-full justify-between',
+                menu: 'top-full mt-2 h-max',
+              }}
+            />
+          ) : (
+            ''
+          )}
 
           {isPasswordToggleShow && type === 'password' && (
             <button

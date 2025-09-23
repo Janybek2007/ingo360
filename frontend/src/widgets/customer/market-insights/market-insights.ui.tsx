@@ -7,6 +7,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { stringFilter } from '#/shared/utils/filter';
 import { randomId, randomInt } from '#/shared/utils/mock';
 
 interface MarketRow {
@@ -36,49 +37,50 @@ export const MarketInsights: React.FC = React.memo(() => {
         accessorKey: 'sku',
         header: 'Компания',
         size: 134,
-        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
         size: 134,
-        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'segment',
         header: 'Сегмент',
         size: 134,
-        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'group',
         header: 'Форма выписка',
-        size: 134,
-        enableSorting: true,
+        size: 144,
       },
       {
         accessorKey: 'distributor',
         header: 'Дозировка',
         size: 134,
-        enableSorting: true,
       },
       {
         accessorKey: 'YTD6M23',
         header: 'YTD-6M-23',
         size: 134,
-        enableSorting: true,
       },
       {
         accessorKey: 'YTD6M24',
         header: 'YTD-6M-24',
         size: 134,
-        enableSorting: true,
       },
       {
         accessorKey: 'YTD6M25',
         header: 'YTD-6M-25',
         size: 134,
-        enableSorting: true,
       },
     ],
     []

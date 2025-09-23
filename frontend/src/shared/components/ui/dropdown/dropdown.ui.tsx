@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
 import { useClickAway } from '#/shared/hooks/use-click-away';
-import { useElementPosition } from '#/shared/hooks/use-element-position';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
 import { uiSet } from '#/shared/utils/ui-set';
@@ -14,21 +14,30 @@ export const Dropdown: React.FC<IDropdownProps> = React.memo(
   ({ items, classNames, trigger }) => {
     const [open, { toggle, set }] = useToggle(false);
     const contentRef = useClickAway<HTMLDivElement>(() => set(false));
-    const elPosition = useElementPosition<HTMLDivElement>(contentRef);
+    const { position, updatePosition } = useAnchorPosition();
 
     return (
       <div
         className={cn('relative font-inter', classNames?.root)}
         ref={contentRef}
       >
-        {trigger({ open, toggle })}
+        {trigger({
+          open,
+          onClick(e) {
+            updatePosition(e);
+            toggle();
+          },
+        })}
 
         {open && (
           <div
+            style={{
+              top: position.top + position.height,
+              left: position.x,
+            }}
             className={cn(
-              'absolute z-10 w-full bg-white rounded-xl max-h-60 overflow-auto',
-              'py-3 noscrollbar border border-[#E4E4E4]',
-              elPosition.y == 'top' ? 'top-full mt-2' : 'bottom-full mb-2',
+              'fixed z-10 w-max bg-white rounded-xl max-h-60 overflow-auto',
+              'py-3 noscrollbar border border-[#E4E4E4] mt-2',
               classNames?.menu
             )}
           >

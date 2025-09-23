@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useElementPosition } from '#/shared/hooks/use-element-position';
@@ -38,6 +38,10 @@ export function Select<ISM extends boolean = false, VT = string>({
     },
     [checkbox, setValue, set, value]
   );
+  const findItem = React.useMemo(
+    () => items.find(v => v.value === value),
+    [items, value]
+  );
 
   const isSelected = useCallback(
     (item: ISelectItem) => {
@@ -65,8 +69,13 @@ export function Select<ISM extends boolean = false, VT = string>({
       >
         {typeof leftIcon == 'function' ? leftIcon(open) : leftIcon}
         {triggerText && (
-          <span className={cn('text-black text-sm font-medium leading-[150%]')}>
-            {triggerText}
+          <span
+            className={cn(
+              'text-black text-sm font-medium leading-[150%]',
+              classNames?.triggerText
+            )}
+          >
+            {findItem ? findItem.label : triggerText}
           </span>
         )}
         {typeof rightIcon == 'function' ? rightIcon(open) : rightIcon}

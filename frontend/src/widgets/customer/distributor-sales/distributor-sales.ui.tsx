@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
+import { stringFilter } from '#/shared/utils/filter';
 
 interface DistributorSalesRow {
   distributor: string;
@@ -30,14 +31,15 @@ export const DistributorSales: React.FC = React.memo(() => {
       {
         accessorKey: 'distributor',
         header: 'Дистр',
-        enableSorting: true,
-        size: 120,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: DistributorSalesRow) => row.months[i],
         id: `month${i + 1}`,
-        header: `2024`,
-        size: 70,
+        header: `2024/${i + 1}`,
+        size: 100,
       })),
     ],
     []

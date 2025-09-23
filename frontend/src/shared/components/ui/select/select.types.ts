@@ -17,6 +17,7 @@ export interface ISelectProps<ISM extends boolean = false, VT = string> {
   classNames?: Partial<{
     root: string;
     trigger: string;
+    triggerText: string;
     menu: string;
     menuItem: string;
   }>;

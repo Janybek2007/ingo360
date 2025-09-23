@@ -14,11 +14,11 @@ import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface DbRow {
   id: string;
-  pharmacy: string; // Аптека / ЧП
-  lpu: string; // ЛПУ
-  network: string; // Сеть
+  pharmacy: string;
+  lpu: string;
+  network: string;
   sku: string;
-  saleType: string; // Тип продаж
+  saleType: string;
   brand: string;
   product: string;
   month: string;
@@ -43,18 +43,18 @@ export const DbWorkPage: React.FC = () => {
       { accessorKey: 'month', header: 'Месяц', size: 150 },
       { accessorKey: 'year', header: 'Год', size: 150 },
       { accessorKey: 'indicator', header: 'Показатель', size: 180 },
-      { accessorKey: 'packs', header: 'Упаковки', size: 180 },
-      { accessorKey: 'sumUsd', header: 'Сумма $', size: 180 },
+      { accessorKey: 'packs', header: 'Упаковки', size: 140 },
+      { accessorKey: 'sumUsd', header: 'Сумма $', size: 140 },
       {
         id: 'actions',
         header: '',
-        size: 60,
+        size: 140,
         cell: ({ row }) => (
           <div className="flex items-center gap-2 pr-10">
             <button
               type="button"
               onClick={() => console.log('Edit', row.original.id)}
-              className="p-1.5 rounded-full text-blue-400 hover:bg-blue-200 transition"
+              className="p-1.5 rounded-full text-blue-400 hover:bg-blue-100 transition"
               title="Редактировать"
             >
               <Icon name="mdi:pencil" size={18} />
@@ -62,10 +62,18 @@ export const DbWorkPage: React.FC = () => {
             <button
               type="button"
               onClick={() => console.log('Delete', row.original.id)}
-              className="p-1.5 rounded-full text-red-400 hover:bg-red-200 transition"
+              className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
               title="Удалить"
             >
               <Icon name="mdi:delete" size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => console.log('Publish', row.original.id)}
+              className="p-1.5 rounded-full text-green-500 hover:bg-green-100 transition"
+              title="Опубликовать"
+            >
+              <Icon name="mdi:publish" size={18} />
             </button>
           </div>
         ),
@@ -89,7 +97,7 @@ export const DbWorkPage: React.FC = () => {
         brand: ['Бренд A', 'Бренд B', 'Бренд C'],
         product: ['Продукт X', 'Продукт Y', 'Продукт Z'],
         month: allMonths,
-        year: () => 2024 + randomInt(0, 2), // 2024-2025
+        year: () => 2024 + randomInt(0, 2),
         indicator: ['Показатель 1', 'Показатель 2'],
         packs: () => randomInt(0, 500),
         sumUsd: () => randomInt(0, 10000),
@@ -122,6 +130,7 @@ export const DbWorkPage: React.FC = () => {
               }}
             />
             <ExportToExcelButton data={data} fileName="dbwork.xlsx" />
+            <Button className="px-4 py-2 rounded-full">Импорт из файла</Button>
             <Button className="px-4 py-2 rounded-full">
               Добавить ресурс
             </Button>{' '}

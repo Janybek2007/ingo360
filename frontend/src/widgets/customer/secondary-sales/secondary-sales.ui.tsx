@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
+import { stringFilter } from '#/shared/utils/filter';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface SecondarySalesRow {
@@ -44,38 +45,48 @@ export const SecondarySales: React.FC = React.memo(() => {
       {
         accessorKey: 'sku',
         header: 'SKU',
-        enableSorting: true,
+        enableColumnFilter: true,
         size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
-        enableSorting: true,
+        enableColumnFilter: true,
         size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'promoType',
         header: 'Тип промоции',
-        enableSorting: true,
+        enableColumnFilter: true,
         size: 140,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'group',
         header: 'Группа',
-        enableSorting: true,
+        enableColumnFilter: true,
         size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
-        enableSorting: true,
+        enableColumnFilter: true,
         size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: SecondarySalesRow) => row.months[i],
         id: `month${i + 1}`,
-        header: `2024`,
-        size: 70,
+        header: `2024/${i + 1}`,
+        size: 100,
       })),
     ],
     []

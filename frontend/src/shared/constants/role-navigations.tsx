@@ -45,7 +45,7 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
   administrator: [
     {
       href: routePaths.administrator.ingoAccounts,
-      label: 'Учетные записи Индиго',
+      label: 'Учетные записи Инго',
       icon: <Icon name="mdi:account-multiple" />,
     },
     {

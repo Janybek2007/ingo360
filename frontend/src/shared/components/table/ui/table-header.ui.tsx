@@ -1,11 +1,18 @@
 import { flexRender } from '@tanstack/react-table';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
+import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
 import { cn } from '#/shared/utils/cn';
 
 import { Icon } from '../../ui/icon';
 import type { TableHeaderProps } from '../table.types';
+import { FilterPopup } from './filter-popup.ui';
 
 export function TableHeader<T>({ table }: TableHeaderProps<T>) {
+  const [popupOpen, setPopupOpen] = useState<string | null>(null);
+  const { position: popupPosition, updatePosition } = useAnchorPosition();
+
   return (
     <thead
       className={cn(
@@ -16,45 +23,50 @@ export function TableHeader<T>({ table }: TableHeaderProps<T>) {
       {table.getHeaderGroups().map(headerGroup => (
         <tr key={headerGroup.id}>
           {headerGroup.headers.map(header => {
-            const isSorted = header.column.getIsSorted();
-            const canSort = header.column.columnDef.enableSorting;
+            const canFilter = header.column.columnDef.enableColumnFilter;
+
             return (
               <th
                 key={header.id}
                 className={cn(
-                  'py-4 pl-4 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5',
-                  canSort && 'cursor-pointer select-none hover:text-gray-700'
+                  'py-4 pl-4 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative'
                 )}
                 style={{
                   maxWidth: header.column.columnDef.size,
                   minWidth: header.column.columnDef.size,
                 }}
-                onClick={
-                  canSort ? header.column.getToggleSortingHandler() : undefined
-                }
               >
                 <div className="flex items-center gap-2">
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
                   )}
-                  {canSort && (
-                    <Icon
-                      name={
-                        isSorted === 'asc'
-                          ? 'lucide:chevron-up'
-                          : isSorted === 'desc'
-                            ? 'lucide:chevron-down'
-                            : 'lucide:chevrons-up-down'
-                      }
-                      className={cn(
-                        'transition-transform duration-200 text-gray-400',
-                        isSorted && 'text-gray-700'
-                      )}
-                      style={{ width: 16, height: 16 }}
-                    />
+
+                  {canFilter && (
+                    <button
+                      className="p-1 hover:bg-gray-100 rounded"
+                      onClick={e => {
+                        e.stopPropagation();
+                        updatePosition(e);
+                        setPopupOpen(
+                          popupOpen === header.id ? null : header.id
+                        );
+                      }}
+                    >
+                      <Icon name="lucide:filter" size={16} />
+                    </button>
                   )}
                 </div>
+
+                {popupOpen === header.id &&
+                  createPortal(
+                    <FilterPopup
+                      popupPosition={popupPosition}
+                      column={header.column}
+                      onClose={() => setPopupOpen(null)}
+                    />,
+                    document.body
+                  )}
               </th>
             );
           })}

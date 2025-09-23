@@ -7,6 +7,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { stringFilter } from '#/shared/utils/filter';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface WhiteSpotsRow {
@@ -30,31 +31,51 @@ export const WhiteSpots: React.FC = React.memo(() => {
 
   const allColumns = useMemo(
     (): ColumnDef<WhiteSpotsRow>[] => [
-      { accessorKey: 'sku', header: 'SKU', enableSorting: true, size: 120 },
-      { accessorKey: 'brand', header: 'Бренд', enableSorting: true, size: 120 },
+      {
+        accessorKey: 'sku',
+        header: 'SKU',
+        enableColumnFilter: true,
+        size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
+      },
+      {
+        accessorKey: 'brand',
+        header: 'Бренд',
+        enableColumnFilter: true,
+        size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
+      },
       {
         accessorKey: 'promoType',
         header: 'Тип промоции',
-        enableSorting: true,
-        size: 140,
+        enableColumnFilter: true,
+        size: 160,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'group',
         header: 'Группа',
-        enableSorting: true,
+        enableColumnFilter: true,
         size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
-        enableSorting: true,
+        enableColumnFilter: true,
         size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: WhiteSpotsRow) => row.months[i],
         id: `month${i + 1}`,
-        header: `Месяц ${i + 1}`,
-        size: 70,
+        header: `2024/${i + 1}`,
+        size: 100,
       })),
     ],
     []

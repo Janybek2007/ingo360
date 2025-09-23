@@ -10,7 +10,8 @@ export interface IDropdown {
 
 export interface ITriggerProps {
   open: boolean;
-  toggle: VoidFunction;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onClick: (e: React.MouseEvent<any, MouseEvent>) => void;
 }
 
 export interface IDropdownProps {

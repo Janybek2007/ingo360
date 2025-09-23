@@ -11,7 +11,7 @@ export function TableBody<T>({ table, highlightRow }: TableBodyProps<T>) {
         <tr
           key={row.id}
           className={cn(
-            'border-b border-[#E4E4E4] hover:bg-gray-100',
+            'border-b border-[#E4E4E4] hover:bg-gray-50',
             highlightRow?.(row.original)
           )}
         >

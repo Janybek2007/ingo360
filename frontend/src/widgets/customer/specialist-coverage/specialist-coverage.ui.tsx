@@ -28,25 +28,21 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       {
         accessorKey: 'lpu',
         header: 'ЛПУ',
-        enableSorting: true,
         size: 224,
       },
       {
         accessorKey: 'specialty',
         header: 'Специальность',
-        enableSorting: true,
         size: 230,
       },
       {
         accessorKey: 'coveragePercent',
         header: 'Процент охвата врачей',
-        enableSorting: true,
         size: 230,
       },
       {
         accessorKey: 'doctorsWithVisits',
         header: 'Количество врачей с визитами',
-        enableSorting: true,
         size: 300,
       },
     ],

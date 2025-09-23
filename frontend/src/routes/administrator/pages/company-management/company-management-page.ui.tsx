@@ -1,14 +1,17 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { AddCompanyWrapper } from '#/features/company/add';
+import { EditCompanyModal } from '#/features/company/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
-import { Button } from '#/shared/components/ui/button';
 import { Dropdown } from '#/shared/components/ui/dropdown';
 import { Icon } from '#/shared/components/ui/icon';
+import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
+import { numberFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface CompanyRow {
@@ -26,6 +29,7 @@ const STATUSES = ['active', 'inactive'] as const;
 
 const CompanyManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
+  const [open, { toggle, set }] = useToggle();
 
   const allColumns = useMemo(
     (): ColumnDef<CompanyRow>[] => [
@@ -34,7 +38,9 @@ const CompanyManagementPage: React.FC = () => {
         accessorKey: 'accountLimit',
         header: 'Лимит учетных записей',
         size: 227,
-        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        type: 'number',
       },
       { accessorKey: 'registered', header: 'Зарегистрированные', size: 220 },
       { accessorKey: 'contractNumber', header: '№ Договора', size: 213 },
@@ -63,6 +69,7 @@ const CompanyManagementPage: React.FC = () => {
                   {
                     label: 'Редактировать',
                     icon: { name: 'lucide:pencil', size: 18 },
+                    onSelect: toggle,
                   },
                   {
                     label: 'Настройки доступа',
@@ -72,9 +79,9 @@ const CompanyManagementPage: React.FC = () => {
                     },
                   },
                 ]}
-                trigger={({ toggle }) => (
+                trigger={({ onClick }) => (
                   <button
-                    onClick={toggle}
+                    onClick={onClick}
                     className={cn(
                       'border border-[#E7EAE9] rounded-full gap-2 p-1',
                       'text-left bg-white gap-1',
@@ -88,14 +95,14 @@ const CompanyManagementPage: React.FC = () => {
                     />
                   </button>
                 )}
-                classNames={{ menu: 'min-w-[240px] right-0' }}
+                classNames={{ menu: 'min-w-[240px] -ml-[200px]' }}
               />
             </div>
           );
         },
       },
     ],
-    []
+    [toggle]
   );
 
   const allData = useMemo(
@@ -123,16 +130,14 @@ const CompanyManagementPage: React.FC = () => {
 
   return (
     <main>
+      {open && <EditCompanyModal onClose={() => set(false)} />}
       <PageSection
         title="Все Компании"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton data={data} fileName="companies.xlsx" />
-            <Button className="px-4 py-3 rounded-full flex items-center gap-1">
-              <Icon name="lucide:plus" />
-              Добавить компанию
-            </Button>
+            <AddCompanyWrapper />
           </div>
         }
       >

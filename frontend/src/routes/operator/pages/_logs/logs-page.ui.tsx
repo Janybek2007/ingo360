@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
+import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
@@ -41,8 +42,25 @@ const LogsPage: React.FC = () => {
       { accessorKey: 'month', header: 'Месяц', size: 150 },
       { accessorKey: 'year', header: 'Год', size: 150 },
       { accessorKey: 'indicator', header: 'Показатель', size: 180 },
-      { accessorKey: 'packs', header: 'Упаковки', size: 180 },
-      { accessorKey: 'sumUsd', header: 'Сумма $', size: 180 },
+      { accessorKey: 'packs', header: 'Упаковки', size: 140 },
+      { accessorKey: 'sumUsd', header: 'Сумма $', size: 140 },
+      {
+        id: 'actions',
+        header: '',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2 pr-10">
+            <button
+              type="button"
+              onClick={() => console.log('Delete', row.original.id)}
+              className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
+              title="Удалить"
+            >
+              <Icon name="mdi:delete" size={18} />
+            </button>
+          </div>
+        ),
+      },
     ],
     []
   );
