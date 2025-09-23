@@ -30,54 +30,54 @@ const DISTRIBUTORS = ['Эрай'] as const;
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const allColumns: ColumnDef<MarketRow>[] = useMemo(
-    () => [
+  const allColumns = useMemo(
+    (): ColumnDef<MarketRow>[] => [
       {
         accessorKey: 'sku',
         header: 'Компания',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
       {
         accessorKey: 'segment',
         header: 'Сегмент',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
       {
         accessorKey: 'group',
         header: 'Форма выписка',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
       {
         accessorKey: 'distributor',
         header: 'Дозировка',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
       {
         accessorKey: 'YTD6M23',
         header: 'YTD-6M-23',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
       {
         accessorKey: 'YTD6M24',
         header: 'YTD-6M-24',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
       {
         accessorKey: 'YTD6M25',
         header: 'YTD-6M-25',
-        meta: { width: 134 },
+        size: 134,
         enableSorting: true,
       },
     ],

@@ -59,15 +59,11 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
-      { accessorKey: 'place', header: 'Место', meta: { width: 59 } },
-      { accessorKey: 'company', header: 'Компания', meta: { width: 100 } },
-      { accessorKey: 'sales', header: 'Сумма продаж', meta: { width: 100 } },
-      { accessorKey: 'status', header: 'Статус', meta: { width: 100 } },
-      {
-        accessorKey: 'lapseTime',
-        header: 'Время истечения',
-        meta: { width: 120 },
-      },
+      { accessorKey: 'place', header: 'Место', size: 59 },
+      { accessorKey: 'company', header: 'Компания', size: 100 },
+      { accessorKey: 'sales', header: 'Сумма продаж', size: 100 },
+      { accessorKey: 'status', header: 'Статус', size: 100 },
+      { accessorKey: 'lapseTime', header: 'Время истечения', size: 120 },
     ],
     []
   );

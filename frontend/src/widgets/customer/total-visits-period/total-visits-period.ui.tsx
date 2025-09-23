@@ -30,22 +30,22 @@ const GROUPS = ['-', 'Группа 1', 'Группа 2'];
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const allColumns: ColumnDef<VisitRow>[] = useMemo(
-    () => [
-      { accessorKey: 'lpu', header: 'ЛПУ', meta: { width: 124 } },
-      { accessorKey: 'year', header: 'Год', meta: { width: 130 } },
-      { accessorKey: 'month', header: 'Месяц', meta: { width: 130 } },
+  const allColumns = useMemo(
+    (): ColumnDef<VisitRow>[] => [
+      { accessorKey: 'lpu', header: 'ЛПУ', size: 124 },
+      { accessorKey: 'year', header: 'Год', size: 130 },
+      { accessorKey: 'month', header: 'Месяц', size: 130 },
       {
         accessorKey: 'specialty',
         header: 'Специальность',
-        meta: { width: 190 },
+        size: 190,
       },
-      { accessorKey: 'employee', header: 'Сотрудник', meta: { width: 159 } },
-      { accessorKey: 'group', header: 'Группа', meta: { width: 220 } },
+      { accessorKey: 'employee', header: 'Сотрудник', size: 159 },
+      { accessorKey: 'group', header: 'Группа', size: 220 },
       {
         accessorKey: 'visitsTotal',
         header: 'Визитов всего',
-        meta: { width: 150 },
+        size: 150,
       },
     ],
     []

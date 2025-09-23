@@ -1,9 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
+import { useElementPosition } from '#/shared/hooks/use-element-position';
+import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
+import { uiSet } from '#/shared/utils/ui-set';
 
 import { Checkbox } from '../checkbox';
+import { Icon } from '../icon';
 import type { ISelectItem, ISelectProps } from './select.types';
 
 export function Select<ISM extends boolean = false, VT = string>({
@@ -16,8 +20,9 @@ export function Select<ISM extends boolean = false, VT = string>({
   rightIcon,
   classNames,
 }: ISelectProps<ISM, VT>) {
-  const [open, setOpen] = useState(false);
-  const contentRef = useClickAway<HTMLDivElement>(() => setOpen(false));
+  const [open, { toggle, set }] = useToggle();
+  const contentRef = useClickAway<HTMLDivElement>(() => set(false));
+  const elPosition = useElementPosition<HTMLDivElement>(contentRef);
 
   const handleSelect = useCallback(
     (item: ISelectItem) => {
@@ -28,10 +33,10 @@ export function Select<ISM extends boolean = false, VT = string>({
         setValue(newValue as ISelectProps<ISM, VT>['value']);
       } else {
         setValue(item.value as ISelectProps<ISM, VT>['value']);
-        setOpen(false);
+        set(false);
       }
     },
-    [checkbox, setValue, value]
+    [checkbox, setValue, set, value]
   );
 
   const isSelected = useCallback(
@@ -56,20 +61,23 @@ export function Select<ISM extends boolean = false, VT = string>({
           'flex items-center justify-center cursor-pointer',
           classNames?.trigger
         )}
-        onClick={() => setOpen(!open)}
+        onClick={toggle}
       >
         {typeof leftIcon == 'function' ? leftIcon(open) : leftIcon}
-        <span className={cn('text-black text-sm font-medium leading-[150%]')}>
-          {triggerText}
-        </span>
+        {triggerText && (
+          <span className={cn('text-black text-sm font-medium leading-[150%]')}>
+            {triggerText}
+          </span>
+        )}
         {typeof rightIcon == 'function' ? rightIcon(open) : rightIcon}
       </button>
 
       {open && (
         <div
           className={cn(
-            'absolute z-10 mt-2 w-full bg-white rounded-xl border border-[#E4E4E4] max-h-60 overflow-auto',
-            'py-3 noscrollbar',
+            'absolute z-10 w-full bg-white rounded-xl max-h-60 overflow-auto',
+            'py-3 noscrollbar border border-[#E4E4E4]',
+            elPosition.y == 'top' ? 'top-full mt-2' : 'bottom-full mb-2',
             classNames?.menu
           )}
         >
@@ -79,12 +87,19 @@ export function Select<ISM extends boolean = false, VT = string>({
               className={cn(
                 'flex items-center justify-between px-4 py-3 cursor-pointer text-left text-nowrap',
                 'w-full hover:bg-blue-500/10 hover:text-blue-500 text-black',
-                'text-base font-inter font-normal leading-full -tracking-[0.15px]',
+                'text-base font-inter font-normal leading-full -tracking-[0.15px] group',
                 classNames?.menuItem
               )}
               onClick={() => handleSelect(item)}
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
+                {item.icon && (
+                  <Icon
+                    {...uiSet.icon(item.icon, {
+                      className: 'text-[#94A3B8] group-hover:text-blue-500',
+                    })}
+                  />
+                )}
                 {checkbox && (
                   <Checkbox
                     checked={isSelected(item)}

@@ -9,7 +9,8 @@ export const headerTitle: Record<string, string> = {
   [routePaths.customer.visitActivity]: 'Анализ визитной активности',
 
   [routePaths.administrator.ingoAccounts]: 'Учетные записи Инго',
-  [routePaths.administrator.clientAccounts]: 'Управление уч. записями клиентов',
+  [routePaths.administrator.customerAccounts]:
+    'Управление уч. записями клиентов',
   [routePaths.administrator.companyManagement]: 'Управление компаниями',
   [routePaths.administrator.settingsAdmin]: 'Настройки',
 

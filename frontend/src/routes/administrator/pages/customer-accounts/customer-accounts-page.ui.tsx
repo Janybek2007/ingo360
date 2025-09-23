@@ -11,27 +11,41 @@ import { Icon } from '#/shared/components/ui/icon';
 import { cn } from '#/shared/utils/cn';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
-interface ClientRow {
+interface CustomerRow {
   id: string;
   fullName: string;
+  position: string;
+  company: string;
   role: string;
+  email: string;
   status: string;
 }
 
 const ROLES = ['Администратор', 'Менеджер', 'Пользователь'] as const;
+const POSITIONS = ['Менеджер', 'Старший менеджер', 'Специалист'] as const;
+const COMPANIES = ['ОСО', 'Ингосстрах', 'Альфа'] as const;
+const EMAILS = [
+  'ivan@example.com',
+  'petr@example.com',
+  'maria@example.com',
+  'sergey@example.com',
+] as const;
 const STATUSES = ['active', 'inactive'] as const;
 
-const IngoAccountsPage: React.FC = () => {
+const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
 
   const allColumns = useMemo(
-    (): ColumnDef<ClientRow>[] => [
-      { accessorKey: 'fullName', header: 'ФИО', size: 345 },
-      { accessorKey: 'role', header: 'Роль', size: 345 },
+    (): ColumnDef<CustomerRow>[] => [
+      { accessorKey: 'fullName', header: 'ФИО', size: 160 },
+      { accessorKey: 'position', header: 'Должность', size: 174 },
+      { accessorKey: 'company', header: 'Компания', size: 174 },
+      { accessorKey: 'role', header: 'Роль', size: 160 },
+      { accessorKey: 'email', header: 'Email', size: 220 },
       {
         accessorKey: 'status',
         header: 'Статус',
-        size: 200,
+        size: 180,
         cell(props) {
           return props.getValue() === 'active' ? 'Активен' : 'Неактивен';
         },
@@ -51,7 +65,7 @@ const IngoAccountsPage: React.FC = () => {
                   },
                   {
                     label: 'Сбросить пароль',
-                    icon: { name: 'lucide:lock', size: 18 },
+                    icon: { name: 'lucide:refresh-ccw', size: 18 },
                   },
                 ]}
                 trigger={({ toggle }) => (
@@ -83,9 +97,12 @@ const IngoAccountsPage: React.FC = () => {
   const allData = useMemo(
     () =>
       generateMocks(10, {
-        id: () => randomId('client'),
+        id: () => randomId('customer'),
         fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
+        position: POSITIONS,
+        company: COMPANIES,
         role: ROLES,
+        email: EMAILS,
         status: STATUSES,
       }),
     []
@@ -96,7 +113,10 @@ const IngoAccountsPage: React.FC = () => {
       allData.filter(
         row =>
           row.fullName.toLowerCase().includes(search.toLowerCase()) ||
+          row.position.toLowerCase().includes(search.toLowerCase()) ||
+          row.company.toLowerCase().includes(search.toLowerCase()) ||
           row.role.toLowerCase().includes(search.toLowerCase()) ||
+          row.email.toLowerCase().includes(search.toLowerCase()) ||
           row.status.toLowerCase().includes(search.toLowerCase())
       ),
     [search, allData]
@@ -109,17 +129,18 @@ const IngoAccountsPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton data={data} fileName="clients.xlsx" />
+            <ExportToExcelButton data={data} fileName="customers.xlsx" />
             <Button className="px-4 py-3 rounded-full flex items-center gap-1">
               <Icon name="lucide:plus" />
-              Добавить пользователя
+              Добавить уч. запись
             </Button>
           </div>
         }
       >
-        <Table<ClientRow>
+        <Table<CustomerRow>
           columns={allColumns}
           data={data}
+          isScrollbar
           maxHeight={500}
           rounded="none"
         />
@@ -128,4 +149,4 @@ const IngoAccountsPage: React.FC = () => {
   );
 };
 
-export default IngoAccountsPage;
+export default CustomerAccountsPage;

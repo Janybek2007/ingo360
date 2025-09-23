@@ -31,24 +31,24 @@ interface DbRow {
 const saleTypes = ['Первичные', 'Вторичные', 'Третичные'];
 
 export const DbWorkPage: React.FC = () => {
-  const allColumns: ColumnDef<DbRow>[] = useMemo(
-    () => [
-      { accessorKey: 'pharmacy', header: 'Аптека / ЧП', meta: { width: 124 } },
-      { accessorKey: 'lpu', header: 'ЛПУ', meta: { width: 130 } },
-      { accessorKey: 'network', header: 'Сеть', meta: { width: 130 } },
-      { accessorKey: 'sku', header: 'SKU', meta: { width: 100 } },
-      { accessorKey: 'saleType', header: 'Тип продаж', meta: { width: 180 } },
-      { accessorKey: 'brand', header: 'Бренд', meta: { width: 180 } },
-      { accessorKey: 'product', header: 'Продукт', meta: { width: 180 } },
-      { accessorKey: 'month', header: 'Месяц', meta: { width: 150 } },
-      { accessorKey: 'year', header: 'Год', meta: { width: 150 } },
-      { accessorKey: 'indicator', header: 'Показатель', meta: { width: 180 } },
-      { accessorKey: 'packs', header: 'Упаковки', meta: { width: 180 } },
-      { accessorKey: 'sumUsd', header: 'Сумма $', meta: { width: 180 } },
+  const allColumns = useMemo(
+    (): ColumnDef<DbRow>[] => [
+      { accessorKey: 'pharmacy', header: 'Аптека / ЧП', size: 124 },
+      { accessorKey: 'lpu', header: 'ЛПУ', size: 130 },
+      { accessorKey: 'network', header: 'Сеть', size: 130 },
+      { accessorKey: 'sku', header: 'SKU', size: 100 },
+      { accessorKey: 'saleType', header: 'Тип продаж', size: 180 },
+      { accessorKey: 'brand', header: 'Бренд', size: 180 },
+      { accessorKey: 'product', header: 'Продукт', size: 180 },
+      { accessorKey: 'month', header: 'Месяц', size: 150 },
+      { accessorKey: 'year', header: 'Год', size: 150 },
+      { accessorKey: 'indicator', header: 'Показатель', size: 180 },
+      { accessorKey: 'packs', header: 'Упаковки', size: 180 },
+      { accessorKey: 'sumUsd', header: 'Сумма $', size: 180 },
       {
         id: 'actions',
         header: '',
-        meta: { width: 60 },
+        size: 60,
         cell: ({ row }) => (
           <div className="flex items-center gap-2 pr-10">
             <button

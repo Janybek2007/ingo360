@@ -28,43 +28,33 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 export const WhiteSpots: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const allColumns: ColumnDef<WhiteSpotsRow>[] = useMemo(
-    () => [
-      {
-        accessorKey: 'sku',
-        header: 'SKU',
-        enableSorting: true,
-        meta: { width: 120 },
-      },
-      {
-        accessorKey: 'brand',
-        header: 'Бренд',
-        enableSorting: true,
-        meta: { width: 120 },
-      },
+  const allColumns = useMemo(
+    (): ColumnDef<WhiteSpotsRow>[] => [
+      { accessorKey: 'sku', header: 'SKU', enableSorting: true, size: 120 },
+      { accessorKey: 'brand', header: 'Бренд', enableSorting: true, size: 120 },
       {
         accessorKey: 'promoType',
         header: 'Тип промоции',
         enableSorting: true,
-        meta: { width: 140 },
+        size: 140,
       },
       {
         accessorKey: 'group',
         header: 'Группа',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: WhiteSpotsRow) => row.months[i],
         id: `month${i + 1}`,
         header: `Месяц ${i + 1}`,
-        meta: { width: 70 },
+        size: 70,
       })),
     ],
     []

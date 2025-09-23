@@ -1,5 +1,7 @@
 import type { RouteObject } from 'react-router';
 
+import { customerManagementPageRoute } from '../pages/company-management';
+import { customerAccountsPageRoute } from '../pages/customer-accounts';
 import { ingoAccountsPageRoute } from '../pages/ingo-accounts';
 
 export const administratorLayoutRoute: RouteObject = {
@@ -9,5 +11,9 @@ export const administratorLayoutRoute: RouteObject = {
     );
     return { Component };
   },
-  children: [ingoAccountsPageRoute],
+  children: [
+    ingoAccountsPageRoute,
+    customerAccountsPageRoute,
+    customerManagementPageRoute,
+  ],
 };

@@ -26,37 +26,37 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 export const Stocks: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const allColumns: ColumnDef<StockRow>[] = useMemo(
-    () => [
+  const allColumns = useMemo(
+    (): ColumnDef<StockRow>[] => [
       {
         accessorKey: 'sku',
         header: 'SKU',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'group',
         header: 'Группа',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: StockRow) => row.months[i],
         id: `month${i + 1}`,
         header: '2024',
-        meta: { width: 70 },
+        size: 70,
       })),
     ],
     []

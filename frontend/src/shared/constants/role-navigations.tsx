@@ -49,7 +49,7 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
       icon: <Icon name="mdi:account-multiple" />,
     },
     {
-      href: routePaths.administrator.clientAccounts,
+      href: routePaths.administrator.customerAccounts,
       label: 'Учетные записи Клиентов',
       icon: <Icon name="mdi:account-group" />,
     },

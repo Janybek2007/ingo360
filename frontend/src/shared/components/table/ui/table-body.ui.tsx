@@ -18,6 +18,10 @@ export function TableBody<T>({ table, highlightRow }: TableBodyProps<T>) {
           {row.getVisibleCells().map(cell => (
             <td
               key={cell.id}
+              style={{
+                maxWidth: cell.column.columnDef.size,
+                minWidth: cell.column.columnDef.size,
+              }}
               className="py-[14px] pl-4 text-gray-800 whitespace-nowrap"
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}

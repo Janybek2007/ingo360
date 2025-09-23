@@ -26,31 +26,31 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 export const DistributorShare: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const allColumns: ColumnDef<DistributorShareRow>[] = useMemo(
-    () => [
+  const allColumns = useMemo(
+    (): ColumnDef<DistributorShareRow>[] => [
       {
         accessorKey: 'sku',
         header: 'SKU',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'group',
         header: 'Группа',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       ...Array.from(
         { length: 12 },
@@ -59,7 +59,7 @@ export const DistributorShare: React.FC = React.memo(() => {
             accessorFn: (row: DistributorShareRow) => row.months[i],
             id: `month${i + 1}`,
             header: '2024',
-            meta: { width: 70 },
+            size: 70,
             cell: info => `${info.getValue()}%`,
           }) as ColumnDef<DistributorShareRow>
       ),

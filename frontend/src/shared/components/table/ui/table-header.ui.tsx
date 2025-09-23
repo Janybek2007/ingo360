@@ -26,10 +26,8 @@ export function TableHeader<T>({ table }: TableHeaderProps<T>) {
                   canSort && 'cursor-pointer select-none hover:text-gray-700'
                 )}
                 style={{
-                  maxWidth: (header.column.columnDef.meta as { width?: number })
-                    ?.width,
-                  minWidth: (header.column.columnDef.meta as { width?: number })
-                    ?.width,
+                  maxWidth: header.column.columnDef.size,
+                  minWidth: header.column.columnDef.size,
                 }}
                 onClick={
                   canSort ? header.column.getToggleSortingHandler() : undefined

@@ -9,31 +9,46 @@ import { Button } from '#/shared/components/ui/button';
 import { Dropdown } from '#/shared/components/ui/dropdown';
 import { Icon } from '#/shared/components/ui/icon';
 import { cn } from '#/shared/utils/cn';
-import { generateMocks, randomId } from '#/shared/utils/mock';
+import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
-interface ClientRow {
+interface CompanyRow {
   id: string;
-  fullName: string;
-  role: string;
+  company: string;
+  accountLimit: number;
+  registered: number;
+  contractNumber: string;
+  contractEnd: string;
   status: string;
 }
 
-const ROLES = ['Администратор', 'Менеджер', 'Пользователь'] as const;
+const COMPANIES = ['ОСО', 'Ингосстрах', 'Альфа'] as const;
 const STATUSES = ['active', 'inactive'] as const;
 
-const IngoAccountsPage: React.FC = () => {
+const CompanyManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
 
   const allColumns = useMemo(
-    (): ColumnDef<ClientRow>[] => [
-      { accessorKey: 'fullName', header: 'ФИО', size: 345 },
-      { accessorKey: 'role', header: 'Роль', size: 345 },
+    (): ColumnDef<CompanyRow>[] => [
+      { accessorKey: 'company', header: 'Компания', size: 177 },
+      {
+        accessorKey: 'accountLimit',
+        header: 'Лимит учетных записей',
+        size: 227,
+        enableSorting: true,
+      },
+      { accessorKey: 'registered', header: 'Зарегистрированные', size: 220 },
+      { accessorKey: 'contractNumber', header: '№ Договора', size: 213 },
+      {
+        accessorKey: 'contractEnd',
+        header: 'Срок окончания договора',
+        size: 273,
+      },
       {
         accessorKey: 'status',
         header: 'Статус',
-        size: 200,
+        size: 180,
         cell(props) {
-          return props.getValue() === 'active' ? 'Активен' : 'Неактивен';
+          return props.getValue() === 'active' ? 'Активна' : 'Неактивен';
         },
       },
       {
@@ -50,8 +65,11 @@ const IngoAccountsPage: React.FC = () => {
                     icon: { name: 'lucide:pencil', size: 18 },
                   },
                   {
-                    label: 'Сбросить пароль',
-                    icon: { name: 'lucide:lock', size: 18 },
+                    label: 'Настройки доступа',
+                    icon: {
+                      name: 'material-symbols-light:admin-panel-settings-rounded',
+                      size: 22,
+                    },
                   },
                 ]}
                 trigger={({ toggle }) => (
@@ -70,7 +88,7 @@ const IngoAccountsPage: React.FC = () => {
                     />
                   </button>
                 )}
-                classNames={{ menu: 'min-w-[220px] right-0' }}
+                classNames={{ menu: 'min-w-[240px] right-0' }}
               />
             </div>
           );
@@ -83,43 +101,45 @@ const IngoAccountsPage: React.FC = () => {
   const allData = useMemo(
     () =>
       generateMocks(10, {
-        id: () => randomId('client'),
-        fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
-        role: ROLES,
+        id: () => randomId('company'),
+        company: COMPANIES,
+        accountLimit: () => randomInt(3, 5),
+        registered: () => randomInt(0, 5),
+        contractNumber: () => '32124',
+        contractEnd: () => '03-08-2025',
         status: STATUSES,
       }),
     []
   );
 
-  const data = useMemo(
-    () =>
-      allData.filter(
-        row =>
-          row.fullName.toLowerCase().includes(search.toLowerCase()) ||
-          row.role.toLowerCase().includes(search.toLowerCase()) ||
-          row.status.toLowerCase().includes(search.toLowerCase())
-      ),
-    [search, allData]
-  );
+  const data = useMemo(() => {
+    return allData.filter(
+      row =>
+        row.company.toLowerCase().includes(search.toLowerCase()) ||
+        row.contractNumber.toLowerCase().includes(search.toLowerCase()) ||
+        row.status.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, allData]);
 
   return (
     <main>
       <PageSection
-        title="Все клиенты"
+        title="Все Компании"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton data={data} fileName="clients.xlsx" />
+            <ExportToExcelButton data={data} fileName="companies.xlsx" />
             <Button className="px-4 py-3 rounded-full flex items-center gap-1">
               <Icon name="lucide:plus" />
-              Добавить пользователя
+              Добавить компанию
             </Button>
           </div>
         }
       >
-        <Table<ClientRow>
+        <Table<CompanyRow>
           columns={allColumns}
           data={data}
+          isScrollbar
           maxHeight={500}
           rounded="none"
         />
@@ -128,4 +148,4 @@ const IngoAccountsPage: React.FC = () => {
   );
 };
 
-export default IngoAccountsPage;
+export default CompanyManagementPage;

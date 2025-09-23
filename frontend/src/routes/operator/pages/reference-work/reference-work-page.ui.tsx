@@ -21,16 +21,16 @@ interface ReferenceRow {
 }
 
 export const ReferenceWorkPage: React.FC = () => {
-  const allColumns: ColumnDef<ReferenceRow>[] = useMemo(
-    () => [
-      { accessorKey: 'country', header: 'Страна', meta: { width: 251 } },
-      { accessorKey: 'region', header: 'Область', meta: { width: 221 } },
-      { accessorKey: 'city', header: 'Населенный пункт', meta: { width: 281 } },
-      { accessorKey: 'district', header: 'Район', meta: { width: 187 } },
+  const allColumns = useMemo(
+    (): ColumnDef<ReferenceRow>[] => [
+      { accessorKey: 'country', header: 'Страна', size: 251 },
+      { accessorKey: 'region', header: 'Область', size: 221 },
+      { accessorKey: 'city', header: 'Населенный пункт', size: 281 },
+      { accessorKey: 'district', header: 'Район', size: 187 },
       {
         id: 'actions',
         header: '',
-        meta: { width: 60 },
+        size: 60,
         cell: ({ row }) => (
           <div className="flex items-center gap-2 pr-10">
             <button

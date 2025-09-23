@@ -31,13 +31,13 @@ export const DistributorSales: React.FC = React.memo(() => {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: DistributorSalesRow) => row.months[i],
         id: `month${i + 1}`,
         header: `2024`,
-        meta: { width: 70 },
+        size: 70,
       })),
     ],
     []

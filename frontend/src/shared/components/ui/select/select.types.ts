@@ -1,6 +1,9 @@
+import type { IIconProps } from '../icon';
+
 export interface ISelectItem<VT = string> {
   value: VT;
   label: string;
+  icon?: string | IIconProps;
 }
 
 export interface ISelectProps<ISM extends boolean = false, VT = string> {
@@ -10,7 +13,7 @@ export interface ISelectProps<ISM extends boolean = false, VT = string> {
   checkbox?: boolean;
   leftIcon?: React.ReactNode | ((opened: boolean) => React.ReactNode);
   rightIcon?: React.ReactNode | ((opened: boolean) => React.ReactNode);
-  triggerText: string;
+  triggerText?: string;
   classNames?: Partial<{
     root: string;
     trigger: string;

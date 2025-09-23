@@ -22,7 +22,7 @@ export const routePaths = {
   // Administrator
   administrator: {
     ingoAccounts: '/ingo-accounts',
-    clientAccounts: '/client-accounts',
+    customerAccounts: '/customer-accounts',
     companyManagement: '/company-management',
     settingsAdmin: '/a/settings',
   },

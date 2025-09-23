@@ -43,11 +43,11 @@ export const LeaderBoard: React.FC = React.memo(() => {
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
-      { accessorKey: 'place', header: 'Место', meta: { width: 59 } },
-      { accessorKey: 'company', header: 'Компания', meta: { width: 120 } },
-      { accessorKey: 'sales', header: 'Продажи', meta: { width: 100 } },
-      { accessorKey: 'status', header: 'Статус', meta: { width: 100 } },
-      { accessorKey: 'lapseTime', header: 'Время', meta: { width: 80 } },
+      { accessorKey: 'place', header: 'Место', size: 59 },
+      { accessorKey: 'company', header: 'Компания', size: 120 },
+      { accessorKey: 'sales', header: 'Продажи', size: 100 },
+      { accessorKey: 'status', header: 'Статус', size: 100 },
+      { accessorKey: 'lapseTime', header: 'Время', size: 80 },
     ],
     []
   );

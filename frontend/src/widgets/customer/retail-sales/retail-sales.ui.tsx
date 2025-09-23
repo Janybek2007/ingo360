@@ -28,43 +28,43 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 export const RetailSales: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const allColumns: ColumnDef<RetailSalesRow>[] = useMemo(
-    () => [
+  const allColumns = useMemo(
+    (): ColumnDef<RetailSalesRow>[] => [
       {
         accessorKey: 'sku',
         header: 'SKU',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'promoType',
         header: 'Тип промоции',
         enableSorting: true,
-        meta: { width: 140 },
+        size: 140,
       },
       {
         accessorKey: 'group',
         header: 'Группа',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableSorting: true,
-        meta: { width: 120 },
+        size: 120,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: RetailSalesRow) => row.months[i],
         id: `month${i + 1}`,
         header: `2024`,
-        meta: { width: 70 },
+        size: 70,
       })),
     ],
     []

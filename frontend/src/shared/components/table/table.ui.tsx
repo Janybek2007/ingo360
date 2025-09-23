@@ -1,5 +1,10 @@
-import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { useRef } from 'react';
+import {
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from '@tanstack/react-table';
+import { useRef, useState } from 'react';
 
 import { useTableScrollbar } from '#/shared/hooks/use-table-scrollbar';
 import { cn } from '#/shared/utils/cn';
@@ -18,10 +23,17 @@ export function Table<T extends object>({
   isScrollbar = false,
   rounded = 'lg',
 }: ITableProps<T>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const table = useReactTable({
     data,
     columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const tableContainerRef = useRef<HTMLDivElement>(null);

@@ -23,31 +23,31 @@ const SPECIALTIES = ['Терапевт', 'Кардиолог', 'Педиатр',
 export const SpecialistCoverage: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
-  const allColumns: ColumnDef<CoverageRow>[] = useMemo(
-    () => [
+  const allColumns = useMemo(
+    (): ColumnDef<CoverageRow>[] => [
       {
         accessorKey: 'lpu',
         header: 'ЛПУ',
         enableSorting: true,
-        meta: { width: 224 },
+        size: 224,
       },
       {
         accessorKey: 'specialty',
         header: 'Специальность',
         enableSorting: true,
-        meta: { width: 230 },
+        size: 230,
       },
       {
         accessorKey: 'coveragePercent',
         header: 'Процент охвата врачей',
         enableSorting: true,
-        meta: { width: 230 },
+        size: 230,
       },
       {
         accessorKey: 'doctorsWithVisits',
         header: 'Количество врачей с визитами',
         enableSorting: true,
-        meta: { width: 300 },
+        size: 300,
       },
     ],
     []
