@@ -3,17 +3,17 @@
 import type { IFormFieldProps } from '../ui/form-field';
 import type { ISelectProps } from '../ui/select';
 
-export interface ICUModalField {
+export interface ICreateEditModalField {
   label: string;
   name: string;
   defaultValue?: string;
   type?: IFormFieldProps['type'];
   placeholder?: string;
-  select?: Pick<ISelectProps<false>, 'items' | 'value' | 'setValue'>;
+  selectItems?: ISelectProps<false>['items'];
 }
 
-export interface ICUModalProps {
-  fields: (ICUModalField | ICUModalField[])[];
+export interface ICreateEditModalProps {
+  fields: (ICreateEditModalField | ICreateEditModalField[])[];
   title: string;
   primaryText?: string;
   isLoading?: boolean;
@@ -21,4 +21,5 @@ export interface ICUModalProps {
   schema: any;
   onClose: VoidFunction;
   onSubmit: (data: any) => void;
+  portal?: boolean;
 }

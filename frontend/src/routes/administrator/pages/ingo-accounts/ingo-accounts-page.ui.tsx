@@ -1,16 +1,22 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { AddUserWrapper } from '#/features/users/add';
+import { AddUserModal } from '#/features/users/add';
 import { EditUserModal } from '#/features/users/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
-import { Dropdown } from '#/shared/components/ui/dropdown';
+import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
-import { useToggle } from '#/shared/hooks/use-toggle';
-import { cn } from '#/shared/utils/cn';
+import {
+  ROLES,
+  ROLES_OBJECT,
+  STATUSES,
+  STATUSES_OBJECT,
+} from '#/shared/constants/global';
+import { useCreateEditState } from '#/shared/hooks/use-create-edit-state';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
 interface ClientRow {
@@ -20,102 +26,86 @@ interface ClientRow {
   status: string;
 }
 
-const ROLES = ['Администратор', 'Менеджер', 'Пользователь'] as const;
-const STATUSES = ['active', 'inactive'] as const;
-
 const IngoAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [open, { toggle, set }] = useToggle();
+  const [open, { set, clear, data: editData }] =
+    useCreateEditState<ClientRow>();
+  const [data, setData] = useState<ClientRow[]>([]);
 
   const allColumns = useMemo(
     (): ColumnDef<ClientRow>[] => [
       { accessorKey: 'fullName', header: 'ФИО', size: 345 },
-      { accessorKey: 'role', header: 'Роль', size: 345 },
+      {
+        accessorKey: 'role',
+        header: 'Роль',
+        size: 345,
+        cell(props) {
+          return ROLES_OBJECT[props.getValue() as 'admin'];
+        },
+      },
       {
         accessorKey: 'status',
         header: 'Статус',
         size: 200,
         cell(props) {
-          return props.getValue() === 'active' ? 'Активен' : 'Неактивен';
+          return STATUSES_OBJECT[props.getValue() as 'active'];
         },
       },
       {
         accessorKey: 'actions',
         header: '',
         size: 80,
-        cell() {
+        cell(props) {
           return (
-            <div className="w-max">
-              <Dropdown
-                items={[
-                  {
-                    label: 'Редактировать',
-                    icon: { name: 'lucide:pencil', size: 18 },
-                    onSelect: toggle,
-                  },
-                  {
-                    label: 'Сбросить пароль',
-                    icon: { name: 'lucide:lock', size: 18 },
-                  },
-                ]}
-                trigger={({ onClick }) => (
-                  <button
-                    onClick={onClick}
-                    className={cn(
-                      'border border-[#E7EAE9] rounded-full gap-2 p-1',
-                      'text-left bg-white gap-1',
-                      'flex items-center justify-center cursor-pointer'
-                    )}
-                  >
-                    <Icon
-                      color="#94A3B8"
-                      size={20}
-                      name="lucide:ellipsis-vertical"
-                    />
-                  </button>
-                )}
-                classNames={{ menu: 'min-w-[220px] -ml-[180px]' }}
-              />
-            </div>
+            <RowActions
+              items={[
+                {
+                  type: 'edit',
+                  onSelect: () => set('edit', props.row.original),
+                },
+                { type: 'reset_password', onSelect: () => {} },
+              ]}
+            />
           );
         },
       },
     ],
-    [toggle]
+    [set]
   );
 
-  const allData = useMemo(
-    () =>
-      generateMocks(10, {
-        id: () => randomId('client'),
-        fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
-        role: ROLES,
-        status: STATUSES,
-      }),
-    []
-  );
-
-  const data = useMemo(
-    () =>
-      allData.filter(
-        row =>
-          row.fullName.toLowerCase().includes(search.toLowerCase()) ||
-          row.role.toLowerCase().includes(search.toLowerCase()) ||
-          row.status.toLowerCase().includes(search.toLowerCase())
-      ),
-    [search, allData]
-  );
+  useEffect(() => {
+    const mocks = generateMocks(5, {
+      id: () => randomId('client'),
+      fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
+      role: ROLES,
+      status: STATUSES,
+    });
+    const filteredData = mocks.filter(
+      row =>
+        row.fullName.toLowerCase().includes(search.toLowerCase()) ||
+        row.role.toLowerCase().includes(search.toLowerCase()) ||
+        row.status.toLowerCase().includes(search.toLowerCase())
+    );
+    setData(filteredData);
+  }, [search]);
 
   return (
     <main>
-      {open && <EditUserModal onClose={() => set(false)} />}
+      {open === 'edit' && editData && <EditUserModal onClose={clear} />}
+      {open === 'create' && <AddUserModal onClose={clear} />}
       <PageSection
         title="Все клиенты"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton data={data} fileName="clients.xlsx" />
-            <AddUserWrapper />
+            <Button
+              onClick={() => set('create')}
+              className="px-4 py-3 rounded-full flex items-center gap-1"
+            >
+              <Icon name="lucide:plus" />
+              Добавить пользователя
+            </Button>{' '}
           </div>
         }
       >

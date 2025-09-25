@@ -52,7 +52,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
               id={`${name}_for`}
               placeholder={placeholder}
               className={cn(
-                'placeholder:text-c1__3 focus:outline-none',
+                'placeholder:text-c1__3 focus:outline-none font-medium text-c1__3',
                 'text-base leading-5 py-[14px] px-3 rounded-xl',
                 isPasswordToggleShow ? 'w-[90%]' : 'w-full',
                 classNames?.input
@@ -78,9 +78,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
                 menu: 'top-full mt-2 h-max',
               }}
             />
-          ) : (
-            ''
-          )}
+          ) : null}
 
           {isPasswordToggleShow && type === 'password' && (
             <button

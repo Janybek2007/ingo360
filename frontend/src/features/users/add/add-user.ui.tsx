@@ -1,56 +1,39 @@
 import React from 'react';
 import z from 'zod';
 
-import { CUModal } from '#/shared/components/cu-modal';
-import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
-import { useToggle } from '#/shared/hooks/use-toggle';
+import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import { ROLES, ROLES_OBJECT } from '#/shared/constants/global';
 
-export const AddUserWrapper: React.FC = React.memo(() => {
-  const [open, { toggle, set }] = useToggle();
+const schema = z.object({
+  fullName: z.string().min(3, 'Минимум 3 символа'),
+  role: z.enum(ROLES),
+});
+
+export const AddUserModal: React.FC<{
+  onClose: VoidFunction;
+}> = React.memo(({ onClose }) => {
   return (
-    <>
-      <Button
-        onClick={toggle}
-        className="px-4 py-3 rounded-full flex items-center gap-1"
-      >
-        <Icon name="lucide:plus" />
-        Добавить пользователя
-      </Button>{' '}
-      {open && <AddUserModal onClose={() => set(false)} />}
-    </>
+    <CreateEditModal
+      fields={[
+        { label: 'ФИО', name: 'fullName', placeholder: 'ОсОО' },
+        {
+          label: 'Роль',
+          type: 'select',
+          name: 'role',
+          placeholder: 'Оператор',
+          defaultValue: ROLES[0],
+          selectItems: ROLES.map(role => ({
+            label: ROLES_OBJECT[role],
+            value: role,
+          })),
+        },
+      ]}
+      onClose={onClose}
+      schema={schema}
+      title="Добавить нового пользователя"
+      onSubmit={() => {}}
+    />
   );
 });
 
-const AddUserModal: React.FC<{ onClose: VoidFunction }> = React.memo(
-  ({ onClose }) => {
-    return (
-      <CUModal
-        fields={[
-          { label: 'ФИО', name: 'fullname', placeholder: 'ОсОО' },
-          {
-            label: 'Роль',
-            type: 'select',
-            name: 'role',
-            placeholder: 'Оператор',
-            select: {
-              value: 'operator',
-              setValue: () => {},
-              items: [
-                { label: 'Оператор', value: 'operator' },
-                { label: 'Клиент', value: 'User' },
-              ],
-            },
-          },
-        ]}
-        onClose={onClose}
-        schema={z.object({})}
-        title="Добавить нового пользователя"
-        onSubmit={() => {}}
-      />
-    );
-  }
-);
-
 AddUserModal.displayName = '_AddUserModal_';
-AddUserWrapper.displayName = '_AddUserWrapper_';

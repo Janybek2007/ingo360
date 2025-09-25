@@ -1,1 +1,1 @@
-export { AddCustomerWrapper } from './add-customer.ui';
+export { AddCustomerModal } from './add-customer.ui';

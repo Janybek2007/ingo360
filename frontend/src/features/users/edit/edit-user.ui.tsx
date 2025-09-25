@@ -1,51 +1,63 @@
 import React from 'react';
 import z from 'zod';
 
-import { CUModal } from '#/shared/components/cu-modal';
+import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import {
+  ROLES,
+  ROLES_OBJECT,
+  STATUSES,
+  STATUSES_OBJECT,
+} from '#/shared/constants/global';
 
-export const EditUserModal: React.FC<{ onClose: VoidFunction }> = React.memo(
-  ({ onClose }) => {
-    return (
-      <CUModal
-        fields={[
-          { label: 'ФИО', name: 'fullname', placeholder: 'ОсОО' },
-          [
-            {
-              label: 'Роль',
-              type: 'select',
-              name: 'role',
-              placeholder: 'Оператор',
-              select: {
-                value: 'operator',
-                setValue: () => {},
-                items: [
-                  { label: 'Оператор', value: 'operator' },
-                  { label: 'Клиент', value: 'User' },
-                ],
-              },
-            },
-            {
-              label: 'Статус',
-              name: '4',
-              type: 'select',
-              select: {
-                value: 'active',
-                setValue: () => {},
-                items: [
-                  { label: 'Активный', value: 'active' },
-                  { label: 'Неактивен', value: 'inactive' },
-                ],
-              },
-            },
-          ],
-        ]}
-        onClose={onClose}
-        schema={z.object({})}
-        title="Редактировать пользователя"
-        onSubmit={() => {}}
-      />
-    );
-  }
-);
+const schema = z.object({
+  fullName: z.string().min(3, 'Минимум 3 символа'),
+  role: z.enum(ROLES),
+  status: z.enum(STATUSES),
+});
+
+export const EditUserModal: React.FC<{
+  onClose: VoidFunction;
+}> = React.memo(({ onClose }) => {
+  return (
+    <CreateEditModal
+      portal={false}
+      fields={[
+        {
+          label: 'ФИО',
+          name: 'fullName',
+          placeholder: 'ОсОО',
+          defaultValue: '',
+        },
+        [
+          {
+            label: 'Роль',
+            type: 'select',
+            name: 'role',
+            placeholder: 'Оператор',
+            defaultValue: '',
+            selectItems: ROLES.map(role => ({
+              label: ROLES_OBJECT[role],
+              value: role,
+            })),
+          },
+          {
+            label: 'Статус',
+            name: 'status',
+            type: 'select',
+            defaultValue: '',
+            selectItems: STATUSES.map(status => ({
+              label: STATUSES_OBJECT[status],
+              value: status,
+            })),
+          },
+        ],
+      ]}
+      onClose={onClose}
+      schema={schema}
+      title="Редактировать пользователя"
+      onSubmit={() => {}}
+    />
+  );
+});
 
 EditUserModal.displayName = '_EditUserModal_';

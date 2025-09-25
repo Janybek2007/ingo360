@@ -1,1 +1,1 @@
-export { AddUserWrapper } from './add-user.ui';
+export { AddUserModal } from './add-user.ui';

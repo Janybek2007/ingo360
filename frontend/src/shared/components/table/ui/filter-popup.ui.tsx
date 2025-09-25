@@ -169,6 +169,16 @@ export function FilterPopup<T>({
       {/* Actions */}
       <div className="flex justify-end gap-2 mt-2">
         <button
+          onClick={() => {
+            column.setFilterValue(undefined);
+            column.clearSorting();
+            onClose();
+          }}
+          className="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-150"
+        >
+          Сбросить
+        </button>
+        <button
           onClick={onClose}
           className="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-150"
         >

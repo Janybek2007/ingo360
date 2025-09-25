@@ -1,31 +1,12 @@
 import React from 'react';
 import z from 'zod';
 
-import { CUModal } from '#/shared/components/cu-modal';
-import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
-import { useToggle } from '#/shared/hooks/use-toggle';
+import { CreateEditModal } from '#/shared/components/create-edit-modal';
 
-export const AddCompanyWrapper: React.FC = React.memo(() => {
-  const [open, { toggle, set }] = useToggle();
-  return (
-    <>
-      <Button
-        onClick={toggle}
-        className="px-4 py-3 rounded-full flex items-center gap-1"
-      >
-        <Icon name="lucide:plus" />
-        Добавить компанию
-      </Button>{' '}
-      {open && <AddCompanyModal onClose={() => set(false)} />}
-    </>
-  );
-});
-
-const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
+export const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
   ({ onClose }) => {
     return (
-      <CUModal
+      <CreateEditModal
         fields={[
           { label: 'Назвние компании', name: 'name', placeholder: 'ОсОО' },
           [
@@ -57,4 +38,3 @@ const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
 );
 
 AddCompanyModal.displayName = '_AddCompanyModal_';
-AddCompanyWrapper.displayName = '_AddCompanyWrapper_';

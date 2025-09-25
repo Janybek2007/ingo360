@@ -1,16 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { type DefaultValues, type FieldPath, useForm } from 'react-hook-form';
 import type { z, ZodType } from 'zod';
 
 import { Button } from '../ui/button';
 import { FormField } from '../ui/form-field';
 import { Modal } from '../ui/modal';
-import type { ICUModalField, ICUModalProps } from './cu-modal.types';
+import type {
+  ICreateEditModalField,
+  ICreateEditModalProps,
+} from './create-edit-modal.types';
 
 function buildDefaultValues<TSchema extends ZodType>(
-  fields: (ICUModalField | ICUModalField[])[]
+  fields: (ICreateEditModalField | ICreateEditModalField[])[]
 ): DefaultValues<z.output<TSchema>> {
   const acc: Record<string, unknown> = {};
   fields.forEach(f => {
@@ -25,7 +29,7 @@ function buildDefaultValues<TSchema extends ZodType>(
   return acc as DefaultValues<z.output<TSchema>>;
 }
 
-export const CUModal = React.memo(
+export const CreateEditModal = React.memo(
   <TSchema extends ZodType<any, any, any>>({
     fields,
     onClose,
@@ -35,21 +39,26 @@ export const CUModal = React.memo(
     loadingPrimaryText,
     onSubmit,
     schema,
-  }: ICUModalProps) => {
+    portal = true,
+  }: ICreateEditModalProps) => {
     type FormData = z.output<TSchema>;
 
     const {
       register,
       formState: { errors },
       handleSubmit,
+      setValue,
+      watch,
     } = useForm({
       resolver: zodResolver(schema),
       defaultValues: buildDefaultValues<TSchema>(fields),
     });
 
-    return (
+    console.log(watch());
+
+    const Content = (
       <Modal
-        classNames={{ body: 'min-w-[700px]' }}
+        classNames={{ body: 'min-w-[700px] font-roboto' }}
         title={title}
         closeOnOverlayClick={false}
         onClose={onClose}
@@ -63,7 +72,15 @@ export const CUModal = React.memo(
                     {f.map((ff, j) => (
                       <FormField
                         key={`${ff.label}-${j}`}
-                        select={ff.select}
+                        select={{
+                          items: ff.selectItems || [],
+                          value: watch(ff.name),
+                          setValue: value =>
+                            setValue(ff.name, value, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            }),
+                        }}
                         type={ff.type}
                         label={ff.label}
                         name={ff.name}
@@ -86,7 +103,15 @@ export const CUModal = React.memo(
               return (
                 <div key={`${f.label}-${i}-key`}>
                   <FormField
-                    select={f.select}
+                    select={{
+                      items: f.selectItems || [],
+                      value: watch(f.name),
+                      setValue: value =>
+                        setValue(f.name, value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }),
+                    }}
                     type={f.type}
                     label={f.label}
                     name={f.name}
@@ -128,7 +153,8 @@ export const CUModal = React.memo(
         </form>
       </Modal>
     );
+    return portal ? createPortal(Content, document.body) : Content;
   }
 );
 
-CUModal.displayName = '_CUModal_';
+CreateEditModal.displayName = '_CreateEditModal_';

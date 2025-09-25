@@ -65,6 +65,7 @@ export function Select<ISM extends boolean = false, VT = string>({
           'flex items-center justify-center cursor-pointer',
           classNames?.trigger
         )}
+        type="button"
         onClick={toggle}
       >
         {typeof leftIcon == 'function' ? leftIcon(open) : leftIcon}
@@ -93,6 +94,7 @@ export function Select<ISM extends boolean = false, VT = string>({
           {items.map(item => (
             <button
               key={item.value}
+              type="button"
               className={cn(
                 'flex items-center justify-between px-4 py-3 cursor-pointer text-left text-nowrap',
                 'w-full hover:bg-blue-500/10 hover:text-blue-500 text-black',
@@ -117,7 +119,9 @@ export function Select<ISM extends boolean = false, VT = string>({
                 )}
                 <span>{item.label}</span>
               </div>
-              {!checkbox && isSelected(item) && <span>✓</span>}
+              {!checkbox && isSelected(item) && (
+                <Icon name="lucide:check" size={16} />
+              )}
             </button>
           ))}
         </div>

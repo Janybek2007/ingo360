@@ -1,12 +1,13 @@
 import React from 'react';
 import z from 'zod';
 
-import { CUModal } from '#/shared/components/cu-modal';
+import { CreateEditModal } from '#/shared/components/create-edit-modal';
 
 export const EditCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
   ({ onClose }) => {
     return (
-      <CUModal
+      <CreateEditModal
+        portal={false}
         fields={[
           { label: 'Назвние компании', name: 'name', placeholder: 'ОсОО' },
           [
@@ -30,14 +31,11 @@ export const EditCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
               label: 'Статус',
               name: '4',
               type: 'select',
-              select: {
-                value: 'active',
-                setValue: () => {},
-                items: [
-                  { label: 'Активный', value: 'active' },
-                  { label: 'Неактивен', value: 'inactive' },
-                ],
-              },
+              defaultValue: 'active',
+              selectItems: [
+                { label: 'Активный', value: 'active' },
+                { label: 'Неактивен', value: 'inactive' },
+              ],
             },
           ],
         ]}

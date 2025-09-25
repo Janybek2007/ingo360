@@ -1,1 +1,1 @@
-export { AddCompanyWrapper } from './add-company.ui';
+export { AddCompanyModal } from './add-company.ui';

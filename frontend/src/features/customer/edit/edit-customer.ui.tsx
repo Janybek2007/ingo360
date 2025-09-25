@@ -1,12 +1,19 @@
 import React from 'react';
 import z from 'zod';
 
-import { CUModal } from '#/shared/components/cu-modal';
+import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import {
+  ROLES,
+  ROLES_OBJECT,
+  STATUSES,
+  STATUSES_OBJECT,
+} from '#/shared/constants/global';
 
 export const EditCustomerModal: React.FC<{ onClose: VoidFunction }> =
   React.memo(({ onClose }) => {
     return (
-      <CUModal
+      <CreateEditModal
+        portal={false}
         fields={[
           { label: 'ФИО', name: 'fullname', placeholder: 'ОсОО' },
           [
@@ -14,56 +21,44 @@ export const EditCustomerModal: React.FC<{ onClose: VoidFunction }> =
               label: 'Компания',
               type: 'select',
               name: 'company',
-              select: {
-                value: 'company1',
-                setValue: () => {},
-                items: [
-                  { label: 'ОСО', value: 'company1' },
-                  { label: 'Ингосстрах', value: 'company2' },
-                  { label: 'Альфа', value: 'company3' },
-                ],
-              },
+              defaultValue: 'company1',
+              selectItems: [
+                { label: 'ОСО', value: 'company1' },
+                { label: 'Ингосстрах', value: 'company2' },
+                { label: 'Альфа', value: 'company3' },
+              ],
             },
             {
               label: 'Должность',
               type: 'select',
               name: 'company',
-              select: {
-                value: 'manager',
-                setValue: () => {},
-                items: [
-                  { label: 'Менеджер', value: 'manager' },
-                  { label: 'Старший менеджер', value: 'senior_manager' },
-                  { label: 'Специалист', value: 'specialist' },
-                ],
-              },
+              defaultValue: 'manager',
+              selectItems: [
+                { label: 'Менеджер', value: 'manager' },
+                { label: 'Старший менеджер', value: 'senior_manager' },
+                { label: 'Специалист', value: 'specialist' },
+              ],
             },
             {
               label: 'Роль',
               type: 'select',
               name: 'role',
               placeholder: 'Оператор',
-              select: {
-                value: 'operator',
-                setValue: () => {},
-                items: [
-                  { label: 'Оператор', value: 'operator' },
-                  { label: 'Клиент', value: 'customer' },
-                ],
-              },
+              defaultValue: ROLES[0],
+              selectItems: ROLES.map(role => ({
+                label: ROLES_OBJECT[role],
+                value: role,
+              })),
             },
             {
               label: 'Статус',
               name: '4',
               type: 'select',
-              select: {
-                value: 'active',
-                setValue: () => {},
-                items: [
-                  { label: 'Активный', value: 'active' },
-                  { label: 'Неактивен', value: 'inactive' },
-                ],
-              },
+              defaultValue: STATUSES[0],
+              selectItems: STATUSES.map(status => ({
+                label: STATUSES_OBJECT[status],
+                value: status,
+              })),
             },
           ],
           {

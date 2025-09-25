@@ -1,16 +1,22 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
-import { AddCustomerWrapper } from '#/features/customer/add';
+import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
-import { Dropdown } from '#/shared/components/ui/dropdown';
+import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
-import { useToggle } from '#/shared/hooks/use-toggle';
-import { cn } from '#/shared/utils/cn';
+import {
+  ROLES,
+  ROLES_OBJECT,
+  STATUSES,
+  STATUSES_OBJECT,
+} from '#/shared/constants/global';
+import { useCreateEditState } from '#/shared/hooks/use-create-edit-state';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
 interface CustomerRow {
@@ -23,8 +29,6 @@ interface CustomerRow {
   status: string;
 }
 
-const ROLES = ['Администратор', 'Оператор', 'Пользователь'] as const;
-const POSITIONS = ['Менеджер', 'Старший менеджер', 'Специалист'] as const;
 const COMPANIES = ['ОСО', 'Ингосстрах', 'Альфа'] as const;
 const EMAILS = [
   'ivan@example.com',
@@ -32,25 +36,31 @@ const EMAILS = [
   'maria@example.com',
   'sergey@example.com',
 ] as const;
-const STATUSES = ['active', 'inactive'] as const;
 
 const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [open, { toggle, set }] = useToggle();
+  const [open, { set, clear }] = useCreateEditState();
 
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [
       { accessorKey: 'fullName', header: 'ФИО', size: 160 },
       { accessorKey: 'position', header: 'Должность', size: 174 },
       { accessorKey: 'company', header: 'Компания', size: 174 },
-      { accessorKey: 'role', header: 'Роль', size: 160 },
+      {
+        accessorKey: 'role',
+        header: 'Роль',
+        size: 160,
+        cell(props) {
+          return ROLES_OBJECT[props.getValue() as 'admin'];
+        },
+      },
       { accessorKey: 'email', header: 'Email', size: 220 },
       {
         accessorKey: 'status',
         header: 'Статус',
         size: 180,
         cell(props) {
-          return props.getValue() === 'active' ? 'Активен' : 'Неактивен';
+          return STATUSES_OBJECT[props.getValue() as 'active'];
         },
       },
       {
@@ -59,43 +69,17 @@ const CustomerAccountsPage: React.FC = () => {
         size: 80,
         cell() {
           return (
-            <div className="w-max">
-              <Dropdown
-                items={[
-                  {
-                    label: 'Редактировать',
-                    icon: { name: 'lucide:pencil', size: 18 },
-                    onSelect: toggle,
-                  },
-                  {
-                    label: 'Сбросить пароль',
-                    icon: { name: 'lucide:refresh-ccw', size: 18 },
-                  },
-                ]}
-                trigger={({ onClick }) => (
-                  <button
-                    onClick={onClick}
-                    className={cn(
-                      'border border-[#E7EAE9] rounded-full gap-2 p-1',
-                      'text-left bg-white gap-1',
-                      'flex items-center justify-center cursor-pointer'
-                    )}
-                  >
-                    <Icon
-                      color="#94A3B8"
-                      size={20}
-                      name="lucide:ellipsis-vertical"
-                    />
-                  </button>
-                )}
-                classNames={{ menu: 'min-w-[220px] -ml-[180px]' }}
-              />
-            </div>
+            <RowActions
+              items={[
+                { type: 'edit', onSelect: () => set('edit') },
+                { type: 'reset_password', onSelect: () => {} },
+              ]}
+            />
           );
         },
       },
     ],
-    [toggle]
+    [set]
   );
 
   const allData = useMemo(
@@ -103,7 +87,7 @@ const CustomerAccountsPage: React.FC = () => {
       generateMocks(10, {
         id: () => randomId('customer'),
         fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
-        position: POSITIONS,
+        position: ['Менеджер', 'Старший менеджер', 'Специалист'],
         company: COMPANIES,
         role: ROLES,
         email: EMAILS,
@@ -128,14 +112,21 @@ const CustomerAccountsPage: React.FC = () => {
 
   return (
     <main>
-      {open && <EditCustomerModal onClose={() => set(false)} />}
+      {open === 'edit' && <EditCustomerModal onClose={clear} />}
+      {open === 'create' && <AddCustomerModal onClose={clear} />}
       <PageSection
         title="Все клиенты"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton data={data} fileName="customers.xlsx" />
-            <AddCustomerWrapper />
+            <Button
+              onClick={() => set('create')}
+              className="px-4 py-3 rounded-full flex items-center gap-1"
+            >
+              <Icon name="lucide:plus" />
+              Добавить уч. запись
+            </Button>{' '}
           </div>
         }
       >
