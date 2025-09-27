@@ -1,7 +1,9 @@
+import type { GetUserResponse } from '#/entities/user/user.types';
+
 import type { SessionRole } from '../types';
 
 export interface ISessionContext {
-  user: { role: SessionRole } | null;
+  user: GetUserResponse | null;
   isLoading: boolean;
 }
 

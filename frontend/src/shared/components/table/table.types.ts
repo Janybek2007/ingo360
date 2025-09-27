@@ -8,6 +8,7 @@ export interface ITableProps<T> {
   highlightRow?: (row: T) => string;
   isScrollbar?: boolean;
   rounded?: 'none' | 'sm' | 'md' | 'lg';
+  emptyNode?: React.ReactNode;
 }
 
 export interface TableScrollbarProps {
