@@ -35,9 +35,13 @@ export const LoginForm: React.FC = React.memo(() => {
       <div className="flex items-center justify-between my-10 rounded">
         <div className="flex items-center gap-2">
           <Checkbox {...rememberMeBind} />
-          <label htmlFor="remember-me_for" className="text-c1__1">
+          <button
+            type="button"
+            onClick={rememberMeBind.onToggle}
+            className="text-c1__1"
+          >
             Запомнить меня
-          </label>
+          </button>
         </div>
         <Link
           to={routePaths.auth.forgot}

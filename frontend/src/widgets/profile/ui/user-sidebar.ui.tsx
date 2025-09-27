@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Assets } from '#/shared/assets';
+import { useSession } from '#/shared/session';
 import { cn } from '#/shared/utils/cn';
 
 import type { TTabType } from '../profile-content.ui';
@@ -16,6 +17,7 @@ interface IUserSidebarProps {
 
 export const UserSideBar: React.FC<IUserSidebarProps> = React.memo(
   ({ activeTab, setActiveTab }) => {
+    const { user } = useSession();
     return (
       <aside className="min-w-[266px] max-w-[266px] max bg-white p-6 rounded-2xl">
         {/* IMG ВРЕМЕННО ПОСТАВЛЕНО */}
@@ -28,9 +30,11 @@ export const UserSideBar: React.FC<IUserSidebarProps> = React.memo(
           />
           <div className="mt-[-17px]">
             {/* USER NAME  */}
-            <h1 className="text-gray-950 font-bold">Michael Williams</h1>
+            <h1 className="text-gray-950 font-bold">
+              {user?.first_name} {user?.last_name}
+            </h1>
             {/* USERS EMAIL  */}
-            <p className="text-[13px]">expamle.willams.@gmail.com</p>
+            <p className="text-[13px]">{user?.email}</p>
           </div>
         </div>
         <div className="flex flex-col items-start gap-2 mt-9">

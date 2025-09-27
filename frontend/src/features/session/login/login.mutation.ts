@@ -26,6 +26,7 @@ export const useLoginMutation = () => {
   } = useForm({
     resolver: zodResolver(LoginContract),
   });
+  const rememberMe = watch('rememberMe');
 
   const { mutateAsync, status, error } = useMutation({
     mutationKey: ['session-login'],
@@ -59,10 +60,11 @@ export const useLoginMutation = () => {
 
   const rememberMeBind = React.useMemo(
     (): ICheckedBind => ({
-      checked: watch('rememberMe'),
+      checked: rememberMe,
       onChecked: newV => setValue('rememberMe', newV),
+      onToggle: () => setValue('rememberMe', !rememberMe),
     }),
-    [watch, setValue]
+    [rememberMe, setValue]
   );
 
   return {
