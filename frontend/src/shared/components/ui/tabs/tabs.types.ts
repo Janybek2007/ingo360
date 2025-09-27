@@ -17,5 +17,6 @@ export interface ITabsProps {
     root: string;
     tabs: string;
     content: string;
+    tab: string;
   }>;
 }

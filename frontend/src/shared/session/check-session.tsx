@@ -3,15 +3,8 @@ import { useLocation } from 'react-router';
 
 import { useRouter } from '../hooks/use-router';
 import { routePaths } from '../router';
-import type { SessionRole } from '../types';
 import { useSession } from './session.context';
 import type { CheckSessionProps } from './types';
-
-const roleRedirects: Record<SessionRole, string> = {
-  administrator: routePaths.administrator.ingoAccounts,
-  customer: routePaths.customer.home,
-  operator: routePaths.operator.dbWork,
-};
 
 export const CheckSession: React.FC<CheckSessionProps> = ({
   children,
@@ -26,15 +19,13 @@ export const CheckSession: React.FC<CheckSessionProps> = ({
 
     if (user) {
       if (userRole === 'has') {
-        const redirectPath = roleRedirects[user.role];
-        if (redirectPath && redirectPath !== pathname) {
-          navigate(redirectPath, { replace: true });
+        if (routePaths.profile !== pathname) {
+          navigate(routePaths.profile, { replace: true });
         }
       } else {
         if (user.role !== userRole) {
-          const redirectPath = roleRedirects[user.role];
-          if (redirectPath && redirectPath !== pathname) {
-            navigate(redirectPath, { replace: true });
+          if (routePaths.profile !== pathname) {
+            navigate(routePaths.profile, { replace: true });
           }
         }
       }

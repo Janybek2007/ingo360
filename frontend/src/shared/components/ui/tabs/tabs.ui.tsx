@@ -34,7 +34,8 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
                   'border border-transparent px-3 py-2 rounded-full',
                   'transition-all duration-300 ease-in-out',
                   'hover:bg-primary/10',
-                  isActive && 'border-primary bg-primary/10'
+                  isActive && 'border-primary bg-primary/10',
+                  classNames?.tab
                 )}
                 onClick={() => {
                   setCurrent(t.value);
