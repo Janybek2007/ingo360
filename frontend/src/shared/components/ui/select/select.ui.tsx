@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
-import { useElementPosition } from '#/shared/hooks/use-element-position';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
 import { uiSet } from '#/shared/utils/ui-set';
@@ -22,7 +21,6 @@ export function Select<ISM extends boolean = false, VT = string>({
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
-  const elPosition = useElementPosition<HTMLDivElement>(contentRef);
 
   const handleSelect = useCallback(
     (item: ISelectItem) => {
@@ -87,7 +85,7 @@ export function Select<ISM extends boolean = false, VT = string>({
           className={cn(
             'absolute z-10 w-full bg-white rounded-xl max-h-60 overflow-auto',
             'py-3 noscrollbar border border-[#E4E4E4]',
-            elPosition.y == 'top' ? 'top-full mt-2' : 'bottom-full mb-2',
+            'top-full mt-2',
             classNames?.menu
           )}
         >

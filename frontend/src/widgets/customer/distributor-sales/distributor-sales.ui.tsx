@@ -1,8 +1,12 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
+import { Select } from '#/shared/components/ui/select';
+import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { stringFilter } from '#/shared/utils/filter';
 
 interface DistributorSalesRow {
@@ -21,17 +25,14 @@ const generateDummyData = (): DistributorSalesRow[] => {
 
 export const DistributorSales: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const data = useMemo(() => {
-    const allData = generateDummyData();
-    return allData.filter(row => row.distributor.includes(search));
-  }, [search]);
 
-  const columns = useMemo<ColumnDef<DistributorSalesRow>[]>(
+  const allColumns = useMemo<ColumnDef<DistributorSalesRow>[]>(
     () => [
       {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableColumnFilter: true,
+        size: 120,
         filterFn: stringFilter(),
         type: 'string',
       },
@@ -45,26 +46,41 @@ export const DistributorSales: React.FC = React.memo(() => {
     []
   );
 
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility(allColumns);
+
+  const data = useMemo(() => {
+    const allData = generateDummyData();
+    return allData.filter(row =>
+      row.distributor.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search]);
+
   return (
     <PageSection
       title="Продажа по дистрам"
       headerEnd={
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Поиск"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border rounded px-2 py-1"
+        <div className="flex items-center gap-4 relative z-100">
+          <SearchInput saveValue={setSearch} />
+          <Select<true>
+            value={visibleColumns}
+            setValue={setVisibleColumns}
+            items={columnItems}
+            triggerText="Столбцы"
+            checkbox
+            classNames={{ menu: 'min-w-[180px] right-0' }}
           />
-          <button className="border rounded px-2 py-1">Фильтр</button>
-          <button className="border rounded px-2 py-1">
-            Выгрузить в Excel
-          </button>
+          <ExportToExcelButton data={data} fileName="distributor-sales.xlsx" />
         </div>
       }
     >
-      <Table<DistributorSalesRow> columns={columns} data={data} />
+      <Table<DistributorSalesRow>
+        columns={columnsForTable}
+        data={data}
+        maxHeight={340}
+        isScrollbar
+        rounded="none"
+      />
     </PageSection>
   );
 });

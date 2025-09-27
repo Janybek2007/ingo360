@@ -9,11 +9,11 @@ import type { ISessionContext } from './types';
 export const SessionProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  const queryData = useQuery(UserQueries.GetUserQuery());
+  const { data, isLoading } = useQuery(UserQueries.GetUserQuery());
 
   const session: ISessionContext = {
-    user: queryData.data || null,
-    isLoading: queryData.isLoading,
+    user: data || null,
+    isLoading,
   };
 
   return (

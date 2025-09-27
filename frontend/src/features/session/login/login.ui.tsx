@@ -15,12 +15,12 @@ export const LoginForm: React.FC = React.memo(() => {
     <form onSubmit={onSubmit}>
       <div className="space-y-4">
         <FormField
-          name="login-emaik"
+          name="login-username"
           label="Email"
           type="email"
           placeholder="example@gmail.com"
-          register={register('email')}
-          error={errors.email?.message}
+          register={register('username')}
+          error={errors.username?.message}
         />
         <FormField
           name="login-password"
