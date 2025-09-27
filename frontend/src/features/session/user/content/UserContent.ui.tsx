@@ -22,6 +22,7 @@ export const UserContent: React.FC = () => {
         </div>
 
         {/* IMG ВРЕМЕННО ПОСТАВЛЕНО */}
+        {/* USERS PHOTO  */}
         <div className="flex items-center gap-7 mt-8">
           <img
             className="w-[124px] h-[124px] rounded-[100px]"
