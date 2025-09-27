@@ -1,5 +1,7 @@
 import { type RouteObject } from 'react-router';
 
+import { profilePageRoute } from '#/routes/profile';
+
 import { homePageRoute } from '../pages/home';
 import { marketDevelopmentPageRoute } from '../pages/market-development';
 import { primarySalesPageRoute } from '../pages/primary-sales';
@@ -21,5 +23,6 @@ export const customerLayoutRoute: RouteObject = {
     tertiarySalesPageRoute,
     marketDevelopmentPageRoute,
     visitActivityPageRoute,
+    profilePageRoute,
   ],
 };

@@ -1,11 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import { Assets } from '#/shared/assets';
 import { Icon } from '#/shared/components/ui/icon';
+import { routePaths } from '#/shared/router';
 
 import { HeaderTitle } from './ui/header-title.ui';
 
 export const ExpHeader: React.FC = React.memo(() => {
+  const navigate = useNavigate();
   return (
     <header className="bg-white w-full flex items-center justify-between border-b border-c3 px-6 py-4">
       <HeaderTitle />
@@ -20,13 +23,16 @@ export const ExpHeader: React.FC = React.memo(() => {
         </div>
 
         <div className="group">
-          <div className="w-[38px] h-[38px] cursor-pointer overflow-hidden rounded-full">
+          <button
+            onClick={() => navigate(routePaths.profile)}
+            className="w-[38px] h-[38px] cursor-pointer overflow-hidden rounded-full"
+          >
             <img
               src={Assets.DefaultAvatar}
               alt="Logo Avatar"
               className="w-full h-full object-cover"
             />
-          </div>
+          </button>
         </div>
       </div>
     </header>

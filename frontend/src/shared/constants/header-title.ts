@@ -1,6 +1,8 @@
 import { routePaths } from '../router';
 
 export const headerTitle: Record<string, string> = {
+  [routePaths.profile]: 'Профиль',
+
   [routePaths.customer.home]: 'Добро пожаловать 👋🏻',
   [routePaths.customer.primarySales]: 'Первичные продажи',
   [routePaths.customer.tertiarySales]: 'Вторичные продажи',

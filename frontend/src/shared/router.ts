@@ -1,6 +1,7 @@
 export const routePaths = {
   // Общие
   page404: '/404/',
+  profile: '/profile',
 
   // Auth
   auth: {

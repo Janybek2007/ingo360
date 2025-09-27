@@ -1,5 +1,7 @@
 import type { RouteObject } from 'react-router';
 
+import { profilePageRoute } from '#/routes/profile';
+
 import { logsPageRoute } from '../pages/_logs';
 import { dbWorkPageRoute } from '../pages/db-work';
 import { referenceWorkPageRoute } from '../pages/reference-work';
@@ -11,5 +13,10 @@ export const operatorLayoutRoute: RouteObject = {
     );
     return { Component };
   },
-  children: [dbWorkPageRoute, referenceWorkPageRoute, logsPageRoute],
+  children: [
+    dbWorkPageRoute,
+    referenceWorkPageRoute,
+    logsPageRoute,
+    profilePageRoute,
+  ],
 };
