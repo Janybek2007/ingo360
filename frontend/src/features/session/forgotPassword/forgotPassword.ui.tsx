@@ -8,7 +8,7 @@ import { Button } from '#/shared/components/ui/button';
 export const ForgotPassword: React.FC = () => {
   return (
     <div className="flex items-center justify-center">
-      <div className="w-[300px] h-[300px] bg-white p-5 rounded-2xl">
+      <div className="w-[600px] h-[220px] bg-white p-5 rounded-2xl">
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl">Забыли пароль?</h2>
           <p className="text-gray-950">
