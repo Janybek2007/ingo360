@@ -31,7 +31,7 @@ export const Notifications: React.FC = React.memo(() => {
   ];
 
   return (
-    <div className="relative z-[200]" ref={contentRef}>
+    <div className="relative z-[110]" ref={contentRef}>
       <button
         className="relative p-2 border border-[#E7EAE9] rounded-lg hover:bg-gray-50"
         onClick={toggle}
@@ -44,7 +44,7 @@ export const Notifications: React.FC = React.memo(() => {
         )}
       </button>
       {isOpen && (
-        <div className="absolute right-0 mt-2 max-w-[440px] min-w-[440px] bg-white border border-gray-200 rounded-md shadow-lg text-sm z-50">
+        <div className="absolute right-0 mt-2 max-w-[440px] min-w-[440px] z-50 bg-white border border-gray-200 rounded-md shadow-lg text-sm">
           <div className="flex items-center justify-between px-3 py-4 border-b border-[#ECECEC]">
             <h3 className="font-inter flex items-center font-semibold text-black">
               Уведомления

@@ -94,7 +94,7 @@ const IngoAccountsPage: React.FC = () => {
       {open === 'edit' && editData && <EditUserModal onClose={clear} />}
       {open === 'create' && <AddUserModal onClose={clear} />}
       <PageSection
-        title="Все клиенты"
+        title="Учетные записи Инго"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />

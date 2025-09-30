@@ -1,10 +1,22 @@
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import z from 'zod';
 
+import { CompanyQueries } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
+
+/*
+POST /api/v1/users
+{
+  email: string;
+  company_id: string
+}
+*/
 
 export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
   ({ onClose }) => {
+    useQuery(CompanyQueries.GetCompaniesQuery());
+
     return (
       <CreateEditModal
         fields={[
@@ -24,7 +36,7 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
             {
               label: 'Должность',
               type: 'select',
-              name: 'company',
+              name: 'position',
               defaultValue: 'manager',
               selectItems: [
                 { label: 'Менеджер', value: 'manager' },
@@ -33,16 +45,6 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
               ],
             },
           ],
-          {
-            label: 'Роль',
-            type: 'select',
-            name: 'role',
-            defaultValue: 'operator',
-            selectItems: [
-              { label: 'Оператор', value: 'operator' },
-              { label: 'Клиент', value: 'customer' },
-            ],
-          },
           {
             label: 'Email',
             type: 'text',

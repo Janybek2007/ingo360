@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { AccessCompanyModal } from '#/features/company/access';
 import { AddCompanyModal } from '#/features/company/add';
 import { EditCompanyModal } from '#/features/company/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -30,6 +31,7 @@ const COMPANIES = ['ОСО', 'Ингосстрах', 'Альфа'] as const;
 const CompanyManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useCreateEditState();
+  const [openAccess, setOpenAccess] = useState(false);
 
   const allColumns = useMemo(
     (): ColumnDef<CompanyRow>[] => [
@@ -70,7 +72,10 @@ const CompanyManagementPage: React.FC = () => {
             <RowActions
               items={[
                 { type: 'edit', onSelect: () => set('edit') },
-                { type: 'access_settings', onSelect: () => {} },
+                {
+                  type: 'access_settings',
+                  onSelect: () => setOpenAccess(true),
+                },
               ]}
             />
           );
@@ -107,6 +112,9 @@ const CompanyManagementPage: React.FC = () => {
     <main>
       {open === 'edit' && <EditCompanyModal onClose={clear} />}
       {open === 'create' && <AddCompanyModal onClose={clear} />}
+      {openAccess && (
+        <AccessCompanyModal onClose={() => setOpenAccess(false)} />
+      )}
       <PageSection
         title="Все Компании"
         headerEnd={

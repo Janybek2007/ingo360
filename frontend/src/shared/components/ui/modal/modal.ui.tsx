@@ -20,11 +20,11 @@ const Modal: React.FC<IModalProps> = React.memo(
       () => closeOnOverlayClick && onClose()
     );
     return createPortal(
-      <div className={'fixed inset-0 flexCenter z-[100]'}>
+      <div className={'fixed inset-0 flexCenter z-[300]'}>
         <div className="overlay"></div>
         <div
           className={cn(
-            'relative z-[90] p-8 bg-white rounded-2xl',
+            'relative z-[290] p-8 bg-white rounded-2xl',
             classNames?.body
           )}
           ref={contentRef}

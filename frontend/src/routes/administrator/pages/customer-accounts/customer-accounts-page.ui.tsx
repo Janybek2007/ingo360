@@ -10,12 +10,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
-import {
-  ROLES,
-  ROLES_OBJECT,
-  STATUSES,
-  STATUSES_OBJECT,
-} from '#/shared/constants/global';
+import { ROLES, STATUSES, STATUSES_OBJECT } from '#/shared/constants/global';
 import { useCreateEditState } from '#/shared/hooks/use-create-edit-state';
 import { selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId } from '#/shared/utils/mock';
@@ -70,21 +65,6 @@ const CustomerAccountsPage: React.FC = () => {
           label: company,
           value: company,
         })),
-      },
-      {
-        accessorKey: 'role',
-        header: 'Роль',
-        size: 160,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: ROLES.map(role => ({
-          label: ROLES_OBJECT[role],
-          value: role,
-        })),
-        cell(props) {
-          return ROLES_OBJECT[props.getValue() as 'admin'];
-        },
       },
       { accessorKey: 'email', header: 'Email', size: 220 },
       {
@@ -147,7 +127,7 @@ const CustomerAccountsPage: React.FC = () => {
       {open === 'edit' && <EditCustomerModal onClose={clear} />}
       {open === 'create' && <AddCustomerModal onClose={clear} />}
       <PageSection
-        title="Все клиенты"
+        title="Управление уч. записями клиентов"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />

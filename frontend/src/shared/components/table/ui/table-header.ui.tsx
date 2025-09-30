@@ -27,7 +27,7 @@ export function TableHeader<T>({ table }: ITableHeaderProps<T>) {
                 key={header.id}
                 className={cn(
                   'py-4 pl-4 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
-                  'border-b border-[#E4E4E4] not-last:border-r bg-[#F9F9F9]'
+                  'border-b border-[#E4E4E4] not-last:border-r bg-[#F9F9F9] group'
                 )}
                 style={{
                   ...getCommonPinningStyles(header.column),
@@ -41,7 +41,10 @@ export function TableHeader<T>({ table }: ITableHeaderProps<T>) {
                   aria-label="Resize column"
                   onMouseDown={header.getResizeHandler()}
                   onTouchStart={header.getResizeHandler()}
-                  className="absolute right-0 top-0 h-full w-1 select-none touch-manipulation"
+                  className={cn(
+                    'absolute right-0 top-0 h-full w-1 select-none touch-manipulation',
+                    'group-hover:bg-red-500'
+                  )}
                   style={{
                     padding: 0,
                     background: 'transparent',

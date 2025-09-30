@@ -1,10 +1,10 @@
-export const ROLES = ['admin', 'manager', 'user'] as const;
+export const ROLES = ['admin', 'operator', 'customer'] as const;
 export const STATUSES = ['active', 'inactive'] as const;
 
 export const ROLES_OBJECT = {
   admin: 'Администратор',
-  manager: 'Менеджер',
-  user: 'Пользователь',
+  operator: 'Оператор',
+  customer: 'Клиент',
 } as const;
 
 export const STATUSES_OBJECT = {
