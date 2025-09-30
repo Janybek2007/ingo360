@@ -25,8 +25,11 @@ interface DbRow {
   year: number;
   indicator: string;
   packs: number;
+  published: boolean;
   sumUsd: number;
 }
+
+// кнопка = опубликовать все неопубликованные, column status=pubished/unpublished
 
 const saleTypes = ['Первичные', 'Вторичные', 'Третичные'];
 
@@ -45,6 +48,22 @@ export const DbWorkPage: React.FC = () => {
       { accessorKey: 'indicator', header: 'Показатель', size: 180 },
       { accessorKey: 'packs', header: 'Упаковки', size: 140 },
       { accessorKey: 'sumUsd', header: 'Сумма $', size: 140 },
+      {
+        accessorKey: 'published',
+        header: 'Опубликовано',
+        size: 180,
+        enableSorting: true,
+        enableColumnFilter: true,
+        cell: ({ row }) => (
+          <span
+            className={
+              row.original.published ? 'text-green-500' : 'text-red-500'
+            }
+          >
+            {row.original.published ? 'Опубликовано' : 'Не опубликовано'}
+          </span>
+        ),
+      },
       {
         id: 'actions',
         header: '',
@@ -100,6 +119,7 @@ export const DbWorkPage: React.FC = () => {
         year: () => 2024 + randomInt(0, 2),
         indicator: ['Показатель 1', 'Показатель 2'],
         packs: () => randomInt(0, 500),
+        published: () => true,
         sumUsd: () => randomInt(0, 10000),
       }),
     []
@@ -131,16 +151,13 @@ export const DbWorkPage: React.FC = () => {
             />
             <ExportToExcelButton data={data} fileName="dbwork.xlsx" />
             <Button className="px-4 py-2 rounded-full">Импорт из файла</Button>
-            <Button className="px-4 py-2 rounded-full">
-              Добавить ресурс
-            </Button>{' '}
           </div>
         }
       >
         <Table<DbRow>
           columns={columnsForTable}
           data={data}
-          maxHeight={340}
+          maxHeight={500}
           isScrollbar
           rounded="none"
         />

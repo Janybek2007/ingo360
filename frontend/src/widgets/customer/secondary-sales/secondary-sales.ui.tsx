@@ -32,6 +32,8 @@ export const SecondarySales: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -40,14 +42,18 @@ export const SecondarySales: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'promoType',
         header: 'Тип промоции',
         enableColumnFilter: true,
-        size: 140,
+        size: 180,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -56,6 +62,8 @@ export const SecondarySales: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -64,6 +72,8 @@ export const SecondarySales: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: SecondarySalesRow) => row.months[i],
@@ -71,6 +81,12 @@ export const SecondarySales: React.FC = React.memo(() => {
         header: `2024/${i + 1}`,
         size: 100,
       })),
+      {
+        accessorKey: 'total',
+        header: 'Итого',
+        size: 120,
+        cell: ({ row }) => row.original.months.reduce((a, b) => a + b, 0),
+      },
     ],
     []
   );
@@ -115,6 +131,7 @@ export const SecondarySales: React.FC = React.memo(() => {
               menu: 'min-w-[180px] right-0',
             }}
           />
+          {/* Filter by money/packaging */}
           <ExportToExcelButton data={data} fileName="secondary-sales.xlsx" />
         </div>
       }
@@ -122,7 +139,7 @@ export const SecondarySales: React.FC = React.memo(() => {
       <Table<SecondarySalesRow>
         columns={columnsForTable}
         data={data}
-        maxHeight={340}
+        maxHeight={500}
         isScrollbar
         rounded="none"
       />

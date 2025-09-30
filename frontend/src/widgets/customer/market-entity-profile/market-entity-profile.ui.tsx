@@ -40,7 +40,6 @@ const tabItems: { value: ETabs; label: string }[] = [
 
 export const MarketEntityProfile: React.FC = React.memo(() => {
   const [activeTab, setActiveTab] = useState<ETabs>('companies');
-  const [filterType, setFilterType] = useState<string>('');
   const [filterPeriod, setFilterPeriod] = useState<string>('');
   const [filterTop, setFilterTop] = useState<string>('');
 
@@ -73,16 +72,6 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
       title="Профайл компании, бренда или сегмента"
       headerEnd={
         <div className="flex gap-4 items-center relative z-100">
-          <Select
-            value={filterType}
-            setValue={setFilterType}
-            items={[
-              { value: 'type1', label: 'Тип 1' },
-              { value: 'type2', label: 'Тип 2' },
-            ]}
-            triggerText="Тип компании"
-            classNames={{ menu: 'min-w-[150px] right-0' }}
-          />
           <Select
             value={filterPeriod}
             setValue={setFilterPeriod}
@@ -141,8 +130,9 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
             highlightRow={row =>
               row.place === 34 ? 'bg-yellow-100 font-bold' : ''
             }
+            pinnedRow={row => row.place === 34}
             columns={columns}
-            maxHeight={300}
+            maxHeight={400}
             data={data}
           />
         </div>

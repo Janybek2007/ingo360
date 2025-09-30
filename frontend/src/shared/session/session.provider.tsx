@@ -12,7 +12,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
   const { data, isLoading } = useQuery(UserQueries.GetUserQuery());
 
   const session: ISessionContext = {
-    user: data || null,
+    user: data ?? null,
     isLoading,
   };
 

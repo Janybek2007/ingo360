@@ -11,7 +11,8 @@ export interface GetUserResponse {
   patronymic: string;
   phone_number: string;
   last_login: string;
-  is_staff: boolean;
+  is_operator: boolean;
   is_admin: boolean;
+  company_id: number;
   role: SessionRole;
 }

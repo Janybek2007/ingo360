@@ -36,6 +36,8 @@ export const DistributorShare: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -44,6 +46,8 @@ export const DistributorShare: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -52,6 +56,8 @@ export const DistributorShare: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -60,6 +66,8 @@ export const DistributorShare: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       ...Array.from(
         { length: 12 },
@@ -72,6 +80,12 @@ export const DistributorShare: React.FC = React.memo(() => {
             cell: info => `${info.getValue()}%`,
           }) as ColumnDef<DistributorShareRow>
       ),
+      {
+        accessorKey: 'total',
+        header: 'Итого',
+        size: 120,
+        cell: ({ row }) => row.original.months.reduce((a, b) => a + b, 0),
+      },
     ],
     []
   );
@@ -100,7 +114,7 @@ export const DistributorShare: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Доли Дистров %"
+      title="Доли дистров деньгах/процентах"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
@@ -114,6 +128,7 @@ export const DistributorShare: React.FC = React.memo(() => {
               menu: 'min-w-[180px] right-0',
             }}
           />
+          {/* Filter by money/percent */}
           <ExportToExcelButton data={data} fileName="distributor-share.xlsx" />
         </div>
       }
@@ -122,7 +137,7 @@ export const DistributorShare: React.FC = React.memo(() => {
         columns={columnsForTable}
         data={data}
         isScrollbar
-        maxHeight={340}
+        maxHeight={500}
         rounded="none"
       />
     </PageSection>

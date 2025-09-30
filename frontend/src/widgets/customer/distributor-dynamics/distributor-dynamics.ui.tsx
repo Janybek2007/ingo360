@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { randomInt } from '#/shared/utils/mock';
 
 const distributorsData = [
@@ -23,6 +24,7 @@ const getRandomValues = () =>
   Array.from({ length: 12 }, () => randomInt(0, 61));
 
 export const DistributorDynamics: React.FC = React.memo(() => {
+  const sectionStyle = useSectionStyle();
   const chartData = useMemo(() => {
     return Array.from({ length: 12 }).map((_, i) => {
       const obj: Record<string, number | string> = { month: i + 1 };
@@ -37,12 +39,13 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     <PageSection
       title="Динамика вторичных продаж по дистрам (в сравнении)"
       legends={distributorsData.map(d => ({ label: d.name, fill: d.color }))}
+      headerEnd={<>{/* Filter by group/brand/distr */}</>}
     >
       <div className="font-inter">
         <LineChart
           className="-ml-4"
-          width={1074}
-          height={300}
+          width={sectionStyle.width - 48}
+          height={500}
           data={chartData}
           margin={{ top: 20, right: 16, bottom: 20 }}
         >

@@ -1,5 +1,6 @@
 import {
   type ColumnFiltersState,
+  type ColumnPinningState,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
@@ -21,22 +22,31 @@ export function Table<T extends object>({
   data,
   className = '',
   maxHeight = 500,
-  highlightRow,
   isScrollbar = false,
   rounded = 'lg',
+  highlightRow,
+  pinnedRow,
 }: ITableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>(() => {
+    const leftPinnedColumns = columns
+      .filter(col => col.enablePinning)
+      .map(col => col.id || String(col.accessorKey) || '');
+    return { left: leftPinnedColumns, right: [] };
+  });
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting, columnFilters },
+    state: { sorting, columnFilters, columnPinning },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    columnResizeMode: 'onChange',
   });
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -56,9 +66,16 @@ export function Table<T extends object>({
         )}
         style={{ maxHeight }}
       >
-        <table id="custom-table" className="min-w-full noscrollbar text-sm">
+        <table
+          id="custom-table"
+          className="w-full text-sm border-separate border-spacing-0"
+        >
           <TableHeader table={table} />
-          <TableBody table={table} highlightRow={highlightRow} />
+          <TableBody
+            table={table}
+            highlightRow={highlightRow}
+            pinnedRow={pinnedRow}
+          />
         </table>
       </div>
 

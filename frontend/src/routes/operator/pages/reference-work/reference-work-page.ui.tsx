@@ -75,13 +75,48 @@ export const ReferenceWorkPage: React.FC = () => {
     <main>
       <Tabs
         items={[
-          { label: 'Аптека', value: 'pharmacy' },
-          { label: 'ЛПУ', value: 'lpu' },
-          { label: 'Бренды', value: 'brands' },
-          { label: 'География', value: 'geography' },
-          { label: 'Препараты', value: 'products' },
-          { label: 'Сотрудники', value: 'employees' },
-          { label: 'Клиенты', value: 'clients' },
+          {
+            label: 'География',
+            value: 'geography',
+            subItems: [
+              { label: 'Страна', value: 'country' },
+              { label: 'Населенный пункт', value: 'locality' },
+              { label: 'Область', value: 'region' },
+              { label: 'Район', value: 'district' },
+            ],
+          },
+          {
+            label: 'Препараты',
+            value: 'pharmacy',
+            subItems: [
+              { label: 'Группа товаров', value: 'all_pharmacies' },
+              { label: 'Тип промоции', value: 'retail_pharmacies' },
+              { label: 'Бренды', value: 'chain_pharmacies' },
+              { label: 'Форма выпуска', value: 'chain_pharmacies' },
+              { label: 'Сегмент', value: 'chain_pharmacies' },
+              { label: 'SKU', value: 'sku' },
+            ],
+          },
+          {
+            label: 'Сотрудники',
+            value: 'employees',
+            subItems: [
+              { label: 'Должность', value: 'position' },
+              { label: 'Сотрудник', value: 'employee' },
+            ],
+          },
+          {
+            label: 'Клиенты',
+            value: 'customers',
+            subItems: [
+              { label: 'Дистрибьютор/сеть', value: 'distributor/network' },
+              { label: 'ЛПУ', value: 'lpu' },
+              { label: 'Специальность врачей', value: 'speciality' },
+              { label: 'Категория клиента', value: 'client_category' },
+              { label: 'Врачи', value: 'doctors' },
+              { label: 'Аптека', value: 'pharmacy' },
+            ],
+          },
         ]}
       ></Tabs>
       <PageSection
@@ -108,7 +143,7 @@ export const ReferenceWorkPage: React.FC = () => {
         <Table<ReferenceRow>
           columns={columnsForTable}
           data={data}
-          maxHeight={340}
+          maxHeight={500}
           rounded="none"
         />
       </PageSection>

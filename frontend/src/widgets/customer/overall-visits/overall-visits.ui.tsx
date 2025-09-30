@@ -11,6 +11,7 @@ import {
 
 import { PageSection } from '#/shared/components/page-section';
 import { Month } from '#/shared/constants/months';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 
 const data: { month: string; value: number; label: number }[] = [
   { month: Month.JAN, value: 2.8, label: 280000 },
@@ -28,6 +29,7 @@ const data: { month: string; value: number; label: number }[] = [
 ];
 
 export const OverallVisits: React.FC = React.memo(() => {
+  const sectionStyle = useSectionStyle();
   return (
     <PageSection
       title="Визитов"
@@ -37,8 +39,8 @@ export const OverallVisits: React.FC = React.memo(() => {
       <div className="font-inter">
         <LineChart
           className="-ml-4"
-          width={1074}
-          height={300}
+          width={sectionStyle.width - 48}
+          height={500}
           data={data}
           margin={{ top: 20, right: 16, bottom: 20 }}
         >

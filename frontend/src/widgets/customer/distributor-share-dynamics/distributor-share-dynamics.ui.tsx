@@ -2,6 +2,7 @@ import React from 'react';
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 
 const data = [
   { month: 1, eray: 20, neman: 5, med: 10, bimed: 15, elay: 20 },
@@ -27,10 +28,20 @@ const legends = [
 ];
 
 export const DistributorShareDynamics: React.FC = React.memo(() => {
+  const sectionStyle = useSectionStyle();
   return (
-    <PageSection legends={legends} title="Динамика долей дистров в первичке">
+    <PageSection
+      legends={legends}
+      title="Динамика долей дистров в первичке"
+      headerEnd={<>{/* Filter by brand/group */}</>}
+    >
       <div className="font-inter">
-        <BarChart className="-ml-4" width={1074} height={360} data={data}>
+        <BarChart
+          className="-ml-4"
+          width={sectionStyle.width - 48}
+          height={500}
+          data={data}
+        >
           <CartesianGrid strokeDasharray="4 4" vertical={false} />
           <XAxis
             axisLine={false}
@@ -50,7 +61,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
 
           <Bar
             dataKey="eray"
-            barSize={40}
+            barSize={60}
             stackId="a"
             fill="#1f77b4"
             name="Эрай"

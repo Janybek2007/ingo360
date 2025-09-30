@@ -5,7 +5,7 @@ import { CheckSession } from '#/shared/session';
 
 const AuthLayout: React.FC = () => {
   return (
-    <CheckSession userRole="has">
+    <CheckSession>
       <Outlet />
     </CheckSession>
   );

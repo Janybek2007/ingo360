@@ -116,7 +116,7 @@ const LogsPage: React.FC = () => {
         <Table<LogRow>
           columns={columnsForTable}
           data={data}
-          maxHeight={400}
+          maxHeight={500}
           rounded="none"
         />
       </PageSection>

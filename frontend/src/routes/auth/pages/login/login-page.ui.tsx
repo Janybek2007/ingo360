@@ -4,6 +4,8 @@ import { SendRequestWrapper } from '#/features/request/send';
 import { LoginForm } from '#/features/session/login';
 import { Assets } from '#/shared/assets';
 
+// добавить службу поддержки
+
 const LoginPage: React.FC = () => {
   return (
     <main className="h-screen font-inter">

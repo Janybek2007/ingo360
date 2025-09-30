@@ -1,6 +1,8 @@
 import React from 'react';
 import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
+
 const data = [
   // Неделя 1 (1n): периоды 1-2-3
   { period: 1, week: 1, cycle: 1, remains: 65, tertiary: 35, trade_stock: 52 },
@@ -88,12 +90,14 @@ const CustomXAxisTick = (props: any) => {
 };
 
 export const DynamicPrimarySalesAsMixed: React.FC = React.memo(() => {
+  const sectionStyle = useSectionStyle();
+
   return (
     <div className="font-inter">
       <ComposedChart
         className="-ml-4"
-        width={1074}
-        height={300}
+        width={sectionStyle.width - 48}
+        height={500}
         margin={{ top: 20, right: 16, bottom: 20 }}
         data={processedData}
         barGap={0}
@@ -120,7 +124,7 @@ export const DynamicPrimarySalesAsMixed: React.FC = React.memo(() => {
 
         <Bar
           dataKey="remains"
-          fill={'#00B050'}
+          fill={'#0B5A7C'}
           maxBarSize={Infinity}
           radius={[0, 0, 0, 0]}
         />

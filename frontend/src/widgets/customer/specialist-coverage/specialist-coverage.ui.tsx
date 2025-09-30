@@ -7,6 +7,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface CoverageRow {
@@ -29,6 +30,9 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         accessorKey: 'lpu',
         header: 'ЛПУ',
         size: 224,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
       },
       {
         accessorKey: 'specialty',
@@ -92,7 +96,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       <Table<CoverageRow>
         columns={columnsForTable}
         data={data}
-        maxHeight={340}
+        maxHeight={500}
         rounded="none"
       />
     </PageSection>

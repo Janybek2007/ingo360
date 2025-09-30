@@ -38,6 +38,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -46,6 +48,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'promoType',
@@ -54,6 +58,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         size: 160,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -62,6 +68,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -70,6 +78,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: NumericalDistributionRow) => row.months[i],
@@ -77,6 +87,13 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         header: `2024/${i + 1}`,
         size: 100,
       })),
+      {
+        accessorKey: 'total',
+        header: 'Итого',
+        size: 120,
+        accessorFn: (row: NumericalDistributionRow) =>
+          row.months.reduce((a, b) => a + b, 0),
+      },
     ],
     []
   );
@@ -132,11 +149,10 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         columns={columnsForTable}
         data={data}
         isScrollbar
-        maxHeight={340}
+        maxHeight={550}
         rounded="none"
       />
     </PageSection>
   );
 });
-
 NumericalDistribution.displayName = '_NumericalDistribution_';

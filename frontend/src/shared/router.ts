@@ -25,7 +25,6 @@ export const routePaths = {
     ingoAccounts: '/ingo-accounts',
     customerAccounts: '/customer-accounts',
     companyManagement: '/company-management',
-    settingsAdmin: '/a/settings',
   },
 
   // Operator
@@ -33,6 +32,29 @@ export const routePaths = {
     dbWork: '/db-work',
     referenceWork: '/reference-work',
     logs: '/logs',
-    settingsOperator: '/o/settings',
   },
+};
+
+export const roleAccess = {
+  customer: [
+    routePaths.customer.home,
+    routePaths.customer.primarySales,
+    routePaths.customer.secondarySales,
+    routePaths.customer.tertiarySales,
+    routePaths.customer.marketDevelopment,
+    routePaths.customer.visitActivity,
+    routePaths.profile,
+  ],
+  administrator: [
+    routePaths.administrator.ingoAccounts,
+    routePaths.administrator.customerAccounts,
+    routePaths.administrator.companyManagement,
+    routePaths.profile,
+  ],
+  operator: [
+    routePaths.operator.dbWork,
+    routePaths.operator.referenceWork,
+    routePaths.operator.logs,
+    routePaths.profile,
+  ],
 };

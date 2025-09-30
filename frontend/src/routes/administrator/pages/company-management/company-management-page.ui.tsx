@@ -33,7 +33,11 @@ const CompanyManagementPage: React.FC = () => {
 
   const allColumns = useMemo(
     (): ColumnDef<CompanyRow>[] => [
-      { accessorKey: 'company', header: 'Компания', size: 177 },
+      {
+        accessorKey: 'company',
+        header: 'Компания',
+        size: 177,
+      },
       {
         accessorKey: 'accountLimit',
         header: 'Лимит учетных записей',

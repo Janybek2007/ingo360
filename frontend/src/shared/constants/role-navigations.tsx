@@ -58,11 +58,6 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
       label: 'Управление компаниями',
       icon: <Icon name="mdi:office-building" />,
     },
-    {
-      href: routePaths.administrator.settingsAdmin,
-      label: 'Настройки',
-      icon: <Icon name="mdi:cog" />,
-    },
   ],
   operator: [
     {
@@ -79,11 +74,6 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
       href: routePaths.operator.logs,
       label: 'Посмотреть логи от...',
       icon: <Icon name="mdi:file-document-outline" />,
-    },
-    {
-      href: routePaths.operator.settingsOperator,
-      label: 'Настройки',
-      icon: <Icon name="mdi:cog" />,
     },
   ],
 };

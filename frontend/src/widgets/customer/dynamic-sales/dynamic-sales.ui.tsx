@@ -9,7 +9,10 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { Icon } from '#/shared/components/ui/icon';
+import { Select } from '#/shared/components/ui/select';
 import { Month } from '#/shared/constants/months';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 
 const yearlyData: Record<
   number,
@@ -46,6 +49,7 @@ const yearlyData: Record<
 };
 
 export const DynamicSales: React.FC = React.memo(() => {
+  const sectionStyle = useSectionStyle();
   const years = [2024, 2025];
   const [selectedYear, setSelectedYear] = useState(2024);
 
@@ -57,24 +61,26 @@ export const DynamicSales: React.FC = React.memo(() => {
         { label: 'Вторичное значение', fill: '#E97030' },
       ]}
       headerEnd={
-        <select
-          className="border px-3 py-1 rounded cursor-pointer"
-          value={selectedYear}
-          onChange={e => setSelectedYear(Number(e.target.value))}
-        >
-          {years.map(year => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
+        <div>
+          <Select<false, number>
+            triggerText={'Год'}
+            items={years.map(y => ({ label: String(y), value: String(y) }))}
+            value={selectedYear}
+            setValue={newValue => setSelectedYear(newValue)}
+            rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+            classNames={{
+              trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+              menu: 'w-full right-0',
+            }}
+          />
+        </div>
       }
     >
       <div className="font-inter">
         <LineChart
           className="-ml-4"
-          width={1064}
-          height={300}
+          width={sectionStyle.width - 48}
+          height={500}
           data={yearlyData[selectedYear]}
           margin={{ top: 20, right: 16, bottom: 20 }}
         >

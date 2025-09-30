@@ -1,11 +1,12 @@
 export interface ITabItem {
   label: string;
   value: string;
+  subItems?: ITabItem[];
 }
 
 export interface ITabsChildrenProps {
   current: string;
-  set: (newValue: string) => void;
+  currentSubTab?: string;
 }
 
 export interface ITabsProps {

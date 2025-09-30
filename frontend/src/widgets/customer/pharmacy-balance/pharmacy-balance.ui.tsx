@@ -10,8 +10,9 @@ import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { stringFilter } from '#/shared/utils/filter';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
-interface WhiteSpotsRow {
+interface PharmacyBalanceRow {
   id: string;
+  pharmacy: string;
   sku: string;
   brand: string;
   promoType: string;
@@ -25,12 +26,13 @@ const BRANDS = ['Бренд 1', 'Бренд 2', 'Бренд 3'] as const;
 const PROMO_TYPES = ['Промо', 'Скидка', 'Акция'] as const;
 const GROUPS = ['Группа 1', 'Группа 2'] as const;
 const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
+const PHARMACIES = ['Аптека 1', 'Аптека 2', 'Аптека 3'] as const;
 
-export const WhiteSpots: React.FC = React.memo(() => {
+export const PharmacyBalance: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
   const allColumns = useMemo(
-    (): ColumnDef<WhiteSpotsRow>[] => [
+    (): ColumnDef<PharmacyBalanceRow>[] => [
       {
         accessorKey: 'sku',
         header: 'SKU',
@@ -38,6 +40,18 @@ export const WhiteSpots: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
+      },
+      {
+        accessorKey: 'pharmacy',
+        header: 'Аптека',
+        enableColumnFilter: true,
+        size: 120,
+        filterFn: stringFilter(),
+        type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -46,6 +60,8 @@ export const WhiteSpots: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'promoType',
@@ -54,6 +70,8 @@ export const WhiteSpots: React.FC = React.memo(() => {
         size: 160,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -62,6 +80,8 @@ export const WhiteSpots: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -70,13 +90,22 @@ export const WhiteSpots: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
-        accessorFn: (row: WhiteSpotsRow) => row.months[i],
+        accessorFn: (row: PharmacyBalanceRow) => row.months[i],
         id: `month${i + 1}`,
         header: `2024/${i + 1}`,
         size: 100,
       })),
+      {
+        accessorKey: 'total',
+        header: 'Итого',
+        size: 120,
+        accessorFn: (row: PharmacyBalanceRow) =>
+          row.months.reduce((a, b) => a + b, 0),
+      },
     ],
     []
   );
@@ -87,6 +116,7 @@ export const WhiteSpots: React.FC = React.memo(() => {
   const data = useMemo(() => {
     const allData = generateMocks(10, {
       id: () => randomId('whitespot'),
+      pharmacy: PHARMACIES,
       sku: SKUS,
       brand: BRANDS,
       promoType: PROMO_TYPES,
@@ -107,7 +137,7 @@ export const WhiteSpots: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Анализ аптек где нет препарата (&lt;1 ул)"
+      title="Остаток по аптекам"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
@@ -125,15 +155,15 @@ export const WhiteSpots: React.FC = React.memo(() => {
         </div>
       }
     >
-      <Table<WhiteSpotsRow>
+      <Table<PharmacyBalanceRow>
         columns={columnsForTable}
         data={data}
         isScrollbar
-        maxHeight={340}
+        maxHeight={550}
         rounded="none"
       />
     </PageSection>
   );
 });
 
-WhiteSpots.displayName = '_WhiteSpots_';
+PharmacyBalance.displayName = '_PharmacyBalance_';

@@ -6,36 +6,51 @@ import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
 import { cn } from '#/shared/utils/cn';
 
 import { Icon } from '../../ui/icon';
-import type { TableHeaderProps } from '../table.types';
-import { FilterPopup } from './filter-popup.ui';
+import type { ITableHeaderProps } from '../table.types';
+import { getCommonPinningStyles } from '../utils/get-pinning-style';
+import { FilterPopup } from './filter-popup/filter-popup.ui';
 
-export function TableHeader<T>({ table }: TableHeaderProps<T>) {
+export function TableHeader<T>({ table }: ITableHeaderProps<T>) {
   const [popupOpen, setPopupOpen] = useState<string | null>(null);
   const { position: popupPosition, updatePosition } = useAnchorPosition();
 
   return (
-    <thead
-      className={cn(
-        'sticky top-0 z-10 border-b border-[#E4E4E4]',
-        'bg-[#F9F9F9]'
-      )}
-    >
+    <thead className={cn('sticky top-0 z-10')}>
       {table.getHeaderGroups().map(headerGroup => (
-        <tr key={headerGroup.id}>
+        <tr key={headerGroup.id} className="bg-[#F9F9F9]">
           {headerGroup.headers.map(header => {
-            const canFilter = header.column.columnDef.enableColumnFilter;
+            const columnDef = header.column.columnDef;
+            const canFilter = columnDef.enableColumnFilter;
 
             return (
               <th
                 key={header.id}
                 className={cn(
-                  'py-4 pl-4 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative'
+                  'py-4 pl-4 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
+                  'border-b border-[#E4E4E4] not-last:border-r bg-[#F9F9F9]'
                 )}
                 style={{
-                  maxWidth: header.column.columnDef.size,
-                  minWidth: header.column.columnDef.size,
+                  ...getCommonPinningStyles(header.column),
+                  maxWidth: header.column.getSize(),
+                  minWidth: header.column.getSize(),
                 }}
+                onDoubleClick={() => header.column.resetSize()}
               >
+                {columnDef.enableResizing && (
+                  <button
+                    type="button"
+                    aria-label="Resize column"
+                    onMouseDown={header.getResizeHandler()}
+                    onTouchStart={header.getResizeHandler()}
+                    className="absolute right-0 top-0 h-full w-1 select-none touch-manipulation"
+                    style={{
+                      padding: 0,
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'col-resize',
+                    }}
+                  />
+                )}
                 <div className="flex items-center gap-2">
                   {flexRender(
                     header.column.columnDef.header,

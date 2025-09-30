@@ -22,7 +22,23 @@ interface MarketRow {
   YTD6M25: number;
 }
 
-const SKUS = ['Товар 1', 'Товар 2', 'Товар 3', 'Товар 4', 'Товар 5'] as const;
+const SKUS = [
+  'Товар 1',
+  'Товар 2',
+  'Товар 3',
+  'Товар 4',
+  'Товар 5',
+  'Товар 6',
+  'Товар 7',
+  'Товар 8',
+  'Товар 9',
+  'Товар 10',
+  'Товар 11',
+  'Товар 12',
+  'Товар 13',
+  'Товар 14',
+  'Товар 15',
+] as const;
 const BRANDS = ['Бренд 1'] as const;
 const PROMO_TYPES = ['Промо'] as const;
 const GROUPS = ['Группа 1'] as const;
@@ -135,8 +151,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       <Table<MarketRow>
         columns={columnsForTable}
         data={data}
-        isScrollbar
-        maxHeight={340}
+        maxHeight={500}
         rounded="none"
       />
     </PageSection>

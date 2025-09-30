@@ -62,3 +62,13 @@ export const stringFilter =
         return true;
     }
   };
+
+/** Фильтр для select */
+export const selectFilter =
+  <T, VT extends string | number>() =>
+  (row: Row<T>, columnId: string, filterValue: VT[]) => {
+    if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
+
+    const rowValue = row.getValue<VT>(columnId);
+    return filterValue.includes(rowValue);
+  };

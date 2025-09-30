@@ -17,6 +17,7 @@ import {
   STATUSES_OBJECT,
 } from '#/shared/constants/global';
 import { useCreateEditState } from '#/shared/hooks/use-create-edit-state';
+import { selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
 interface CustomerRow {
@@ -37,6 +38,8 @@ const EMAILS = [
   'sergey@example.com',
 ] as const;
 
+const POSITIONS = ['Менеджер', 'Старший менеджер', 'Специалист'] as const;
+
 const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useCreateEditState();
@@ -44,12 +47,41 @@ const CustomerAccountsPage: React.FC = () => {
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [
       { accessorKey: 'fullName', header: 'ФИО', size: 160 },
-      { accessorKey: 'position', header: 'Должность', size: 174 },
-      { accessorKey: 'company', header: 'Компания', size: 174 },
+      {
+        accessorKey: 'position',
+        header: 'Должность',
+        size: 174,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: POSITIONS.map(position => ({
+          label: position,
+          value: position,
+        })),
+      },
+      {
+        accessorKey: 'company',
+        header: 'Компания',
+        size: 174,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: COMPANIES.map(company => ({
+          label: company,
+          value: company,
+        })),
+      },
       {
         accessorKey: 'role',
         header: 'Роль',
         size: 160,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: ROLES.map(role => ({
+          label: ROLES_OBJECT[role],
+          value: role,
+        })),
         cell(props) {
           return ROLES_OBJECT[props.getValue() as 'admin'];
         },
@@ -87,7 +119,7 @@ const CustomerAccountsPage: React.FC = () => {
       generateMocks(10, {
         id: () => randomId('customer'),
         fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
-        position: ['Менеджер', 'Старший менеджер', 'Специалист'],
+        position: POSITIONS,
         company: COMPANIES,
         role: ROLES,
         email: EMAILS,

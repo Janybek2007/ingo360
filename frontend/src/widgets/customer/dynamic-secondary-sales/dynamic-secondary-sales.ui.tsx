@@ -11,6 +11,7 @@ import {
 
 import { PageSection } from '#/shared/components/page-section';
 import { MonthNumber } from '#/shared/constants/months';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 
 const data = [
   { month: MonthNumber.JAN, value: 120 },
@@ -28,16 +29,18 @@ const data = [
 ];
 
 export const DynamicSecondarySales: React.FC = React.memo(() => {
+  const sectionStyle = useSectionStyle();
   return (
     <PageSection
       legends={[{ label: 'Вторичное значение', fill: '#E97030' }]}
       title="Динамика вторичных продаж"
+      headerEnd={<>{/* Filter by year/ */}</>}
     >
       <div className="font-inter">
         <LineChart
           className="-ml-2"
-          width={1074}
-          height={300}
+          width={sectionStyle.width - 48}
+          height={500}
           data={data}
           margin={{ top: 20, right: 16, bottom: 20 }}
         >

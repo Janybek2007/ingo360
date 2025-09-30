@@ -8,6 +8,7 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { Month } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface VisitRow {
@@ -21,32 +22,51 @@ interface VisitRow {
   visitsTotal: number;
 }
 
-const LPUS = ['ОСО', 'ЛПУ2', 'ЛПУ3'];
+const LPUS = ['ОСО', 'ЛПУ2', 'ЛПУ3', 'ЛПУ4'];
 const MONTHS = [Month.JAN, Month.FEB, Month.MAR, Month.APR];
-const SPECIALTIES = ['-', 'Терапевт', 'Кардиолог'];
+const SPECIALTIES = ['-', 'Терапевт', 'Кардиолог', 'Невролог'];
 const EMPLOYEES = ['-', 'Иванов', 'Петров'];
-const GROUPS = ['-', 'Группа 1', 'Группа 2'];
+const GROUPS = ['-', 'Группа 1', 'Группа 2', 'Группа 3'];
 
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
 
   const allColumns = useMemo(
     (): ColumnDef<VisitRow>[] => [
-      { accessorKey: 'lpu', header: 'ЛПУ', size: 124 },
+      {
+        accessorKey: 'lpu',
+        header: 'ЛПУ',
+        size: 124,
+        enableColumnFilter: true,
+        type: 'select',
+        filterFn: selectFilter(),
+        selectOptions: LPUS.map(lpu => ({ label: lpu, value: lpu })),
+      },
       { accessorKey: 'year', header: 'Год', size: 130 },
       { accessorKey: 'month', header: 'Месяц', size: 130 },
       {
         accessorKey: 'specialty',
         header: 'Специальность',
         size: 190,
+        enableColumnFilter: true,
+        type: 'select',
+        filterFn: selectFilter(),
+        selectOptions: SPECIALTIES.map(specialty => ({
+          label: specialty,
+          value: specialty,
+        })),
       },
       { accessorKey: 'employee', header: 'Сотрудник', size: 159 },
-      { accessorKey: 'group', header: 'Группа', size: 220 },
       {
-        accessorKey: 'visitsTotal',
-        header: 'Визитов всего',
-        size: 150,
+        accessorKey: 'group',
+        header: 'Группа',
+        size: 220,
+        enableColumnFilter: true,
+        type: 'select',
+        filterFn: selectFilter(),
+        selectOptions: GROUPS.map(group => ({ label: group, value: group })),
       },
+      { accessorKey: 'visitsTotal', header: 'Визитов всего', size: 150 },
     ],
     []
   );
@@ -55,7 +75,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     useColumnVisibility(allColumns);
 
   const data = useMemo(() => {
-    const allData = generateMocks(20, {
+    const allData = generateMocks(100, {
       id: () => randomId('visit'),
       lpu: LPUS,
       year: () => 2025,
@@ -98,7 +118,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         columns={columnsForTable}
         data={data}
         isScrollbar
-        maxHeight={340}
+        maxHeight={500}
         rounded="none"
       />
     </PageSection>

@@ -11,13 +11,13 @@ export class UserQueries {
   };
 
   static GetUserQuery() {
-    return queryOptions({
+    return queryOptions<GetUserResponse>({
       queryKey: this.queryKeys.getUser,
       queryFn: async () => {
         const response = await http.get('users/me').json<GetUserResponse>();
         return {
           ...response,
-          role: this.buildUserRole(response),
+          role: 'customer' as SessionRole,
         };
       },
     });
@@ -25,7 +25,7 @@ export class UserQueries {
 
   private static buildUserRole(user: GetUserResponse): SessionRole {
     if (user.is_admin) return 'administrator';
-    if (user.is_staff) return 'operator';
+    if (user.is_operator) return 'operator';
     return 'customer';
   }
 }

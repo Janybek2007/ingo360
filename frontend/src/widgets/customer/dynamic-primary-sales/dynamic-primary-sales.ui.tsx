@@ -10,7 +10,7 @@ import { DynamicPrimarySalesAsMixed } from './ui/as-mixed.ui';
 const AsLegends = {
   line: [{ label: 'Первичные продажи', fill: '#0B5A7C' }],
   mixed: [
-    { label: 'Третичка', fill: '#00B050' },
+    { label: 'Третичка', fill: '#0B5A7C' },
     { label: 'Остаток', fill: '#FFC000' },
     { label: 'Товарный запас', fill: '#888888' },
   ],

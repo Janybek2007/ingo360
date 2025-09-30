@@ -1,5 +1,7 @@
+import './styles/app.css';
+
 import { createRoot } from 'react-dom/client';
 
-import Application from './app';
+import { BootstrappedRouter } from './browser-router';
 
-createRoot(document.getElementById('root')!).render(<Application />);
+createRoot(document.getElementById('root')!).render(<BootstrappedRouter />);

@@ -22,6 +22,7 @@ interface ShipmentRow {
 
 export const Shipments: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
+  const [rowsCount, setRowsCount] = useState(10);
 
   const allColumns = useMemo(
     (): ColumnDef<ShipmentRow>[] => [
@@ -32,6 +33,8 @@ export const Shipments: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -40,6 +43,8 @@ export const Shipments: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'promoType',
@@ -48,6 +53,8 @@ export const Shipments: React.FC = React.memo(() => {
         size: 160,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -56,6 +63,8 @@ export const Shipments: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -64,6 +73,8 @@ export const Shipments: React.FC = React.memo(() => {
         size: 120,
         filterFn: stringFilter(),
         type: 'string',
+        enablePinning: true,
+        enableResizing: true,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: ShipmentRow) => row.months[i],
@@ -71,6 +82,12 @@ export const Shipments: React.FC = React.memo(() => {
         header: `2024/${i + 1}`,
         size: 100,
       })),
+      {
+        accessorKey: 'total',
+        header: 'Итого',
+        size: 120,
+        cell: ({ row }) => row.original.months.reduce((a, b) => a + b, 0),
+      },
     ],
     []
   );
@@ -79,7 +96,7 @@ export const Shipments: React.FC = React.memo(() => {
     useColumnVisibility(allColumns);
 
   const data = useMemo(() => {
-    const allData = generateMocks(20, {
+    const allData = generateMocks(rowsCount, {
       id: () => randomId('shipment'),
       sku: ['Товар 1', 'Товар 2', 'Товар 3'],
       brand: ['Бренд 1', 'Бренд 2', 'Бренд 3'],
@@ -96,7 +113,7 @@ export const Shipments: React.FC = React.memo(() => {
         row.group.toLowerCase().includes(search.toLowerCase()) ||
         row.distributor.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, rowsCount]);
 
   return (
     <PageSection
@@ -104,6 +121,18 @@ export const Shipments: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
+          <Select
+            value={rowsCount}
+            setValue={setRowsCount}
+            items={[
+              { value: 10, label: '10' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+              { value: 500, label: '500' },
+            ]}
+            triggerText="Количество строк"
+          />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -121,7 +150,7 @@ export const Shipments: React.FC = React.memo(() => {
       <Table<ShipmentRow>
         columns={columnsForTable}
         data={data}
-        maxHeight={340}
+        maxHeight={500}
         isScrollbar
         rounded="none"
       />

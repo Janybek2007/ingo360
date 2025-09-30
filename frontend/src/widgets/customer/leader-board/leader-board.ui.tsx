@@ -76,6 +76,7 @@ export const LeaderBoard: React.FC = React.memo(() => {
             highlightRow={row =>
               row.place === 34 ? 'bg-yellow-100 font-bold' : ''
             }
+            pinnedRow={row => row.place === 34}
             columns={columns}
             data={data}
           />

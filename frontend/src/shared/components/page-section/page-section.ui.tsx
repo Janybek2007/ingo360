@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { cn } from '#/shared/utils/cn';
 
 import type { IPageSectionProps } from './page-section.types';
@@ -16,13 +17,14 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
     beforeHeader,
     afterHeader,
   }) => {
+    const sectionStyle = useSectionStyle();
     const sectionClassName = cn(
-      'w-full max-w-[1122px] overflow-hidden bg-white',
+      'w-full overflow-hidden bg-white',
       'rounded-xl'
     );
 
     return (
-      <section className={cn(sectionClassName)}>
+      <section style={sectionStyle.style} className={cn(sectionClassName)}>
         <div
           className={cn('w-full flex flex-col gap-7 p-6', classNames?.wrapper)}
         >

@@ -9,6 +9,8 @@ import { Checkbox } from '../checkbox';
 import { Icon } from '../icon';
 import type { ISelectItem, ISelectProps } from './select.types';
 
+// Поиск, отключить все/выбрать все
+
 export function Select<ISM extends boolean = false, VT = string>({
   items,
   setValue,
@@ -18,12 +20,13 @@ export function Select<ISM extends boolean = false, VT = string>({
   leftIcon,
   rightIcon,
   classNames,
+  changeTriggerText = false,
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
 
   const handleSelect = useCallback(
-    (item: ISelectItem) => {
+    (item: ISelectItem<VT>) => {
       if (checkbox && Array.isArray(value)) {
         const newValue = value.includes(item.value)
           ? value.filter(v => v !== item.value)
@@ -36,13 +39,21 @@ export function Select<ISM extends boolean = false, VT = string>({
     },
     [checkbox, setValue, set, value]
   );
-  const findItem = React.useMemo(
-    () => items.find(v => v.value === value),
-    [items, value]
-  );
+
+  const findItemLabel = React.useMemo(() => {
+    if (changeTriggerText && Array.isArray(value)) {
+      return items
+        .filter(item => value.includes(item.value))
+        .map(item => item.label)
+        .join(', ');
+    } else {
+      const found = items.find(v => v.value === value);
+      return found ? found.label : '';
+    }
+  }, [items, value, changeTriggerText]);
 
   const isSelected = useCallback(
-    (item: ISelectItem) => {
+    (item: ISelectItem<VT>) => {
       if (checkbox && Array.isArray(value)) {
         return value.includes(item.value);
       }
@@ -67,14 +78,14 @@ export function Select<ISM extends boolean = false, VT = string>({
         onClick={toggle}
       >
         {typeof leftIcon == 'function' ? leftIcon(open) : leftIcon}
-        {triggerText && (
+        {(triggerText || findItemLabel) && (
           <span
             className={cn(
-              'text-black text-sm font-medium leading-[150%]',
+              'text-black text-sm font-medium leading-[150%] text-nowrap overflow-x-auto noscrollbar',
               classNames?.triggerText
             )}
           >
-            {findItem ? findItem.label : triggerText}
+            {changeTriggerText ? findItemLabel : triggerText}
           </span>
         )}
         {typeof rightIcon == 'function' ? rightIcon(open) : rightIcon}
@@ -91,7 +102,7 @@ export function Select<ISM extends boolean = false, VT = string>({
         >
           {items.map(item => (
             <button
-              key={item.value}
+              key={`${item.value}-${item.label}-key`}
               type="button"
               className={cn(
                 'flex items-center justify-between px-4 py-3 cursor-pointer text-left text-nowrap',
