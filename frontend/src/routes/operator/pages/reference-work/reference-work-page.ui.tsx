@@ -9,6 +9,7 @@ import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
 interface ReferenceRow {
@@ -20,13 +21,68 @@ interface ReferenceRow {
   [key: string]: string | number;
 }
 
-export const ReferenceWorkPage: React.FC = () => {
+const COUNTRIES = ['Казахстан', 'Россия', 'Узбекистан'] as const;
+const REGIONS = ['Алматы', 'Москва', 'Ташкент'] as const;
+const CITIES = ['Алматы', 'Москва', 'Ташкент'] as const;
+const DISTRICTS = ['Центральный', 'Южный', 'Северный'] as const;
+
+const ReferenceWorkPage: React.FC = () => {
+  const [rowsCount, setRowsCount] = React.useState(10);
+  const [currentTab, setCurrentTab] = React.useState('geography/country');
   const allColumns = useMemo(
     (): ColumnDef<ReferenceRow>[] => [
-      { accessorKey: 'country', header: 'Страна', size: 251 },
-      { accessorKey: 'region', header: 'Область', size: 221 },
-      { accessorKey: 'city', header: 'Населенный пункт', size: 281 },
-      { accessorKey: 'district', header: 'Район', size: 187 },
+      {
+        accessorKey: 'country',
+        header: 'Страна',
+        size: 251,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: COUNTRIES.map(country => ({
+          label: country,
+          value: country,
+        })),
+      },
+      {
+        accessorKey: 'region',
+        header: 'Область',
+        size: 221,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: REGIONS.map(region => ({
+          label: region,
+          value: region,
+        })),
+      },
+      {
+        accessorKey: 'city',
+        header: 'Населенный пункт',
+        size: 281,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: CITIES.map(city => ({
+          label: city,
+          value: city,
+        })),
+      },
+      {
+        accessorKey: 'district',
+        header: 'Район',
+        size: 187,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: DISTRICTS.map(district => ({
+          label: district,
+          value: district,
+        })),
+      },
       {
         id: 'actions',
         header: '',
@@ -57,23 +113,25 @@ export const ReferenceWorkPage: React.FC = () => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns);
+    useColumnVisibility(allColumns, undefined, ['actions']);
 
   const data = useMemo(
     () =>
-      generateMocks(25, {
+      generateMocks(rowsCount, {
         id: () => randomId('ref'),
-        country: ['Казахстан', 'Россия', 'Узбекистан'],
-        region: ['Алматы', 'Москва', 'Ташкент'],
-        city: ['Алматы', 'Москва', 'Ташкент'],
-        district: ['Центральный', 'Южный', 'Северный'],
+        country: COUNTRIES,
+        region: REGIONS,
+        city: CITIES,
+        district: DISTRICTS,
       }),
-    []
+    [rowsCount]
   );
 
   return (
     <main>
       <Tabs
+        saveCurrent={setCurrentTab}
+        defaultValue={currentTab}
         items={[
           {
             label: 'География',
@@ -123,6 +181,17 @@ export const ReferenceWorkPage: React.FC = () => {
         title="Аптеки"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
+            <Select
+              value={rowsCount}
+              setValue={setRowsCount}
+              items={[
+                { value: 10, label: '10' },
+                { value: 50, label: '50' },
+                { value: 100, label: '100' },
+                { value: 200, label: '200' },
+              ]}
+              triggerText="Количество строк"
+            />
             <Select<true>
               value={visibleColumns}
               setValue={setVisibleColumns}

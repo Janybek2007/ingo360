@@ -2,7 +2,7 @@ import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import type { TableScrollbarProps } from '../table.types';
+import type { ITableScrollbarProps } from '../table.types';
 
 export const TableScrollbar = React.memo(
   ({
@@ -11,7 +11,7 @@ export const TableScrollbar = React.memo(
     onMouseDown,
     scrollbarRef,
     isDragging,
-  }: TableScrollbarProps) => (
+  }: ITableScrollbarProps) => (
     <div className="mt-2">
       <div
         ref={scrollbarRef}

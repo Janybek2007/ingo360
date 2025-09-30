@@ -6,25 +6,41 @@ import type { ITabsProps } from './tabs.types';
 
 export const Tabs: React.FC<ITabsProps> = React.memo(
   ({ items, children, classNames, defaultValue, saveCurrent }) => {
-    const [current, setCurrent] = React.useState(
-      defaultValue || items[0].value
-    );
-    const [currentSubTab, setCurrentSubTab] = React.useState<
-      string | undefined
-    >(
-      items[0].subItems && items[0].subItems.length > 0
-        ? items[0].subItems[0].value
-        : undefined
+    const getInitialValue = React.useCallback(() => {
+      if (defaultValue) return defaultValue;
+      const firstTab = items[0];
+      if (firstTab.subItems && firstTab.subItems.length > 0) {
+        return `${firstTab.value}/${firstTab.subItems[0].value}`;
+      }
+      return firstTab.value;
+    }, [defaultValue, items]);
+
+    const [current, setCurrent] = React.useState(getInitialValue);
+
+    const handleMainTabClick = React.useCallback(
+      (tabValue: string, subItems?: { value: string }[]) => {
+        if (subItems && subItems.length > 0) {
+          setCurrent(`${tabValue}/${subItems[0].value}`);
+          saveCurrent?.(`${tabValue}/${subItems[0].value}`);
+        } else {
+          setCurrent(tabValue);
+          saveCurrent?.(tabValue);
+        }
+      },
+      [saveCurrent]
     );
 
-    React.useEffect(() => {
-      const activeTab = items.find(item => item.value === current);
-      if (activeTab?.subItems && activeTab.subItems.length > 0) {
-        setCurrentSubTab(activeTab.subItems[0].value);
-      } else {
-        setCurrentSubTab(undefined);
-      }
-    }, [current, items]);
+    const handleSubTabClick = React.useCallback(
+      (mainValue: string, subValue: string) => {
+        setCurrent(`${mainValue}/${subValue}`);
+        saveCurrent?.(`${mainValue}/${subValue}`);
+      },
+      [saveCurrent]
+    );
+
+    const [mainCurrent, subCurrent] = current.includes('/')
+      ? current.split('/')
+      : [current, undefined];
 
     return (
       <div
@@ -40,9 +56,10 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
             classNames?.tabs
           )}
         >
-          <div className={cn('flex items-center gap-3')}>
+          {/* Main Tabs */}
+          <div className="flex items-center gap-3">
             {items.map((t, i) => {
-              const isActive = current === t.value;
+              const isActive = mainCurrent === t.value;
               return (
                 <button
                   key={`${t.value}-${i}-key`}
@@ -54,10 +71,7 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
                     isActive && 'border-primary bg-primary/10',
                     classNames?.tab
                   )}
-                  onClick={() => {
-                    setCurrent(t.value);
-                    saveCurrent?.(t.value);
-                  }}
+                  onClick={() => handleMainTabClick(t.value, t.subItems)}
                 >
                   {t.label}
                 </button>
@@ -65,7 +79,7 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
             })}
           </div>
 
-          {items.find(item => item.value === current)?.subItems && (
+          {items.find(item => item.value === mainCurrent)?.subItems && (
             <div
               className={cn(
                 'flex items-center gap-2',
@@ -74,9 +88,9 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
               )}
             >
               {items
-                .find(item => item.value === current)
+                .find(item => item.value === mainCurrent)
                 ?.subItems?.map((subTab, i) => {
-                  const isSubTabActive = currentSubTab === subTab.value;
+                  const isSubTabActive = subCurrent === subTab.value;
                   return (
                     <button
                       key={`${subTab.value}-${i}-subkey`}
@@ -88,7 +102,9 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
                         isSubTabActive && 'border-primary bg-primary/10',
                         classNames?.tab
                       )}
-                      onClick={() => setCurrentSubTab(subTab.value)}
+                      onClick={() =>
+                        handleSubTabClick(mainCurrent, subTab.value)
+                      }
                     >
                       {subTab.label}
                     </button>
@@ -98,11 +114,9 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
           )}
         </div>
 
-        {/* Контент */}
         <div className={cn(classNames?.content)} key={current}>
           {children?.({
-            current,
-            currentSubTab,
+            current: current,
           })}
         </div>
       </div>

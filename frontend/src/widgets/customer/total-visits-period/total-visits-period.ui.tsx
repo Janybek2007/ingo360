@@ -30,6 +30,7 @@ const GROUPS = ['-', 'Группа 1', 'Группа 2', 'Группа 3'];
 
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
+  const [rowsCount, setRowsCount] = useState(10);
 
   const allColumns = useMemo(
     (): ColumnDef<VisitRow>[] => [
@@ -75,7 +76,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     useColumnVisibility(allColumns);
 
   const data = useMemo(() => {
-    const allData = generateMocks(100, {
+    const allData = generateMocks(rowsCount, {
       id: () => randomId('visit'),
       lpu: LPUS,
       year: () => 2025,
@@ -94,7 +95,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         row.employee.toLowerCase().includes(search.toLowerCase()) ||
         row.group.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, rowsCount]);
 
   return (
     <PageSection
@@ -102,6 +103,37 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
+          <Select<true, string>
+            value={['brand', 'group']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'brand', label: 'Бренд' },
+              { value: 'group', label: 'Группа' },
+            ]}
+            triggerText="Бренд/Группа"
+          />
+          <Select<true, string>
+            value={['money', 'packaging']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'money', label: 'Деньги' },
+              { value: 'packaging', label: 'Упаковка' },
+            ]}
+            triggerText="Деньги/Упаковка"
+          />
+          <Select
+            value={rowsCount}
+            setValue={setRowsCount}
+            items={[
+              { value: 10, label: '10' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+            triggerText="Количество строк"
+          />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}

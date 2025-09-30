@@ -34,7 +34,6 @@ export const Shipments: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -44,7 +43,6 @@ export const Shipments: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'promoType',
@@ -54,7 +52,6 @@ export const Shipments: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -64,7 +61,6 @@ export const Shipments: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -74,7 +70,6 @@ export const Shipments: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: ShipmentRow) => row.months[i],
@@ -121,6 +116,26 @@ export const Shipments: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
+          <Select<true, string>
+            value={['brand', 'group']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'brand', label: 'Бренд' },
+              { value: 'group', label: 'Группа' },
+            ]}
+            triggerText="Бренд/Группа"
+          />
+          <Select<true, string>
+            value={['money', 'packaging']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'money', label: 'Деньги' },
+              { value: 'packaging', label: 'Упаковка' },
+            ]}
+            triggerText="Деньги/Упаковка"
+          />
           <Select
             value={rowsCount}
             setValue={setRowsCount}
@@ -129,7 +144,6 @@ export const Shipments: React.FC = React.memo(() => {
               { value: 50, label: '50' },
               { value: 100, label: '100' },
               { value: 200, label: '200' },
-              { value: 500, label: '500' },
             ]}
             triggerText="Количество строк"
           />

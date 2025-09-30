@@ -26,6 +26,7 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 
 export const Stocks: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
+  const [rowsCount, setRowsCount] = useState(10);
 
   const allColumns = useMemo(
     (): ColumnDef<StockRow>[] => [
@@ -37,7 +38,6 @@ export const Stocks: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -47,7 +47,6 @@ export const Stocks: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -57,7 +56,6 @@ export const Stocks: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -67,7 +65,6 @@ export const Stocks: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: StockRow) => row.months[i],
@@ -89,7 +86,7 @@ export const Stocks: React.FC = React.memo(() => {
     useColumnVisibility(allColumns);
 
   const data = useMemo(() => {
-    const allData = generateMocks(10, {
+    const allData = generateMocks(rowsCount, {
       id: () => randomId('stock'),
       sku: SKUS,
       brand: BRANDS,
@@ -105,7 +102,7 @@ export const Stocks: React.FC = React.memo(() => {
         row.group.toLowerCase().includes(search.toLowerCase()) ||
         row.distributor.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, rowsCount]);
 
   return (
     <PageSection
@@ -113,6 +110,37 @@ export const Stocks: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
+          <Select<true, string>
+            value={['brand', 'group']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'brand', label: 'Бренд' },
+              { value: 'group', label: 'Группа' },
+            ]}
+            triggerText="Бренд/Группа"
+          />{' '}
+          <Select<true, string>
+            value={['money', 'packaging']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'money', label: 'Деньги' },
+              { value: 'packaging', label: 'Упаковка' },
+            ]}
+            triggerText="Деньги/Упаковка"
+          />
+          <Select
+            value={rowsCount}
+            setValue={setRowsCount}
+            items={[
+              { value: 10, label: '10' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+            triggerText="Количество строк"
+          />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}

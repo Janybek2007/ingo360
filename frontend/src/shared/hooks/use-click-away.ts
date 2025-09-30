@@ -20,13 +20,9 @@ export const useClickAway = <T = HTMLElement>(
     };
 
     document.addEventListener('mousedown', handleClick);
-    window.addEventListener('scroll', callback, true);
-    window.addEventListener('resize', callback);
 
     return () => {
       document.removeEventListener('mousedown', handleClick);
-      window.removeEventListener('scroll', callback, true);
-      window.removeEventListener('resize', callback);
     };
   }, [_ref, callback]);
 

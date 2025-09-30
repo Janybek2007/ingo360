@@ -23,6 +23,7 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
           setValue={setFilterType}
           items={filterItems}
           triggerText="Выберите фильтр"
+          changeTriggerText
           rightIcon={
             <Icon
               name="lucide:chevron-down"
@@ -47,11 +48,11 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
         <input
           type={colType === 'number' ? 'number' : 'text'}
           value={value}
-          onChange={e =>
+          onChange={e => {
             setValue(
               colType === 'number' ? Number(e.target.value) : e.target.value
-            )
-          }
+            );
+          }}
           placeholder={colType === 'number' ? 'Число...' : 'Текст...'}
           className={cn(
             'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white',

@@ -66,6 +66,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
               rightIcon={
                 <Icon className="text-[#94A3B8]" name="lucide:chevron-down" />
               }
+              changeTriggerText={true}
               classNames={{
                 root: 'w-full',
                 triggerText: cn(

@@ -27,59 +27,57 @@ const data: { month: string; value: number; label: number }[] = [
   { month: Month.DEC, value: 4.2, label: 420000 },
 ];
 
-export const DynamicPrimarySalesAsLine: React.FC<{ year: number }> = React.memo(
-  ({}) => {
-    const sectionStyle = useSectionStyle();
+export const DynamicPrimarySalesAsLine: React.FC = React.memo(() => {
+  const sectionStyle = useSectionStyle();
 
-    return (
-      <div className="font-inter">
-        <LineChart
-          className="-ml-4"
-          width={sectionStyle.width - 48}
-          height={500}
-          data={data}
-          margin={{ top: 20, right: 16, bottom: 20 }}
+  return (
+    <div className="font-inter">
+      <LineChart
+        className="-ml-4"
+        width={sectionStyle.width - 48}
+        height={500}
+        data={data}
+        margin={{ top: 20, right: 16, bottom: 20 }}
+      >
+        <CartesianGrid strokeDasharray="4 4" vertical={false} />
+
+        <XAxis
+          dataKey="month"
+          axisLine={false}
+          tickLine={false}
+          tickMargin={20}
+          className="text-base text-[#474B4E] leading-full font-normal"
+          padding={{ left: 20, right: 20 }}
+        />
+
+        <YAxis
+          domain={[0, 10]}
+          ticks={[0, 2, 4, 6, 8, 10]}
+          axisLine={false}
+          tickLine={false}
+          className="text-base text-[#474B4E] leading-full font-normal"
+          tickMargin={20}
+        />
+
+        <Tooltip />
+
+        <Line
+          type="linear"
+          dataKey="value"
+          stroke={'#0B5A7C'}
+          strokeWidth={3}
+          dot={false}
+          activeDot={{ r: 6 }}
         >
-          <CartesianGrid strokeDasharray="4 4" vertical={false} />
-
-          <XAxis
-            dataKey="month"
-            axisLine={false}
-            tickLine={false}
-            tickMargin={20}
-            className="text-base text-[#474B4E] leading-full font-normal"
-            padding={{ left: 20, right: 20 }}
+          <LabelList
+            dataKey="label"
+            position="top"
+            className="font-inter text-xs"
           />
-
-          <YAxis
-            domain={[0, 10]}
-            ticks={[0, 2, 4, 6, 8, 10]}
-            axisLine={false}
-            tickLine={false}
-            className="text-base text-[#474B4E] leading-full font-normal"
-            tickMargin={20}
-          />
-
-          <Tooltip />
-
-          <Line
-            type="linear"
-            dataKey="value"
-            stroke={'#0B5A7C'}
-            strokeWidth={3}
-            dot={false}
-            activeDot={{ r: 6 }}
-          >
-            <LabelList
-              dataKey="label"
-              position="top"
-              className="font-inter text-xs"
-            />
-          </Line>
-        </LineChart>
-      </div>
-    );
-  }
-);
+        </Line>
+      </LineChart>
+    </div>
+  );
+});
 
 DynamicPrimarySalesAsLine.displayName = '_DynamicPrimarySalesAsLine_';

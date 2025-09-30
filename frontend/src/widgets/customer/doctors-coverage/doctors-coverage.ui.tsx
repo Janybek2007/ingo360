@@ -1,6 +1,10 @@
 import React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 
+import { Icon } from '#/shared/components/ui/icon';
+import { Select } from '#/shared/components/ui/select';
+import { allMonths } from '#/shared/constants/months';
+
 const data: { name: string; value: number; fill: string }[] = [
   { name: 'Лор', value: 250, fill: '#1C0072' },
   { name: 'Уролог', value: 125, fill: '#BC9BF7' },
@@ -11,13 +15,34 @@ const data: { name: string; value: number; fill: string }[] = [
 export const DoctorsCoverage: React.FC = React.memo(() => {
   return (
     <section>
-      <div className="flex items-center gap-6 w-full">
+      <div className="flex items-start gap-6 w-full">
         {[1, 2].map((_, idx) => (
           <div key={idx} className="w-1/2 rounded-2xl p-5 bg-white">
-            <h4 className="font-inter font-medium text-xl leading-[120%] text-black mb-4">
-              {idx === 0 ? 'Количество врачей' : 'Количество врачей с визитами'}
-            </h4>
-            <div className="relative h-[300px] w-full flex items-center justify-center my-3">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
+                {idx === 0
+                  ? 'Количество врачей'
+                  : 'Количество врачей с визитами'}
+              </h4>
+              {idx == 1 && (
+                <>
+                  <Select<true, string>
+                    triggerText={'Месяц'}
+                    items={allMonths.map(m => ({ label: String(m), value: m }))}
+                    value={allMonths as unknown as string[]}
+                    checkbox
+                    setValue={() => {}}
+                    rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+                    classNames={{
+                      trigger:
+                        'gap-4 rounded-full min-w-[120px] justify-between',
+                      menu: 'w-[140px] right-0',
+                    }}
+                  />
+                </>
+              )}
+            </div>
+            <div className="relative min-h-[350px] max-h-[350px] w-full flex items-center justify-center my-3">
               <PieChart width={300} height={300}>
                 <Pie
                   data={data}

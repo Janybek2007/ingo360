@@ -10,6 +10,7 @@ import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface DbRow {
@@ -25,28 +26,150 @@ interface DbRow {
   year: number;
   indicator: string;
   packs: number;
-  published: boolean;
+  published: 'true' | 'false';
   sumUsd: number;
 }
 
-// кнопка = опубликовать все неопубликованные, column status=pubished/unpublished
+const saleTypes = ['Первичные', 'Вторичные', 'Третичные'] as const;
+const pharmacies = ['Аптека 1', 'Аптека 2', 'ЧП Иванов'] as const;
+const lpus = ['ЛПУ №1', 'ЛПУ №2', 'ЛПУ №3'] as const;
+const networks = ['Сеть А', 'Сеть B', 'Сеть C'] as const;
+const skus = ['SKU-001', 'SKU-002', 'SKU-003'] as const;
+const brands = ['Бренд A', 'Бренд B', 'Бренд C'] as const;
+const products = ['Продукт X', 'Продукт Y', 'Продукт Z'] as const;
+const indicators = ['Показатель 1', 'Показатель 2'] as const;
+const published = ['true', 'false'] as const;
 
-const saleTypes = ['Первичные', 'Вторичные', 'Третичные'];
+const TabsItems = [
+  { label: 'Первичные продажи', value: 'primary_sales' },
+  { label: 'Вторичные продажи', value: 'tertiary_sales' },
+  { label: 'Визиты', value: 'visit_activity' },
+  { label: 'Внешние рынки', value: 'foreign_markets' },
+];
 
-export const DbWorkPage: React.FC = () => {
+const DbWorkPage: React.FC = () => {
+  const [rowsCount, setRowsCount] = React.useState(10);
+  const [tab, setTab] = React.useState(TabsItems[0].value);
   const allColumns = useMemo(
     (): ColumnDef<DbRow>[] => [
-      { accessorKey: 'pharmacy', header: 'Аптека / ЧП', size: 124 },
-      { accessorKey: 'lpu', header: 'ЛПУ', size: 130 },
-      { accessorKey: 'network', header: 'Сеть', size: 130 },
-      { accessorKey: 'sku', header: 'SKU', size: 100 },
-      { accessorKey: 'saleType', header: 'Тип продаж', size: 180 },
-      { accessorKey: 'brand', header: 'Бренд', size: 180 },
-      { accessorKey: 'product', header: 'Продукт', size: 180 },
-      { accessorKey: 'month', header: 'Месяц', size: 150 },
+      {
+        accessorKey: 'pharmacy',
+        header: 'Аптека / ЧП',
+        size: 155,
+        enableSorting: true,
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        type: 'select',
+        selectOptions: pharmacies.map(pharmacy => ({
+          label: pharmacy,
+          value: pharmacy,
+        })),
+      },
+      {
+        accessorKey: 'lpu',
+        header: 'ЛПУ',
+        size: 130,
+        type: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        enableSorting: true,
+        selectOptions: lpus.map(lpu => ({ label: lpu, value: lpu })),
+      },
+      {
+        accessorKey: 'network',
+        header: 'Сеть',
+        size: 130,
+        type: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        enableSorting: true,
+        selectOptions: networks.map(network => ({
+          label: network,
+          value: network,
+        })),
+      },
+      {
+        accessorKey: 'sku',
+        header: 'SKU',
+        size: 100,
+        type: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        enableSorting: true,
+        selectOptions: skus.map(sku => ({ label: sku, value: sku })),
+      },
+      {
+        accessorKey: 'saleType',
+        header: 'Тип продаж',
+        size: 180,
+        type: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        enableSorting: true,
+        selectOptions: saleTypes.map(saleType => ({
+          label: saleType,
+          value: saleType,
+        })),
+      },
+      {
+        accessorKey: 'brand',
+        header: 'Бренд',
+        size: 180,
+        type: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        enableSorting: true,
+        selectOptions: brands.map(brand => ({ label: brand, value: brand })),
+      },
+      {
+        accessorKey: 'product',
+        header: 'Продукт',
+        size: 180,
+        type: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        enableSorting: true,
+        selectOptions: products.map(product => ({
+          label: product,
+          value: product,
+        })),
+      },
+      {
+        accessorKey: 'month',
+        header: 'Месяц',
+        size: 150,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: allMonths.map(month => ({
+          label: month,
+          value: month,
+        })),
+      },
       { accessorKey: 'year', header: 'Год', size: 150 },
-      { accessorKey: 'indicator', header: 'Показатель', size: 180 },
-      { accessorKey: 'packs', header: 'Упаковки', size: 140 },
+      {
+        accessorKey: 'indicator',
+        header: 'Показатель',
+        size: 180,
+        type: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        enableSorting: true,
+        selectOptions: indicators.map(indicator => ({
+          label: indicator,
+          value: indicator,
+        })),
+      },
+      {
+        accessorKey: 'packs',
+        header: 'Упаковки',
+        size: 140,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        type: 'number',
+      },
       { accessorKey: 'sumUsd', header: 'Сумма $', size: 140 },
       {
         accessorKey: 'published',
@@ -54,18 +177,28 @@ export const DbWorkPage: React.FC = () => {
         size: 180,
         enableSorting: true,
         enableColumnFilter: true,
+        type: 'select',
+        filterFn: selectFilter(),
+        selectOptions: [
+          { label: 'Опубликовано', value: 'true' },
+          { label: 'Не опубликовано', value: 'false' },
+        ],
         cell: ({ row }) => (
           <span
             className={
-              row.original.published ? 'text-green-500' : 'text-red-500'
+              row.original.published === 'true'
+                ? 'text-green-500'
+                : 'text-red-500'
             }
           >
-            {row.original.published ? 'Опубликовано' : 'Не опубликовано'}
+            {row.original.published === 'true'
+              ? 'Опубликовано'
+              : 'Не опубликовано'}
           </span>
         ),
       },
       {
-        id: 'actions',
+        accessorKey: 'actions',
         header: '',
         size: 140,
         cell: ({ row }) => (
@@ -106,39 +239,53 @@ export const DbWorkPage: React.FC = () => {
 
   const data = useMemo(
     () =>
-      generateMocks(30, {
+      generateMocks(rowsCount, {
         id: () => randomId('row'),
-        pharmacy: ['Аптека 1', 'Аптека 2', 'ЧП Иванов'],
-        lpu: ['ЛПУ №1', 'ЛПУ №2', 'ЛПУ №3'],
-        network: ['Сеть А', 'Сеть B', 'Сеть C'],
-        sku: ['SKU-001', 'SKU-002', 'SKU-003'],
+        pharmacy: pharmacies,
+        lpu: lpus,
+        network: networks,
+        sku: skus,
         saleType: saleTypes,
-        brand: ['Бренд A', 'Бренд B', 'Бренд C'],
-        product: ['Продукт X', 'Продукт Y', 'Продукт Z'],
+        brand: brands,
+        product: products,
         month: allMonths,
         year: () => 2024 + randomInt(0, 2),
-        indicator: ['Показатель 1', 'Показатель 2'],
+        indicator: indicators,
         packs: () => randomInt(0, 500),
-        published: () => true,
+        published: published,
         sumUsd: () => randomInt(0, 10000),
       }),
-    []
+    [rowsCount]
   );
 
   return (
     <main>
-      <Tabs
-        items={[
-          { label: 'Первичные продажи', value: 'primary_sales' },
-          { label: 'Вторичные продажи', value: 'tertiary_sales' },
-          { label: 'Визиты', value: 'visit_activity' },
-          { label: 'Внешние рынки', value: 'foreign_markets' },
-        ]}
-      ></Tabs>
+      <Tabs items={TabsItems} saveCurrent={setTab}></Tabs>
       <PageSection
-        title="Все Компании"
+        title={TabsItems.find(item => item.value === tab)?.label}
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
+            <Select<true, string>
+              value={['brand', 'group']}
+              setValue={() => {}}
+              checkbox
+              items={[
+                { value: 'brand', label: 'Бренд' },
+                { value: 'group', label: 'Группа' },
+              ]}
+              triggerText="Бренд/Группа"
+            />
+            <Select
+              value={rowsCount}
+              setValue={setRowsCount}
+              items={[
+                { value: 10, label: '10' },
+                { value: 50, label: '50' },
+                { value: 100, label: '100' },
+                { value: 200, label: '200' },
+              ]}
+              triggerText="Количество строк"
+            />
             <Select<true>
               value={visibleColumns}
               setValue={setVisibleColumns}
@@ -150,6 +297,7 @@ export const DbWorkPage: React.FC = () => {
               }}
             />
             <ExportToExcelButton data={data} fileName="dbwork.xlsx" />
+            <Button className="px-4 py-2 rounded-full">Опубликовать</Button>
             <Button className="px-4 py-2 rounded-full">Импорт из файла</Button>
           </div>
         }

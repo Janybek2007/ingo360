@@ -19,7 +19,7 @@ const Checkbox: React.FC<ICheckboxProps> = React.memo(
           }
         }}
         className={cn(
-          'w-5 h-5 rounded-md border border-gray-300 flexCenter cursor-pointer select-none',
+          'w-[18px] h-[18px] rounded-md border border-gray-300 flexCenter cursor-pointer select-none',
           'transition-all duration-200',
           checked ? 'bg-blue-500 border-blue-500' : 'bg-white',
           classNames?.root
@@ -27,7 +27,7 @@ const Checkbox: React.FC<ICheckboxProps> = React.memo(
       >
         {checked && (
           <svg
-            className="w-3 h-3 text-white"
+            className="w-[12px] h-[12px] text-white"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

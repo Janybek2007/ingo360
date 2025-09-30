@@ -149,7 +149,7 @@ export function FilterPopup<T>({
             setFilterType={setFilterType}
             filterItems={filterItems}
             colType={colType}
-            value={typeof value !== 'string' ? '' : value}
+            value={Array.isArray(value) ? value[0] : value}
             setValue={setValue}
             value2={value2}
             setValue2={setValue2}

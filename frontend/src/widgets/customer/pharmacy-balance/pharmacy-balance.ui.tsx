@@ -30,6 +30,7 @@ const PHARMACIES = ['Аптека 1', 'Аптека 2', 'Аптека 3'] as con
 
 export const PharmacyBalance: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
+  const [rowsCount, setRowsCount] = useState(10);
 
   const allColumns = useMemo(
     (): ColumnDef<PharmacyBalanceRow>[] => [
@@ -41,7 +42,6 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'pharmacy',
@@ -51,7 +51,6 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'brand',
@@ -61,7 +60,6 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'promoType',
@@ -71,7 +69,6 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'group',
@@ -81,7 +78,6 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       {
         accessorKey: 'distributor',
@@ -91,7 +87,6 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         filterFn: stringFilter(),
         type: 'string',
         enablePinning: true,
-        enableResizing: true,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: PharmacyBalanceRow) => row.months[i],
@@ -114,7 +109,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     useColumnVisibility(allColumns);
 
   const data = useMemo(() => {
-    const allData = generateMocks(10, {
+    const allData = generateMocks(rowsCount, {
       id: () => randomId('whitespot'),
       pharmacy: PHARMACIES,
       sku: SKUS,
@@ -133,7 +128,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         row.group.toLowerCase().includes(search.toLowerCase()) ||
         row.distributor.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, rowsCount]);
 
   return (
     <PageSection
@@ -141,6 +136,37 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
+          <Select<true, string>
+            value={['brand', 'group']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'brand', label: 'Бренд' },
+              { value: 'group', label: 'Группа' },
+            ]}
+            triggerText="Бренд/Группа"
+          />
+          <Select<true, string>
+            value={['money', 'packaging']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'money', label: 'Деньги' },
+              { value: 'packaging', label: 'Упаковка' },
+            ]}
+            triggerText="Деньги/Упаковка"
+          />
+          <Select
+            value={rowsCount}
+            setValue={setRowsCount}
+            items={[
+              { value: 10, label: '10' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+            ]}
+            triggerText="Количество строк"
+          />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}

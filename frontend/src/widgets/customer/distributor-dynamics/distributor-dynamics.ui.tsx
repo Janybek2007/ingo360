@@ -9,6 +9,9 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { Icon } from '#/shared/components/ui/icon';
+import { Select } from '#/shared/components/ui/select';
+import { allMonths } from '#/shared/constants/months';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { randomInt } from '#/shared/utils/mock';
 
@@ -39,7 +42,60 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     <PageSection
       title="Динамика вторичных продаж по дистрам (в сравнении)"
       legends={distributorsData.map(d => ({ label: d.name, fill: d.color }))}
-      headerEnd={<>{/* Filter by group/brand/distr */}</>}
+      headerEnd={
+        <div className="flex items-center gap-4">
+          <Select<true, string>
+            value={['brand', 'group', 'distributor']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'brand', label: 'Бренд' },
+              { value: 'group', label: 'Группа' },
+              { value: 'distributor', label: 'Дистр' },
+            ]}
+            triggerText="Бренд/Группа/Дистр"
+          />{' '}
+          <Select<true, number>
+            triggerText={'Год'}
+            items={[2024, 2025].map(y => ({ label: String(y), value: y }))}
+            value={[2024]}
+            checkbox
+            setValue={() => {}}
+            rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+            classNames={{
+              trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+              menu: 'w-full right-0',
+            }}
+          />
+          <Select<true, string>
+            triggerText={'Месяц'}
+            items={allMonths.map(m => ({ label: String(m), value: m }))}
+            value={allMonths as unknown as string[]}
+            checkbox
+            setValue={() => {}}
+            rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+            classNames={{
+              trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+              menu: 'w-[140px] right-0',
+            }}
+          />
+          <Select<true, number>
+            triggerText={'Квартал'}
+            items={[1, 2, 3, 4].map(q => ({
+              label: `Квартал ${q}`,
+              value: q,
+            }))}
+            value={[1, 2]}
+            checkbox
+            setValue={() => {}}
+            rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+            classNames={{
+              trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+              menu: 'w-[160px] right-0',
+            }}
+          />
+        </div>
+      }
     >
       <div className="font-inter">
         <LineChart

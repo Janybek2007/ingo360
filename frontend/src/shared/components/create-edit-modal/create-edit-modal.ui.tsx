@@ -36,7 +36,7 @@ export const CreateEditModal = React.memo(
     title,
     primaryText = 'Сохранить',
     isLoading,
-    loadingPrimaryText,
+    loadingPrimaryText = 'Сохранение...',
     onSubmit,
     schema,
     portal = true,
@@ -53,8 +53,6 @@ export const CreateEditModal = React.memo(
       resolver: zodResolver(schema),
       defaultValues: buildDefaultValues<TSchema>(fields),
     });
-
-    console.log(watch());
 
     const Content = (
       <Modal

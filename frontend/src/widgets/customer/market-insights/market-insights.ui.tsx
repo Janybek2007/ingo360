@@ -8,7 +8,7 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { stringFilter } from '#/shared/utils/filter';
-import { randomId, randomInt } from '#/shared/utils/mock';
+import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface MarketRow {
   id: string;
@@ -39,13 +39,14 @@ const SKUS = [
   'Товар 14',
   'Товар 15',
 ] as const;
-const BRANDS = ['Бренд 1'] as const;
-const PROMO_TYPES = ['Промо'] as const;
-const GROUPS = ['Группа 1'] as const;
-const DISTRIBUTORS = ['Эрай'] as const;
+const BRANDS = ['Бренд 1', 'Бренд 2'] as const;
+const PROMO_TYPES = ['Промо', 'Акция'] as const;
+const GROUPS = ['Группа 1', 'Группа 2'] as const;
+const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
+  const [rowsCount, setRowsCount] = useState(10);
 
   const allColumns = useMemo(
     (): ColumnDef<MarketRow>[] => [
@@ -106,17 +107,17 @@ export const MarketInsights: React.FC = React.memo(() => {
     useColumnVisibility(allColumns);
 
   const data = useMemo(() => {
-    const allData: MarketRow[] = SKUS.map(sku => ({
-      id: randomId('market'),
-      sku,
-      brand: BRANDS[0],
-      segment: PROMO_TYPES[0],
-      group: GROUPS[0],
-      distributor: DISTRIBUTORS[0],
-      YTD6M23: randomInt(0, 10),
-      YTD6M24: randomInt(0, 10),
-      YTD6M25: randomInt(0, 10),
-    }));
+    const allData = generateMocks(rowsCount, {
+      id: () => randomId('market'),
+      sku: SKUS,
+      brand: BRANDS,
+      segment: PROMO_TYPES,
+      group: GROUPS,
+      distributor: DISTRIBUTORS,
+      YTD6M23: () => randomInt(0, 1000),
+      YTD6M24: () => randomInt(0, 1000),
+      YTD6M25: () => randomInt(0, 1000),
+    });
 
     return allData.filter(
       row =>
@@ -126,7 +127,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         row.group.toLowerCase().includes(search.toLowerCase()) ||
         row.distributor.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, rowsCount]);
 
   return (
     <PageSection
@@ -134,6 +135,38 @@ export const MarketInsights: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
+          <Select<true, string>
+            value={['brand', 'group']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'brand', label: 'Бренд' },
+              { value: 'group', label: 'Группа' },
+            ]}
+            triggerText="Бренд/Группа"
+          />
+          <Select<true, string>
+            value={['money', 'packaging']}
+            setValue={() => {}}
+            checkbox
+            items={[
+              { value: 'money', label: 'Деньги' },
+              { value: 'packaging', label: 'Упаковка' },
+            ]}
+            triggerText="Деньги/Упаковка"
+          />
+          <Select
+            value={rowsCount}
+            setValue={setRowsCount}
+            items={[
+              { value: 10, label: '10' },
+              { value: 50, label: '50' },
+              { value: 100, label: '100' },
+              { value: 200, label: '200' },
+              { value: 500, label: '500' },
+            ]}
+            triggerText="Количество строк"
+          />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}

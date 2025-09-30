@@ -6,7 +6,6 @@ export interface ITabItem {
 
 export interface ITabsChildrenProps {
   current: string;
-  currentSubTab?: string;
 }
 
 export interface ITabsProps {

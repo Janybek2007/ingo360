@@ -36,21 +36,19 @@ export function TableHeader<T>({ table }: ITableHeaderProps<T>) {
                 }}
                 onDoubleClick={() => header.column.resetSize()}
               >
-                {columnDef.enableResizing && (
-                  <button
-                    type="button"
-                    aria-label="Resize column"
-                    onMouseDown={header.getResizeHandler()}
-                    onTouchStart={header.getResizeHandler()}
-                    className="absolute right-0 top-0 h-full w-1 select-none touch-manipulation"
-                    style={{
-                      padding: 0,
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'col-resize',
-                    }}
-                  />
-                )}
+                <button
+                  type="button"
+                  aria-label="Resize column"
+                  onMouseDown={header.getResizeHandler()}
+                  onTouchStart={header.getResizeHandler()}
+                  className="absolute right-0 top-0 h-full w-1 select-none touch-manipulation"
+                  style={{
+                    padding: 0,
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'col-resize',
+                  }}
+                />
                 <div className="flex items-center gap-2">
                   {flexRender(
                     header.column.columnDef.header,

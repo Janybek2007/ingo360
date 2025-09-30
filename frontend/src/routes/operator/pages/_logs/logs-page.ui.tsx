@@ -9,10 +9,13 @@ import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface LogRow {
   id: string;
+  company: string;
+  uploadDate: string;
   pharmacy: string; // Аптека / ЧП
   lpu: string; // ЛПУ
   network: string; // Сеть
@@ -28,21 +31,176 @@ interface LogRow {
 }
 
 const saleTypes = ['Первичные', 'Вторичные', 'Третичные'];
+const pharmacies = ['Аптека 1', 'Аптека 2', 'ЧП Иванов'] as const;
+const lpus = ['ЛПУ №1', 'ЛПУ №2', 'ЛПУ №3'] as const;
+const networks = ['Сеть А', 'Сеть B', 'Сеть C'] as const;
+const skus = ['SKU-001', 'SKU-002', 'SKU-003'] as const;
+const brands = ['Бренд A', 'Бренд B', 'Бренд C'] as const;
+const companies = ['Компания 1', 'Компания 2', 'Компания 3'] as const;
+const products = ['Продукт X', 'Продукт Y', 'Продукт Z'] as const;
+const indicators = ['Показатель 1', 'Показатель 2'] as const;
+
+const TabsItems = [
+  { label: 'Аптеки', value: 'pharmacy' },
+  { label: 'ЛПУ', value: 'lpu' },
+  { label: 'Бренды', value: 'brands' },
+];
 
 const LogsPage: React.FC = () => {
+  const [rowsCount, setRowsCount] = React.useState(10);
+  const [tab, setTab] = React.useState(TabsItems[0].value);
   const allColumns = useMemo(
     (): ColumnDef<LogRow>[] => [
-      { accessorKey: 'pharmacy', header: 'Аптека / ЧП', size: 124 },
-      { accessorKey: 'lpu', header: 'ЛПУ', size: 130 },
-      { accessorKey: 'network', header: 'Сеть', size: 130 },
-      { accessorKey: 'sku', header: 'SKU', size: 100 },
-      { accessorKey: 'saleType', header: 'Тип продаж', size: 180 },
-      { accessorKey: 'brand', header: 'Бренд', size: 180 },
-      { accessorKey: 'product', header: 'Продукт', size: 180 },
-      { accessorKey: 'month', header: 'Месяц', size: 150 },
+      { accessorKey: 'id', header: 'ID', size: 140 },
+      {
+        accessorKey: 'company',
+        header: 'Компания',
+        size: 124,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: companies.map(company => ({
+          label: company,
+          value: company,
+        })),
+      },
+      {
+        accessorKey: 'uploadDate',
+        header: 'Дата загрузки',
+        size: 155,
+        cell: ({ row }) => {
+          const date = new Date(row.original.uploadDate);
+          return new Intl.DateTimeFormat('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }).format(date);
+        },
+      },
+      {
+        accessorKey: 'pharmacy',
+        header: 'Аптека / ЧП',
+        size: 155,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: pharmacies.map(pharmacy => ({
+          label: pharmacy,
+          value: pharmacy,
+        })),
+      },
+      {
+        accessorKey: 'lpu',
+        header: 'ЛПУ',
+        size: 130,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: lpus.map(lpu => ({
+          label: lpu,
+          value: lpu,
+        })),
+      },
+      {
+        accessorKey: 'network',
+        header: 'Сеть',
+        size: 130,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: networks.map(network => ({
+          label: network,
+          value: network,
+        })),
+      },
+      {
+        accessorKey: 'sku',
+        header: 'SKU',
+        size: 100,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: skus.map(sku => ({ label: sku, value: sku })),
+      },
+      {
+        accessorKey: 'saleType',
+        header: 'Тип продаж',
+        size: 180,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: saleTypes.map(saleType => ({
+          label: saleType,
+          value: saleType,
+        })),
+      },
+      {
+        accessorKey: 'brand',
+        header: 'Бренд',
+        size: 180,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: brands.map(brand => ({ label: brand, value: brand })),
+      },
+      {
+        accessorKey: 'product',
+        header: 'Продукт',
+        size: 180,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: products.map(product => ({
+          label: product,
+          value: product,
+        })),
+      },
+      {
+        accessorKey: 'month',
+        header: 'Месяц',
+        size: 150,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: allMonths.map(month => ({
+          label: month,
+          value: month,
+        })),
+      },
       { accessorKey: 'year', header: 'Год', size: 150 },
-      { accessorKey: 'indicator', header: 'Показатель', size: 180 },
-      { accessorKey: 'packs', header: 'Упаковки', size: 140 },
+      {
+        accessorKey: 'indicator',
+        header: 'Показатель',
+        size: 180,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: indicators.map(indicator => ({
+          label: indicator,
+          value: indicator,
+        })),
+      },
+      {
+        accessorKey: 'packs',
+        header: 'Упаковки',
+        size: 140,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        type: 'number',
+      },
       { accessorKey: 'sumUsd', header: 'Сумма $', size: 140 },
       {
         id: 'actions',
@@ -66,41 +224,48 @@ const LogsPage: React.FC = () => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns);
+    useColumnVisibility(allColumns, undefined, ['actions']);
 
   const data = useMemo(
     () =>
-      generateMocks(30, {
+      generateMocks(rowsCount, {
         id: () => randomId('row'),
-        pharmacy: ['Аптека 1', 'Аптека 2', 'ЧП Иванов'],
-        lpu: ['ЛПУ №1', 'ЛПУ №2', 'ЛПУ №3'],
-        network: ['Сеть А', 'Сеть B', 'Сеть C'],
-        sku: ['SKU-001', 'SKU-002', 'SKU-003'],
+        company: companies,
+        uploadDate: () => new Date().toISOString(),
+        pharmacy: pharmacies,
+        lpu: lpus,
+        network: networks,
+        sku: skus,
         saleType: saleTypes,
-        brand: ['Бренд A', 'Бренд B', 'Бренд C'],
-        product: ['Продукт X', 'Продукт Y', 'Продукт Z'],
+        brand: brands,
+        product: products,
         month: allMonths,
         year: () => 2024 + randomInt(0, 2), // 2024-2025
-        indicator: ['Показатель 1', 'Показатель 2'],
+        indicator: indicators,
         packs: () => randomInt(0, 500),
         sumUsd: () => randomInt(0, 10000),
       }),
-    []
+    [rowsCount]
   );
 
   return (
     <main>
-      <Tabs
-        items={[
-          { label: 'Аптека', value: 'pharmacy' },
-          { label: 'ЛПУ', value: 'lpu' },
-          { label: 'Бренды', value: 'brands' },
-        ]}
-      ></Tabs>
+      <Tabs items={TabsItems} saveCurrent={setTab}></Tabs>
       <PageSection
-        title="Аптеки"
+        title={TabsItems.find(item => item.value === tab)?.label}
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
+            <Select
+              value={rowsCount}
+              setValue={setRowsCount}
+              items={[
+                { value: 10, label: '10' },
+                { value: 50, label: '50' },
+                { value: 100, label: '100' },
+                { value: 200, label: '200' },
+              ]}
+              triggerText="Количество строк"
+            />
             <Select<true>
               value={visibleColumns}
               setValue={setVisibleColumns}

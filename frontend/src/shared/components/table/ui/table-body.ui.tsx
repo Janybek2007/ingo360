@@ -16,7 +16,7 @@ export function TableBody<T>({
         const isPinned = pinnedRow?.(row.original);
 
         return (
-          <tr key={row.id} className={cn('hover:bg-gray-100 group')}>
+          <tr key={row.id} className={cn('hover:bg-gray-50 group')}>
             {row.getVisibleCells().map(cell => {
               const columnDef = cell.column.columnDef;
               const accessor = columnDef.accessorKey;
@@ -34,7 +34,7 @@ export function TableBody<T>({
                   className={cn(
                     !isPinned &&
                       cell.column.getIsPinned() &&
-                      'bg-white group-hover:bg-gray-100',
+                      'bg-white group-hover:bg-gray-50',
                     'border-b border-[#E4E4E4] not-last:border-r',
                     'py-[14px] pl-4 text-gray-800 whitespace-nowrap',
                     isPinned ? 'sticky top-[50px] bottom-0 z-30' : '',
