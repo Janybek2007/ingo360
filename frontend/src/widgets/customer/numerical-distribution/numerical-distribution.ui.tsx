@@ -175,7 +175,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         </div>
       }
     >
-      <Table<NumericalDistributionRow>
+      <Table
         columns={columnsForTable}
         data={data}
         isScrollbar

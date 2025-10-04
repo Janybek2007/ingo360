@@ -7,7 +7,8 @@ export const EditCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
   ({ onClose }) => {
     return (
       <CreateEditModal
-        portal={false}
+        display="flex"
+        show={true}
         fields={[
           { label: 'Назвние компании', name: 'name', placeholder: 'ОсОО' },
           [

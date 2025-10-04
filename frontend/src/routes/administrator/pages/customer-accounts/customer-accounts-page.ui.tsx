@@ -142,7 +142,7 @@ const CustomerAccountsPage: React.FC = () => {
           </div>
         }
       >
-        <Table<CustomerRow>
+        <Table
           columns={allColumns}
           data={data}
           isScrollbar

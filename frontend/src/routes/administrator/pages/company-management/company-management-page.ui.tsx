@@ -131,7 +131,7 @@ const CompanyManagementPage: React.FC = () => {
           </div>
         }
       >
-        <Table<CompanyRow>
+        <Table
           columns={allColumns}
           data={data}
           isScrollbar

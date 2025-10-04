@@ -72,7 +72,7 @@ export const LeaderBoard: React.FC = React.memo(() => {
           <div></div>
         </div>
         <div className="w-full">
-          <Table<TableRow>
+          <Table
             highlightRow={row =>
               row.place === 34 ? 'bg-yellow-100 font-bold' : ''
             }

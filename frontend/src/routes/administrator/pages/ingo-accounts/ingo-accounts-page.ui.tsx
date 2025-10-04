@@ -112,7 +112,7 @@ const IngoAccountsPage: React.FC = () => {
           </div>
         }
       >
-        <Table<ClientRow>
+        <Table
           columns={allColumns}
           data={data}
           maxHeight={500}
