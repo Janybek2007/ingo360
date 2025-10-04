@@ -8,8 +8,6 @@ export const AccessCompanyModal: React.FC<{ onClose: VoidFunction }> =
     return (
       <CreateEditModal
         isLoading={false}
-        show={true}
-        display="flex"
         fields={[
           [
             {

@@ -82,9 +82,9 @@ export interface IFilterActionsProps {
 }
 
 export interface IFilterSelectProps {
-  value: string[];
-  setValue: (val: string[]) => void;
-  items: ISelectItem[];
+  value: (string | number)[];
+  setValue: (val: (string | number)[]) => void;
+  items: ISelectItem<string | number>[];
 }
 
 export interface IFilterInputProps {

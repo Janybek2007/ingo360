@@ -9,8 +9,6 @@ import { Checkbox } from '../checkbox';
 import { Icon } from '../icon';
 import type { ISelectItem, ISelectProps } from './select.types';
 
-// Поиск, отключить все/выбрать все
-
 export function Select<ISM extends boolean = false, VT = string>({
   items,
   setValue,
@@ -24,6 +22,16 @@ export function Select<ISM extends boolean = false, VT = string>({
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
+
+  const uniqueItems = React.useMemo(() => {
+    const map = new Map<VT, ISelectItem<VT>>();
+    for (const item of items) {
+      if (!map.has(item.value)) {
+        map.set(item.value, item);
+      }
+    }
+    return Array.from(map.values());
+  }, [items]);
 
   const handleSelect = useCallback(
     (item: ISelectItem<VT>) => {
@@ -42,15 +50,15 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   const findItemLabel = React.useMemo(() => {
     if (changeTriggerText && Array.isArray(value)) {
-      return items
+      return uniqueItems
         .filter(item => value.includes(item.value))
         .map(item => item.label)
         .join(', ');
     } else {
-      const found = items.find(v => v.value === value);
+      const found = uniqueItems.find(v => v.value === value);
       return found ? found.label : '';
     }
-  }, [items, value, changeTriggerText]);
+  }, [uniqueItems, value, changeTriggerText]);
 
   const isSelected = useCallback(
     (item: ISelectItem<VT>) => {
@@ -64,7 +72,7 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   return (
     <div
-      className={cn('relative font-inter', classNames?.root)}
+      className={cn('relative font-inter max-w-[350px]', classNames?.root)}
       ref={contentRef}
     >
       <button
@@ -76,12 +84,14 @@ export function Select<ISM extends boolean = false, VT = string>({
         )}
         type="button"
         onClick={toggle}
+        title={findItemLabel || triggerText}
       >
         {typeof leftIcon == 'function' ? leftIcon(open) : leftIcon}
         {(triggerText || findItemLabel) && (
           <span
             className={cn(
-              'text-black text-sm font-medium leading-[150%] text-nowrap overflow-x-auto noscrollbar',
+              'text-black text-sm font-medium leading-[150%] text-nowrap',
+              'overflow-hidden text-ellipsis max-w-full',
               classNames?.triggerText
             )}
           >
@@ -100,7 +110,7 @@ export function Select<ISM extends boolean = false, VT = string>({
             classNames?.menu
           )}
         >
-          {items.map(item => (
+          {uniqueItems.map(item => (
             <button
               key={`${item.value}-${item.label}-key`}
               type="button"
@@ -111,6 +121,7 @@ export function Select<ISM extends boolean = false, VT = string>({
                 classNames?.menuItem
               )}
               onClick={() => handleSelect(item)}
+              title={item.label}
             >
               <div className="flex items-center gap-2">
                 {item.icon && (
@@ -126,7 +137,9 @@ export function Select<ISM extends boolean = false, VT = string>({
                     onChecked={() => handleSelect(item)}
                   />
                 )}
-                <span>{item.label}</span>
+                <span className="overflow-hidden text-ellipsis max-w-full">
+                  {item.label}
+                </span>
               </div>
               {!checkbox && isSelected(item) && (
                 <Icon name="lucide:check" size={16} />

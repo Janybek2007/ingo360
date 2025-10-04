@@ -1,4 +1,4 @@
-import type { ReferencesTypeWithMain } from '../types/references-type';
+import type { ReferencesTypeWithMain } from '../types/references.type';
 
 // Тексты для create/edit
 export const referencesText: Record<ReferencesTypeWithMain, string> = {
@@ -9,6 +9,7 @@ export const referencesText: Record<ReferencesTypeWithMain, string> = {
   'products/product-groups': 'группу товаров',
   'products/promotion-types': 'тип промоции',
   'products/brands': 'бренд',
+  'products/dosages': 'дозировку',
   'products/dosage-forms': 'форму выпуска',
   'products/segments': 'сегмент',
   'products/skus': 'SKU',

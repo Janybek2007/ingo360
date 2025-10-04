@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
 import { AddReferenceModal } from '#/features/reference/add';
+import { DeleteReferenceButton } from '#/features/reference/delete';
 import { EditReferenceModal } from '#/features/reference/edit';
 import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -15,13 +16,13 @@ import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { referencesText } from '#/shared/constants/references-text';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useToggleDisplay } from '#/shared/hooks/use-toggle-display';
-import type { ReferencesTypeWithMain } from '#/shared/types/references-type';
+import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 
 import { referencesColumnsWithType } from './constants';
 import type { IReferenceWorkProps } from './reference-work.types';
 
 const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
-  ({ currentData, current, setCurrentData }) => {
+  ({ currentData, current }) => {
     const [modalData, setModalData] = useState<IReferenceItem | null>(null);
     const editDisplay = useToggleDisplay('.er-modal', { show: 'flex' });
     const addDisplay = useToggleDisplay('.ar-modal', { show: 'flex' });
@@ -48,13 +49,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
               >
                 <Icon name="mdi:pencil" size={18} />
               </button>
-              <button
-                type="button"
-                className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
-                title="Удалить"
-              >
-                <Icon name="mdi:delete" size={18} />
-              </button>
+              <DeleteReferenceButton item={row.original} type={current} />
             </div>
           ),
         },
@@ -115,26 +110,18 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
           <Table
             columns={columnsForTable}
             data={currentData}
+            isScrollbar
             maxHeight={530}
             rounded="none"
           />
         </PageSection>
 
-        <AddReferenceModal
-          addDisplay={addDisplay}
-          type={current}
-          addReference={newData => setCurrentData([...currentData, newData])}
-        />
+        <AddReferenceModal addDisplay={addDisplay} type={current} />
 
         <EditReferenceModal
           editDisplay={editDisplay}
           type={current}
           defaultData={modalData}
-          editReference={editedData =>
-            setCurrentData(p =>
-              p.map(v => (v.id === editedData.id ? editedData : v))
-            )
-          }
         />
       </>
     );

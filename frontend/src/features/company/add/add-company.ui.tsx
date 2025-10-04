@@ -11,8 +11,6 @@ export const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
     return (
       <CreateEditModal
         isLoading={mutation.isPending}
-        display="flex"
-        show={true}
         fields={[
           { label: 'Назвние компании', name: 'name', placeholder: 'ОсОО' },
           [

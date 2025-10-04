@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { IItem } from '#/entities/reference';
 
-export function transformReferenceData<T extends Record<string, any>>(
-  data: T | null
-) {
+export function transformData<T extends Record<string, any>>(data: T | null) {
   if (!data) return null;
 
   const result: Record<string, any> = { ...data };

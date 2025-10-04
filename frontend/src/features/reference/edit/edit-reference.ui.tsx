@@ -9,20 +9,19 @@ import type {
   ReferencesType,
   ReferencesTypeWithDepUrls,
   ReferencesTypeWithMain,
-} from '#/shared/types/references-type';
+} from '#/shared/types/references.type';
 
+import { transformData } from '../../../shared/utils/transform-data';
 import { referencesDependsUrls } from '../constants';
 import { referenceContractWithType } from '../reference.contracts';
 import { fieldsWithSelectItems } from '../utils/fields-with-select-items';
-import { transformReferenceData } from '../utils/transform-reference-data';
 import { useEditReferenceMutation } from './edit-reference.mutation';
 
 export const EditReferenceModal: React.FC<{
   type: ReferencesType;
   defaultData: IReferenceItem | null;
   editDisplay: UseToogleDisplayReturn;
-  editReference: (editedData: IReferenceItem) => void;
-}> = React.memo(({ type, defaultData, editDisplay, editReference }) => {
+}> = React.memo(({ type, defaultData, editDisplay }) => {
   const queryData = useQuery(
     ReferenceQueries.GetReferencesQuery<Record<string, string | number>[]>(
       (referencesDependsUrls[type as ReferencesTypeWithDepUrls] || []).map(
@@ -42,7 +41,7 @@ export const EditReferenceModal: React.FC<{
       fieldsWithSelectItems(
         type,
         queryData.data || [],
-        transformReferenceData(defaultData)
+        transformData(defaultData)
       ),
     [defaultData, queryData.data, type]
   );
@@ -59,12 +58,7 @@ export const EditReferenceModal: React.FC<{
       fields={fields}
       schema={referenceContractWithType[type as ReferencesTypeWithMain]}
       onClose={editDisplay.hide}
-      onSubmit={async data => {
-        const response = await mutation.mutateAsync(data);
-        if (response) {
-          editReference(response);
-        }
-      }}
+      onSubmit={mutation.mutateAsync}
     />
   );
 });

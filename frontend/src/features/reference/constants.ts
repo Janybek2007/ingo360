@@ -2,7 +2,7 @@ import type { ICreateEditModalProps } from '#/shared/components/create-edit-moda
 import type {
   ReferencesTypeWithDepUrls,
   ReferencesTypeWithMain,
-} from '#/shared/types/references-type';
+} from '#/shared/types/references.type';
 
 export const referencesCEFields: Record<
   ReferencesTypeWithMain,
@@ -51,9 +51,15 @@ export const referencesCEFields: Record<
       type: 'select',
     },
     {
-      name: 'settlements_id',
+      name: 'settlement_id',
       label: 'Населенный пункт',
       placeholder: 'Выберите населенный пункт',
+      type: 'select',
+    },
+    {
+      name: 'region_id',
+      label: 'Область',
+      placeholder: 'Выберите область',
       type: 'select',
     },
   ],
@@ -84,23 +90,32 @@ export const referencesCEFields: Record<
       label: 'Название',
       placeholder: 'Введите название типа',
     },
+    [
+      {
+        name: 'company_id',
+        label: 'Компания',
+        placeholder: 'Выберите компанию',
+        type: 'select',
+      },
+      {
+        name: 'promotion_type_id',
+        label: 'Тип',
+        placeholder: 'Выберите тип промоции',
+        type: 'select',
+      },
+      {
+        name: 'product_group_id',
+        label: 'Группа',
+        placeholder: 'Выберите группу',
+        type: 'select',
+      },
+    ],
+  ],
+  'products/dosages': [
     {
-      name: 'company_id',
-      label: 'Компания',
-      placeholder: 'Выберите компанию',
-      type: 'select',
-    },
-    {
-      name: 'promotion_type_id',
-      label: 'Тип',
-      placeholder: 'Выберите тип промоции',
-      type: 'select',
-    },
-    {
-      name: 'group_id',
-      label: 'Группа',
-      placeholder: 'Выберите группу',
-      type: 'select',
+      name: 'name',
+      label: 'Название',
+      placeholder: 'Введите название дозировки',
     },
   ],
   'products/dosage-forms': [
@@ -115,43 +130,50 @@ export const referencesCEFields: Record<
   ],
   'products/skus': [
     { name: 'name', label: 'Название', placeholder: 'Введите название SKU' },
-    {
-      name: 'company_id',
-      label: 'Компания',
-      placeholder: 'Выберите компанию',
-      type: 'select',
-    },
-    {
-      name: 'brand_id',
-      label: 'Бренд',
-      placeholder: 'Выберите бренд',
-      type: 'select',
-    },
-    {
-      name: 'promotion_type_id',
-      label: 'Тип',
-      placeholder: 'Выберите тип промоции',
-      type: 'select',
-    },
-    {
-      name: 'group_id',
-      label: 'Группа',
-      placeholder: 'Выберите группу',
-      type: 'select',
-    },
-    {
-      name: 'form_id',
-      label: 'Форма',
-      placeholder: 'Выберите форму',
-      type: 'select',
-    },
-    { name: 'dosage', label: 'Дозировка', placeholder: 'Выберите дозировку' },
-    {
-      name: 'segment_id',
-      label: 'Сегмент',
-      placeholder: 'Выберите сегмент',
-      type: 'select',
-    },
+    [
+      {
+        name: 'company_id',
+        label: 'Компания',
+        placeholder: 'Выберите компанию',
+        type: 'select',
+      },
+      {
+        name: 'brand_id',
+        label: 'Бренд',
+        placeholder: 'Выберите бренд',
+        type: 'select',
+      },
+      {
+        name: 'promotion_type_id',
+        label: 'Тип',
+        placeholder: 'Выберите тип промоции',
+        type: 'select',
+      },
+      {
+        name: 'product_group_id',
+        label: 'Группа',
+        placeholder: 'Выберите группу',
+        type: 'select',
+      },
+      {
+        name: 'dosage_form_id',
+        label: 'Форма выпуска',
+        placeholder: 'Выберите форму выпуска',
+        type: 'select',
+      },
+      {
+        name: 'dosage_id',
+        label: 'Дозировка',
+        placeholder: 'Выберите дозировку',
+        type: 'select',
+      },
+      {
+        name: 'segment_id',
+        label: 'Сегмент',
+        placeholder: 'Выберите сегмент',
+        type: 'select',
+      },
+    ],
   ],
   // сотрудники
   'employees/positions': [
@@ -162,37 +184,39 @@ export const referencesCEFields: Record<
     },
   ],
   'employees/employees': [
-    { name: 'name', label: 'ФИО', placeholder: 'Введите ФИО' },
-    {
-      name: 'company_id',
-      label: 'Компания',
-      placeholder: 'Выберите компанию',
-      type: 'select',
-    },
-    {
-      name: 'position_id',
-      label: 'Должность',
-      placeholder: 'Выберите должность',
-      type: 'select',
-    },
-    {
-      name: 'group_id',
-      label: 'Группа',
-      placeholder: 'Выберите группу',
-      type: 'select',
-    },
-    {
-      name: 'region_id',
-      label: 'Область',
-      placeholder: 'Выберите область',
-      type: 'select',
-    },
-    {
-      name: 'district_id',
-      label: 'Район',
-      placeholder: 'Выберите район',
-      type: 'select',
-    },
+    { name: 'full_name', label: 'ФИО', placeholder: 'Введите ФИО' },
+    [
+      {
+        name: 'company_id',
+        label: 'Компания',
+        placeholder: 'Выберите компанию',
+        type: 'select',
+      },
+      {
+        name: 'position_id',
+        label: 'Должность',
+        placeholder: 'Выберите должность',
+        type: 'select',
+      },
+      {
+        name: 'product_group_id',
+        label: 'Группа',
+        placeholder: 'Выберите группу',
+        type: 'select',
+      },
+      {
+        name: 'region_id',
+        label: 'Область',
+        placeholder: 'Выберите область',
+        type: 'select',
+      },
+      {
+        name: 'district_id',
+        label: 'Район',
+        placeholder: 'Выберите район',
+        type: 'select',
+      },
+    ],
   ],
   // клиенты
   'clients/distributors': [
@@ -200,18 +224,20 @@ export const referencesCEFields: Record<
   ],
   'clients/medical-facilities': [
     { name: 'name', label: 'Название', placeholder: 'Введите название ЛПУ' },
-    {
-      name: 'settlements_id',
-      label: 'Населенный пункт',
-      placeholder: 'Выберите населенный пункт',
-      type: 'select',
-    },
-    {
-      name: 'region_id',
-      label: 'Область',
-      placeholder: 'Выберите область',
-      type: 'select',
-    },
+    [
+      {
+        name: 'settlement_id',
+        label: 'Населенный пункт',
+        placeholder: 'Выберите населенный пункт',
+        type: 'select',
+      },
+      {
+        name: 'district_id',
+        label: 'Район',
+        placeholder: 'Выберите район',
+        type: 'select',
+      },
+    ],
     { name: 'address', label: 'Адрес', placeholder: 'Введите адрес' },
   ],
   'clients/specialities': [
@@ -229,75 +255,92 @@ export const referencesCEFields: Record<
     },
   ],
   'clients/doctors': [
-    { name: 'name', label: 'ФИО', placeholder: 'Введите ФИО' },
-    {
-      name: 'responsible_employee_id',
-      label: 'Ответственный сотрудник',
-      placeholder: 'Выберите ответственного сотрудника',
-    },
-    {
-      name: 'lpu_id',
-      label: 'ЛПУ',
-      placeholder: 'Выберите ЛПУ',
-      type: 'select',
-    },
-    {
-      name: 'speciality_id',
-      label: 'Специальность',
-      placeholder: 'Выберите специальность',
-      type: 'select',
-    },
-    {
-      name: 'category_id',
-      label: 'Категория',
-      placeholder: 'Выберите категорию',
-      type: 'select',
-    },
+    { name: 'full_name', label: 'ФИО', placeholder: 'Введите ФИО' },
+    [
+      {
+        name: 'responsible_employee_id',
+        label: 'Ответственный сотрудник',
+        placeholder: 'Выберите ответственного сотрудника',
+        type: 'select',
+      },
+      {
+        name: 'medical_facility_id',
+        label: 'ЛПУ',
+        placeholder: 'Выберите ЛПУ',
+        type: 'select',
+      },
+      {
+        name: 'speciality_id',
+        label: 'Специальность',
+        placeholder: 'Выберите специальность',
+        type: 'select',
+      },
+      {
+        name: 'client_category_id',
+        label: 'Категория',
+        placeholder: 'Выберите категорию',
+        type: 'select',
+      },
+      {
+        name: 'product_group_id',
+        label: 'Группа',
+        placeholder: 'Выберите группу',
+        type: 'select',
+      },
+    ],
   ],
   'clients/pharmacies': [
     { name: 'name', label: 'Название', placeholder: 'Введите название' },
-    {
-      name: 'company_id',
-      label: 'Компания',
-      placeholder: 'Выберите компанию',
-      type: 'select',
-    },
-    {
-      name: 'distributor_network_id',
-      label: 'Дистрибьютор/Сеть',
-      placeholder: 'Выберите дистрибьютор/сеть',
-      type: 'select',
-    },
-    {
-      name: 'responsible_employee_id',
-      label: 'Ответственный сотрудник',
-      placeholder: 'Выберите ответственного сотрудника',
-      type: 'select',
-    },
-    {
-      name: 'settlements_id',
-      label: 'Населенный пункт',
-      placeholder: 'Выберите населенный пункт',
-      type: 'select',
-    },
-    {
-      name: 'district_id',
-      label: 'Район',
-      placeholder: 'Выберите район',
-      type: 'select',
-    },
-    {
-      name: 'lpu_id',
-      label: 'ЛПУ',
-      placeholder: 'Выберите ЛПУ',
-      type: 'select',
-    },
-    {
-      name: 'category_id',
-      label: 'Категория',
-      placeholder: 'Выберите категорию',
-      type: 'select',
-    },
+    [
+      {
+        name: 'company_id',
+        label: 'Компания',
+        placeholder: 'Выберите компанию',
+        type: 'select',
+      },
+      {
+        name: 'distrubutor_id',
+        label: 'Дистрибьютор/Сеть',
+        placeholder: 'Выберите дистрибьютор/сеть',
+        type: 'select',
+      },
+      {
+        name: 'responsible_employee_id',
+        label: 'Ответственный сотрудник',
+        placeholder: 'Выберите ответственного сотрудника',
+        type: 'select',
+      },
+      {
+        name: 'settlement_id',
+        label: 'Населенный пункт',
+        placeholder: 'Выберите населенный пункт',
+        type: 'select',
+      },
+      {
+        name: 'district_id',
+        label: 'Район',
+        placeholder: 'Выберите район',
+        type: 'select',
+      },
+      {
+        name: 'medical_facility_id',
+        label: 'ЛПУ',
+        placeholder: 'Выберите ЛПУ',
+        type: 'select',
+      },
+      {
+        name: 'client_category_id',
+        label: 'Категория',
+        placeholder: 'Выберите категорию',
+        type: 'select',
+      },
+      {
+        name: 'product_group_id',
+        label: 'Группа',
+        placeholder: 'Выберите группу',
+        type: 'select',
+      },
+    ],
   ],
 };
 
@@ -313,7 +356,8 @@ export const referencesDependsUrls: Record<
   ],
   'geography/districts': [
     { fieldName: 'company_id', url: 'companies' },
-    { fieldName: 'settlements_id', url: 'geography/settlements' },
+    { fieldName: 'settlement_id', url: 'geography/settlements' },
+    { fieldName: 'region_id', url: 'geography/regions' },
   ],
   'products/product-groups': [{ fieldName: 'company_id', url: 'companies' }],
   'products/brands': [
@@ -339,22 +383,23 @@ export const referencesDependsUrls: Record<
   ],
   'clients/medical-facilities': [
     { fieldName: 'settlement_id', url: 'geography/settlements' },
-    { fieldName: 'region_id', url: 'geography/regions' },
+    { fieldName: 'district_id', url: 'geography/districts' },
   ],
   'clients/doctors': [
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
-    { fieldName: 'medical_facilities_id', url: 'clients/medical-facilities' },
+    { fieldName: 'medical_facility_id', url: 'clients/medical-facilities' },
     { fieldName: 'speciality_id', url: 'clients/specialities' },
     { fieldName: 'client_category_id', url: 'clients/client-categories' },
+    { fieldName: 'product_group_id', url: 'products/product-groups' },
   ],
   'clients/pharmacies': [
     { fieldName: 'company_id', url: 'companies' },
-    { fieldName: 'distributor_id', url: 'clients/distributors' },
+    { fieldName: 'distrubutor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
-    { fieldName: 'settlements_id', url: 'geography/settlements' },
+    { fieldName: 'settlement_id', url: 'geography/settlements' },
     { fieldName: 'district_id', url: 'geography/districts' },
-    { fieldName: 'speciality_id', url: 'clients/specialities' },
-    { fieldName: 'medical_facilities_id', url: 'clients/medical-facilities' },
+    { fieldName: 'product_group_id', url: 'products/product-groups' },
+    { fieldName: 'medical_facility_id', url: 'clients/medical-facilities' },
     { fieldName: 'client_category_id', url: 'clients/client-categories' },
   ],
 };

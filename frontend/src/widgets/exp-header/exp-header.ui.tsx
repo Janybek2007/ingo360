@@ -10,9 +10,12 @@ import { Notifications } from './ui/notifications.ui';
 export const ExpHeader: React.FC = React.memo(() => {
   const navigate = useNavigate();
   return (
-    <header className="bg-white w-full flex items-center justify-between border-b border-c3 px-6 py-4">
+    <header
+      id="exp-header"
+      className="bg-white w-full flex items-center justify-between border-b border-c3 px-6 py-4"
+    >
       <HeaderTitle />
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end items-center gap-4">
         <Notifications />
 
         <div className="group">

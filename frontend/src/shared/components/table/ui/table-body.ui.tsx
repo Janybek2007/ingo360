@@ -39,6 +39,7 @@ export function TableBody({ table, highlightRow, pinnedRow }: ITableBodyProps) {
                     !isLastCell && 'border-r',
                     'py-[14px] pl-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
                     isPinned ? 'sticky top-[50px] bottom-0 z-30' : '',
+                    'overflow-hidden text-ellipsis w-full',
                     highlightRow?.(row.original)
                   )}
                 >

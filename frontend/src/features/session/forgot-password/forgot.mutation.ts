@@ -20,7 +20,7 @@ export const useForgotMutation = () => {
     resolver: zodResolver(ForgotPasswordContract),
   });
 
-  const { status, error, mutateAsync } = useMutation({
+  const { status, mutateAsync } = useMutation({
     mutationKey: ['session-forgot-password'],
     mutationFn: async (vars: TForgotPasswordContract) => {
       const body = JSON.stringify({
@@ -55,7 +55,6 @@ export const useForgotMutation = () => {
     onSubmit,
     register,
     status,
-    apiError: error,
     errors,
   };
 };

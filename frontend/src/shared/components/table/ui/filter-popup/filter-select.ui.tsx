@@ -8,7 +8,7 @@ import type { IFilterSelectProps } from '../../table.types';
 export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
   ({ value, setValue, items }) => {
     return (
-      <Select<true, string>
+      <Select<true, string | number>
         value={value}
         setValue={setValue}
         items={items}

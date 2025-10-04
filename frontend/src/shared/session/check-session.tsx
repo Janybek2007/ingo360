@@ -31,5 +31,5 @@ export const CheckSession: React.FC<CheckSessionProps> = ({ children }) => {
     }
   }, [user, pathname, navigate, isLoading]);
 
-  return <>{children}</>;
+  return <>{isLoading ? null : children}</>;
 };

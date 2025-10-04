@@ -1,6 +1,7 @@
 export interface IItem {
   name: string;
   id: number;
+  full_name?: string;
 }
 export interface IReferenceItem extends IItem {
   indicator: string;
@@ -13,6 +14,7 @@ export interface IReferenceItem extends IItem {
   brand: IItem;
   company: IItem;
   dosage_form: IItem;
+  dosage: IItem;
   segment: IItem;
   position: IItem;
   responsible_employee: IItem;

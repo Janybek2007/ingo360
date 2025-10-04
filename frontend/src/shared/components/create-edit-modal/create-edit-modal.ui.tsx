@@ -40,7 +40,7 @@ export const CreateEditModal = React.memo(
     onSubmit,
     schema,
     portal = true,
-    show,
+    show = true,
     isSuccess,
     display,
     uniqueClass,
@@ -58,6 +58,7 @@ export const CreateEditModal = React.memo(
       defaultValues: buildDefaultValues<TSchema>(fields),
     });
 
+    // console.log(errors)
     React.useEffect(() => {
       if (fields) reset(buildDefaultValues<TSchema>(fields));
       if (isSuccess) reset();
@@ -73,7 +74,7 @@ export const CreateEditModal = React.memo(
     const Content = (
       <Modal
         classNames={{
-          body: 'min-w-[700px] font-roboto',
+          body: 'min-w-[500px] max-w-[700px] font-roboto',
           root: uniqueClass,
         }}
         title={title}
@@ -83,11 +84,11 @@ export const CreateEditModal = React.memo(
       >
         {show && (
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
               {fields.map((f, i) => {
                 if (Array.isArray(f)) {
                   return (
-                    <div className="grid grid-cols-2 gap-6" key={`group-${i}`}>
+                    <div className="grid grid-cols-2 gap-4" key={`group-${i}`}>
                       {f.map((ff, j) => (
                         <FormField
                           key={`${ff.label}-${j}`}

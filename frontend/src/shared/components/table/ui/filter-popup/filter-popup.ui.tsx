@@ -12,11 +12,11 @@ import { FilterInput } from './filter-input.ui';
 import { FilterSelect } from './filter-select.ui';
 import { SortButtons } from './sort-buttons.ui';
 
-export function FilterPopup<T>({
+export function FilterPopup({
   column,
   onClose,
   popupPosition,
-}: IFilterPopupProps<T>) {
+}: IFilterPopupProps) {
   const contentRef = useClickAway<HTMLDivElement>(onClose);
 
   const colType = column.columnDef.type ?? 'string';
@@ -69,7 +69,9 @@ export function FilterPopup<T>({
   }, [initialFilterValue, colType]);
 
   const [filterType, setFilterType] = useState<string>(initialFilterType);
-  const [value, setValue] = useState<string | number | string[]>(initialValue);
+  const [value, setValue] = useState<string | number | (string | number)[]>(
+    initialValue
+  );
   const [value2, setValue2] = useState<string | number>(initialValue2);
 
   useEffect(() => {

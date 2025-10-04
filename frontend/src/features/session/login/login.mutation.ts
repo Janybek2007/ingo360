@@ -10,6 +10,7 @@ import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
 import type { ICheckedBind } from '#/shared/components/ui/checkbox';
 import { queryClient } from '#/shared/libs/react-query';
+import { getError } from '#/shared/utils/get-error';
 
 import {
   LoginContract,
@@ -30,7 +31,7 @@ export const useLoginMutation = () => {
   });
   const rememberMe = watch('rememberMe');
 
-  const { mutateAsync, status, error } = useMutation({
+  const { mutateAsync, status } = useMutation({
     mutationKey: ['session-login'],
     mutationFn: async (vars: TLoginContract) => {
       const formData = qs.stringify({
@@ -56,14 +57,11 @@ export const useLoginMutation = () => {
     },
     onError: async (error: HTTPError) => {
       try {
-        const data = await error.response.json<{ detail: string }>();
-
-        if (data.detail === 'LOGIN_BAD_CREDENTIALS') {
-          setError('root', {
-            type: 'manual',
-            message: 'Неверный логин или пароль',
-          });
-        }
+        const data = await getError(error.response);
+        setError('root', {
+          type: 'manual',
+          message: data,
+        });
       } catch (e) {
         console.error('Ошибка разбора ответа', e);
       }
@@ -87,7 +85,6 @@ export const useLoginMutation = () => {
     onSubmit,
     register,
     status,
-    apiError: error,
     errors,
     rememberMeBind,
   };

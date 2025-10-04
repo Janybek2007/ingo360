@@ -1,12 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
 
-import type { IReferenceItem } from '#/entities/reference';
+import { type IReferenceItem, ReferenceQueries } from '#/entities/reference';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import type {
   ReferencesType,
   ReferencesTypeWithMain,
-} from '#/shared/types/references-type';
+} from '#/shared/types/references.type';
+import { getError } from '#/shared/utils/get-error';
 
 import { referenceContractWithType } from '../reference.contracts';
 
@@ -21,7 +23,7 @@ export const useEditReferenceMutation = (
     mutationFn: async (body: any) => {
       if (!id) {
         const { toast } = await import('sonner');
-        toast.error('Нет id');
+        toast.error('Отсутствует id ресурса');
         return null;
       }
       const parsedBody =
@@ -35,10 +37,19 @@ export const useEditReferenceMutation = (
     onSuccess: async () => {
       const { toast } = await import('sonner');
       toast.success('Ресурс успешно отредактирован');
-      queryClient.invalidateQueries({
-        queryKey: [type],
+      queryClient.refetchQueries({
+        queryKey: ReferenceQueries.queryKeys.getReferences([type]),
       });
       setTimeout(onClose, 700);
+    },
+    onError: async (error: HTTPError) => {
+      const { toast } = await import('sonner');
+      try {
+        const data = await getError(error.response);
+        toast.error(data);
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
     },
   });
 };

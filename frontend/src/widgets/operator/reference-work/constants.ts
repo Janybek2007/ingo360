@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import type { IReferenceItem } from '#/entities/reference';
-import type { ReferencesTypeWithMain } from '#/shared/types/references-type';
+import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 import { selectFilter, stringFilter } from '#/shared/utils/filter';
 
 export const referencesColumnsWithType: Record<
@@ -62,7 +62,7 @@ export const referencesColumnsWithType: Record<
       })),
     },
   ],
-  'geography/districts': () => [
+  'geography/districts': data => [
     {
       accessorKey: 'name',
       header: 'Название',
@@ -70,6 +70,30 @@ export const referencesColumnsWithType: Record<
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
+    },
+    {
+      accessorKey: 'settlement.name',
+      header: 'Населённый пункт',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.settlement?.name ?? ''),
+        value: item.settlement?.id ?? '',
+      })),
+    },
+    {
+      accessorKey: 'region.name',
+      header: 'Область',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.region?.name ?? ''),
+        value: item.region?.id ?? '',
+      })),
     },
   ],
   'products/product-groups': () => [
@@ -96,7 +120,7 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
   ],
-  'products/brands': () => [
+  'products/brands': data => [
     {
       accessorKey: 'name',
       header: 'Название',
@@ -108,14 +132,48 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'company.name',
       header: 'Компания',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.company?.name ?? ''),
+        value: item.company?.id ?? '',
+      })),
     },
     {
       accessorKey: 'promotion_type.name',
       header: 'Тип',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.promotion_type?.name ?? ''),
+        value: item.promotion_type?.id ?? '',
+      })),
     },
     {
       accessorKey: 'product_group.name',
       header: 'Группа',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.product_group?.name ?? ''),
+        value: item.product_group?.id ?? '',
+      })),
+    },
+  ],
+  'products/dosages': () => [
+    {
+      accessorKey: 'name',
+      header: 'Название',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: stringFilter(),
+      type: 'string',
     },
   ],
   'products/dosage-forms': () => [
@@ -138,7 +196,7 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
   ],
-  'products/skus': () => [
+  'products/skus': data => [
     {
       accessorKey: 'name',
       header: 'Название',
@@ -150,30 +208,87 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'company.name',
       header: 'Компания',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.company?.name ?? ''),
+        value: item.company?.id ?? '',
+      })),
     },
     {
       accessorKey: 'brand.name',
       header: 'Бренд',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.brand?.name ?? ''),
+        value: item.brand?.id ?? '',
+      })),
     },
     {
       accessorKey: 'promotion_type.name',
       header: 'Тип промоции',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.promotion_type?.name ?? ''),
+        value: item.promotion_type?.id ?? '',
+      })),
     },
     {
       accessorKey: 'product_group.name',
       header: 'Группа',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.product_group?.name ?? ''),
+        value: item.product_group?.id ?? '',
+      })),
     },
     {
       accessorKey: 'dosage_form.name',
       header: 'Форма выпуска',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.dosage_form?.name ?? ''),
+        value: item.dosage_form?.id ?? '',
+      })),
     },
     {
-      accessorKey: 'dosage',
+      accessorKey: 'dosage.name',
       header: 'Дозировка',
+      enableSorting: true,
+      enableColumnFilter: true,
+      size: 200,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.dosage?.name ?? ''),
+        value: item.dosage?.id ?? '',
+      })),
     },
     {
       accessorKey: 'segment.name',
       header: 'Сегмент',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.segment?.name ?? ''),
+        value: item.segment?.id ?? '',
+      })),
     },
   ],
   'employees/positions': () => [
@@ -186,9 +301,9 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
   ],
-  'employees/employees': () => [
+  'employees/employees': data => [
     {
-      accessorKey: 'name',
+      accessorKey: 'full_name',
       header: 'ФИО',
       enableSorting: true,
       enableColumnFilter: true,
@@ -198,22 +313,62 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'company.name',
       header: 'Компания',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.company?.name ?? ''),
+        value: item.company?.id ?? '',
+      })),
     },
     {
       accessorKey: 'position.name',
       header: 'Должность',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.position?.name ?? ''),
+        value: item.position?.id ?? '',
+      })),
     },
     {
       accessorKey: 'product_group.name',
       header: 'Группа',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.product_group?.name ?? ''),
+        value: item.product_group?.id ?? '',
+      })),
     },
     {
       accessorKey: 'region.name',
       header: 'Регион',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.region?.name ?? ''),
+        value: item.region?.id ?? '',
+      })),
     },
     {
       accessorKey: 'district.name',
       header: 'Район',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.district?.name ?? ''),
+        value: item.district?.id ?? '',
+      })),
     },
   ],
   'clients/distributors': () => [
@@ -226,7 +381,7 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
   ],
-  'clients/medical-facilities': () => [
+  'clients/medical-facilities': data => [
     {
       accessorKey: 'name',
       header: 'Название',
@@ -238,14 +393,34 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'settlement.name',
       header: 'Населенный пункт',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.settlement?.name ?? ''),
+        value: item.settlement?.id ?? '',
+      })),
     },
     {
       accessorKey: 'district.name',
       header: 'Район',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.district?.name ?? ''),
+        value: item.district?.id ?? '',
+      })),
     },
     {
       accessorKey: 'address',
       header: 'Адрес',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: stringFilter(),
+      type: 'string',
     },
   ],
   'clients/specialities': () => [
@@ -268,9 +443,9 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
   ],
-  'clients/doctors': () => [
+  'clients/doctors': data => [
     {
-      accessorKey: 'name',
+      accessorKey: 'full_name',
       header: 'ФИО',
       enableSorting: true,
       enableColumnFilter: true,
@@ -278,20 +453,52 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'employee.name',
+      accessorKey: 'responsible_employee.full_name',
       header: 'Ответственный сотрудник',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.responsible_employee?.full_name ?? ''),
+        value: item.responsible_employee?.id ?? '',
+      })),
     },
     {
       accessorKey: 'medical_facility.name',
       header: 'ЛПУ',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.medical_facility?.name ?? ''),
+        value: item.medical_facility?.id ?? '',
+      })),
     },
     {
       accessorKey: 'speciality.name',
       header: 'Специальность',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.speciality?.name ?? ''),
+        value: item.speciality?.id ?? '',
+      })),
     },
     {
       accessorKey: 'client_category.name',
       header: 'Категория',
+      enableSorting: true,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.client_category?.name ?? ''),
+        value: item.client_category?.id ?? '',
+      })),
     },
   ],
   'clients/pharmacies': () => [
@@ -310,14 +517,17 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'distrubutor.name',
       header: 'Дистрибьютор/Сеть',
+      size: 200,
     },
     {
       accessorKey: 'employee.name',
       header: 'Ответственный сотрудник',
+      size: 250,
     },
     {
       accessorKey: 'settlement.name',
       header: 'Населенный пункт',
+      size: 200,
     },
     {
       accessorKey: 'district.name',
@@ -330,6 +540,10 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'client_category.name',
       header: 'Категория',
+    },
+    {
+      accessorKey: 'product_group.name',
+      header: 'Группа',
     },
   ],
 };

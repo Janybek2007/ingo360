@@ -18,6 +18,7 @@ export const tabsItems: ITabItem<string>[] = [
       { label: 'Группа товаров', value: 'product-groups' },
       { label: 'Тип промоции', value: 'promotion-types' },
       { label: 'Бренды', value: 'brands' },
+      { label: 'Дозировка', value: 'dosages' },
       { label: 'Форма выпуска', value: 'dosage-forms' },
       { label: 'Сегмент', value: 'segments' },
       { label: 'SKU', value: 'skus' },

@@ -14,7 +14,7 @@ const Modal: React.FC<IModalProps> = React.memo(
     onClose,
     classNames,
     closeOnOverlayClick = true,
-    display = 'block',
+    display = 'flex',
   }) => {
     const contentRef = useClickAway<HTMLDivElement>(
       () => closeOnOverlayClick && onClose()
@@ -27,12 +27,12 @@ const Modal: React.FC<IModalProps> = React.memo(
         <div className="overlay"></div>
         <div
           className={cn(
-            'relative z-[290] p-8 bg-white rounded-2xl',
+            'relative z-[290] p-7 bg-white rounded-2xl',
             classNames?.body
           )}
           ref={contentRef}
         >
-          <div className={'flex items-center justify-between mb-8'}>
+          <div className={'flex items-center justify-between mb-6'}>
             <div className="flex flex-col gap-0.5">
               <h4 className="font-inter text-2xl leading-[100%] font-semibold">
                 {title}
