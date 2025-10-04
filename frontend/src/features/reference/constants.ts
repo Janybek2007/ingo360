@@ -51,7 +51,7 @@ export const referencesCEFields: Record<
       type: 'select',
     },
     {
-      name: 'settlements_id',
+      name: 'settlement_id',
       label: 'Населенный пункт',
       placeholder: 'Выберите населенный пункт',
       type: 'select',
@@ -201,7 +201,7 @@ export const referencesCEFields: Record<
   'clients/medical-facilities': [
     { name: 'name', label: 'Название', placeholder: 'Введите название ЛПУ' },
     {
-      name: 'settlements_id',
+      name: 'settlement_id',
       label: 'Населенный пункт',
       placeholder: 'Выберите населенный пункт',
       type: 'select',
@@ -275,7 +275,7 @@ export const referencesCEFields: Record<
       type: 'select',
     },
     {
-      name: 'settlements_id',
+      name: 'settlement_id',
       label: 'Населенный пункт',
       placeholder: 'Выберите населенный пункт',
       type: 'select',
@@ -313,7 +313,7 @@ export const referencesDependsUrls: Record<
   ],
   'geography/districts': [
     { fieldName: 'company_id', url: 'companies' },
-    { fieldName: 'settlements_id', url: 'geography/settlements' },
+    { fieldName: 'settlement_id', url: 'geography/settlements' },
   ],
   'products/product-groups': [{ fieldName: 'company_id', url: 'companies' }],
   'products/brands': [
@@ -351,7 +351,7 @@ export const referencesDependsUrls: Record<
     { fieldName: 'company_id', url: 'companies' },
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
-    { fieldName: 'settlements_id', url: 'geography/settlements' },
+    { fieldName: 'settlement_id', url: 'geography/settlements' },
     { fieldName: 'district_id', url: 'geography/districts' },
     { fieldName: 'speciality_id', url: 'clients/specialities' },
     { fieldName: 'medical_facilities_id', url: 'clients/medical-facilities' },

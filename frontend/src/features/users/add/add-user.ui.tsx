@@ -14,6 +14,8 @@ export const AddUserModal: React.FC<{
 }> = React.memo(({ onClose }) => {
   return (
     <CreateEditModal
+      show={true}
+      display="flex"
       fields={[
         { label: 'ФИО', name: 'fullName', placeholder: 'ОсОО' },
         {
@@ -22,7 +24,7 @@ export const AddUserModal: React.FC<{
           name: 'role',
           placeholder: 'Оператор',
           defaultValue: ROLES[0],
-          selectItems: ROLES.map(role => ({
+          selectItems: ROLES.slice(0, 2).map(role => ({
             label: ROLES_OBJECT[role],
             value: role,
           })),

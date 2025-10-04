@@ -1,26 +1,34 @@
 import { useMutation } from '@tanstack/react-query';
 
+import { CompanyQueries } from '#/entities/company';
 import { http } from '#/shared/api';
+import { queryClient } from '#/shared/libs/react-query';
 
 import {
   AddCompanyContract,
   type TAddCompanyContract,
-  type TAddCompanyResponse,
-} from './add-company.contract';
+} from '../company.contract';
+import type { TAddCompanyResponse } from '../company.types';
 
 export const useAddCompanyMutation = (onClose: VoidFunction) => {
   return useMutation({
-    mutationKey: ['company', 'add'],
+    mutationKey: ['companies-add'],
     mutationFn: async (body: TAddCompanyContract) => {
       const parsedBody = AddCompanyContract.parse(body);
-      const response = await http.post('company/add', {
+      const response = await http.post('companies', {
         body: JSON.stringify(parsedBody),
       });
       return response.json<TAddCompanyResponse>();
     },
-    onSuccess() {
-      // TODO: add toast
+    async onSuccess() {
+      const { toast } = await import('sonner');
       onClose();
+      queryClient.invalidateQueries({
+        queryKey: CompanyQueries.queryKeys.getCompanies,
+      });
+      setTimeout(() => {
+        toast.success('Ресурс успешно добавлен');
+      }, 300);
     },
   });
 };

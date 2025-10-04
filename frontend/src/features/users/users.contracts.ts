@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-export const AddCompanyContract = z.object({
+export const AddUserContract = z.object({
   name: z.string().min(1, 'Поле обязательно'),
-  accounts_limit: z.string().min(1, 'Поле обязательно'),
+  active_users_limit: z.union([z.string(), z.number()]).transform(Number),
   contract_number: z.string().min(1, 'Поле обязательно'),
   contract_end_date: z.string().min(1, 'Поле обязательно'),
   can_primary_sales: z.boolean().default(false),
@@ -12,14 +12,6 @@ export const AddCompanyContract = z.object({
   can_market_analysis: z.boolean().default(false),
 });
 
-export type TAddCompanyContract = z.infer<typeof AddCompanyContract>;
+export const EditUserContract = AddUserContract.optional();
 
-export type TAddCompanyResponse = {
-  company: {
-    id: string;
-    name: string;
-    accounts_limit: string;
-    contract_number: string;
-    contract_end_date: string;
-  };
-};
+export type TAddUserContract = z.infer<typeof AddUserContract>;

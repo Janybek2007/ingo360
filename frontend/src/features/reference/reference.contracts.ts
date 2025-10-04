@@ -72,7 +72,7 @@ export const referenceContractWithType: Record<
     responsible_employee_id: RequiredNumber(
       'Выберите ответственного сотрудника'
     ),
-    settlements_id: RequiredNumber('Выберите населённый пункт'),
+    settlement_id: RequiredNumber('Выберите населённый пункт'),
     district_id: RequiredNumber('Выберите район'),
     medical_facility_id: RequiredNumber('Выберите ЛПУ'),
     address: z.string().min(1, 'Введите адрес'),

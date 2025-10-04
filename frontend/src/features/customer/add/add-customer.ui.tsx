@@ -19,6 +19,8 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
 
     return (
       <CreateEditModal
+        show={true}
+        display="flex"
         fields={[
           { label: 'ФИО', name: 'fullname', placeholder: 'ОсОО' },
           [

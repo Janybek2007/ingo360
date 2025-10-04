@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { CompanyQueries, type ICompanyItem } from '#/entities/company';
 import { AccessCompanyModal } from '#/features/company/access';
 import { AddCompanyModal } from '#/features/company/add';
 import { EditCompanyModal } from '#/features/company/edit';
@@ -11,37 +13,26 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
-import { STATUSES, STATUSES_OBJECT } from '#/shared/constants/global';
+import { STATUSES_OBJECT } from '#/shared/constants/global';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { numberFilter } from '#/shared/utils/filter';
-import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
-
-interface CompanyRow {
-  id: string;
-  company: string;
-  accountLimit: number;
-  registered: number;
-  contractNumber: string;
-  contractEnd: string;
-  status: string;
-}
-
-const COMPANIES = ['ОСО', 'Ингосстрах', 'Альфа'] as const;
 
 const CompanyManagementPage: React.FC = () => {
-  const [search, setSearch] = useState('');
+  const [, setSearch] = useState('');
+
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [openAccess, setOpenAccess] = useState(false);
+  const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
 
   const allColumns = useMemo(
-    (): ColumnDef<CompanyRow>[] => [
+    (): ColumnDef<ICompanyItem>[] => [
       {
-        accessorKey: 'company',
+        accessorKey: 'name',
         header: 'Компания',
         size: 177,
       },
       {
-        accessorKey: 'accountLimit',
+        accessorKey: 'active_users_limit',
         header: 'Лимит учетных записей',
         size: 227,
         enableColumnFilter: true,
@@ -49,25 +40,25 @@ const CompanyManagementPage: React.FC = () => {
         type: 'number',
       },
       { accessorKey: 'registered', header: 'Зарегистрированные', size: 220 },
-      { accessorKey: 'contractNumber', header: '№ Договора', size: 213 },
+      { accessorKey: 'contract_number', header: '№ Договора', size: 213 },
       {
-        accessorKey: 'contractEnd',
+        accessorKey: 'contract_end_date',
         header: 'Срок окончания договора',
         size: 273,
       },
       {
-        accessorKey: 'status',
+        accessorKey: 'is_active',
         header: 'Статус',
         size: 180,
         cell(props) {
-          return STATUSES_OBJECT[props.getValue() as 'active'];
+          return STATUSES_OBJECT[props.getValue() ? 'active' : 'inactive'];
         },
       },
       {
         accessorKey: 'actions',
         header: '',
         size: 80,
-        cell() {
+        cell({}) {
           return (
             <RowActions
               items={[
@@ -85,29 +76,6 @@ const CompanyManagementPage: React.FC = () => {
     [set]
   );
 
-  const allData = useMemo(
-    () =>
-      generateMocks(10, {
-        id: () => randomId('company'),
-        company: COMPANIES,
-        accountLimit: () => randomInt(3, 5),
-        registered: () => randomInt(0, 5),
-        contractNumber: () => '32124',
-        contractEnd: () => '03-08-2025',
-        status: STATUSES,
-      }),
-    []
-  );
-
-  const data = useMemo(() => {
-    return allData.filter(
-      row =>
-        row.company.toLowerCase().includes(search.toLowerCase()) ||
-        row.contractNumber.toLowerCase().includes(search.toLowerCase()) ||
-        row.status.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, allData]);
-
   return (
     <main>
       {open === 'edit' && <EditCompanyModal onClose={clear} />}
@@ -120,7 +88,10 @@ const CompanyManagementPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton data={data} fileName="companies.xlsx" />
+            <ExportToExcelButton
+              data={queryData.data || []}
+              fileName="companies.xlsx"
+            />
             <Button
               onClick={() => set('create')}
               className="px-4 py-3 rounded-full flex items-center gap-1"
@@ -133,8 +104,9 @@ const CompanyManagementPage: React.FC = () => {
       >
         <Table
           columns={allColumns}
-          data={data}
+          data={queryData.data || []}
           isScrollbar
+          isLoading={queryData.isLoading}
           maxHeight={500}
           rounded="none"
         />
