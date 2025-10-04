@@ -12,7 +12,7 @@ import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
 import { STATUSES, STATUSES_OBJECT } from '#/shared/constants/global';
-import { useCreateEditState } from '#/shared/hooks/use-create-edit-state';
+import { useStringState } from '#/shared/hooks/use-string-state';
 import { numberFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
@@ -30,7 +30,7 @@ const COMPANIES = ['ОСО', 'Ингосстрах', 'Альфа'] as const;
 
 const CompanyManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [open, { set, clear }] = useCreateEditState();
+  const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [openAccess, setOpenAccess] = useState(false);
 
   const allColumns = useMemo(

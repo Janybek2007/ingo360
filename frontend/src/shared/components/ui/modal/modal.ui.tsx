@@ -1,5 +1,4 @@
 import React from 'react';
-import { createPortal } from 'react-dom';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { cn } from '#/shared/utils/cn';
@@ -15,12 +14,16 @@ const Modal: React.FC<IModalProps> = React.memo(
     onClose,
     classNames,
     closeOnOverlayClick = true,
+    display = 'block',
   }) => {
     const contentRef = useClickAway<HTMLDivElement>(
       () => closeOnOverlayClick && onClose()
     );
-    return createPortal(
-      <div className={'fixed inset-0 flexCenter z-[300]'}>
+    return (
+      <div
+        className={cn('fixed inset-0 flexCenter z-[300]', classNames?.root)}
+        style={{ display }}
+      >
         <div className="overlay"></div>
         <div
           className={cn(
@@ -45,8 +48,7 @@ const Modal: React.FC<IModalProps> = React.memo(
           </div>
           {children}
         </div>
-      </div>,
-      document.body
+      </div>
     );
   }
 );

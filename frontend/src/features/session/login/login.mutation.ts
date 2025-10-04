@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
+import type { HTTPError } from 'ky';
 import qs from 'qs';
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -23,6 +24,7 @@ export const useLoginMutation = () => {
     formState: { errors },
     setValue,
     watch,
+    setError,
   } = useForm({
     resolver: zodResolver(LoginContract),
   });
@@ -50,6 +52,20 @@ export const useLoginMutation = () => {
         await queryClient.refetchQueries({
           queryKey: UserQueries.queryKeys.getUser,
         });
+      }
+    },
+    onError: async (error: HTTPError) => {
+      try {
+        const data = await error.response.json<{ detail: string }>();
+
+        if (data.detail === 'LOGIN_BAD_CREDENTIALS') {
+          setError('root', {
+            type: 'manual',
+            message: 'Неверный логин или пароль',
+          });
+        }
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
       }
     },
   });

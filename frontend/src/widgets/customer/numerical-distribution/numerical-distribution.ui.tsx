@@ -95,7 +95,10 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns);
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions', 'total'],
+    });
 
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount, {

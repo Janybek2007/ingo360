@@ -106,7 +106,10 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns);
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions', 'total'],
+    });
 
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount, {
@@ -181,7 +184,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         </div>
       }
     >
-      <Table<PharmacyBalanceRow>
+      <Table
         columns={columnsForTable}
         data={data}
         isScrollbar

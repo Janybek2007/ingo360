@@ -33,7 +33,7 @@ export const LoginForm: React.FC = React.memo(() => {
           error={errors.password?.message}
         />
       </div>
-      <div className="flex items-center justify-between my-10 rounded">
+      <div className="flex items-center justify-between mt-10 mb-5 rounded">
         <div className="flex items-center gap-2">
           <Checkbox {...rememberMeBind} />
           <button
@@ -51,6 +51,9 @@ export const LoginForm: React.FC = React.memo(() => {
           Забыли пароль?
         </Link>
       </div>
+      {errors.root && (
+        <div className="text-red-500 mb-5">{errors.root.message}</div>
+      )}
       <Button
         variant="filled"
         color="primary"

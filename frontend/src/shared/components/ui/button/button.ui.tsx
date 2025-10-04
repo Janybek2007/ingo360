@@ -24,6 +24,7 @@ const Button: React.FC<IButtonProps> = React.memo(
     const classNames = cn([
       { ['w-full']: wFull, ['rounded-full']: roundedFull },
       'transition-all',
+      { ['cursor-not-allowed opacity-50']: disabled },
       uiSet.colorVariant(color, variant),
       className,
     ]);

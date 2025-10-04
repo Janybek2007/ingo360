@@ -52,11 +52,10 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
         <div
           className={cn(
             'flex flex-col gap-2 px-4 py-[14px] w-full',
-            'bg-white border border-[#E4E4E4] rounded-2xl',
+            'bg-white rounded-2xl',
             classNames?.tabs
           )}
         >
-          {/* Main Tabs */}
           <div className="flex items-center gap-3">
             {items.map((t, i) => {
               const isActive = mainCurrent === t.value;
@@ -83,7 +82,7 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
             <div
               className={cn(
                 'flex items-center gap-2',
-                'bg-gray-50 rounded-xl py-1',
+                'rounded-xl py-1',
                 classNames?.tabs
               )}
             >

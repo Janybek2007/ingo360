@@ -85,7 +85,7 @@ export function Select<ISM extends boolean = false, VT = string>({
               classNames?.triggerText
             )}
           >
-            {changeTriggerText ? findItemLabel : triggerText}
+            {changeTriggerText ? findItemLabel || triggerText : triggerText}
           </span>
         )}
         {typeof rightIcon == 'function' ? rightIcon(open) : rightIcon}

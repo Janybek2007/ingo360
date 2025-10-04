@@ -73,7 +73,10 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns);
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions'],
+    });
 
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount, {
@@ -146,7 +149,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         </div>
       }
     >
-      <Table<VisitRow>
+      <Table
         columns={columnsForTable}
         data={data}
         isScrollbar

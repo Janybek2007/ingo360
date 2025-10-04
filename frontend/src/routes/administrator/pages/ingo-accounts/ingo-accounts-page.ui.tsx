@@ -16,7 +16,7 @@ import {
   STATUSES,
   STATUSES_OBJECT,
 } from '#/shared/constants/global';
-import { useCreateEditState } from '#/shared/hooks/use-create-edit-state';
+import { useStringState } from '#/shared/hooks/use-string-state';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
 interface ClientRow {
@@ -28,8 +28,8 @@ interface ClientRow {
 
 const IngoAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [open, { set, clear, data: editData }] =
-    useCreateEditState<ClientRow>();
+  const [open, { set, clear }] = useStringState(['create', 'edit']);
+  const [editData, setEditData] = useState<ClientRow | null>(null);
   const [data, setData] = useState<ClientRow[]>([]);
 
   const allColumns = useMemo(
@@ -61,7 +61,10 @@ const IngoAccountsPage: React.FC = () => {
               items={[
                 {
                   type: 'edit',
-                  onSelect: () => set('edit', props.row.original),
+                  onSelect: () => {
+                    set('edit');
+                    setEditData(props.row.original);
+                  },
                 },
                 { type: 'reset_password', onSelect: () => {} },
               ]}

@@ -62,7 +62,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
           ) : type === 'select' && select ? (
             <Select
               {...select}
-              triggerText={label}
+              triggerText={placeholder}
               rightIcon={
                 <Icon className="text-[#94A3B8]" name="lucide:chevron-down" />
               }

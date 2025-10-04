@@ -1,0 +1,61 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
+import { useForm } from 'react-hook-form';
+
+import { http } from '#/shared/api';
+
+import {
+  ForgotPasswordContract,
+  type TForgotPasswordContract,
+} from './forgot-password.contract';
+
+export const useForgotMutation = () => {
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    setError,
+  } = useForm<TForgotPasswordContract>({
+    resolver: zodResolver(ForgotPasswordContract),
+  });
+
+  const { status, error, mutateAsync } = useMutation({
+    mutationKey: ['session-forgot-password'],
+    mutationFn: async (vars: TForgotPasswordContract) => {
+      const body = JSON.stringify({
+        email: vars.email,
+      });
+      const response = await http
+        .post('auth/forgot-password', { body })
+        .json<{ success: boolean } | null>();
+      return response;
+    },
+    onError: async (error: HTTPError) => {
+      try {
+        const data = await error.response.json<{ detail: string }>();
+
+        if (data.detail === 'EMAIL_NOT_FOUND') {
+          setError('root', {
+            type: 'manual',
+            message: 'Электронная почта не найдена',
+          });
+        }
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
+    },
+  });
+
+  const onSubmit = handleSubmit(async data => {
+    await mutateAsync(data);
+  });
+
+  return {
+    onSubmit,
+    register,
+    status,
+    apiError: error,
+    errors,
+  };
+};

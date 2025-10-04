@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   Column,
   ColumnDef,
@@ -29,16 +30,20 @@ export interface TableContextProps {
 
 // Context
 
-export interface ITableProps<T> {
-  columns: ColumnDef<T>[];
-  data: T[];
+export interface ITableProps {
+  columns: ColumnDef<any>[];
+  data: any[];
   className?: string;
   maxHeight?: number;
-  highlightRow?: (row: T) => string;
+  minHeight?: number;
+  highlightRow?: (row: any) => string;
   isScrollbar?: boolean;
   rounded?: 'none' | 'sm' | 'md' | 'lg';
+  pinnedRow?: (row: any) => boolean;
+  isLoading?: boolean;
+  isEmpty?: boolean;
+  loadingNode?: React.ReactNode;
   emptyNode?: React.ReactNode;
-  pinnedRow?: (row: T) => boolean;
 }
 
 export interface ITableScrollbarProps {
@@ -49,18 +54,18 @@ export interface ITableScrollbarProps {
   isDragging: boolean;
 }
 
-export interface ITableBodyProps<T> {
-  table: TableType<T>;
-  highlightRow?: (row: T) => string;
-  pinnedRow?: (row: T) => boolean;
+export interface ITableBodyProps {
+  table: TableType<any>;
+  highlightRow?: (row: any) => string;
+  pinnedRow?: (row: any) => boolean;
 }
 
-export interface ITableHeaderProps<T> {
-  table: TableType<T>;
+export interface ITableHeaderProps {
+  table: TableType<any>;
 }
 
-export interface IFilterPopupProps<T> {
-  column: Column<T, unknown>;
+export interface IFilterPopupProps {
+  column: Column<any, unknown>;
   onClose: () => void;
   popupPosition: TableContextProps['popupPosition'];
 }

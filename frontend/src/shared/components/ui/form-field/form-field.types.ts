@@ -19,5 +19,8 @@ export interface IFormFieldProps {
   color?: TColors;
   variant?: TVariants;
   error?: string;
-  select?: Pick<ISelectProps<false>, 'items' | 'value' | 'setValue'>;
+  select?: Pick<
+    ISelectProps<false, string | number>,
+    'items' | 'value' | 'setValue'
+  >;
 }

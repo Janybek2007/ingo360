@@ -1,4 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
+import { parseAsString, useQueryState } from 'nuqs';
 import React, { useMemo } from 'react';
 
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -7,11 +8,13 @@ import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
-import { Tabs } from '#/shared/components/ui/tabs';
+import { findCurrentTab, Tabs } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
+
+import { tabsItems } from './constants';
 
 interface DbRow {
   id: string;
@@ -40,16 +43,13 @@ const products = ['Продукт X', 'Продукт Y', 'Продукт Z'] as
 const indicators = ['Показатель 1', 'Показатель 2'] as const;
 const published = ['true', 'false'] as const;
 
-const TabsItems = [
-  { label: 'Первичные продажи', value: 'primary_sales' },
-  { label: 'Вторичные продажи', value: 'tertiary_sales' },
-  { label: 'Визиты', value: 'visit_activity' },
-  { label: 'Внешние рынки', value: 'foreign_markets' },
-];
-
 const DbWorkPage: React.FC = () => {
   const [rowsCount, setRowsCount] = React.useState(10);
-  const [tab, setTab] = React.useState(TabsItems[0].value);
+  const [current, setCurrent] = useQueryState(
+    'current',
+    parseAsString.withDefault('primary')
+  );
+
   const allColumns = useMemo(
     (): ColumnDef<DbRow>[] => [
       {
@@ -235,7 +235,10 @@ const DbWorkPage: React.FC = () => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns, undefined, ['actions']);
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions'],
+    });
 
   const data = useMemo(
     () =>
@@ -260,9 +263,9 @@ const DbWorkPage: React.FC = () => {
 
   return (
     <main>
-      <Tabs items={TabsItems} saveCurrent={setTab}></Tabs>
+      <Tabs items={tabsItems} saveCurrent={setCurrent}></Tabs>
       <PageSection
-        title={TabsItems.find(item => item.value === tab)?.label}
+        title={findCurrentTab(tabsItems, current)?.tab.label}
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <Select<true, string>
@@ -302,10 +305,10 @@ const DbWorkPage: React.FC = () => {
           </div>
         }
       >
-        <Table<DbRow>
+        <Table
           columns={columnsForTable}
           data={data}
-          maxHeight={500}
+          maxHeight={550}
           isScrollbar
           rounded="none"
         />

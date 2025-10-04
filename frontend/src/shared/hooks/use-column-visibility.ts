@@ -1,19 +1,34 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-export function useColumnVisibility<T>(
-  allColumns: ColumnDef<T>[],
-  defaultVisible?: string[],
-  ignore: string[] = []
-) {
-  const initialVisible =
+export interface UsecolumnVisibilityOptions<T> {
+  allColumns: ColumnDef<T>[];
+  defaultVisible?: string[];
+  ignore: string[];
+}
+
+export function useColumnVisibility<T>({
+  allColumns,
+  defaultVisible,
+  ignore,
+}: UsecolumnVisibilityOptions<T>) {
+  const getInitialVisible = () =>
     defaultVisible ??
     allColumns
       .map(col => String('accessorKey' in col ? col.accessorKey : col.id))
       .filter(id => !ignore.includes(id));
 
   const [visibleColumns, setVisibleColumns] =
-    useState<string[]>(initialVisible);
+    useState<string[]>(getInitialVisible);
+
+  useEffect(() => {
+    const nextVisible = getInitialVisible();
+
+    if (JSON.stringify(nextVisible) !== JSON.stringify(visibleColumns)) {
+      setVisibleColumns(nextVisible);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allColumns, defaultVisible, ignore]);
 
   const columnsForTable = useMemo(
     () =>

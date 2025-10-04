@@ -6,6 +6,10 @@ import { FULL_API_URL } from './constants/environment';
 const http = ky.create({
   prefixUrl: FULL_API_URL,
   credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
   hooks: {
     beforeRequest: [
       request => {

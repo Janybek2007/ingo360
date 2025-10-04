@@ -6,11 +6,13 @@ import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
-import { Tabs } from '#/shared/components/ui/tabs';
+import { findCurrentTab, Tabs } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
+
+import { tabsItems } from './constants';
 
 interface LogRow {
   id: string;
@@ -40,15 +42,9 @@ const companies = ['Компания 1', 'Компания 2', 'Компания
 const products = ['Продукт X', 'Продукт Y', 'Продукт Z'] as const;
 const indicators = ['Показатель 1', 'Показатель 2'] as const;
 
-const TabsItems = [
-  { label: 'Аптеки', value: 'pharmacy' },
-  { label: 'ЛПУ', value: 'lpu' },
-  { label: 'Бренды', value: 'brands' },
-];
-
 const LogsPage: React.FC = () => {
   const [rowsCount, setRowsCount] = React.useState(10);
-  const [tab, setTab] = React.useState(TabsItems[0].value);
+  const [tab, setTab] = React.useState(tabsItems[0].value);
   const allColumns = useMemo(
     (): ColumnDef<LogRow>[] => [
       { accessorKey: 'id', header: 'ID', size: 140 },
@@ -224,7 +220,10 @@ const LogsPage: React.FC = () => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns, undefined, ['actions']);
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions'],
+    });
 
   const data = useMemo(
     () =>
@@ -250,9 +249,9 @@ const LogsPage: React.FC = () => {
 
   return (
     <main>
-      <Tabs items={TabsItems} saveCurrent={setTab}></Tabs>
+      <Tabs items={tabsItems} saveCurrent={setTab}></Tabs>
       <PageSection
-        title={TabsItems.find(item => item.value === tab)?.label}
+        title={findCurrentTab(tabsItems, tab)?.tab.label}
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <Select

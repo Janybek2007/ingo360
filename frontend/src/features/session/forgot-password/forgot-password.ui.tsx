@@ -1,20 +1,28 @@
 import React from 'react';
 
 import { Button } from '#/shared/components/ui/button';
-// import { Checkbox } from '#/shared/components/ui/checkbox';
-// import { FormField } from '#/shared/components/ui/form-field';
-// import { routePaths } from '#/shared/router';
+import { FormField } from '#/shared/components/ui/form-field';
 
 export const ForgotPassword: React.FC = () => {
   return (
     <div className="flex items-center justify-center">
-      <div className="w-[600px] h-[220px] bg-white p-5 rounded-2xl">
-        <div className="flex flex-col gap-4">
-          <h2 className="text-2xl">Забыли пароль?</h2>
-          <p className="text-gray-950">
-            Введите зарегистрированный адрес электронной почты, <br /> чтобы
-            сбросить пароль.
+      <div className="w-[487px] bg-white p-8 rounded-2xl">
+        <div className="flex flex-col gap-[14px]">
+          <h2 className="text-xl font-medium leading-full text-[#1B1C1F]">
+            Забыли пароль?
+          </h2>
+          <p className="text-[#000000DE] font-normal text-sm leading-[143%] tracking-[0.15px]">
+            Введите зарегистрированный адрес электронной почты, чтобы сбросить
+            пароль.
           </p>
+        </div>
+        <div className="my-4">
+          <FormField
+            name="email"
+            label="Email"
+            type="email"
+            placeholder="Введите email"
+          />
         </div>
         <div className="flex justify-end">
           <Button

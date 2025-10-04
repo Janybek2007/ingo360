@@ -55,7 +55,10 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility(allColumns);
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions'],
+    });
 
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount, {
@@ -125,7 +128,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         </div>
       }
     >
-      <Table<CoverageRow>
+      <Table
         columns={columnsForTable}
         data={data}
         maxHeight={500}

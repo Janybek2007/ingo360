@@ -10,7 +10,7 @@ import type { ITableHeaderProps } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 import { FilterPopup } from './filter-popup/filter-popup.ui';
 
-export function TableHeader<T>({ table }: ITableHeaderProps<T>) {
+export function TableHeader({ table }: ITableHeaderProps) {
   const [popupOpen, setPopupOpen] = useState<string | null>(null);
   const { position: popupPosition, updatePosition } = useAnchorPosition();
 
@@ -91,3 +91,5 @@ export function TableHeader<T>({ table }: ITableHeaderProps<T>) {
     </thead>
   );
 }
+
+TableHeader.displayName = '_TableHeader_';

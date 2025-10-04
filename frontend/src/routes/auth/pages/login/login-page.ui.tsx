@@ -4,11 +4,9 @@ import { SendRequestWrapper } from '#/features/request/send';
 import { LoginForm } from '#/features/session/login';
 import { Assets } from '#/shared/assets';
 
-// добавить службу поддержки
-
 const LoginPage: React.FC = () => {
   return (
-    <main className="h-screen font-inter">
+    <div className="h-screen font-inter">
       <section className="h-full mx-auto flex items-start">
         <div className="w-1/2 pt-[64px] px-[120px] pb-[40px] h-full flex flex-col justify-between">
           <div className="mb-[140px]">
@@ -24,9 +22,9 @@ const LoginPage: React.FC = () => {
           </div>
           <SendRequestWrapper />
         </div>
-        <div className="w-1/2 h-full border-l border-l-black"></div>
+        <div className="w-1/2 h-full"></div>
       </section>
-    </main>
+    </div>
   );
 };
 

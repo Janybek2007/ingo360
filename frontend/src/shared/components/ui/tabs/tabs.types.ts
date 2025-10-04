@@ -1,7 +1,7 @@
-export interface ITabItem {
+export interface ITabItem<T = string> {
   label: string;
-  value: string;
-  subItems?: ITabItem[];
+  value: T;
+  subItems?: ITabItem<T>[];
 }
 
 export interface ITabsChildrenProps {

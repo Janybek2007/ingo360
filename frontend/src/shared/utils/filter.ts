@@ -47,7 +47,7 @@ export const stringFilter =
   <T>() =>
   (row: Row<T>, columnId: string, filterValue: StringFilterValue) => {
     const rowValue = String(row.getValue(columnId));
-    const { type, value } = filterValue;
+    const { type = 'equals', value } = filterValue;
 
     switch (type) {
       case 'contains':
@@ -67,8 +67,9 @@ export const stringFilter =
 export const selectFilter =
   <T, VT extends string | number>() =>
   (row: Row<T>, columnId: string, filterValue: VT[]) => {
+    console.log(columnId, filterValue);
     if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
-
     const rowValue = row.getValue<VT>(columnId);
+    console.log(rowValue, 'rowValue');
     return filterValue.includes(rowValue);
   };
