@@ -2,7 +2,7 @@ import React from 'react';
 
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 
-import { AddCompanyContract } from './add-company.contract';
+import { AddCompanyContract } from '../company.contract';
 import { useAddCompanyMutation } from './add-company.mutation';
 
 export const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
@@ -11,13 +11,15 @@ export const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
     return (
       <CreateEditModal
         isLoading={mutation.isPending}
+        isSuccess={mutation.isSuccess}
         fields={[
           { label: 'Назвние компании', name: 'name', placeholder: 'ОсОО' },
           [
             {
               label: 'Лимит учетных записей',
-              name: 'accounts_limit',
+              name: 'active_users_limit',
               placeholder: '12',
+              type: 'number',
             },
             {
               label: '№ Договора',

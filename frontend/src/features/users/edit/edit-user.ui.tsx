@@ -21,6 +21,8 @@ export const EditUserModal: React.FC<{
   return (
     <CreateEditModal
       portal={false}
+      show={true}
+      display="flex"
       fields={[
         {
           label: 'ФИО',

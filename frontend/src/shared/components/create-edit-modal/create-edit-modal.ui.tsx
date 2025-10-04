@@ -71,6 +71,8 @@ export const CreateEditModal = React.memo(
       return isLoading || !isDirty;
     }, [isLoading, isDirty]);
 
+    console.log(errors);
+
     const Content = (
       <Modal
         classNames={{

@@ -17,6 +17,7 @@ import {
   STATUSES_OBJECT,
 } from '#/shared/constants/global';
 import { useStringState } from '#/shared/hooks/use-string-state';
+import { selectFilter, stringFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
 interface ClientRow {
@@ -34,11 +35,23 @@ const IngoAccountsPage: React.FC = () => {
 
   const allColumns = useMemo(
     (): ColumnDef<ClientRow>[] => [
-      { accessorKey: 'fullName', header: 'ФИО', size: 345 },
+      {
+        accessorKey: 'fullName',
+        header: 'ФИО',
+        size: 345,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
+      },
       {
         accessorKey: 'role',
         header: 'Роль',
         size: 345,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
         cell(props) {
           return ROLES_OBJECT[props.getValue() as 'admin'];
         },
@@ -46,6 +59,14 @@ const IngoAccountsPage: React.FC = () => {
       {
         accessorKey: 'status',
         header: 'Статус',
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: [
+          { label: 'Active', value: '' },
+          { label: 'InActive', value: '' },
+        ],
         size: 200,
         cell(props) {
           return STATUSES_OBJECT[props.getValue() as 'active'];
