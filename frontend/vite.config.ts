@@ -24,7 +24,12 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     server: { port: 4000, host: true, strictPort: true },
-    preview: { host: true, port: 4000, strictPort: true },
+    preview: {
+      host: true,
+      port: 4000,
+      strictPort: true,
+      allowedHosts: ['ingo360.rootzone.work'],
+    },
     build: {
       target: 'esnext',
       sourcemap: isDev,
