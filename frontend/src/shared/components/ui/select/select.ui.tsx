@@ -72,7 +72,7 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   return (
     <div
-      className={cn('relative font-inter max-w-[350px]', classNames?.root)}
+      className={cn('relative font-inter', classNames?.root)}
       ref={contentRef}
     >
       <button
