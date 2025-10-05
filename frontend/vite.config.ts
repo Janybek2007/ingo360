@@ -23,16 +23,8 @@ export default defineConfig(({ mode }) => {
         webp: { quality: 80 },
       }),
     ],
-    server: {
-      port: 4000,
-      host: true,
-      strictPort: true,
-    },
-    preview: {
-      host: true,
-      port: 4000,
-      strictPort: true,
-    },
+    server: { port: 4000, host: true, strictPort: true },
+    preview: { host: true, port: 4000, strictPort: true },
     build: {
       target: 'esnext',
       sourcemap: isDev,

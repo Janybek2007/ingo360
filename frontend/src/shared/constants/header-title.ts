@@ -14,10 +14,8 @@ export const headerTitle: Record<string, string> = {
   [routePaths.administrator.customerAccounts]:
     'Управление уч. записями клиентов',
   [routePaths.administrator.companyManagement]: 'Управление компаниями',
-  [routePaths.administrator.settingsAdmin]: 'Настройки',
 
   [routePaths.operator.dbWork]: 'Работа с базами данных',
   [routePaths.operator.referenceWork]: 'Работа со справочниками',
   [routePaths.operator.logs]: 'Просмотреть логи отчетов',
-  [routePaths.operator.settingsOperator]: 'Настройки',
 };
