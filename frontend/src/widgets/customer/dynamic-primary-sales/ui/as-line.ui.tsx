@@ -6,7 +6,6 @@ import {
   LineChart,
   Tooltip,
   XAxis,
-  YAxis,
 } from 'recharts';
 
 import { Month } from '#/shared/constants/months';
@@ -33,13 +32,12 @@ export const DynamicPrimarySalesAsLine: React.FC = React.memo(() => {
   return (
     <div className="font-inter">
       <LineChart
-        className="-ml-4"
         width={sectionStyle.width - 48}
         height={500}
         data={data}
         margin={{ top: 20, right: 16, bottom: 20 }}
       >
-        <CartesianGrid strokeDasharray="4 4" vertical={false} />
+        <CartesianGrid strokeDasharray="4 4" />
 
         <XAxis
           dataKey="month"
@@ -47,19 +45,16 @@ export const DynamicPrimarySalesAsLine: React.FC = React.memo(() => {
           tickLine={false}
           tickMargin={20}
           className="text-base text-[#474B4E] leading-full font-normal"
-          padding={{ left: 20, right: 20 }}
+          padding={{ left: 30, right: 30 }}
         />
 
-        <YAxis
-          domain={[0, 10]}
-          ticks={[0, 2, 4, 6, 8, 10]}
-          axisLine={false}
-          tickLine={false}
-          className="text-base text-[#474B4E] leading-full font-normal"
-          tickMargin={20}
+        <Tooltip
+          labelFormatter={label => `${label}`}
+          formatter={(_, __, props) => {
+            const item = props?.payload;
+            return [`${item.label.toLocaleString()}`, 'Первичка'];
+          }}
         />
-
-        <Tooltip />
 
         <Line
           type="linear"
@@ -73,6 +68,7 @@ export const DynamicPrimarySalesAsLine: React.FC = React.memo(() => {
             dataKey="label"
             position="top"
             className="font-inter text-xs"
+            formatter={value => value?.toLocaleString()}
           />
         </Line>
       </LineChart>

@@ -71,12 +71,10 @@ export const CreateEditModal = React.memo(
       return isLoading || !isDirty;
     }, [isLoading, isDirty]);
 
-    console.log(errors);
-
     const Content = (
       <Modal
         classNames={{
-          body: 'min-w-[500px] max-w-[700px] font-roboto',
+          body: 'min-w-[46.875rem] max-w-[46.875rem] font-roboto',
           root: uniqueClass,
         }}
         title={title}

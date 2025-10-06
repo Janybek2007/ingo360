@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
 import { useRouter } from '#/shared/hooks/use-router';
+import { routePaths } from '#/shared/router';
 import { getError } from '#/shared/utils/get-error';
 
 import {
@@ -40,7 +41,7 @@ export const useSetPasswordMutation = (token: string | null) => {
       if (response.user_id) {
         reset();
         toast.success(response.message);
-        setTimeout(() => navigate('/auth/login'), 700);
+        setTimeout(() => navigate(routePaths.auth.login), 700);
       }
     },
     onError: async (error: HTTPError) => {

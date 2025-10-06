@@ -46,7 +46,7 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const [rowsCount, setRowsCount] = useState(10);
+  const [rowsCount, setRowsCount] = useState<'all' | number>('all');
 
   const allColumns = useMemo(
     (): ColumnDef<MarketRow>[] => [
@@ -78,11 +78,17 @@ export const MarketInsights: React.FC = React.memo(() => {
         accessorKey: 'group',
         header: 'Форма выписка',
         size: 144,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'distributor',
         header: 'Дозировка',
         size: 134,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
       },
       {
         accessorKey: 'YTD6M23',
@@ -110,7 +116,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount, {
+    const allData = generateMocks(rowsCount == 'all' ? 100 : rowsCount, {
       id: () => randomId('market'),
       sku: SKUS,
       brand: BRANDS,
@@ -138,35 +144,46 @@ export const MarketInsights: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
-            value={['brand', 'group']}
+          <Select<false, string>
+            value={'brand1'}
             setValue={() => {}}
-            checkbox
             items={[
-              { value: 'brand', label: 'Бренд' },
-              { value: 'group', label: 'Группа' },
+              { value: 'brand1', label: 'Бренд 1' },
+              { value: 'brand2', label: 'Бренд 2' },
+              { value: 'brand3', label: 'Бренд 3' },
             ]}
-            triggerText="Бренд/Группа"
+            triggerText="Бренд"
+            classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<true, string>
-            value={['money', 'packaging']}
+          <Select<false, string>
+            value={'group1'}
             setValue={() => {}}
-            checkbox
+            items={[
+              { value: 'group1', label: 'Группа 1' },
+              { value: 'group2', label: 'Группа 2' },
+              { value: 'group3', label: 'Группа 3' },
+            ]}
+            triggerText="Группа"
+            classNames={{ menu: 'w-[10rem]' }}
+          />
+          <Select<false, string>
+            value={'money'}
+            setValue={() => {}}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
             ]}
             triggerText="Деньги/Упаковка"
           />
-          <Select
+          <Select<false, typeof rowsCount>
             value={rowsCount}
             setValue={setRowsCount}
             items={[
+              { value: 'all', label: 'Все' },
               { value: 10, label: '10' },
               { value: 50, label: '50' },
               { value: 100, label: '100' },
               { value: 200, label: '200' },
-              { value: 500, label: '500' },
             ]}
             triggerText="Количество строк"
           />
@@ -176,8 +193,9 @@ export const MarketInsights: React.FC = React.memo(() => {
             items={columnItems}
             triggerText="Столбцы"
             checkbox
+            isMultiple
             classNames={{
-              menu: 'min-w-[180px] right-0',
+              menu: 'min-w-[11.25rem] right-0',
             }}
           />
           <ExportToExcelButton data={data} fileName="market-insights.xlsx" />

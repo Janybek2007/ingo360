@@ -38,7 +38,7 @@ const IngoAccountsPage: React.FC = () => {
       {
         accessorKey: 'fullName',
         header: 'ФИО',
-        size: 345,
+        size: 480,
         enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
@@ -47,7 +47,7 @@ const IngoAccountsPage: React.FC = () => {
       {
         accessorKey: 'role',
         header: 'Роль',
-        size: 345,
+        size: 480,
         enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
@@ -64,10 +64,10 @@ const IngoAccountsPage: React.FC = () => {
         filterFn: selectFilter(),
         type: 'select',
         selectOptions: [
-          { label: 'Active', value: '' },
-          { label: 'InActive', value: '' },
+          { label: 'Active', value: 'active' },
+          { label: 'InActive', value: 'inactive' },
         ],
-        size: 200,
+        size: 480,
         cell(props) {
           return STATUSES_OBJECT[props.getValue() as 'active'];
         },
@@ -118,7 +118,7 @@ const IngoAccountsPage: React.FC = () => {
       {open === 'edit' && editData && <EditUserModal onClose={clear} />}
       {open === 'create' && <AddUserModal onClose={clear} />}
       <PageSection
-        title="Учетные записи Инго"
+        title="Учетные записи indigo"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />

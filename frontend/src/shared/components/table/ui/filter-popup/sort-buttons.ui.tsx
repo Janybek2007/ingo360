@@ -6,41 +6,49 @@ import { cn } from '#/shared/utils/cn';
 import type { ISortButtonsProps } from '../../table.types';
 
 export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
-  ({ isSorted, toggleSorting }) => (
-    <div className="mb-4">
-      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
+  ({ isSorted, toggleSorting, resetSorting }) => (
+    <div className="mb-3">
+      <h4 className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
         <Icon
-          name="lucide:sort"
-          size={16}
-          className="text-gray-500 dark:text-gray-400"
+          name="lucide:arrow-up-down"
+          className="text-gray-400 size-[0.875rem]"
         />
         Сортировка
       </h4>
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <button
           className={cn(
-            'flex-1 flex items-center justify-center gap-1 py-2 px-3 text-nowrap text-sm font-medium rounded-lg transition-colors duration-150',
+            'flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 text-xs font-medium rounded-lg transition-all duration-200 border',
             isSorted === 'asc'
-              ? 'bg-blue-100 text-blue-700 dark:bg-blue-600 dark:text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
+              ? 'bg-blue-500 text-white border-blue-600 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
           )}
           onClick={() => toggleSorting(false)}
         >
-          <Icon name="lucide:arrow-up" size={14} />
-          По возрастанию
+          <Icon name="lucide:arrow-up" className="size-[0.875rem]" />
+          А-Я
         </button>
         <button
           className={cn(
-            'flex-1 flex items-center justify-center gap-1 py-2 px-3 text-nowrap text-sm font-medium rounded-lg transition-colors duration-150',
+            'flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 text-xs font-medium rounded-lg transition-all duration-200 border',
             isSorted === 'desc'
-              ? 'bg-blue-100 text-blue-700 dark:bg-blue-600 dark:text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
+              ? 'bg-blue-500 text-white border-blue-600 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
           )}
           onClick={() => toggleSorting(true)}
         >
-          <Icon name="lucide:arrow-down" size={14} />
-          По убыванию
+          <Icon name="lucide:arrow-down" className="size-[0.875rem]" />
+          Я-А
         </button>
+        {isSorted && (
+          <button
+            className="p-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+            onClick={resetSorting}
+            title="Сбросить сортировку"
+          >
+            <Icon name="lucide:x" className="size-[0.875rem]" />
+          </button>
+        )}
       </div>
     </div>
   )

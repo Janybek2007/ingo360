@@ -51,7 +51,7 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
       >
         <div
           className={cn(
-            'flex flex-col gap-2 px-4 py-[14px] w-full',
+            'flex flex-col gap-2 px-4 py-[0.875rem] w-full',
             'bg-white rounded-2xl',
             classNames?.tabs
           )}

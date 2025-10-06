@@ -1,1 +1,1 @@
-export type DbType = 'sales/primary' | 'sales/secondary';
+export type DbType = 'sales/primary' | 'sales/secondary' | 'sales/tertiary';

@@ -40,8 +40,8 @@ const tabItems: { value: ETabs; label: string }[] = [
 
 export const MarketEntityProfile: React.FC = React.memo(() => {
   const [activeTab, setActiveTab] = useState<ETabs>('companies');
-  const [filterPeriod, setFilterPeriod] = useState<string>('');
-  const [filterTop, setFilterTop] = useState<string>('');
+  const [filterPeriod, setFilterPeriod] = useState<string>('mat');
+  const [filterTop, setFilterTop] = useState<string>('all');
 
   const data = useMemo(
     () =>
@@ -58,11 +58,9 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
-      { accessorKey: 'place', header: 'Место', size: 59 },
-      { accessorKey: 'company', header: 'Компания', size: 100 },
-      { accessorKey: 'sales', header: 'Сумма продаж', size: 100 },
-      { accessorKey: 'status', header: 'Статус', size: 100 },
-      { accessorKey: 'lapseTime', header: 'Время истечения', size: 120 },
+      { accessorKey: 'place', header: 'Место', size: 350 },
+      { accessorKey: 'company', header: 'Компания', size: 400 },
+      { accessorKey: 'sales', header: 'Сумма продаж', size: 400 },
     ],
     []
   );
@@ -76,21 +74,24 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
             value={filterPeriod}
             setValue={setFilterPeriod}
             items={[
-              { value: '2023', label: '2023' },
-              { value: '2024', label: '2024' },
+              { value: 'mat', label: 'MAT' },
+              { value: 'ytd', label: 'YTD' },
+              { value: 'month', label: 'Месяцы' },
+              { value: 'year', label: 'Год' },
             ]}
-            triggerText="Период"
-            classNames={{ menu: 'min-w-[120px] right-0' }}
+            triggerText="Тип периода"
+            classNames={{ menu: 'min-w-[7.5rem] right-0' }}
           />
           <Select
             value={filterTop}
             setValue={setFilterTop}
             items={[
+              { value: 'all', label: 'Все' },
               { value: 'top5', label: 'Топ 5' },
               { value: 'top10', label: 'Топ 10' },
             ]}
             triggerText="Топ 10"
-            classNames={{ menu: 'min-w-[120px] right-0' }}
+            classNames={{ menu: 'min-w-[7.5rem] right-0' }}
           />
         </div>
       }
@@ -104,8 +105,8 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
       }
     >
       <div className="flex items justify-between h-full font-inter">
-        <div className="max-w-[340px] min-w-[340px] flex flex-col justify-between text-[#131313]">
-          <h4 className="font-semibold text-xl leading-full -tracking-[0.2px]">
+        <div className="max-w-[25rem] min-w-[25rem] flex flex-col justify-between text-[#131313]">
+          <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
             Рейтинг{' '}
             {activeTab === 'companies'
               ? 'компаний'
@@ -114,11 +115,11 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
                 : 'сегментов'}
           </h4>
           <div>
-            <div className="flex flex-col items-center w-full gap-[18px]">
-              <span className="font-medium text-5xl leading-full -tracking-[0.2px]">
+            <div className="flex flex-col items-center w-full gap-[1.125rem]">
+              <span className="font-medium text-5xl leading-full -tracking-[0.0125rem]">
                 34
               </span>
-              <p className="font-normal text-base leading-full -tracking-[0.2px]">
+              <p className="font-normal text-base leading-full -tracking-[0.0125rem]">
                 Ваше место в рейтинге
               </p>
             </div>

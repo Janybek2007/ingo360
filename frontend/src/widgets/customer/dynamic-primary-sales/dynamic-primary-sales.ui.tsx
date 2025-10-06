@@ -1,17 +1,15 @@
 import React from 'react';
 
 import { PageSection } from '#/shared/components/page-section';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
-import { allMonths } from '#/shared/constants/months';
 
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
 import { DynamicPrimarySalesAsMixed } from './ui/as-mixed.ui';
 
 const AsLegends = {
-  line: [{ label: 'Первичные продажи', fill: '#0B5A7C' }],
+  line: [],
   mixed: [
-    { label: 'Третичка', fill: '#0B5A7C' },
+    { label: 'Первичка', fill: '#0B5A7C' },
     { label: 'Остаток', fill: '#FFC000' },
     { label: 'Товарный запас', fill: '#888888' },
   ],
@@ -19,62 +17,60 @@ const AsLegends = {
 
 export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
   React.memo(({ as = 'line' }) => {
+    const [asMoney, setAsMoney] = React.useState<'money' | 'packaging'>(
+      'money'
+    );
     return (
       <PageSection
-        title="Динамика первычных продаж в деньгах"
-        titleBadge={
-          as == 'line' ? { label: '↗ 41.67%', color: '#1CC741' } : undefined
-        }
+        title={`Динамика первычных продаж в ${asMoney ? 'деньгах' : 'упаковках'}`}
         legends={AsLegends[as]}
         headerEnd={
           <div className="flex items-center gap-4">
-            <Select<true, string>
-              value={['brand', 'group']}
+            {as == 'mixed' && (
+              <Select<false, typeof asMoney>
+                value={asMoney}
+                setValue={setAsMoney}
+                items={[
+                  { value: 'money', label: 'Деньги' },
+                  { value: 'packaging', label: 'Упаковка' },
+                ]}
+                triggerText="Деньги/Упаковка"
+              />
+            )}
+            <Select<false, string>
+              value={'brand1'}
               setValue={() => {}}
-              checkbox
               items={[
-                { value: 'brand', label: 'Бренд' },
-                { value: 'group', label: 'Группа' },
+                { value: 'brand1', label: 'Бренд 1' },
+                { value: 'brand2', label: 'Бренд 2' },
+                { value: 'brand3', label: 'Бренд 3' },
               ]}
-              triggerText="Бренд/Группа"
-            />{' '}
-            <Select<true, number>
-              triggerText={'Год'}
-              items={[2024, 2025].map(y => ({ label: String(y), value: y }))}
-              value={[2024]}
-              checkbox
+              triggerText="Бренд"
+              classNames={{ menu: 'w-[10rem]' }}
+            />
+            <Select<false, string>
+              value={'group1'}
               setValue={() => {}}
-              rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+              items={[
+                { value: 'group1', label: 'Группа 1' },
+                { value: 'group2', label: 'Группа 2' },
+                { value: 'group3', label: 'Группа 3' },
+              ]}
+              triggerText="Группа"
+              classNames={{ menu: 'w-[10rem]' }}
+            />
+            <Select
+              triggerText={'Год/Месяц/Квартал'}
+              items={[
+                { label: 'Год', value: 'year' },
+                { label: 'Месяц', value: 'month' },
+                { label: 'Квартал', value: 'quarter' },
+              ]}
+              value={'year'}
+              setValue={() => {}}
               classNames={{
-                trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+                trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
                 menu: 'w-full right-0',
-              }}
-            />
-            <Select<true, string>
-              triggerText={'Месяц'}
-              items={allMonths.map(m => ({ label: String(m), value: m }))}
-              value={allMonths as unknown as string[]}
-              checkbox
-              setValue={() => {}}
-              rightIcon={<Icon name="lucide:chevron-down" size={18} />}
-              classNames={{
-                trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
-                menu: 'w-[140px] right-0',
-              }}
-            />
-            <Select<true, number>
-              triggerText={'Квартал'}
-              items={[1, 2, 3, 4].map(q => ({
-                label: `Квартал ${q}`,
-                value: q,
-              }))}
-              value={[1, 2]}
-              checkbox
-              setValue={() => {}}
-              rightIcon={<Icon name="lucide:chevron-down" size={18} />}
-              classNames={{
-                trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
-                menu: 'w-[160px] right-0',
               }}
             />
           </div>

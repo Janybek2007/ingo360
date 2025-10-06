@@ -10,12 +10,12 @@ import { Stocks } from '#/widgets/customer/stocks';
 const PrimarySalesPage: React.FC = () => {
   return (
     <main className="space-y-6">
+      <DynamicPrimarySales as="mixed" />
+      <DistributorShareDynamics />
       <Shipments />
       <Stocks />
       <Inventory />
-      <DynamicPrimarySales as="mixed" />
       <DistributorShare />
-      <DistributorShareDynamics />
     </main>
   );
 };

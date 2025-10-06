@@ -7,8 +7,8 @@ import { SecondarySales } from '#/widgets/customer/secondary-sales';
 const SecondarySalesPage: React.FC = () => {
   return (
     <main className="space-y-6">
-      <SecondarySales />
       <DynamicSecondarySales />
+      <SecondarySales />
       <DistributorDynamics />
     </main>
   );

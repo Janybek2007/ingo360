@@ -7,7 +7,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { selectFilter } from '#/shared/utils/filter';
+import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface CoverageRow {
@@ -23,7 +23,7 @@ const SPECIALTIES = ['Терапевт', 'Кардиолог', 'Педиатр',
 
 export const SpecialistCoverage: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const [rowsCount, setRowsCount] = useState(10);
+  const [rowsCount, setRowsCount] = useState<'all' | number>('all');
 
   const allColumns = useMemo(
     (): ColumnDef<CoverageRow>[] => [
@@ -39,16 +39,26 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         accessorKey: 'specialty',
         header: 'Специальность',
         size: 230,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: SPECIALTIES.map(item => ({ label: item, value: item })),
       },
       {
         accessorKey: 'coveragePercent',
         header: 'Процент охвата врачей',
         size: 230,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        type: 'number',
       },
       {
         accessorKey: 'doctorsWithVisits',
         header: 'Количество врачей с визитами',
         size: 300,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        type: 'number',
       },
     ],
     []
@@ -61,7 +71,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount, {
+    const allData = generateMocks(rowsCount === 'all' ? 100 : rowsCount, {
       id: () => randomId('coverage'),
       lpu: LPUS,
       specialty: SPECIALTIES,
@@ -82,30 +92,42 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
-            value={['brand', 'group']}
+          <Select<false, string>
+            value={'brand1'}
             setValue={() => {}}
-            checkbox
             items={[
-              { value: 'brand', label: 'Бренд' },
-              { value: 'group', label: 'Группа' },
+              { value: 'brand1', label: 'Бренд 1' },
+              { value: 'brand2', label: 'Бренд 2' },
+              { value: 'brand3', label: 'Бренд 3' },
             ]}
-            triggerText="Бренд/Группа"
+            triggerText="Бренд"
+            classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<true, string>
-            value={['money', 'packaging']}
+          <Select<false, string>
+            value={'group1'}
             setValue={() => {}}
-            checkbox
+            items={[
+              { value: 'group1', label: 'Группа 1' },
+              { value: 'group2', label: 'Группа 2' },
+              { value: 'group3', label: 'Группа 3' },
+            ]}
+            triggerText="Группа"
+            classNames={{ menu: 'w-[10rem]' }}
+          />
+          <Select<false, string>
+            value={'money'}
+            setValue={() => {}}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
             ]}
             triggerText="Деньги/Упаковка"
           />
-          <Select
+          <Select<false, typeof rowsCount>
             value={rowsCount}
             setValue={setRowsCount}
             items={[
+              { value: 'all', label: 'Все' },
               { value: 10, label: '10' },
               { value: 50, label: '50' },
               { value: 100, label: '100' },
@@ -119,7 +141,8 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
             items={columnItems}
             triggerText="Столбцы"
             checkbox
-            classNames={{ menu: 'min-w-[300px] right-0' }}
+            isMultiple
+            classNames={{ menu: 'min-w-[18.75rem] right-0' }}
           />
           <ExportToExcelButton
             data={data}

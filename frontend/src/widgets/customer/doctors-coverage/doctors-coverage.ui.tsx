@@ -24,25 +24,26 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
                   ? 'Количество врачей'
                   : 'Количество врачей с визитами'}
               </h4>
-              {idx == 1 && (
-                <>
-                  <Select<true, string>
-                    triggerText={'Месяц'}
-                    items={allMonths.map(m => ({ label: String(m), value: m }))}
-                    value={allMonths as unknown as string[]}
-                    checkbox
-                    setValue={() => {}}
-                    rightIcon={<Icon name="lucide:chevron-down" size={18} />}
-                    classNames={{
-                      trigger:
-                        'gap-4 rounded-full min-w-[120px] justify-between',
-                      menu: 'w-[140px] right-0',
-                    }}
+              <Select<true, string>
+                triggerText={'Месяц'}
+                items={allMonths.map(m => ({ label: String(m), value: m }))}
+                value={allMonths as unknown as string[]}
+                checkbox
+                isMultiple
+                setValue={() => {}}
+                rightIcon={
+                  <Icon
+                    name="lucide:chevron-down"
+                    className="size-[1.125rem]"
                   />
-                </>
-              )}
+                }
+                classNames={{
+                  trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
+                  menu: 'w-[8.75rem] right-0',
+                }}
+              />
             </div>
-            <div className="relative min-h-[350px] max-h-[350px] w-full flex items-center justify-center my-3">
+            <div className="relative min-h-[21.875rem] max-h-[21.875rem] w-full flex items-center justify-center my-3">
               <PieChart width={300} height={300}>
                 <Pie
                   data={data}

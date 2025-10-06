@@ -17,7 +17,7 @@ export const TableScrollbar = React.memo(
         ref={scrollbarRef}
         className={cn(
           'relative rounded-full cursor-pointer',
-          'h-[20px] border border-[#E4E4E4] bg-white',
+          'h-[1.25rem] border border-[#E4E4E4] bg-white',
           isDragging && 'cursor-grabbing'
         )}
         onMouseDown={onMouseDown}
@@ -31,9 +31,9 @@ export const TableScrollbar = React.memo(
           className="absolute bg-[#D3DCF9] rounded-full"
           style={{
             width: `${thumbWidth - 12}px`,
-            height: `calc(100% - 12px)`,
+            height: `calc(100% - 0.75rem)`,
             transform: `translateX(${thumbPosition + 6}px)`,
-            top: '6px',
+            top: '0.375rem',
           }}
         />
       </div>

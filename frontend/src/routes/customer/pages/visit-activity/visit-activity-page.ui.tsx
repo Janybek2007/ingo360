@@ -14,7 +14,7 @@ const VisitActivityPage: React.FC = () => {
       <Tabs
         items={[
           { label: 'Анализ визитной активности', value: 'analysis-visits' },
-          { label: 'По третичным проаджам', value: 'analysis-tertiary' },
+          { label: 'Третичным продажи', value: 'tertiary-sales' },
           { label: 'Анализ охват специалистов', value: 'analysis-specialists' },
         ]}
       >
@@ -22,20 +22,20 @@ const VisitActivityPage: React.FC = () => {
           <div className="space-y-6">
             {current === 'analysis-visits' && (
               <>
-                <TotalVisitsPeriod />
                 <OverallVisits />
+                <TotalVisitsPeriod />
               </>
             )}
-            {current === 'analysis-tertiary' && (
+            {current === 'tertiary-sales' && (
               <>
-                <TertiaryVisits />
                 <TertiarySalesUnits />
+                <TertiaryVisits />
               </>
             )}
             {current === 'analysis-specialists' && (
               <>
-                <SpecialistCoverage />
                 <DoctorsCoverage />
+                <SpecialistCoverage />
               </>
             )}
           </div>

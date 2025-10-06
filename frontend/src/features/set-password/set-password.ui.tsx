@@ -44,7 +44,7 @@ export const SetPasswordForm: React.FC<{ token: string | null }> = React.memo(
             type="submit"
             roundedFull
             disabled={status === 'pending'}
-            className="flex items-center justify-center py-4 text-xl leading-7 align-middle w-[230px] h-[50px] text-1xl"
+            className="flex items-center justify-center py-4 text-xl leading-7 align-middle w-[14.375rem] h-[3.125rem] text-1xl"
           >
             {status === 'pending' ? 'Отправка...' : 'Отправить'}
           </Button>

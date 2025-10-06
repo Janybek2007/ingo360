@@ -9,10 +9,10 @@ const MarketDevelopmentPage: React.FC = () => {
   return (
     <main className="space-y-6">
       <MarketEntityProfile />
-      <MarketInsights />
       <PageSection>
         <KPICards />
       </PageSection>
+      <MarketInsights />
     </main>
   );
 };

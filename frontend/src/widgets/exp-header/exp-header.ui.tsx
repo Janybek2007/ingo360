@@ -12,7 +12,7 @@ export const ExpHeader: React.FC = React.memo(() => {
   return (
     <header
       id="exp-header"
-      className="bg-white w-full flex items-center justify-between border-b border-c3 px-6 py-4"
+      className="bg-white w-full max-h-[4.875rem] min-h-[4.875rem] flex items-center justify-between border-b border-c3 px-6 py-4"
     >
       <HeaderTitle />
       <div className="flex justify-end items-center gap-4">
@@ -21,7 +21,7 @@ export const ExpHeader: React.FC = React.memo(() => {
         <div className="group">
           <button
             onClick={() => navigate(routePaths.profile)}
-            className="w-[38px] h-[38px] cursor-pointer overflow-hidden rounded-full"
+            className="w-[2.375rem] h-[2.375rem] cursor-pointer overflow-hidden rounded-full"
           >
             <img
               src={Assets.DefaultAvatar}

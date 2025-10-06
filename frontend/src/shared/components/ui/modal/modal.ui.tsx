@@ -43,7 +43,7 @@ const Modal: React.FC<IModalProps> = React.memo(
               onClick={onClose}
               className="size-8 rounded-full bg-[#EDEDED] text-[#818181] flexCenter"
             >
-              <Icon name="lucide:x" size={20} />
+              <Icon name="lucide:x" className="size-[1.25rem]" />
             </button>
           </div>
           {children}

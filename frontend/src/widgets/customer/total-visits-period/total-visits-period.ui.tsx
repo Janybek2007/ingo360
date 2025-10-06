@@ -6,9 +6,9 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import { Month } from '#/shared/constants/months';
+import { allMonths, Month } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { selectFilter } from '#/shared/utils/filter';
+import { selectFilter, stringFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface VisitRow {
@@ -30,7 +30,7 @@ const GROUPS = ['-', 'Группа 1', 'Группа 2', 'Группа 3'];
 
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const [rowsCount, setRowsCount] = useState(10);
+  const [rowsCount, setRowsCount] = useState<'all' | number>('all');
 
   const allColumns = useMemo(
     (): ColumnDef<VisitRow>[] => [
@@ -43,8 +43,20 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         filterFn: selectFilter(),
         selectOptions: LPUS.map(lpu => ({ label: lpu, value: lpu })),
       },
-      { accessorKey: 'year', header: 'Год', size: 130 },
-      { accessorKey: 'month', header: 'Месяц', size: 130 },
+      {
+        accessorKey: 'year',
+        header: 'Год',
+        size: 130,
+      },
+      {
+        accessorKey: 'month',
+        header: 'Месяц',
+        size: 130,
+        enableColumnFilter: true,
+        type: 'select',
+        filterFn: selectFilter(),
+        selectOptions: allMonths.map(month => ({ label: month, value: month })),
+      },
       {
         accessorKey: 'specialty',
         header: 'Специальность',
@@ -57,7 +69,14 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
           value: specialty,
         })),
       },
-      { accessorKey: 'employee', header: 'Сотрудник', size: 159 },
+      {
+        accessorKey: 'employee',
+        header: 'Сотрудник',
+        size: 159,
+        enableColumnFilter: true,
+        type: 'string',
+        filterFn: stringFilter(),
+      },
       {
         accessorKey: 'group',
         header: 'Группа',
@@ -79,7 +98,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount, {
+    const allData = generateMocks(rowsCount === 'all' ? 100 : rowsCount, {
       id: () => randomId('visit'),
       lpu: LPUS,
       year: () => 2025,
@@ -106,30 +125,42 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
-            value={['brand', 'group']}
+          <Select<false, string>
+            value={'brand1'}
             setValue={() => {}}
-            checkbox
             items={[
-              { value: 'brand', label: 'Бренд' },
-              { value: 'group', label: 'Группа' },
+              { value: 'brand1', label: 'Бренд 1' },
+              { value: 'brand2', label: 'Бренд 2' },
+              { value: 'brand3', label: 'Бренд 3' },
             ]}
-            triggerText="Бренд/Группа"
+            triggerText="Бренд"
+            classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<true, string>
-            value={['money', 'packaging']}
+          <Select<false, string>
+            value={'group1'}
             setValue={() => {}}
-            checkbox
+            items={[
+              { value: 'group1', label: 'Группа 1' },
+              { value: 'group2', label: 'Группа 2' },
+              { value: 'group3', label: 'Группа 3' },
+            ]}
+            triggerText="Группа"
+            classNames={{ menu: 'w-[10rem]' }}
+          />
+          <Select<false, string>
+            value={'money'}
+            setValue={() => {}}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
             ]}
             triggerText="Деньги/Упаковка"
           />
-          <Select
+          <Select<false, typeof rowsCount>
             value={rowsCount}
             setValue={setRowsCount}
             items={[
+              { value: 'all', label: 'Все' },
               { value: 10, label: '10' },
               { value: 50, label: '50' },
               { value: 100, label: '100' },
@@ -143,7 +174,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             items={columnItems}
             triggerText="Столбцы"
             checkbox
-            classNames={{ menu: 'min-w-[180px] right-0' }}
+            isMultiple
+            classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
           <ExportToExcelButton data={data} fileName="visits.xlsx" />
         </div>

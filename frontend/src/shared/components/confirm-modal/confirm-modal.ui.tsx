@@ -44,12 +44,12 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = React.memo(
         title={title}
         onClose={handleCancel}
         classNames={{
-          body: 'min-w-[480px] max-w-[480px]',
+          body: 'min-w-[30rem] max-w-[30rem]',
         }}
       >
         <div className="pb-2">
           {message && (
-            <p className="text-gray-600 text-[15px] leading-relaxed">
+            <p className="text-gray-600 text-[0.938rem] leading-relaxed">
               {message}
             </p>
           )}

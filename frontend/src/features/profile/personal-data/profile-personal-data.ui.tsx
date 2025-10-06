@@ -8,7 +8,7 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
     <div>
       <div className="flex items-center gap-7">
         <img
-          className="w-[124px] h-[124px] rounded-[100px]"
+          className="w-[7.75rem] h-[7.75rem] rounded-[6.25rem]"
           src={Assets.DefaultAvatar}
           alt=""
         />
@@ -17,7 +17,7 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
             Your profile photo will appear on your profile and directory
             listing. <br /> PNG or JPG no bigger than 1000px wide and tall.
           </p>
-          <button className="py-1.5 px-5 border-2 border-gray-300 rounded-[8px] mt-[15px]">
+          <button className="py-1.5 px-5 border-2 border-gray-300 rounded-lg mt-4">
             Изменить фото
           </button>
         </div>

@@ -41,11 +41,11 @@ const CustomerAccountsPage: React.FC = () => {
 
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [
-      { accessorKey: 'fullName', header: 'ФИО', size: 160 },
+      { accessorKey: 'fullName', header: 'ФИО', size: 290 },
       {
         accessorKey: 'position',
         header: 'Должность',
-        size: 174,
+        size: 290,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
@@ -57,7 +57,7 @@ const CustomerAccountsPage: React.FC = () => {
       {
         accessorKey: 'company',
         header: 'Компания',
-        size: 174,
+        size: 290,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
@@ -66,11 +66,11 @@ const CustomerAccountsPage: React.FC = () => {
           value: company,
         })),
       },
-      { accessorKey: 'email', header: 'Email', size: 220 },
+      { accessorKey: 'email', header: 'Email', size: 290 },
       {
         accessorKey: 'status',
         header: 'Статус',
-        size: 180,
+        size: 290,
         cell(props) {
           return STATUSES_OBJECT[props.getValue() as 'active'];
         },

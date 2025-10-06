@@ -7,7 +7,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useTableScrollbar } from '#/shared/hooks/use-table-scrollbar';
 import { cn } from '#/shared/utils/cn';
@@ -44,6 +44,11 @@ export const Table: React.FC<ITableProps> = React.memo(
       }
     );
 
+    useEffect(() => {
+      setSorting([]);
+      setColumnFilters([]);
+    }, [data, columns]);
+
     const table = useReactTable({
       data,
       columns,
@@ -55,6 +60,7 @@ export const Table: React.FC<ITableProps> = React.memo(
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
       columnResizeMode: 'onChange',
+      defaultColumn: { size: 200 },
     });
 
     const tableContainerRef = useRef<HTMLDivElement>(null);

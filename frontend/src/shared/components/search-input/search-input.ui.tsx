@@ -23,7 +23,7 @@ export const SearchInput: React.FC<ISearchInputProps> = React.memo(
           'bg-white'
         )}
       >
-        <Icon name="lucide:search" size={20} color="#94A3B8" />
+        <Icon name="lucide:search" className="size-[1.25rem]" color="#94A3B8" />
         <input
           type="text"
           value={value}

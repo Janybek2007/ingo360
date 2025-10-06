@@ -28,21 +28,21 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             <Icon
               name="lucide:chevron-down"
               style={{
-                minWidth: '18px',
-                minHeight: '18px',
-                maxWidth: '18px',
-                maxHeight: '18px',
+                minWidth: '1.125rem',
+                minHeight: '1.125rem',
+                maxWidth: '1.125rem',
+                maxHeight: '1.125rem',
               }}
-              className="text-gray-500"
+              className="text-gray-400"
             />
           }
           classNames={{
             trigger:
-              'w-full justify-between border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400',
-            triggerText: 'text-gray-700',
-            menu: 'border border-gray-300 rounded-lg shadow-lg bg-white mt-1',
+              'w-full justify-between border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400',
+            triggerText: 'text-gray-700 font-medium',
+            menu: 'border border-gray-200 rounded-lg shadow-lg bg-white mt-1',
             menuItem:
-              'text-sm px-3 py-2 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors duration-150',
+              'text-sm px-3 py-2 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors duration-150',
           }}
         />
         <input
@@ -53,10 +53,12 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
               colType === 'number' ? Number(e.target.value) : e.target.value
             );
           }}
-          placeholder={colType === 'number' ? 'Число...' : 'Текст...'}
+          placeholder={
+            colType === 'number' ? 'Введите число...' : 'Введите текст...'
+          }
           className={cn(
-            'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white',
-            'text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-150'
+            'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium bg-white',
+            'text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200'
           )}
         />
         {colType === 'number' && filterType === 'between' && (
@@ -64,10 +66,10 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             type="number"
             value={value2}
             onChange={e => setValue2(Number(e.target.value))}
-            placeholder="Число (до)..."
+            placeholder="Введите число (до)..."
             className={cn(
-              'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white',
-              'text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-150'
+              'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium bg-white',
+              'text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200'
             )}
           />
         )}

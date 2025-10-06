@@ -95,10 +95,9 @@ button {
   width: 100%;
 
   & main {
-    padding: 24px;
+    padding: 1.5rem;
     width: 100%;
-    max-height: calc(100vh - var(--exp-header-height, 71px));
-    min-height: calc(100vh - var(--exp-header-height, 71px));
+    max-height: calc(100vh - 4.875rem);
     overflow-y: scroll;
 
     &::-webkit-scrollbar {

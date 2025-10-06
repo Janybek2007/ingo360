@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface UsecolumnVisibilityOptions<T> {
   allColumns: ColumnDef<T>[];
@@ -21,11 +21,31 @@ export function useColumnVisibility<T>({
   const [visibleColumns, setVisibleColumns] =
     useState<string[]>(getInitialVisible);
 
-  useEffect(() => {
-    const nextVisible = getInitialVisible();
+  const prevColumnIdsRef = useRef<string>('');
 
-    if (JSON.stringify(nextVisible) !== JSON.stringify(visibleColumns)) {
-      setVisibleColumns(nextVisible);
+  useEffect(() => {
+    const currentIds = allColumns
+      .map(col => String('accessorKey' in col ? col.accessorKey : col.id))
+      .filter(id => !ignore.includes(id));
+
+    const currentIdsString = currentIds.sort().join(',');
+
+    if (prevColumnIdsRef.current === currentIdsString) {
+      return;
+    }
+
+    prevColumnIdsRef.current = currentIdsString;
+
+    const newColumns = currentIds.filter(id => !visibleColumns.includes(id));
+    if (newColumns.length > 0) {
+      setVisibleColumns(prev => [...prev, ...newColumns]);
+    }
+
+    const removedColumns = visibleColumns.filter(
+      id => !currentIds.includes(id)
+    );
+    if (removedColumns.length > 0) {
+      setVisibleColumns(prev => prev.filter(id => currentIds.includes(id)));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allColumns, defaultVisible, ignore]);
@@ -41,22 +61,36 @@ export function useColumnVisibility<T>({
     [allColumns, visibleColumns, ignore]
   );
 
-  const columnItems = useMemo(
-    () =>
-      allColumns
-        .filter(col => {
-          const id = 'accessorKey' in col ? col.accessorKey : col.id;
-          return id !== undefined && !ignore.includes(String(id));
-        })
-        .map(col => {
-          const id = 'accessorKey' in col ? col.accessorKey : col.id;
-          return {
-            value: String(id),
-            label: 'header' in col ? (col.header as string) : String(id),
-          };
-        }),
-    [allColumns, ignore]
-  );
+  const columnItems = useMemo(() => {
+    const items = allColumns
+      .filter(col => {
+        const id = 'accessorKey' in col ? col.accessorKey : col.id;
+        return id !== undefined && !ignore.includes(String(id));
+      })
+      .map(col => {
+        const id = 'accessorKey' in col ? col.accessorKey : col.id;
+        const isLastVisible =
+          visibleColumns.length === 1 && visibleColumns.includes(String(id));
+        return {
+          value: String(id),
+          label: 'header' in col ? (col.header as string) : String(id),
+          disabled: isLastVisible,
+        };
+      });
+    return items;
+  }, [allColumns, ignore, visibleColumns]);
 
-  return { visibleColumns, setVisibleColumns, columnsForTable, columnItems };
+  const handleSetVisibleColumns = useCallback((newVisible: string[]) => {
+    if (newVisible.length === 0) {
+      return;
+    }
+    setVisibleColumns(newVisible);
+  }, []);
+
+  return {
+    visibleColumns,
+    setVisibleColumns: handleSetVisibleColumns,
+    columnsForTable,
+    columnItems,
+  };
 }

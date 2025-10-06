@@ -1,0 +1,64 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
+import { useForm } from 'react-hook-form';
+
+import { http } from '#/shared/api';
+import { useRouter } from '#/shared/hooks/use-router';
+import { routePaths } from '#/shared/router';
+import { getError } from '#/shared/utils/get-error';
+
+import {
+  ResetPasswordContract,
+  type TResetPasswordContract,
+} from './reset-password.contract';
+
+export const useResetPasswordMutation = (token: string | null) => {
+  const {
+    handleSubmit,
+    formState: { errors },
+    reset,
+    register,
+    setError,
+  } = useForm<TResetPasswordContract>({
+    resolver: zodResolver(ResetPasswordContract),
+    defaultValues: {
+      token: token || undefined,
+    },
+  });
+  const { navigate } = useRouter();
+  const { status, mutateAsync } = useMutation({
+    mutationKey: ['reset-password'],
+    mutationFn: (parsedBody: TResetPasswordContract) => {
+      return http.post('auth/reset-password', {
+        body: JSON.stringify(parsedBody),
+      });
+    },
+    onSuccess: async () => {
+      const { toast } = await import('sonner');
+      reset();
+      toast.success('Пароль успешно изменен');
+      setTimeout(() => navigate(routePaths.auth.login), 700);
+    },
+    onError: async (error: HTTPError) => {
+      try {
+        const message = await getError(error.response);
+        setError('root', {
+          type: 'manual',
+          message,
+        });
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
+    },
+  });
+
+  const onSubmit = handleSubmit(body => mutateAsync(body));
+
+  return {
+    onSubmit,
+    status,
+    errors,
+    register,
+  };
+};

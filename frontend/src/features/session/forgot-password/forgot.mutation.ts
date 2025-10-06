@@ -26,10 +26,12 @@ export const useForgotMutation = () => {
       const body = JSON.stringify({
         email: vars.email,
       });
-      const response = await http
-        .post('auth/forgot-password', { body })
-        .json<{ success: boolean } | null>();
+      const response = await http.post('auth/forgot-password', { body });
       return response;
+    },
+    onSuccess: async () => {
+      const { toast } = await import('sonner');
+      toast.success('Письмо успешно отправлено');
     },
     onError: async (error: HTTPError) => {
       try {

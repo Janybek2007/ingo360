@@ -291,6 +291,7 @@ export const referencesCEFields: Record<
   ],
   'clients/pharmacies': [
     { name: 'name', label: 'Название', placeholder: 'Введите название' },
+    { name: 'indicator', label: 'Индикатор', placeholder: 'Введите индикатор' },
     [
       {
         name: 'company_id',
@@ -299,7 +300,7 @@ export const referencesCEFields: Record<
         type: 'select',
       },
       {
-        name: 'distrubutor_id',
+        name: 'distributor_id',
         label: 'Дистрибьютор/Сеть',
         placeholder: 'Выберите дистрибьютор/сеть',
         type: 'select',
@@ -320,12 +321,6 @@ export const referencesCEFields: Record<
         name: 'district_id',
         label: 'Район',
         placeholder: 'Выберите район',
-        type: 'select',
-      },
-      {
-        name: 'medical_facility_id',
-        label: 'ЛПУ',
-        placeholder: 'Выберите ЛПУ',
         type: 'select',
       },
       {
@@ -394,12 +389,11 @@ export const referencesDependsUrls: Record<
   ],
   'clients/pharmacies': [
     { fieldName: 'company_id', url: 'companies' },
-    { fieldName: 'distrubutor_id', url: 'clients/distributors' },
+    { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },
     { fieldName: 'district_id', url: 'geography/districts' },
     { fieldName: 'product_group_id', url: 'products/product-groups' },
-    { fieldName: 'medical_facility_id', url: 'clients/medical-facilities' },
     { fieldName: 'client_category_id', url: 'clients/client-categories' },
   ],
 };

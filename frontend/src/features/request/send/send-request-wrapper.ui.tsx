@@ -13,7 +13,7 @@ export const SendRequestWrapper: React.FC = React.memo(() => {
       <SendRequestButton onClick={toggle} />
       {open && (
         <Modal
-          classNames={{ body: 'min-w-[480px]' }}
+          classNames={{ body: 'min-w-[33.75rem]' }}
           title="Отправить заявку"
           onClose={() => set(false)}
         >

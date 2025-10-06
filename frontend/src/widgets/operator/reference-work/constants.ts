@@ -1,4 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
+import React from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
@@ -10,9 +11,9 @@ export const referencesColumnsWithType: Record<
 > = {
   'geography/countries': () => [
     {
+      size: 200,
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -21,17 +22,18 @@ export const referencesColumnsWithType: Record<
   'geography/settlements': data => [
     {
       accessorKey: 'name',
+      size: 200,
       header: 'Название',
-      enableSorting: true,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'region.name',
+      accessorKey: 'region.id',
       header: 'Область',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.region?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -43,17 +45,18 @@ export const referencesColumnsWithType: Record<
   'geography/regions': data => [
     {
       accessorKey: 'name',
+      size: 200,
       header: 'Название',
-      enableSorting: true,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'country.name',
+      accessorKey: 'country.id',
       header: 'Страна',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.country?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -65,17 +68,18 @@ export const referencesColumnsWithType: Record<
   'geography/districts': data => [
     {
       accessorKey: 'name',
+      size: 200,
       header: 'Название',
-      enableSorting: true,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'settlement.name',
+      accessorKey: 'settlement.id',
       header: 'Населённый пункт',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.settlement?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -84,10 +88,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'region.name',
+      accessorKey: 'region.id',
       header: 'Область',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.region?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -96,15 +101,24 @@ export const referencesColumnsWithType: Record<
       })),
     },
   ],
-  'products/product-groups': () => [
+  'products/product-groups': data => [
     {
-      accessorKey: 'company.name',
+      accessorKey: 'company.id',
       header: 'Компания',
+      size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.company?.name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.company?.name ?? ''),
+        value: item.company?.id ?? '',
+      })),
     },
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -114,7 +128,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -124,16 +138,17 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'company.name',
+      accessorKey: 'company.id',
       header: 'Компания',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -142,10 +157,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'promotion_type.name',
+      accessorKey: 'promotion_type.id',
       header: 'Тип',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.promotion_type?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -154,10 +170,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'product_group.name',
+      accessorKey: 'product_group.id',
       header: 'Группа',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.product_group?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -170,7 +187,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -180,7 +197,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -190,7 +207,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -200,16 +217,17 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'company.name',
+      accessorKey: 'company.id',
       header: 'Компания',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -218,10 +236,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'brand.name',
+      accessorKey: 'brand.id',
       header: 'Бренд',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.brand?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -230,10 +249,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'promotion_type.name',
+      accessorKey: 'promotion_type.id',
       header: 'Тип промоции',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.promotion_type?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -242,10 +262,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'product_group.name',
+      accessorKey: 'product_group.id',
       header: 'Группа',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.product_group?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -254,10 +275,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'dosage_form.name',
+      accessorKey: 'dosage_form.id',
       header: 'Форма выпуска',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.dosage_form?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -266,11 +288,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'dosage.name',
+      accessorKey: 'dosage.id',
       header: 'Дозировка',
-      enableSorting: true,
-      enableColumnFilter: true,
       size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.dosage?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -279,10 +301,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'segment.name',
+      accessorKey: 'segment.id',
       header: 'Сегмент',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.segment?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -295,7 +318,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -305,16 +328,17 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'full_name',
       header: 'ФИО',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'company.name',
+      accessorKey: 'company.id',
       header: 'Компания',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -323,10 +347,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'position.name',
+      accessorKey: 'position.id',
       header: 'Должность',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.position?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -335,10 +360,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'product_group.name',
+      accessorKey: 'product_group.id',
       header: 'Группа',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.product_group?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -347,10 +373,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'region.name',
+      accessorKey: 'region.id',
       header: 'Регион',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.region?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -359,10 +386,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'district.name',
+      accessorKey: 'district.id',
       header: 'Район',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.district?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -375,7 +403,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -385,16 +413,17 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'settlement.name',
+      accessorKey: 'settlement.id',
       header: 'Населенный пункт',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.settlement?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -403,10 +432,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'district.name',
+      accessorKey: 'district.id',
       header: 'Район',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.district?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -417,7 +447,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'address',
       header: 'Адрес',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -427,7 +457,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -437,7 +467,7 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
@@ -447,16 +477,17 @@ export const referencesColumnsWithType: Record<
     {
       accessorKey: 'full_name',
       header: 'ФИО',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'responsible_employee.full_name',
+      accessorKey: 'responsible_employee.id',
       header: 'Ответственный сотрудник',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.responsible_employee?.full_name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -465,10 +496,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'medical_facility.name',
+      accessorKey: 'medical_facility.id',
       header: 'ЛПУ',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.medical_facility?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -477,10 +509,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'speciality.name',
+      accessorKey: 'speciality.id',
       header: 'Специальность',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.speciality?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -489,10 +522,11 @@ export const referencesColumnsWithType: Record<
       })),
     },
     {
-      accessorKey: 'client_category.name',
+      accessorKey: 'client_category.id',
       header: 'Категория',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
+      cell: ({ row }) => row.original.client_category?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: data.map(item => ({
@@ -501,49 +535,119 @@ export const referencesColumnsWithType: Record<
       })),
     },
   ],
-  'clients/pharmacies': () => [
+  'clients/pharmacies': data => [
     {
       accessorKey: 'name',
       header: 'Название',
-      enableSorting: true,
+      size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
       type: 'string',
     },
     {
-      accessorKey: 'company.name',
+      accessorKey: 'company.id',
       header: 'Компания',
+      size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.company?.name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.company?.name ?? ''),
+        value: item.company?.id ?? '',
+      })),
     },
     {
-      accessorKey: 'distrubutor.name',
+      accessorKey: 'distributor.id',
       header: 'Дистрибьютор/Сеть',
       size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.distributor?.name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.distributor?.name ?? ''),
+        value: item.distributor?.id ?? '',
+      })),
     },
     {
-      accessorKey: 'employee.name',
+      accessorKey: 'responsible_employee.id',
       header: 'Ответственный сотрудник',
       size: 250,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.responsible_employee?.full_name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.responsible_employee?.full_name ?? ''),
+        value: item.responsible_employee?.id ?? '',
+      })),
     },
     {
-      accessorKey: 'settlement.name',
+      accessorKey: 'settlement.id',
       header: 'Населенный пункт',
       size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.settlement?.name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.settlement?.name ?? ''),
+        value: item.settlement?.id ?? '',
+      })),
     },
     {
-      accessorKey: 'district.name',
+      accessorKey: 'district.id',
       header: 'Район',
+      size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.district?.name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.district?.name ?? ''),
+        value: item.district?.id ?? '',
+      })),
     },
     {
-      accessorKey: 'medical_facility.name',
-      header: 'ЛПУ',
+      accessorKey: 'indicator',
+      header: 'Индикатор',
+      size: 200,
+      enableColumnFilter: true,
+      filterFn: stringFilter(),
+      type: 'string',
+      cell: ({ row }) =>
+        React.createElement(
+          'span',
+          { title: row.original.indicator },
+          row.original.indicator
+        ),
     },
     {
-      accessorKey: 'client_category.name',
+      accessorKey: 'client_category.id',
       header: 'Категория',
+      size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.client_category?.name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.client_category?.name ?? ''),
+        value: item.client_category?.id ?? '',
+      })),
     },
     {
-      accessorKey: 'product_group.name',
+      accessorKey: 'product_group.id',
       header: 'Группа',
+      size: 200,
+      enableColumnFilter: true,
+      cell: ({ row }) => row.original.product_group?.name,
+      filterFn: selectFilter(),
+      type: 'select',
+      selectOptions: data.map(item => ({
+        label: String(item.product_group?.name ?? ''),
+        value: item.product_group?.id ?? '',
+      })),
     },
   ],
 };

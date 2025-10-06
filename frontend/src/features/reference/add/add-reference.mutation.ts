@@ -32,12 +32,17 @@ export const useAddReferenceMutation = (
         })
         .json<IReferenceItem>();
     },
-    onSuccess: async () => {
+    onSuccess: async newItem => {
       const { toast } = await import('sonner');
+      queryClient.setQueryData(
+        ReferenceQueries.queryKeys.getReferences([type]),
+        (oldData: IReferenceItem[][] | undefined) => [
+          [...(oldData?.[0] ?? []), newItem],
+          ...(oldData?.slice(1) ?? []),
+        ]
+      );
+
       onClose();
-      queryClient.refetchQueries({
-        queryKey: ReferenceQueries.queryKeys.getReferences([type]),
-      });
       toast.success('Ресурс успешно добавлен');
     },
     onError: async (error: HTTPError) => {

@@ -26,10 +26,14 @@ export const RowActions: React.FC<IRowActionsProps> = React.memo(
                 'flex items-center justify-center cursor-pointer'
               )}
             >
-              <Icon color="#94A3B8" size={20} name="lucide:ellipsis-vertical" />
+              <Icon
+                color="#94A3B8"
+                className="size-[1.25rem]"
+                name="lucide:ellipsis-vertical"
+              />
             </button>
           )}
-          classNames={{ menu: 'min-w-[240px] -ml-[200px]' }}
+          classNames={{ menu: 'min-w-[15rem] -ml-[12.5rem]' }}
         />
       </div>
     );

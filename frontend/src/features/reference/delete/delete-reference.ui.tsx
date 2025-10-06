@@ -34,8 +34,7 @@ export const DeleteReferenceButton: React.FC<{
               <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-lg shadow-sm">
                 <Icon
                   name="mdi:file-document-outline"
-                  size={22}
-                  className="text-gray-600"
+                  className="text-gray-600 size-[1.375rem]"
                 />
               </div>
               <div className="flex-1 min-w-0">
@@ -56,7 +55,7 @@ export const DeleteReferenceButton: React.FC<{
         title="Удалить"
         onClick={toggle}
       >
-        <Icon name="mdi:delete" size={18} />
+        <Icon name="mdi:delete" className="size-[1.125rem]" />
       </button>
     </>
   );

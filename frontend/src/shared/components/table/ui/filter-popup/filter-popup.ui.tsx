@@ -120,22 +120,24 @@ export function FilterPopup({
       style={getPopupStyle(popupPosition)}
       ref={contentRef}
       className={cn(
-        'absolute z-50 w-max max-w-[400px] bg-white border border-gray-200',
-        'rounded-xl p-4 font-sans transition-all duration-200 mt-2',
-        popupPosition.clickArea === 'top-left'
-          ? 'ml-2'
-          : popupPosition.clickArea === 'top-right' && 'mr-2'
+        'absolute z-50 w-max min-w-[18.75rem] max-w-[23.75rem] bg-white border border-gray-200',
+        'rounded-xl shadow-xl p-3'
       )}
     >
-      <SortButtons
-        isSorted={column.getIsSorted() as SortDirection}
-        toggleSorting={v => column.toggleSorting(v)}
-      />
+      {column.columnDef.enableSorting && (
+        <SortButtons
+          isSorted={column.getIsSorted() as SortDirection}
+          toggleSorting={column.toggleSorting}
+          resetSorting={column.clearSorting}
+        />
+      )}
 
-      {/* Filter Section */}
-      <div className="mb-4">
-        <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-          <Icon name="lucide:filter" size={16} className="text-gray-500" />
+      <div className="mb-3">
+        <h4 className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
+          <Icon
+            name="lucide:filter"
+            className="text-gray-400 size-[0.875rem]"
+          />
           Фильтр
         </h4>
 
@@ -160,15 +162,7 @@ export function FilterPopup({
       </div>
 
       {/* Actions */}
-      <FilterActions
-        reset={() => {
-          column.setFilterValue(undefined);
-          column.clearSorting();
-          onClose();
-        }}
-        onClose={onClose}
-        onApply={applyFilter}
-      />
+      <FilterActions onClose={onClose} onApply={applyFilter} />
     </div>
   );
 }

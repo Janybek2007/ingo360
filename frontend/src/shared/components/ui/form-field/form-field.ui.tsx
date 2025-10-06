@@ -53,7 +53,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
               placeholder={placeholder}
               className={cn(
                 'placeholder:text-c1__3 focus:outline-none font-medium text-c1__3',
-                'text-base leading-5 py-[14px] px-3 rounded-xl',
+                'text-base leading-5 py-[0.875rem] px-3 rounded-xl',
                 isPasswordToggleShow ? 'w-[90%]' : 'w-full',
                 classNames?.input
               )}
@@ -75,7 +75,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
                   classNames?.input
                 ),
                 trigger:
-                  'border-none rounded-xl py-[14px] px-3 w-full justify-between',
+                  'border-none rounded-xl py-[0.875rem] px-3 w-full justify-between',
                 menu: 'top-full mt-2 h-max',
               }}
             />
@@ -90,14 +90,14 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
             >
               <Icon
                 name={showPassword ? 'lucide:eye-off' : 'lucide:eye'}
-                size={24}
+                className="size-[1.5rem]"
               />
             </button>
           )}
         </div>
         {error && (
           <div className="mt-1 flex items-center gap-2 text-sm text-red-600 font-medium animate-fadeIn">
-            <Icon name="lucide:alert-circle" size={16} />
+            <Icon name="lucide:alert-circle" className="size-[1rem]" />
             <p>{error}</p>
           </div>
         )}

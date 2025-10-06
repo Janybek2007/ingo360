@@ -47,7 +47,7 @@ export const Dropdown: React.FC<IDropdownProps> = React.memo(
                 className={cn(
                   'flex items-center justify-between px-4 py-3 cursor-pointer text-left text-nowrap',
                   'w-full hover:bg-blue-500/10 hover:text-blue-500 text-black',
-                  'text-base font-inter font-normal leading-full -tracking-[0.15px] group',
+                  'text-base font-inter font-normal leading-full -tracking-[0.009375rem] group',
                   classNames?.menuItem
                 )}
                 onClick={() => {

@@ -63,13 +63,11 @@ export const stringFilter =
     }
   };
 
-/** Фильтр для select */
+/** Универсальный фильтр для select */
 export const selectFilter =
   <T, VT extends string | number>() =>
   (row: Row<T>, columnId: string, filterValue: VT[]) => {
-    console.log(columnId, filterValue);
-    if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
+    if (!filterValue || filterValue.length === 0) return true;
     const rowValue = row.getValue<VT>(columnId);
-    console.log(rowValue, 'rowValue');
-    return filterValue.includes(rowValue);
+    return filterValue.some(fv => String(fv) === String(rowValue));
   };

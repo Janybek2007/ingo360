@@ -34,13 +34,22 @@ export const useEditReferenceMutation = (
         })
         .json<IReferenceItem>();
     },
-    onSuccess: async () => {
+    onSuccess: async updatedItem => {
+      if (!updatedItem) return;
       const { toast } = await import('sonner');
+      queryClient.setQueryData(
+        ReferenceQueries.queryKeys.getReferences([type]),
+        (oldData: IReferenceItem[][]) => {
+          if (!oldData) return [[updatedItem]];
+          const updated = [...oldData];
+          updated[0] = (updated[0] || []).map(item =>
+            item.id === updatedItem.id ? updatedItem : item
+          );
+          return updated;
+        }
+      );
+      onClose();
       toast.success('Ресурс успешно отредактирован');
-      queryClient.refetchQueries({
-        queryKey: ReferenceQueries.queryKeys.getReferences([type]),
-      });
-      setTimeout(onClose, 700);
     },
     onError: async (error: HTTPError) => {
       const { toast } = await import('sonner');

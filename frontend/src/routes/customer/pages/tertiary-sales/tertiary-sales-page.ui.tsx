@@ -10,9 +10,9 @@ const TertiarySalesPage: React.FC = () => {
     <main className="space-y-6">
       <Tabs
         items={[
-          { value: 'retail', label: 'Розничные продажи' },
-          { value: 'numerical', label: 'Численное распределение' },
-          { value: 'white-spots', label: 'Анализ аптек' },
+          { value: 'retail', label: 'Третичные продажи' },
+          { value: 'pharmacy-balance', label: 'Остаток по аптекам' },
+          { value: 'numerical', label: 'Нумерическая диструбуция' },
         ]}
         defaultValue="retail"
       >
@@ -20,7 +20,7 @@ const TertiarySalesPage: React.FC = () => {
           <>
             {current === 'retail' && <RetailSales />}
             {current === 'numerical' && <NumericalDistribution />}
-            {current === 'white-spots' && <PharmacyBalance />}
+            {current === 'pharmacy-balance' && <PharmacyBalance />}
           </>
         )}
       </Tabs>

@@ -35,7 +35,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
         {
           id: 'actions',
           header: '',
-          size: 100,
+          size: 200,
           cell: ({ row }) => (
             <div className="flex items-center gap-2 pr-10">
               <button
@@ -47,7 +47,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                   setModalData(row.original);
                 }}
               >
-                <Icon name="mdi:pencil" size={18} />
+                <Icon name="mdi:pencil" className="size-[1.125rem]" />
               </button>
               <DeleteReferenceButton item={row.original} type={current} />
             </div>
@@ -70,10 +70,11 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
           title={findCurrentTab(tabsItems, current)?.subItem?.label}
           headerEnd={
             <div className="flex items-center gap-4 relative z-100">
-              <Select
-                value={10}
+              <Select<false, 'all' | number>
+                value={'all'}
                 setValue={() => {}}
                 items={[
+                  { value: 'all', label: 'Все' },
                   { value: 10, label: '10' },
                   { value: 50, label: '50' },
                   { value: 100, label: '100' },
@@ -86,9 +87,10 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 setValue={setVisibleColumns}
                 items={columnItems}
                 triggerText="Столбцы"
+                isMultiple
                 checkbox
                 classNames={{
-                  menu: 'min-w-[220px] right-0',
+                  menu: 'min-w-[13.75rem] right-0',
                 }}
               />
               <ExportToExcelButton

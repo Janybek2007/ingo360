@@ -31,8 +31,8 @@ export function TableHeader({ table }: ITableHeaderProps) {
                 )}
                 style={{
                   ...getCommonPinningStyles(header.column),
-                  maxWidth: header.column.getSize(),
                   minWidth: header.column.getSize(),
+                  maxWidth: header.column.getSize(),
                 }}
                 onDoubleClick={() => header.column.resetSize()}
               >
@@ -42,12 +42,11 @@ export function TableHeader({ table }: ITableHeaderProps) {
                   onMouseDown={header.getResizeHandler()}
                   onTouchStart={header.getResizeHandler()}
                   className={cn(
-                    'absolute right-0 top-0 h-full w-1 select-none touch-manipulation',
-                    'group-hover:bg-red-500'
+                    'absolute right-0 top-0 h-full w-2 select-none touch-manipulation',
+                    'bg-transparent hover:bg-blue-400/50 active:bg-blue-500 transition-colors'
                   )}
                   style={{
                     padding: 0,
-                    background: 'transparent',
                     border: 'none',
                     cursor: 'col-resize',
                   }}
@@ -69,7 +68,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
                         );
                       }}
                     >
-                      <Icon name="lucide:filter" size={16} />
+                      <Icon name="lucide:filter" className="size-[1rem]" />
                     </button>
                   )}
                 </div>

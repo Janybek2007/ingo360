@@ -17,7 +17,7 @@ export const LoginForm: React.FC = React.memo(() => {
       <div className="space-y-4">
         <FormField
           name="login-username"
-          label="Email"
+          label="Электронная почта"
           type="email"
           placeholder="example@gmail.com"
           register={register('username')}

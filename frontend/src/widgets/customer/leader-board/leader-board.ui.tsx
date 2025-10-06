@@ -43,11 +43,9 @@ export const LeaderBoard: React.FC = React.memo(() => {
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
-      { accessorKey: 'place', header: 'Место', size: 59 },
-      { accessorKey: 'company', header: 'Компания', size: 120 },
-      { accessorKey: 'sales', header: 'Продажи', size: 100 },
-      { accessorKey: 'status', header: 'Статус', size: 100 },
-      { accessorKey: 'lapseTime', header: 'Время', size: 80 },
+      { accessorKey: 'place', header: 'Место', size: 320 },
+      { accessorKey: 'company', header: 'Компания', size: 410 },
+      { accessorKey: 'sales', header: 'Продажи', size: 410 },
     ],
     []
   );
@@ -55,16 +53,18 @@ export const LeaderBoard: React.FC = React.memo(() => {
   return (
     <section className="bg-white rounded-lg">
       <div className="flex items justify-between h-full font-inter">
-        <div className="max-w-[340px] min-w-[340px] px-5 py-6 flex flex-col justify-between text-[#131313]">
-          <h4 className="font-semibold text-xl leading-full -tracking-[0.2px]">
-            Рейтинг компаний
-          </h4>
+        <div className="max-w-[25rem] min-w-[25rem] px-6 py-6 flex flex-col justify-between text-[#131313]">
+          <div className="flex items-center">
+            <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
+              Рейтинг компаний
+            </h4>
+          </div>
           <div>
-            <div className="flex flex-col items-center w-full gap-[18px]">
-              <span className="font-medium text-5xl leading-full -tracking-[0.2px]">
-                34
+            <div className="flex flex-col items-center w-full gap-[1.125rem]">
+              <span className="font-medium text-5xl leading-full -tracking-[0.0125rem]">
+                1
               </span>
-              <p className="font-normal text-base leading-full -tracking-[0.2px]">
+              <p className="font-normal text-base leading-full -tracking-[0.0125rem]">
                 Ваше место в рейтинге
               </p>
             </div>
@@ -74,9 +74,9 @@ export const LeaderBoard: React.FC = React.memo(() => {
         <div className="w-full">
           <Table
             highlightRow={row =>
-              row.place === 34 ? 'bg-yellow-100 font-bold' : ''
+              row.place === 1 ? 'bg-yellow-100 font-bold' : ''
             }
-            pinnedRow={row => row.place === 34}
+            pinnedRow={row => row.place === 1}
             columns={columns}
             data={data}
           />

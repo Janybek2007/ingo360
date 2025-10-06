@@ -10,8 +10,8 @@ import type {
   ReferencesTypeWithDepUrls,
   ReferencesTypeWithMain,
 } from '#/shared/types/references.type';
+import { transformData } from '#/shared/utils/transform-data';
 
-import { transformData } from '../../../shared/utils/transform-data';
 import { referencesDependsUrls } from '../constants';
 import { referenceContractWithType } from '../reference.contracts';
 import { fieldsWithSelectItems } from '../utils/fields-with-select-items';

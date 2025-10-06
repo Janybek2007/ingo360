@@ -18,9 +18,9 @@ export const KPICards: React.FC = React.memo(() => {
         <div
           key={`${card.key}-${i}-key`}
           style={{ background: card.fill }}
-          className="rounded-2xl py-14 opacity-100 flex flex-col items-center gap-[18px] justify-center text-[#131313]"
+          className="rounded-2xl py-14 opacity-100 flex flex-col items-center gap-[1.125rem] justify-center text-[#131313]"
         >
-          <h3 className="font-medium text-[32px] leading-full text-center tracking-[-0.02em]">
+          <h3 className="font-medium text-[2rem] leading-full text-center tracking-[-0.02em]">
             {card.text(kpiValues[card.key])}
           </h3>
           <p className="font-inter font-normal text-base leading-full text-center tracking-[-0.002em]">

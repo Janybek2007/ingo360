@@ -35,8 +35,8 @@ export const EditUserModal: React.FC<{
             label: 'Роль',
             type: 'select',
             name: 'role',
-            placeholder: 'Оператор',
-            defaultValue: '',
+            placeholder: 'Выберите роль',
+            defaultValue: 'operator',
             selectItems: ROLES.map(role => ({
               label: ROLES_OBJECT[role],
               value: role,
@@ -46,7 +46,8 @@ export const EditUserModal: React.FC<{
             label: 'Статус',
             name: 'status',
             type: 'select',
-            defaultValue: '',
+            placeholder: 'Выберите статус',
+            defaultValue: 'active',
             selectItems: STATUSES.map(status => ({
               label: STATUSES_OBJECT[status],
               value: status,

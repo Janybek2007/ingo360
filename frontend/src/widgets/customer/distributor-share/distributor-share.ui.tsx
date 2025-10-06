@@ -7,7 +7,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { stringFilter } from '#/shared/utils/filter';
+import { numberFilter, stringFilter } from '#/shared/utils/filter';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface DistributorShareRow {
@@ -73,8 +73,11 @@ export const DistributorShare: React.FC = React.memo(() => {
             accessorFn: (row: DistributorShareRow) => row.months[i],
             id: `month${i + 1}`,
             header: `2024/${i + 1}`,
-            size: 100,
+            size: 140,
             cell: info => `${info.getValue()}%`,
+            enableColumnFilter: true,
+            filterFn: numberFilter(),
+            type: 'number',
           }) as ColumnDef<DistributorShareRow>
       ),
       {
@@ -118,20 +121,31 @@ export const DistributorShare: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
-            value={['brand', 'group']}
+          <Select<false, string>
+            value={'brand1'}
             setValue={() => {}}
-            checkbox
             items={[
-              { value: 'brand', label: 'Бренд' },
-              { value: 'group', label: 'Группа' },
+              { value: 'brand1', label: 'Бренд 1' },
+              { value: 'brand2', label: 'Бренд 2' },
+              { value: 'brand3', label: 'Бренд 3' },
             ]}
-            triggerText="Бренд/Группа"
+            triggerText="Бренд"
+            classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<true, string>
-            value={['money', 'packaging']}
+          <Select<false, string>
+            value={'group1'}
             setValue={() => {}}
-            checkbox
+            items={[
+              { value: 'group1', label: 'Группа 1' },
+              { value: 'group2', label: 'Группа 2' },
+              { value: 'group3', label: 'Группа 3' },
+            ]}
+            triggerText="Группа"
+            classNames={{ menu: 'w-[10rem]' }}
+          />
+          <Select<false, string>
+            value={'money'}
+            setValue={() => {}}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
@@ -155,8 +169,9 @@ export const DistributorShare: React.FC = React.memo(() => {
             items={columnItems}
             triggerText="Столбцы"
             checkbox
+            isMultiple
             classNames={{
-              menu: 'min-w-[180px] right-0',
+              menu: 'min-w-[11.25rem] right-0',
             }}
           />
           {/* Filter by money/percent */}

@@ -18,13 +18,13 @@ export const Sidebar: React.FC = React.memo(() => {
   return (
     <aside
       id="sidebar"
-      className="min-w-[270px] max-w-[270px] border-l border-r border-c3 bg-white h-screen py-8 px-6 flex flex-col"
+      className="min-w-[16.875rem] max-w-[16.875rem] border-l border-r border-c3 bg-white h-screen py-8 px-6 flex flex-col"
     >
       <div className="mb-8">
         <img
           src={Assets.Logo}
           alt="Logo Asset"
-          className="w-[160px] h-[57px]"
+          className="w-[10rem] h-[3.5625rem]"
         />
       </div>
 
@@ -56,7 +56,7 @@ export const Sidebar: React.FC = React.memo(() => {
                 >
                   {item.icon}
                 </span>
-                <span className="ls-base font-normal text-base leading-[22px] truncate overflow-hidden whitespace-nowrap">
+                <span className="ls-base font-normal text-base leading-[1.375rem]">
                   {item.label}
                 </span>
               </Link>

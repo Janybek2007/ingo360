@@ -210,7 +210,7 @@ const LogsPage: React.FC = () => {
               className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
               title="Удалить"
             >
-              <Icon name="mdi:delete" size={18} />
+              <Icon name="mdi:delete" className="size-[1.125rem]" />
             </button>
           </div>
         ),
@@ -271,7 +271,7 @@ const LogsPage: React.FC = () => {
               items={columnItems}
               triggerText="Столбцы"
               checkbox
-              classNames={{ menu: 'min-w-[220px] right-0' }}
+              classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
             <ExportToExcelButton data={data} fileName="logs.xlsx" />
           </div>

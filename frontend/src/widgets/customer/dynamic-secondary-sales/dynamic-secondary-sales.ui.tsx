@@ -10,81 +10,66 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
-import { allMonths, MonthNumber } from '#/shared/constants/months';
+import { Month } from '#/shared/constants/months';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 
 const data = [
-  { month: MonthNumber.JAN, value: 120 },
-  { month: MonthNumber.FEB, value: 150 },
-  { month: MonthNumber.MAR, value: 135 },
-  { month: MonthNumber.APR, value: 160 },
-  { month: MonthNumber.MAY, value: 145 },
-  { month: MonthNumber.JUN, value: 170 },
-  { month: MonthNumber.JUL, value: 155 },
-  { month: MonthNumber.AUG, value: 180 },
-  { month: MonthNumber.SEP, value: 165 },
-  { month: MonthNumber.OCT, value: 190 },
-  { month: MonthNumber.NOV, value: 175 },
-  { month: MonthNumber.DEC, value: 200 },
+  { month: Month.JAN, value: 120, label: 120000 },
+  { month: Month.FEB, value: 150, label: 150000 },
+  { month: Month.MAR, value: 135, label: 135000 },
+  { month: Month.APR, value: 160, label: 160000 },
+  { month: Month.MAY, value: 145, label: 145000 },
+  { month: Month.JUN, value: 170, label: 170000 },
+  { month: Month.JUL, value: 155, label: 155000 },
+  { month: Month.AUG, value: 180, label: 180000 },
+  { month: Month.SEP, value: 165, label: 165000 },
+  { month: Month.OCT, value: 190, label: 190000 },
+  { month: Month.NOV, value: 175, label: 175000 },
+  { month: Month.DEC, value: 200, label: 200000 },
 ];
 
 export const DynamicSecondarySales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
   return (
     <PageSection
-      legends={[{ label: 'Вторичное значение', fill: '#E97030' }]}
       title="Динамика вторичных продаж"
       headerEnd={
         <div className="flex items-center gap-4">
-          <Select<true, string>
-            value={['brand', 'group']}
+          <Select<false, string>
+            value={'brand1'}
             setValue={() => {}}
-            checkbox
             items={[
-              { value: 'brand', label: 'Бренд' },
-              { value: 'group', label: 'Группа' },
+              { value: 'brand1', label: 'Бренд 1' },
+              { value: 'brand2', label: 'Бренд 2' },
+              { value: 'brand3', label: 'Бренд 3' },
             ]}
-            triggerText="Бренд/Группа"
-          />{' '}
-          <Select<true, number>
-            triggerText={'Год'}
-            items={[2024, 2025].map(y => ({ label: String(y), value: y }))}
-            value={[2024]}
-            checkbox
+            triggerText="Бренд"
+            classNames={{ menu: 'w-[10rem]' }}
+          />
+          <Select<false, string>
+            value={'group1'}
             setValue={() => {}}
-            rightIcon={<Icon name="lucide:chevron-down" size={18} />}
+            items={[
+              { value: 'group1', label: 'Группа 1' },
+              { value: 'group2', label: 'Группа 2' },
+              { value: 'group3', label: 'Группа 3' },
+            ]}
+            triggerText="Группа"
+            classNames={{ menu: 'w-[10rem]' }}
+          />
+          <Select
+            triggerText={'Год/Месяц/Квартал'}
+            items={[
+              { label: 'Год', value: 'year' },
+              { label: 'Месяц', value: 'month' },
+              { label: 'Квартал', value: 'quarter' },
+            ]}
+            value={'year'}
+            setValue={() => {}}
             classNames={{
-              trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+              trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
               menu: 'w-full right-0',
-            }}
-          />
-          <Select<true, string>
-            triggerText={'Месяц'}
-            items={allMonths.map(m => ({ label: String(m), value: m }))}
-            value={allMonths as unknown as string[]}
-            checkbox
-            setValue={() => {}}
-            rightIcon={<Icon name="lucide:chevron-down" size={18} />}
-            classNames={{
-              trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
-              menu: 'w-[140px] right-0',
-            }}
-          />
-          <Select<true, number>
-            triggerText={'Квартал'}
-            items={[1, 2, 3, 4].map(q => ({
-              label: `Квартал ${q}`,
-              value: q,
-            }))}
-            value={[1, 2]}
-            checkbox
-            setValue={() => {}}
-            rightIcon={<Icon name="lucide:chevron-down" size={18} />}
-            classNames={{
-              trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
-              menu: 'w-[160px] right-0',
             }}
           />
         </div>
@@ -92,13 +77,12 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
     >
       <div className="font-inter">
         <LineChart
-          className="-ml-2"
           width={sectionStyle.width - 48}
           height={500}
           data={data}
           margin={{ top: 20, right: 16, bottom: 20 }}
         >
-          <CartesianGrid strokeDasharray="4 4" vertical={false} />
+          <CartesianGrid strokeDasharray="4 4" />
 
           <XAxis
             dataKey="month"
@@ -106,7 +90,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
             tickLine={false}
             tickMargin={20}
             className="text-[#474B4E] font-normal text-base leading-full"
-            padding={{ left: 20, right: 20 }}
+            padding={{ left: 30, right: 30 }}
           />
 
           <YAxis
@@ -114,11 +98,18 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
             ticks={[0, 50, 100, 150, 200, 250]}
             axisLine={false}
             tickLine={false}
+            hide
             className="text-[#474B4E] font-normal text-base leading-full"
             tickMargin={20}
           />
 
-          <Tooltip />
+          <Tooltip
+            labelFormatter={label => `${label}`}
+            formatter={(_, __, props) => {
+              const item = props?.payload;
+              return [`${item.label.toLocaleString()}`, 'Вторичка'];
+            }}
+          />
 
           <Line
             type="linear"
@@ -129,9 +120,10 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
             activeDot={{ r: 6 }}
           >
             <LabelList
-              dataKey="value"
+              dataKey="label"
               position="top"
               className="font-inter text-xs"
+              formatter={value => value?.toLocaleString()}
             />
           </Line>
         </LineChart>

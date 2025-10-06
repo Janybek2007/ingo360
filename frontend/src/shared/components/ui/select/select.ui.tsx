@@ -19,6 +19,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   rightIcon,
   classNames,
   changeTriggerText = false,
+  isMultiple,
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
@@ -35,7 +36,7 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   const handleSelect = useCallback(
     (item: ISelectItem<VT>) => {
-      if (checkbox && Array.isArray(value)) {
+      if (isMultiple && Array.isArray(value)) {
         const newValue = value.includes(item.value)
           ? value.filter(v => v !== item.value)
           : [...value, item.value];
@@ -45,7 +46,7 @@ export function Select<ISM extends boolean = false, VT = string>({
         set(false);
       }
     },
-    [checkbox, setValue, set, value]
+    [setValue, set, value, isMultiple]
   );
 
   const findItemLabel = React.useMemo(() => {
@@ -62,12 +63,12 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   const isSelected = useCallback(
     (item: ISelectItem<VT>) => {
-      if (checkbox && Array.isArray(value)) {
+      if (isMultiple && Array.isArray(value)) {
         return value.includes(item.value);
       }
       return value === item.value;
     },
-    [checkbox, value]
+    [value, isMultiple]
   );
 
   return (
@@ -142,7 +143,7 @@ export function Select<ISM extends boolean = false, VT = string>({
                 </span>
               </div>
               {!checkbox && isSelected(item) && (
-                <Icon name="lucide:check" size={16} />
+                <Icon name="lucide:check" className="size-[1rem]" />
               )}
             </button>
           ))}

@@ -9,9 +9,8 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
-import { allMonths, Month } from '#/shared/constants/months';
+import { Month } from '#/shared/constants/months';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 
 const data: {
@@ -46,43 +45,18 @@ export const DynamicSales: React.FC = React.memo(() => {
       headerEnd={
         <div>
           <div className="flex items-center gap-4">
-            <Select<true, number>
-              triggerText={'Год'}
-              items={[2024, 2025].map(y => ({ label: String(y), value: y }))}
-              value={[2024]}
-              checkbox
+            <Select
+              triggerText={'Год/Месяц/Квартал'}
+              items={[
+                { label: 'Год', value: 'year' },
+                { label: 'Месяц', value: 'month' },
+                { label: 'Квартал', value: 'quarter' },
+              ]}
+              value={'year'}
               setValue={() => {}}
-              rightIcon={<Icon name="lucide:chevron-down" size={18} />}
               classNames={{
-                trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
+                trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
                 menu: 'w-full right-0',
-              }}
-            />
-            <Select<true, string>
-              triggerText={'Месяц'}
-              items={allMonths.map(m => ({ label: String(m), value: m }))}
-              value={allMonths as unknown as string[]}
-              checkbox
-              setValue={() => {}}
-              rightIcon={<Icon name="lucide:chevron-down" size={18} />}
-              classNames={{
-                trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
-                menu: 'w-[140px] right-0',
-              }}
-            />
-            <Select<true, number>
-              triggerText={'Квартал'}
-              items={[1, 2, 3, 4].map(q => ({
-                label: `Квартал ${q}`,
-                value: q,
-              }))}
-              value={[1, 2]}
-              checkbox
-              setValue={() => {}}
-              rightIcon={<Icon name="lucide:chevron-down" size={18} />}
-              classNames={{
-                trigger: 'gap-4 rounded-full min-w-[120px] justify-between',
-                menu: 'w-[160px] right-0',
               }}
             />
           </div>

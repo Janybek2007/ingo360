@@ -24,11 +24,22 @@ export const useDeleteReferenceMutation = (
     },
     onSuccess: async () => {
       const { toast } = await import('sonner');
+
+      queryClient.setQueryData(
+        ReferenceQueries.queryKeys.getReferences([type]),
+        (oldData: IReferenceItem[][]) => {
+          if (!oldData) return oldData;
+
+          return oldData.map(innerArray =>
+            Array.isArray(innerArray)
+              ? innerArray.filter(item => item.id !== id)
+              : innerArray
+          );
+        }
+      );
+
       toast.success('Ресурс успешно удален');
-      queryClient.refetchQueries({
-        queryKey: ReferenceQueries.queryKeys.getReferences([type]),
-      });
-      setTimeout(onClose, 700);
+      onClose();
     },
     onError: async (error: HTTPError) => {
       const { toast } = await import('sonner');
