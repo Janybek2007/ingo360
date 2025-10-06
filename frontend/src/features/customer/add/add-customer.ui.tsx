@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import z from 'zod';
 
 import { CompanyQueries } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
+
+import { AddCustomerContract } from '../customer.contract';
+import { useAddCustomerMutation } from './add-customer.mutation';
 
 /*
 POST /api/v1/users
@@ -15,49 +17,36 @@ POST /api/v1/users
 
 export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
   ({ onClose }) => {
-    useQuery(CompanyQueries.GetCompaniesQuery());
+    const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
+
+    const mutation = useAddCustomerMutation(onClose);
 
     return (
       <CreateEditModal
         show={true}
         display="flex"
         fields={[
-          { label: 'ФИО', name: 'fullname', placeholder: 'ОсОО' },
-          [
-            {
-              label: 'Компания',
-              type: 'select',
-              name: 'company',
-              defaultValue: 'company1',
-              selectItems: [
-                { label: 'ОСО', value: 'company1' },
-                { label: 'Ингосстрах', value: 'company2' },
-                { label: 'Альфа', value: 'company3' },
-              ],
-            },
-            {
-              label: 'Должность',
-              type: 'select',
-              name: 'position',
-              defaultValue: 'manager',
-              selectItems: [
-                { label: 'Менеджер', value: 'manager' },
-                { label: 'Старший менеджер', value: 'senior_manager' },
-                { label: 'Специалист', value: 'specialist' },
-              ],
-            },
-          ],
           {
-            label: 'Email',
+            label: 'Электронная почта',
             type: 'text',
             name: 'email',
             placeholder: 'example@example.com',
           },
+          {
+            label: 'Компания',
+            type: 'select',
+            name: 'company_id',
+            placeholder: 'Выберите компанию',
+            selectItems: (queryData.data || []).map(c => ({
+              label: c.name,
+              value: c.id,
+            })),
+          },
         ]}
         onClose={onClose}
-        schema={z.object({})}
+        schema={AddCustomerContract}
         title="Добавить новую учетную запись клиента"
-        onSubmit={() => {}}
+        onSubmit={mutation.mutateAsync}
       />
     );
   }

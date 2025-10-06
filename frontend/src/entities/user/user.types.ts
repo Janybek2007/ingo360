@@ -1,6 +1,6 @@
 import type { SessionRole } from '#/shared/types';
 
-export interface GetUserResponse {
+export interface IUserItem {
   id: number;
   email: string;
   is_active: boolean;
@@ -16,3 +16,6 @@ export interface GetUserResponse {
   company_id: number;
   role: SessionRole;
 }
+
+export type GetUserResponse = IUserItem;
+export type GetUsersResponse = GetUserResponse[];

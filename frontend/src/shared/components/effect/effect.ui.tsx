@@ -13,7 +13,7 @@ export const Effect: React.FC = React.memo(() => {
     const scale = window.devicePixelRatio || 1;
 
     if (scale === 1.25) {
-      root.style.setProperty('font-size', '75%');
+      root.style.setProperty('font-size', '85%');
     }
 
     if (expHeaderSize) {
