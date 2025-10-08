@@ -26,6 +26,7 @@ const ReferenceWorkPage: React.FC = () => {
       <ReferenceWork
         currentData={queryData.data ? queryData.data[0] : []}
         current={current as ReferencesType}
+        isLoading={queryData.isLoading}
       />
     </main>
   );

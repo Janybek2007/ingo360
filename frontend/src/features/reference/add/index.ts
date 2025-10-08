@@ -1,1 +1,1 @@
-export { AddReferenceModal } from './add-reference.ui';
+export { AddReferenceWrapper } from './add-reference.ui';

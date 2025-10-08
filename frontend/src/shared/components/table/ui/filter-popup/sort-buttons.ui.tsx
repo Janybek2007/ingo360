@@ -8,7 +8,7 @@ import type { ISortButtonsProps } from '../../table.types';
 export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
   ({ isSorted, toggleSorting, resetSorting }) => (
     <div className="mb-3">
-      <h4 className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
+      <h4 className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
         <Icon
           name="lucide:arrow-up-down"
           className="text-gray-400 size-[0.875rem]"
@@ -18,10 +18,10 @@ export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
       <div className="flex gap-1.5">
         <button
           className={cn(
-            'flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 text-xs font-medium rounded-lg transition-all duration-200 border',
+            'flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 text-xs rounded border',
             isSorted === 'asc'
-              ? 'bg-blue-500 text-white border-blue-600 shadow-sm'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+              ? 'bg-blue-500 text-white border-blue-500'
+              : 'text-gray-700 border-gray-200'
           )}
           onClick={() => toggleSorting(false)}
         >
@@ -30,10 +30,10 @@ export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
         </button>
         <button
           className={cn(
-            'flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 text-xs font-medium rounded-lg transition-all duration-200 border',
+            'flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 text-xs rounded border',
             isSorted === 'desc'
-              ? 'bg-blue-500 text-white border-blue-600 shadow-sm'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+              ? 'bg-blue-500 text-white border-blue-500'
+              : 'text-gray-700 border-gray-200'
           )}
           onClick={() => toggleSorting(true)}
         >
@@ -42,7 +42,7 @@ export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
         </button>
         {isSorted && (
           <button
-            className="p-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+            className="p-1.5 text-xs text-gray-600 border border-gray-200 rounded"
             onClick={resetSorting}
             title="Сбросить сортировку"
           >

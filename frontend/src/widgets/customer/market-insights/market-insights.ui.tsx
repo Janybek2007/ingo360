@@ -8,6 +8,7 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { stringFilter } from '#/shared/utils/filter';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface MarketRow {
@@ -47,6 +48,43 @@ const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
+    'money'
+  );
+
+  const usedItems = React.useMemo(() => {
+    const brandItems = [
+      { value: 'brand1', label: 'Бренд 1' },
+      { value: 'brand2', label: 'Бренд 2' },
+      { value: 'brand3', label: 'Бренд 3' },
+    ];
+
+    const groupItems = [
+      { value: 'group1', label: 'Группа 1' },
+      { value: 'group2', label: 'Группа 2' },
+      { value: 'group3', label: 'Группа 3' },
+    ];
+
+    return getUsedItems([
+      {
+        value: brand,
+        items: brandItems,
+        onDelete: () => setBrand(''),
+      },
+      {
+        value: group,
+        items: groupItems,
+        onDelete: () => setGroup(''),
+      },
+    ]);
+  }, [brand, group]);
+
+  const resetFilters = React.useCallback(() => {
+    setBrand('');
+    setGroup('');
+  }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<MarketRow>[] => [
@@ -116,7 +154,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount == 'all' ? 100 : rowsCount, {
+    const allData = generateMocks(rowsCount == 'all' ? 50 : rowsCount, {
       id: () => randomId('market'),
       sku: SKUS,
       brand: BRANDS,
@@ -145,9 +183,10 @@ export const MarketInsights: React.FC = React.memo(() => {
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
+            value={brand}
+            setValue={setBrand}
             items={[
+              { value: '', label: 'Все' },
               { value: 'brand1', label: 'Бренд 1' },
               { value: 'brand2', label: 'Бренд 2' },
               { value: 'brand3', label: 'Бренд 3' },
@@ -156,9 +195,10 @@ export const MarketInsights: React.FC = React.memo(() => {
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
+            value={group}
+            setValue={setGroup}
             items={[
+              { value: '', label: 'Все' },
               { value: 'group1', label: 'Группа 1' },
               { value: 'group2', label: 'Группа 2' },
               { value: 'group3', label: 'Группа 3' },
@@ -166,9 +206,9 @@ export const MarketInsights: React.FC = React.memo(() => {
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<false, string>
-            value={'money'}
-            setValue={() => {}}
+          <Select<false, typeof moneyType>
+            value={moneyType}
+            setValue={setMoneyType}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
@@ -203,9 +243,11 @@ export const MarketInsights: React.FC = React.memo(() => {
       }
     >
       <Table
+        filters={{ usedItems, resetFilters }}
         columns={columnsForTable}
         data={data}
-        maxHeight={500}
+        maxHeight={400}
+        isScrollbar
         rounded="none"
       />
     </PageSection>

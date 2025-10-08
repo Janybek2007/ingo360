@@ -15,7 +15,7 @@ import {
   ROLES_OBJECT,
   STATUSES,
   STATUSES_OBJECT,
-} from '#/shared/constants/global';
+} from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { selectFilter, stringFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId } from '#/shared/utils/mock';
@@ -39,7 +39,6 @@ const IngoAccountsPage: React.FC = () => {
         accessorKey: 'fullName',
         header: 'ФИО',
         size: 480,
-        enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
         type: 'string',
@@ -48,7 +47,6 @@ const IngoAccountsPage: React.FC = () => {
         accessorKey: 'role',
         header: 'Роль',
         size: 480,
-        enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
         type: 'string',
@@ -59,7 +57,6 @@ const IngoAccountsPage: React.FC = () => {
       {
         accessorKey: 'status',
         header: 'Статус',
-        enableSorting: true,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
@@ -73,7 +70,7 @@ const IngoAccountsPage: React.FC = () => {
         },
       },
       {
-        accessorKey: 'actions',
+        id: 'actions',
         header: '',
         size: 80,
         cell(props) {

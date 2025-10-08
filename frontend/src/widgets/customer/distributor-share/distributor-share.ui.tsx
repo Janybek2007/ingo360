@@ -6,8 +6,16 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import {
+  BRANDS,
+  DISTRIBUTORS,
+  GROUPS,
+  PROMOTION_TYPES,
+  SKUS,
+} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { numberFilter, stringFilter } from '#/shared/utils/filter';
+import { numberFilter, selectFilter } from '#/shared/utils/filter';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface DistributorShareRow {
@@ -19,14 +27,34 @@ interface DistributorShareRow {
   months: number[];
 }
 
-const SKUS = ['Товар 1', 'Товар 2', 'Товар 3'] as const;
-const BRANDS = ['Бренд 1', 'Бренд 2', 'Бренд 3'] as const;
-const GROUPS = ['Группа 1', 'Группа 2'] as const;
-const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
-
 export const DistributorShare: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const [rowsCount, setRowsCount] = useState(10);
+  const [rowsCount, setRowsCount] = useState<'all' | number>('all');
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
+    'money'
+  );
+
+  const usedItems = React.useMemo(() => {
+    return getUsedItems([
+      {
+        value: brand,
+        items: BRANDS,
+        onDelete: () => setBrand(''),
+      },
+      {
+        value: group,
+        items: GROUPS,
+        onDelete: () => setGroup(''),
+      },
+    ]);
+  }, [brand, group]);
+
+  const resetFilters = React.useCallback(() => {
+    setBrand('');
+    setGroup('');
+  }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<DistributorShareRow>[] => [
@@ -34,37 +62,51 @@ export const DistributorShare: React.FC = React.memo(() => {
         accessorKey: 'sku',
         header: 'SKU',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
+        selectOptions: SKUS,
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
+        selectOptions: BRANDS,
+      },
+      {
+        accessorKey: 'promoType',
+        header: 'Тип промоции',
+        enableColumnFilter: true,
+        size: 250,
+        filterFn: selectFilter(),
+        type: 'select',
+        enablePinning: true,
+        selectOptions: PROMOTION_TYPES,
       },
       {
         accessorKey: 'group',
         header: 'Группа',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
+        selectOptions: GROUPS,
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
+        selectOptions: DISTRIBUTORS,
       },
       ...Array.from(
         { length: 12 },
@@ -74,7 +116,6 @@ export const DistributorShare: React.FC = React.memo(() => {
             id: `month${i + 1}`,
             header: `2024/${i + 1}`,
             size: 140,
-            cell: info => `${info.getValue()}%`,
             enableColumnFilter: true,
             filterFn: numberFilter(),
             type: 'number',
@@ -97,13 +138,14 @@ export const DistributorShare: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount, {
-      id: () => randomId('share'),
-      sku: SKUS,
-      brand: BRANDS,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      months: () => randomArray(12, 5, 25),
+    const allData = generateMocks(rowsCount == 'all' ? 50 : rowsCount, {
+      id: () => randomId('stock'),
+      sku: SKUS.map(v => v.value),
+      brand: BRANDS.map(v => v.value),
+      promoType: PROMOTION_TYPES.map(p => p.value),
+      group: GROUPS.map(v => v.value),
+      distributor: DISTRIBUTORS.map(v => v.value),
+      months: () => randomArray(12, 5, 20),
     });
 
     return allData.filter(
@@ -115,6 +157,20 @@ export const DistributorShare: React.FC = React.memo(() => {
     );
   }, [search, rowsCount]);
 
+  const monthTotals = useMemo(() => {
+    const totals = Array(12).fill(0);
+    data.forEach(row => {
+      row.months.forEach((value, index) => {
+        totals[index] += value;
+      });
+    });
+    return totals;
+  }, [data]);
+
+  const grandTotal = useMemo(() => {
+    return monthTotals.reduce((sum, val) => sum + val, 0);
+  }, [monthTotals]);
+
   return (
     <PageSection
       title="Доли дистров в деньгах/процентах"
@@ -122,40 +178,33 @@ export const DistributorShare: React.FC = React.memo(() => {
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
-            items={[
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
+            value={brand}
+            setValue={setBrand}
+            items={[{ value: '', label: 'Все' }, ...BRANDS]}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
-            items={[
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
+            value={group}
+            setValue={setGroup}
+            items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<false, string>
-            value={'money'}
-            setValue={() => {}}
+          <Select<false, typeof moneyType>
+            value={moneyType}
+            setValue={setMoneyType}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
             ]}
             triggerText="Деньги/Упаковка"
           />
-          <Select
+          <Select<false, typeof rowsCount>
             value={rowsCount}
             setValue={setRowsCount}
             items={[
+              { value: 'all', label: 'Все' },
               { value: 10, label: '10' },
               { value: 50, label: '50' },
               { value: 100, label: '100' },
@@ -174,16 +223,17 @@ export const DistributorShare: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          {/* Filter by money/percent */}
           <ExportToExcelButton data={data} fileName="distributor-share.xlsx" />
         </div>
       }
     >
       <Table
+        filters={{ usedItems, resetFilters }}
         columns={columnsForTable}
         data={data}
-        isScrollbar
         maxHeight={500}
+        rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
+        isScrollbar
         rounded="none"
       />
     </PageSection>

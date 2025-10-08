@@ -1,1 +1,1 @@
-export { DeleteReferenceButton } from './delete-reference.ui';
+export { DeleteReferenceWrapper } from './delete-reference.ui';

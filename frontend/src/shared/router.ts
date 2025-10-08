@@ -2,7 +2,7 @@ export const routePaths = {
   // Общие
   page404: '/404/',
   profile: '/profile',
-  setPassword: '/set-password',
+  setPassword: '/users/set-password',
 
   // Auth
   auth: {

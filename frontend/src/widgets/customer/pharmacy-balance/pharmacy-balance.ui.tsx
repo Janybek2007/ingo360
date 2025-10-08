@@ -6,8 +6,15 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import {
+  BRANDS,
+  DISTRIBUTORS,
+  GROUPS,
+  SKUS,
+} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { stringFilter } from '#/shared/utils/filter';
+import { selectFilter } from '#/shared/utils/filter';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface PharmacyBalanceRow {
@@ -21,16 +28,26 @@ interface PharmacyBalanceRow {
   months: number[];
 }
 
-const SKUS = ['Товар 1', 'Товар 2', 'Товар 3'] as const;
-const BRANDS = ['Бренд 1', 'Бренд 2', 'Бренд 3'] as const;
-const PROMO_TYPES = ['Промо', 'Скидка', 'Акция'] as const;
-const GROUPS = ['Группа 1', 'Группа 2'] as const;
-const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
-const PHARMACIES = ['Аптека 1', 'Аптека 2', 'Аптека 3'] as const;
-
 export const PharmacyBalance: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
+    'money'
+  );
+
+  const usedItems = React.useMemo(() => {
+    return getUsedItems([
+      { value: brand, items: BRANDS, onDelete: () => setBrand('') },
+      { value: group, items: GROUPS, onDelete: () => setGroup('') },
+    ]);
+  }, [brand, group]);
+
+  const resetFilters = React.useCallback(() => {
+    setBrand('');
+    setGroup('');
+  }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<PharmacyBalanceRow>[] => [
@@ -38,55 +55,41 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         accessorKey: 'sku',
         header: 'SKU',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
-      },
-      {
-        accessorKey: 'pharmacy',
-        header: 'Аптека',
-        enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
-        enablePinning: true,
+        selectOptions: SKUS,
       },
       {
         accessorKey: 'brand',
         header: 'Бренд',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
-      },
-      {
-        accessorKey: 'promoType',
-        header: 'Тип промоции',
-        enableColumnFilter: true,
-        size: 160,
-        filterFn: stringFilter(),
-        type: 'string',
-        enablePinning: true,
+        selectOptions: BRANDS,
       },
       {
         accessorKey: 'group',
         header: 'Группа',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
+        selectOptions: GROUPS,
       },
       {
         accessorKey: 'distributor',
         header: 'Дистр',
         enableColumnFilter: true,
-        size: 120,
-        filterFn: stringFilter(),
-        type: 'string',
+        size: 150,
+        filterFn: selectFilter(),
+        type: 'select',
         enablePinning: true,
+        selectOptions: DISTRIBUTORS,
       },
       ...Array.from({ length: 12 }, (_, i) => ({
         accessorFn: (row: PharmacyBalanceRow) => row.months[i],
@@ -112,26 +115,36 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount == 'all' ? 100 : rowsCount, {
-      id: () => randomId('whitespot'),
-      pharmacy: PHARMACIES,
-      sku: SKUS,
-      brand: BRANDS,
-      promoType: PROMO_TYPES,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      months: () => randomArray(12, 5, 500),
+    const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
+      id: () => randomId('shipment'),
+      sku: SKUS.map(s => s.value),
+      brand: BRANDS.map(b => b.value),
+      group: GROUPS.map(g => g.value),
+      distributor: DISTRIBUTORS.map(d => d.value),
+      months: () => randomArray(12, 10, 500),
     });
-
     return allData.filter(
       row =>
         row.sku.toLowerCase().includes(search.toLowerCase()) ||
         row.brand.toLowerCase().includes(search.toLowerCase()) ||
-        row.promoType.toLowerCase().includes(search.toLowerCase()) ||
         row.group.toLowerCase().includes(search.toLowerCase()) ||
         row.distributor.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, rowsCount]);
+
+  const monthTotals = useMemo(() => {
+    const totals = Array(12).fill(0);
+    data.forEach(row => {
+      row.months.forEach((value, index) => {
+        totals[index] += value;
+      });
+    });
+    return totals;
+  }, [data]);
+
+  const grandTotal = useMemo(() => {
+    return monthTotals.reduce((sum, val) => sum + val, 0);
+  }, [monthTotals]);
 
   return (
     <PageSection
@@ -140,30 +153,22 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
-            items={[
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
+            value={brand}
+            setValue={setBrand}
+            items={[{ value: '', label: 'Все' }, ...BRANDS]}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
-            items={[
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
+            value={group}
+            setValue={setGroup}
+            items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<false, string>
-            value={'money'}
-            setValue={() => {}}
+          <Select<false, typeof moneyType>
+            value={moneyType}
+            setValue={setMoneyType}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
@@ -198,10 +203,12 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       }
     >
       <Table
+        filters={{ usedItems, resetFilters }}
         columns={columnsForTable}
         data={data}
+        maxHeight={400}
+        rowTotal={{ firstColSpan: 4, monthTotals, grandTotal }}
         isScrollbar
-        maxHeight={550}
         rounded="none"
       />
     </PageSection>

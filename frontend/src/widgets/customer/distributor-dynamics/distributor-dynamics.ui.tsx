@@ -9,9 +9,14 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { Month } from '#/shared/constants/months';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 import { randomInt } from '#/shared/utils/mock';
 
 const distributorsData = [
@@ -27,6 +32,70 @@ const getRandomValues = () =>
 
 export const DistributorDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const [distributor, setDistributor] = React.useState<string>('');
+  const periodFilter = usePeriodFilter();
+
+  const usedItems = React.useMemo(() => {
+    const brandItems = [
+      { value: 'brand1', label: 'Бренд 1' },
+      { value: 'brand2', label: 'Бренд 2' },
+      { value: 'brand3', label: 'Бренд 3' },
+    ];
+
+    const groupItems = [
+      { value: 'group1', label: 'Группа 1' },
+      { value: 'group2', label: 'Группа 2' },
+      { value: 'group3', label: 'Группа 3' },
+    ];
+
+    const distributorItems = [
+      { value: 'dist1', label: 'Дистр 1' },
+      { value: 'dist2', label: 'Дистр 2' },
+      { value: 'dist3', label: 'Дистр 3' },
+    ];
+
+    return getUsedItems([
+      {
+        value: Array.isArray(periodFilter.selectedValues)
+          ? periodFilter.selectedValues
+          : [],
+        getLabelFromValue: getPeriodLabel,
+        onDelete: value => {
+          const newValues = (
+            Array.isArray(periodFilter.selectedValues)
+              ? periodFilter.selectedValues
+              : []
+          ).filter(v => v !== value);
+          periodFilter.handleValueChange(newValues);
+        },
+      },
+      {
+        value: brand,
+        items: brandItems,
+        onDelete: () => setBrand(''),
+      },
+      {
+        value: group,
+        items: groupItems,
+        onDelete: () => setGroup(''),
+      },
+      {
+        value: distributor,
+        items: distributorItems,
+        onDelete: () => setDistributor(''),
+      },
+    ]);
+  }, [periodFilter, brand, group, distributor]);
+
+  const resetFilters = React.useCallback(() => {
+    periodFilter.handleValueChange([]);
+    setBrand('');
+    setGroup('');
+    setDistributor('');
+  }, [periodFilter]);
+
   const chartData = useMemo(() => {
     return Array.from({ length: 12 }).map((_, i) => {
       const obj: Record<string, number | string> = {
@@ -46,9 +115,10 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4">
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
+            value={brand}
+            setValue={setBrand}
             items={[
+              { value: '', label: 'Все' },
               { value: 'brand1', label: 'Бренд 1' },
               { value: 'brand2', label: 'Бренд 2' },
               { value: 'brand3', label: 'Бренд 3' },
@@ -57,9 +127,10 @@ export const DistributorDynamics: React.FC = React.memo(() => {
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
+            value={group}
+            setValue={setGroup}
             items={[
+              { value: '', label: 'Все' },
               { value: 'group1', label: 'Группа 1' },
               { value: 'group2', label: 'Группа 2' },
               { value: 'group3', label: 'Группа 3' },
@@ -68,75 +139,67 @@ export const DistributorDynamics: React.FC = React.memo(() => {
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'distributor1'}
-            setValue={() => {}}
+            value={distributor}
+            setValue={setDistributor}
             items={[
-              { value: 'distributor1', label: 'Дистр 1' },
-              { value: 'distributor2', label: 'Дистр 2' },
-              { value: 'distributor3', label: 'Дистр 3' },
+              { value: '', label: 'Все' },
+              { value: 'dist1', label: 'Дистр 1' },
+              { value: 'dist2', label: 'Дистр 2' },
+              { value: 'dist3', label: 'Дистр 3' },
             ]}
-            triggerText="Дистр"
+            triggerText="Дистрибьютор"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select
-            triggerText={'Год/Месяц/Квартал'}
-            items={[
-              { label: 'Год', value: 'year' },
-              { label: 'Месяц', value: 'month' },
-              { label: 'Квартал', value: 'quarter' },
-            ]}
-            value={'year'}
-            setValue={() => {}}
-            classNames={{
-              trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
-              menu: 'w-full right-0',
-            }}
-          />
+          <PeriodFilters {...periodFilter} />
         </div>
       }
     >
-      <div className="font-inter">
-        <LineChart
-          className="-ml-4"
-          width={sectionStyle.width - 48}
-          height={500}
-          data={chartData}
-          margin={{ top: 20, right: 16, bottom: 20 }}
-        >
-          <CartesianGrid strokeDasharray="4 4" vertical={false} />
+      <div className="space-y-4">
+        <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
 
-          <XAxis
-            dataKey="month"
-            axisLine={false}
-            tickLine={false}
-            tickMargin={20}
-            className="text-[#474B4E] font-normal text-base leading-full"
-            padding={{ left: 20, right: 20 }}
-          />
+        <div className="font-inter">
+          <LineChart
+            className="-ml-4"
+            width={sectionStyle.width - 48}
+            height={500}
+            data={chartData}
+            margin={{ top: 20, right: 16, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="4 4" vertical={false} />
 
-          <YAxis
-            domain={[0, 60]}
-            ticks={[0, 10, 20, 30, 40, 50, 60]}
-            axisLine={false}
-            tickLine={false}
-            className="text-[#474B4E] font-normal text-base leading-full"
-            tickMargin={20}
-          />
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tickMargin={20}
+              className="text-[#474B4E] font-normal text-base leading-full"
+              padding={{ left: 20, right: 20 }}
+            />
 
-          <Tooltip />
+            <YAxis
+              domain={[0, 60]}
+              ticks={[0, 10, 20, 30, 40, 50, 60]}
+              axisLine={false}
+              tickLine={false}
+              className="text-[#474B4E] font-normal text-base leading-full"
+              tickMargin={20}
+            />
 
-          {distributorsData.map(d => (
-            <Line
-              key={d.name}
-              type="linear"
-              dataKey={d.name}
-              stroke={d.color}
-              strokeWidth={3}
-              dot={false}
-              activeDot={{ r: 6 }}
-            ></Line>
-          ))}
-        </LineChart>
+            <Tooltip />
+
+            {distributorsData.map(d => (
+              <Line
+                key={d.name}
+                type="linear"
+                dataKey={d.name}
+                stroke={d.color}
+                strokeWidth={3}
+                dot={false}
+                activeDot={{ r: 6 }}
+              ></Line>
+            ))}
+          </LineChart>
+        </div>
       </div>
     </PageSection>
   );

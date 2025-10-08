@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { SortDirection } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Icon } from '#/shared/components/ui/icon';
+import { filterItems } from '#/shared/constants/filter-items';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { cn } from '#/shared/utils/cn';
 import { getPopupStyle } from '#/shared/utils/get-popup-style';
@@ -40,7 +42,14 @@ export function FilterPopup({
 
   const initialValue = useMemo(() => {
     if (colType === 'select') {
-      return initialFilterValue ?? selectOptions.map(v => v.value);
+      if (
+        initialFilterValue &&
+        typeof initialFilterValue === 'object' &&
+        'selectValues' in initialFilterValue
+      ) {
+        return (initialFilterValue as any).selectValues;
+      }
+      return selectOptions;
     }
     if (
       initialFilterValue &&
@@ -52,7 +61,7 @@ export function FilterPopup({
         : initialFilterValue.value;
     }
     return '';
-  }, [initialFilterValue, colType, selectOptions]);
+  }, [colType, initialFilterValue, selectOptions]);
 
   const initialValue2 = useMemo(() => {
     if (
@@ -69,9 +78,7 @@ export function FilterPopup({
   }, [initialFilterValue, colType]);
 
   const [filterType, setFilterType] = useState<string>(initialFilterType);
-  const [value, setValue] = useState<string | number | (string | number)[]>(
-    initialValue
-  );
+  const [value, setValue] = useState<any>(initialValue);
   const [value2, setValue2] = useState<string | number>(initialValue2);
 
   useEffect(() => {
@@ -80,38 +87,30 @@ export function FilterPopup({
     setValue2(initialValue2);
   }, [initialFilterType, initialValue, initialValue2]);
 
-  const filterItems = useMemo(() => {
-    if (colType === 'number') {
-      return [
-        { value: '>', label: 'Больше чем' },
-        { value: '>=', label: 'Больше или равно' },
-        { value: '<', label: 'Меньше чем' },
-        { value: '<=', label: 'Меньше или равно' },
-        { value: '=', label: 'Точно равно' },
-        { value: 'between', label: 'Между' },
-      ];
-    } else if (colType === 'string') {
-      return [
-        { value: 'contains', label: 'Содержит' },
-        { value: 'startsWith', label: 'Начинается с' },
-        { value: 'equals', label: 'Точно равно' },
-        { value: 'doesNotEqual', label: 'Не равно' },
-      ];
-    } else {
-      return [];
-    }
-  }, [colType]);
-
   const applyFilter = useCallback(() => {
     if (colType === 'select') {
-      column.setFilterValue(value);
+      column.setFilterValue({
+        selectValues: value,
+        colType,
+        header: column.columnDef.header,
+      });
     } else if (colType === 'number' && filterType === 'between') {
-      column.setFilterValue({ type: filterType, value: [value, value2] });
+      column.setFilterValue({
+        type: filterType,
+        value: [value, value2],
+        colType,
+        header: column.columnDef.header,
+      });
     } else {
-      column.setFilterValue({ type: filterType, value });
+      column.setFilterValue({
+        type: filterType,
+        value,
+        colType,
+        header: column.columnDef.header,
+      });
     }
     onClose();
-  }, [column, colType, filterType, value, value2, onClose]);
+  }, [colType, filterType, onClose, value, column, value2]);
 
   if (popupPosition.x === 0 || popupPosition.y === 0) return null;
 
@@ -120,46 +119,49 @@ export function FilterPopup({
       style={getPopupStyle(popupPosition)}
       ref={contentRef}
       className={cn(
-        'absolute z-50 w-max min-w-[18.75rem] max-w-[23.75rem] bg-white border border-gray-200',
-        'rounded-xl shadow-xl p-3'
+        'absolute z-50 w-max min-w-[18.75rem] max-w-[23rem] bg-white border border-gray-200',
+        'rounded shadow-sm p-3 mt-2'
       )}
     >
-      {column.columnDef.enableSorting && (
-        <SortButtons
-          isSorted={column.getIsSorted() as SortDirection}
-          toggleSorting={column.toggleSorting}
-          resetSorting={column.clearSorting}
-        />
+      <SortButtons
+        isSorted={column.getIsSorted() as SortDirection}
+        toggleSorting={column.toggleSorting}
+        resetSorting={() => {
+          column.clearSorting();
+          onClose();
+        }}
+      />
+
+      {column.columnDef.enableColumnFilter && (
+        <div className="mb-3">
+          <h4 className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
+            <Icon
+              name="lucide:filter"
+              className="text-gray-400 size-[0.875rem]"
+            />
+            Фильтр
+          </h4>
+
+          {colType === 'select' ? (
+            <FilterSelect
+              value={Array.isArray(value) ? value : []}
+              setValue={setValue}
+              items={selectOptions}
+            />
+          ) : (
+            <FilterInput
+              filterType={filterType}
+              setFilterType={setFilterType}
+              filterItems={filterItems(colType)}
+              colType={colType}
+              value={Array.isArray(value) ? value[0] : value}
+              setValue={setValue}
+              value2={value2}
+              setValue2={setValue2}
+            />
+          )}
+        </div>
       )}
-
-      <div className="mb-3">
-        <h4 className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
-          <Icon
-            name="lucide:filter"
-            className="text-gray-400 size-[0.875rem]"
-          />
-          Фильтр
-        </h4>
-
-        {colType === 'select' ? (
-          <FilterSelect
-            value={Array.isArray(value) ? value : []}
-            setValue={setValue}
-            items={selectOptions}
-          />
-        ) : (
-          <FilterInput
-            filterType={filterType}
-            setFilterType={setFilterType}
-            filterItems={filterItems}
-            colType={colType}
-            value={Array.isArray(value) ? value[0] : value}
-            setValue={setValue}
-            value2={value2}
-            setValue2={setValue2}
-          />
-        )}
-      </div>
 
       {/* Actions */}
       <FilterActions onClose={onClose} onApply={applyFilter} />

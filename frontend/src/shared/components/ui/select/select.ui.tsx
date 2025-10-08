@@ -20,6 +20,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   classNames,
   changeTriggerText = false,
   isMultiple,
+  labelTemplate = '{label}',
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
@@ -72,15 +73,12 @@ export function Select<ISM extends boolean = false, VT = string>({
   );
 
   return (
-    <div
-      className={cn('relative font-inter', classNames?.root)}
-      ref={contentRef}
-    >
+    <div className={cn('relative', classNames?.root)} ref={contentRef}>
       <button
         className={cn(
-          'border border-[#94A3B8] rounded-lg gap-2 px-4 py-2',
-          'text-left bg-white',
-          'flex items-center justify-center cursor-pointer',
+          'border border-gray-300 rounded-md gap-2 px-3 py-2',
+          'text-left bg-white hover:border-gray-400',
+          'flex items-center justify-center cursor-pointer transition-colors',
           classNames?.trigger
         )}
         type="button"
@@ -91,12 +89,14 @@ export function Select<ISM extends boolean = false, VT = string>({
         {(triggerText || findItemLabel) && (
           <span
             className={cn(
-              'text-black text-sm font-medium leading-[150%] text-nowrap',
+              'ext-sm font-medium text-nowrap',
               'overflow-hidden text-ellipsis max-w-full',
               classNames?.triggerText
             )}
           >
-            {changeTriggerText ? findItemLabel || triggerText : triggerText}
+            {changeTriggerText
+              ? labelTemplate?.replace('{label}', findItemLabel) || triggerText
+              : triggerText}
           </span>
         )}
         {typeof rightIcon == 'function' ? rightIcon(open) : rightIcon}
@@ -105,9 +105,9 @@ export function Select<ISM extends boolean = false, VT = string>({
       {open && (
         <div
           className={cn(
-            'absolute z-10 w-full bg-white rounded-xl max-h-60 overflow-auto',
-            'py-3 noscrollbar border border-[#E4E4E4]',
-            'top-full mt-2',
+            'absolute z-10 w-full bg-white rounded-md max-h-80 overflow-auto',
+            'py-1 noscrollbar border border-gray-200 shadow-sm',
+            'top-full mt-1',
             classNames?.menu
           )}
         >
@@ -116,9 +116,9 @@ export function Select<ISM extends boolean = false, VT = string>({
               key={`${item.value}-${item.label}-key`}
               type="button"
               className={cn(
-                'flex items-center justify-between px-4 py-3 cursor-pointer text-left text-nowrap',
-                'w-full hover:bg-blue-500/10 hover:text-blue-500 text-black',
-                'text-base font-inter font-normal leading-full -tracking-[0.15px] group',
+                'flex items-center justify-between px-3 py-2 cursor-pointer text-left text-nowrap',
+                'w-full hover:bg-blue-50 hover:text-blue-600 transition-colors',
+                'font-normal group',
                 classNames?.menuItem
               )}
               onClick={() => handleSelect(item)}
@@ -128,7 +128,7 @@ export function Select<ISM extends boolean = false, VT = string>({
                 {item.icon && (
                   <Icon
                     {...uiSet.icon(item.icon, {
-                      className: 'text-[#94A3B8] group-hover:text-blue-500',
+                      className: 'text-gray-400',
                     })}
                   />
                 )}
@@ -143,7 +143,7 @@ export function Select<ISM extends boolean = false, VT = string>({
                 </span>
               </div>
               {!checkbox && isSelected(item) && (
-                <Icon name="lucide:check" className="size-[1rem]" />
+                <Icon name="lucide:check" className="size-4 text-gray-700" />
               )}
             </button>
           ))}

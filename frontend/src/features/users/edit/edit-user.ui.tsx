@@ -7,7 +7,7 @@ import {
   ROLES_OBJECT,
   STATUSES,
   STATUSES_OBJECT,
-} from '#/shared/constants/global';
+} from '#/shared/constants/roles_statuses';
 
 const schema = z.object({
   fullName: z.string().min(3, 'Минимум 3 символа'),
@@ -21,8 +21,6 @@ export const EditUserModal: React.FC<{
   return (
     <CreateEditModal
       portal={false}
-      show={true}
-      display="flex"
       fields={[
         {
           label: 'ФИО',

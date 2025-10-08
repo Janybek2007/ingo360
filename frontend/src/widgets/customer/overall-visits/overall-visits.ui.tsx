@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   CartesianGrid,
   LabelList,
@@ -10,36 +10,132 @@ import {
 } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { Month } from '#/shared/constants/months';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import {
+  calculateChartAxis,
+  formatCompactNumber,
+} from '#/shared/utils/format-number';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 
-const data: { month: string; value: number; label: number }[] = [
-  { month: Month.JAN, value: 2.8, label: 280000 },
-  { month: Month.FEB, value: 3.5, label: 350000 },
-  { month: Month.MAR, value: 4.2, label: 420000 },
-  { month: Month.APR, value: 3.9, label: 390000 },
-  { month: Month.MAY, value: 5.0, label: 500000 },
-  { month: Month.JUN, value: 5.8, label: 580000 },
-  { month: Month.JUL, value: 4.0, label: 400000 },
-  { month: Month.AUG, value: 3.9, label: 390000 },
-  { month: Month.SEP, value: 4.5, label: 450000 },
-  { month: Month.OCT, value: 6.0, label: 600000 },
-  { month: Month.NOV, value: 5.3, label: 530000 },
-  { month: Month.DEC, value: 4.2, label: 420000 },
+const rawData: { month: string; value: number; monthIndex: number }[] = [
+  { month: Month.JAN, value: 280000, monthIndex: 0 },
+  { month: Month.FEB, value: 350000, monthIndex: 1 },
+  { month: Month.MAR, value: 420000, monthIndex: 2 },
+  { month: Month.APR, value: 390000, monthIndex: 3 },
+  { month: Month.MAY, value: 500000, monthIndex: 4 },
+  { month: Month.JUN, value: 580000, monthIndex: 5 },
+  { month: Month.JUL, value: 400000, monthIndex: 6 },
+  { month: Month.AUG, value: 390000, monthIndex: 7 },
+  { month: Month.SEP, value: 450000, monthIndex: 8 },
+  { month: Month.OCT, value: 600000, monthIndex: 9 },
+  { month: Month.NOV, value: 530000, monthIndex: 10 },
+  { month: Month.DEC, value: 420000, monthIndex: 11 },
 ];
 
 export const OverallVisits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const periodFilter = usePeriodFilter();
+
+  const usedItems = React.useMemo(() => {
+    const brandItems = [
+      { value: 'brand1', label: 'Бренд 1' },
+      { value: 'brand2', label: 'Бренд 2' },
+      { value: 'brand3', label: 'Бренд 3' },
+    ];
+
+    const groupItems = [
+      { value: 'group1', label: 'Группа 1' },
+      { value: 'group2', label: 'Группа 2' },
+      { value: 'group3', label: 'Группа 3' },
+    ];
+
+    return getUsedItems([
+      {
+        value: Array.isArray(periodFilter.selectedValues)
+          ? periodFilter.selectedValues
+          : [],
+        getLabelFromValue: getPeriodLabel,
+        onDelete: value => {
+          const newValues = (
+            Array.isArray(periodFilter.selectedValues)
+              ? periodFilter.selectedValues
+              : []
+          ).filter(v => v !== value);
+          periodFilter.handleValueChange(newValues);
+        },
+      },
+      {
+        value: brand,
+        items: brandItems,
+        onDelete: () => setBrand(''),
+      },
+      {
+        value: group,
+        items: groupItems,
+        onDelete: () => setGroup(''),
+      },
+    ]);
+  }, [periodFilter, brand, group]);
+  const resetFilters = React.useCallback(() => {
+    periodFilter.handleValueChange([]);
+    setBrand('');
+    setGroup('');
+  }, [periodFilter]);
+
+  const data = useMemo(() => {
+    if (periodFilter.period === 'month') {
+      return rawData;
+    }
+
+    if (periodFilter.period === 'year') {
+      const currentYearTotal = rawData.reduce(
+        (sum, item) => sum + item.value,
+        0
+      );
+      return [
+        { month: '2021', value: currentYearTotal * 0.7, monthIndex: 0 },
+        { month: '2022', value: currentYearTotal * 0.85, monthIndex: 1 },
+        { month: '2023', value: currentYearTotal * 0.95, monthIndex: 2 },
+        { month: '2024', value: currentYearTotal, monthIndex: 3 },
+      ];
+    }
+
+    // quarter
+    const quarters = [
+      { month: 'Q1', value: 0, monthIndex: 0 },
+      { month: 'Q2', value: 0, monthIndex: 1 },
+      { month: 'Q3', value: 0, monthIndex: 2 },
+      { month: 'Q4', value: 0, monthIndex: 3 },
+    ];
+
+    rawData.forEach(item => {
+      const quarterIndex = Math.floor(item.monthIndex / 3);
+      quarters[quarterIndex].value += item.value;
+    });
+
+    return quarters;
+  }, [periodFilter.period]);
+
+  const chartAxis = useMemo(() => calculateChartAxis(data, ['value']), [data]);
+
   return (
     <PageSection
       title="Визитов"
       headerEnd={
         <div className="flex items-center gap-4">
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
+            value={brand}
+            setValue={setBrand}
             items={[
+              { value: '', label: 'Все' },
               { value: 'brand1', label: 'Бренд 1' },
               { value: 'brand2', label: 'Бренд 2' },
               { value: 'brand3', label: 'Бренд 3' },
@@ -48,9 +144,10 @@ export const OverallVisits: React.FC = React.memo(() => {
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
+            value={group}
+            setValue={setGroup}
             items={[
+              { value: '', label: 'Все' },
               { value: 'group1', label: 'Группа 1' },
               { value: 'group2', label: 'Группа 2' },
               { value: 'group3', label: 'Группа 3' },
@@ -58,75 +155,66 @@ export const OverallVisits: React.FC = React.memo(() => {
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select
-            triggerText={'Год/Месяц/Квартал'}
-            items={[
-              { label: 'Год', value: 'year' },
-              { label: 'Месяц', value: 'month' },
-              { label: 'Квартал', value: 'quarter' },
-            ]}
-            value={'year'}
-            setValue={() => {}}
-            classNames={{
-              trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
-              menu: 'w-full right-0',
-            }}
-          />
+          <PeriodFilters {...periodFilter} />
         </div>
       }
     >
-      <div className="font-inter">
-        <LineChart
-          className="-ml-4"
-          width={sectionStyle.width - 48}
-          height={500}
-          data={data}
-          margin={{ top: 20, right: 16, bottom: 20 }}
-        >
-          <CartesianGrid strokeDasharray="4 4" />
+      <div className="space-y-4">
+        <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
 
-          <XAxis
-            dataKey="month"
-            axisLine={false}
-            tickLine={false}
-            tickMargin={20}
-            className="text-base text-[#474B4E] leading-full font-normal"
-            padding={{ left: 20, right: 20 }}
-          />
-
-          <YAxis
-            domain={[0, 10]}
-            ticks={[0, 2, 4, 6, 8, 10]}
-            axisLine={false}
-            tickLine={false}
-            className="text-base text-[#474B4E] leading-full font-normal"
-            tickMargin={20}
-          />
-
-          <Tooltip
-            labelFormatter={label => `${label}`}
-            formatter={(_, __, props) => {
-              const item = props?.payload;
-              return [`${item.label.toLocaleString()}`, 'Визиты'];
-            }}
-          />
-
-          <Line
-            type="linear"
-            dataKey="value"
-            stroke={'#0B5A7C'}
-            strokeWidth={3}
-            dot={false}
-            activeDot={{ r: 6 }}
+        <div className="font-inter">
+          <LineChart
+            width={sectionStyle.width - 48}
+            height={500}
+            data={data}
+            margin={{ top: 20, right: 16, bottom: 20 }}
           >
-            <LabelList
-              dataKey="label"
-              position="top"
-              className="font-inter text-xs"
-              formatter={value => value?.toLocaleString()}
+            <CartesianGrid strokeDasharray="4 4" vertical={false} />
+
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tickMargin={20}
+              className="text-base text-[#474B4E] leading-full font-normal"
+              padding={{ left: 30, right: 30 }}
             />
-          </Line>
-        </LineChart>
+
+            <YAxis
+              domain={chartAxis.domain}
+              ticks={chartAxis.ticks}
+              axisLine={false}
+              tickLine={false}
+              hide
+              className="text-base text-[#474B4E] leading-full font-normal"
+              tickMargin={20}
+              tickFormatter={value => formatCompactNumber(value)}
+            />
+
+            <Tooltip
+              labelFormatter={label => `${label}`}
+              formatter={value => {
+                return [(value as number).toLocaleString('ru-RU'), 'Визиты'];
+              }}
+            />
+
+            <Line
+              type="linear"
+              dataKey="value"
+              stroke={'#0B5A7C'}
+              strokeWidth={3}
+              dot={false}
+              activeDot={{ r: 6 }}
+            >
+              <LabelList
+                dataKey="value"
+                position="top"
+                className="font-inter text-xs"
+                formatter={value => formatCompactNumber(value as number)}
+              />
+            </Line>
+          </LineChart>
+        </div>
       </div>
     </PageSection>
   );

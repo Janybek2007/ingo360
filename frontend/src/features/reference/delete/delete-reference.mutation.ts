@@ -13,7 +13,7 @@ export const useDeleteReferenceMutation = (
   id?: number
 ) => {
   return useMutation({
-    mutationKey: ['edit-reference', type, id],
+    mutationKey: ['delete-reference', type, id],
     mutationFn: async () => {
       if (!id) {
         const { toast } = await import('sonner');

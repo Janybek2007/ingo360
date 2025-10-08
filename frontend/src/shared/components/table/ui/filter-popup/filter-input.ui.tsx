@@ -38,11 +38,10 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
           }
           classNames={{
             trigger:
-              'w-full justify-between border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400',
-            triggerText: 'text-gray-700 font-medium',
-            menu: 'border border-gray-200 rounded-lg shadow-lg bg-white mt-1',
-            menuItem:
-              'text-sm px-3 py-2 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors duration-150',
+              'w-full justify-between border border-gray-200 rounded px-3 py-1.5 text-sm bg-white',
+            triggerText: 'text-gray-700',
+            menu: 'border border-gray-200 rounded bg-white mt-1',
+            menuItem: 'text-sm px-3 py-2 hover:bg-gray-50 rounded',
           }}
         />
         <input
@@ -57,8 +56,8 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             colType === 'number' ? 'Введите число...' : 'Введите текст...'
           }
           className={cn(
-            'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium bg-white',
-            'text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200'
+            'w-full border border-gray-200 rounded px-3 py-2 text-sm bg-white',
+            'text-gray-700 placeholder:text-gray-400'
           )}
         />
         {colType === 'number' && filterType === 'between' && (
@@ -68,8 +67,8 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             onChange={e => setValue2(Number(e.target.value))}
             placeholder="Введите число (до)..."
             className={cn(
-              'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium bg-white',
-              'text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200'
+              'w-full border border-gray-200 rounded px-3 py-2 text-sm bg-white',
+              'text-gray-700 placeholder:text-gray-400'
             )}
           />
         )}

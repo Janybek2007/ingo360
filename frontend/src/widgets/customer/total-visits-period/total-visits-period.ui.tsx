@@ -6,9 +6,21 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import { allMonths, Month } from '#/shared/constants/months';
+import { allMonths } from '#/shared/constants/months';
+import {
+  BRANDS,
+  EMPLOYEES,
+  GROUPS,
+  LPUS,
+  SPECIALTIES,
+} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { selectFilter, stringFilter } from '#/shared/utils/filter';
+import {
+  numberFilter,
+  selectFilter,
+  stringFilter,
+} from '#/shared/utils/filter';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface VisitRow {
@@ -22,15 +34,26 @@ interface VisitRow {
   visitsTotal: number;
 }
 
-const LPUS = ['ОСО', 'ЛПУ2', 'ЛПУ3', 'ЛПУ4'];
-const MONTHS = [Month.JAN, Month.FEB, Month.MAR, Month.APR];
-const SPECIALTIES = ['-', 'Терапевт', 'Кардиолог', 'Невролог'];
-const EMPLOYEES = ['-', 'Иванов', 'Петров'];
-const GROUPS = ['-', 'Группа 1', 'Группа 2', 'Группа 3'];
-
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
+    'money'
+  );
+
+  const usedItems = React.useMemo(() => {
+    return getUsedItems([
+      { value: brand, items: BRANDS, onDelete: () => setBrand('') },
+      { value: group, items: GROUPS, onDelete: () => setGroup('') },
+    ]);
+  }, [brand, group]);
+
+  const resetFilters = React.useCallback(() => {
+    setBrand('');
+    setGroup('');
+  }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<VisitRow>[] => [
@@ -41,12 +64,15 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         enableColumnFilter: true,
         type: 'select',
         filterFn: selectFilter(),
-        selectOptions: LPUS.map(lpu => ({ label: lpu, value: lpu })),
+        selectOptions: LPUS,
       },
       {
         accessorKey: 'year',
         header: 'Год',
         size: 130,
+        enableColumnFilter: true,
+        type: 'number',
+        filterFn: numberFilter(),
       },
       {
         accessorKey: 'month',
@@ -64,10 +90,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         enableColumnFilter: true,
         type: 'select',
         filterFn: selectFilter(),
-        selectOptions: SPECIALTIES.map(specialty => ({
-          label: specialty,
-          value: specialty,
-        })),
+        selectOptions: SPECIALTIES,
       },
       {
         accessorKey: 'employee',
@@ -84,7 +107,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         enableColumnFilter: true,
         type: 'select',
         filterFn: selectFilter(),
-        selectOptions: GROUPS.map(group => ({ label: group, value: group })),
+        selectOptions: GROUPS,
       },
       { accessorKey: 'visitsTotal', header: 'Визитов всего', size: 150 },
     ],
@@ -98,14 +121,14 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount === 'all' ? 100 : rowsCount, {
+    const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
       id: () => randomId('visit'),
-      lpu: LPUS,
-      year: () => 2025,
-      month: MONTHS,
-      specialty: SPECIALTIES,
-      employee: EMPLOYEES,
-      group: GROUPS,
+      lpu: LPUS.map(v => v.value),
+      year: [2023, 2024, 2025],
+      month: allMonths,
+      specialty: SPECIALTIES.map(v => v.value),
+      employee: EMPLOYEES.map(v => v.value),
+      group: GROUPS.map(v => v.value),
       visitsTotal: () => randomInt(5, 20),
     });
 
@@ -126,30 +149,22 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
-            items={[
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
+            value={brand}
+            setValue={setBrand}
+            items={[{ value: '', label: 'Все' }, ...BRANDS]}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
-            items={[
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
+            value={group}
+            setValue={setGroup}
+            items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<false, string>
-            value={'money'}
-            setValue={() => {}}
+          <Select<false, typeof moneyType>
+            value={moneyType}
+            setValue={setMoneyType}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
@@ -182,10 +197,11 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       }
     >
       <Table
+        filters={{ usedItems, resetFilters }}
         columns={columnsForTable}
         data={data}
+        maxHeight={400}
         isScrollbar
-        maxHeight={500}
         rounded="none"
       />
     </PageSection>

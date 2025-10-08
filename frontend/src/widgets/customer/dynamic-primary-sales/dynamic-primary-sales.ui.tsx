@@ -1,7 +1,12 @@
 import React from 'react';
 
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
+import { UsedFilter } from '#/shared/components/used-filter';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
 import { DynamicPrimarySalesAsMixed } from './ui/as-mixed.ui';
@@ -17,19 +22,70 @@ const AsLegends = {
 
 export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
   React.memo(({ as = 'line' }) => {
-    const [asMoney, setAsMoney] = React.useState<'money' | 'packaging'>(
+    const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
       'money'
     );
+    const [brand, setBrand] = React.useState<string>('');
+    const [group, setGroup] = React.useState<string>('');
+    const periodFilter = usePeriodFilter();
+
+    const usedItems = React.useMemo(() => {
+      const brandItems = [
+        { value: 'brand1', label: 'Бренд 1' },
+        { value: 'brand2', label: 'Бренд 2' },
+        { value: 'brand3', label: 'Бренд 3' },
+      ];
+
+      const groupItems = [
+        { value: 'group1', label: 'Группа 1' },
+        { value: 'group2', label: 'Группа 2' },
+        { value: 'group3', label: 'Группа 3' },
+      ];
+
+      return getUsedItems([
+        {
+          value: Array.isArray(periodFilter.selectedValues)
+            ? periodFilter.selectedValues
+            : [],
+          getLabelFromValue: getPeriodLabel,
+          onDelete: value => {
+            const newValues = (
+              Array.isArray(periodFilter.selectedValues)
+                ? periodFilter.selectedValues
+                : []
+            ).filter(v => v !== value);
+            periodFilter.handleValueChange(newValues);
+          },
+        },
+        {
+          value: brand,
+          items: brandItems,
+          onDelete: () => setBrand(''),
+        },
+        {
+          value: group,
+          items: groupItems,
+          onDelete: () => setGroup(''),
+        },
+      ]);
+    }, [periodFilter, brand, group]);
+
+    const resetFilters = React.useCallback(() => {
+      periodFilter.handleValueChange([]);
+      setBrand('');
+      setGroup('');
+    }, [periodFilter]);
+
     return (
       <PageSection
-        title={`Динамика первычных продаж в ${asMoney ? 'деньгах' : 'упаковках'}`}
+        title={`Динамика первычных продаж в ${moneyType == 'money' ? 'деньгах' : 'упаковках'}`}
         legends={AsLegends[as]}
         headerEnd={
           <div className="flex items-center gap-4">
             {as == 'mixed' && (
-              <Select<false, typeof asMoney>
-                value={asMoney}
-                setValue={setAsMoney}
+              <Select<false, typeof moneyType>
+                value={moneyType}
+                setValue={setMoneyType}
                 items={[
                   { value: 'money', label: 'Деньги' },
                   { value: 'packaging', label: 'Упаковка' },
@@ -38,9 +94,10 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               />
             )}
             <Select<false, string>
-              value={'brand1'}
-              setValue={() => {}}
+              value={brand}
+              setValue={setBrand}
               items={[
+                { value: '', label: 'Все' },
                 { value: 'brand1', label: 'Бренд 1' },
                 { value: 'brand2', label: 'Бренд 2' },
                 { value: 'brand3', label: 'Бренд 3' },
@@ -49,9 +106,10 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               classNames={{ menu: 'w-[10rem]' }}
             />
             <Select<false, string>
-              value={'group1'}
-              setValue={() => {}}
+              value={group}
+              setValue={setGroup}
               items={[
+                { value: '', label: 'Все' },
                 { value: 'group1', label: 'Группа 1' },
                 { value: 'group2', label: 'Группа 2' },
                 { value: 'group3', label: 'Группа 3' },
@@ -59,28 +117,19 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               triggerText="Группа"
               classNames={{ menu: 'w-[10rem]' }}
             />
-            <Select
-              triggerText={'Год/Месяц/Квартал'}
-              items={[
-                { label: 'Год', value: 'year' },
-                { label: 'Месяц', value: 'month' },
-                { label: 'Квартал', value: 'quarter' },
-              ]}
-              value={'year'}
-              setValue={() => {}}
-              classNames={{
-                trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
-                menu: 'w-full right-0',
-              }}
-            />
+            <PeriodFilters {...periodFilter} />
           </div>
         }
       >
-        {as == 'line' ? (
-          <DynamicPrimarySalesAsLine />
-        ) : (
-          <DynamicPrimarySalesAsMixed />
-        )}
+        <div className="space-y-4">
+          <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
+
+          {as == 'line' ? (
+            <DynamicPrimarySalesAsLine period={periodFilter.period} />
+          ) : (
+            <DynamicPrimarySalesAsMixed period={periodFilter.period} />
+          )}
+        </div>
       </PageSection>
     );
   });

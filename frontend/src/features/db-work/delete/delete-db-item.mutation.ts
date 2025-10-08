@@ -1,0 +1,54 @@
+import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
+
+import { DbQueries, type IDbItem } from '#/entities/db';
+import { http } from '#/shared/api';
+import { queryClient } from '#/shared/libs/react-query';
+import type { DbType } from '#/shared/types/db.type';
+import { getError } from '#/shared/utils/get-error';
+
+export const useDeleteDbItemMutation = (
+  type: DbType,
+  onClose: VoidFunction,
+  id?: number
+) => {
+  return useMutation({
+    mutationKey: ['delet-db-item', type, id],
+    mutationFn: async () => {
+      if (!id) {
+        const { toast } = await import('sonner');
+        toast.error('Отсутствует id ресурса');
+        return null;
+      }
+      return http.delete(`${type}/${id}`).json<IDbItem>();
+    },
+    onSuccess: async () => {
+      const { toast } = await import('sonner');
+
+      queryClient.setQueryData(
+        DbQueries.queryKeys.getDbItems([type]),
+        (oldData: IDbItem[][]) => {
+          if (!oldData) return oldData;
+
+          return oldData.map(innerArray =>
+            Array.isArray(innerArray)
+              ? innerArray.filter(item => item.id !== id)
+              : innerArray
+          );
+        }
+      );
+
+      toast.success('Ресурс успешно удален');
+      onClose();
+    },
+    onError: async (error: HTTPError) => {
+      const { toast } = await import('sonner');
+      try {
+        const data = await getError(error.response);
+        toast.error(data);
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
+    },
+  });
+};

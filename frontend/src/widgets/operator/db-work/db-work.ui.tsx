@@ -1,315 +1,270 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
+import type { IDbItem } from '#/entities/db';
+import { AddDbItemWrapper } from '#/features/db-work/add';
+import { DeleteDbItemWrapper } from '#/features/db-work/delete';
+import { EditDbItemWrapper } from '#/features/db-work/edit';
+import {
+  PublishButton,
+  PublishUnpublishedButton,
+} from '#/features/db-work/publish';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { numberFilter, selectFilter } from '#/shared/utils/filter';
-import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
+import {
+  numberFilter,
+  selectFilter,
+  stringFilter,
+} from '#/shared/utils/filter';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
 import type { IDbWorkProps } from './db-work.types';
 
-interface DbRow {
-  id: string;
-  pharmacy: string;
-  lpu: string;
-  network: string;
-  sku: string;
-  saleType: string;
-  brand: string;
-  product: string;
-  month: string;
-  year: number;
-  indicator: string;
-  packs: number;
-  published: 'true' | 'false';
-  sumUsd: number;
-}
-
-const saleTypes = ['Первичные', 'Вторичные', 'Третичные'] as const;
-const pharmacies = ['Аптека 1', 'Аптека 2', 'ЧП Иванов'] as const;
-const lpus = ['ЛПУ №1', 'ЛПУ №2', 'ЛПУ №3'] as const;
-const networks = ['Сеть А', 'Сеть B', 'Сеть C'] as const;
-const skus = ['SKU-001', 'SKU-002', 'SKU-003'] as const;
-const brands = ['Бренд A', 'Бренд B', 'Бренд C'] as const;
-const products = ['Продукт X', 'Продукт Y', 'Продукт Z'] as const;
-const indicators = ['Показатель 1', 'Показатель 2'] as const;
-const published = ['true', 'false'] as const;
-
-export const DbWork: React.FC<IDbWorkProps> = React.memo(({ current }) => {
-  const allColumns = useMemo(
-    (): ColumnDef<DbRow>[] => [
-      {
-        accessorKey: 'pharmacy',
-        header: 'Аптека / ЧП',
-        size: 155,
-        enableSorting: true,
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        type: 'select',
-        selectOptions: pharmacies.map(pharmacy => ({
-          label: pharmacy,
-          value: pharmacy,
-        })),
-      },
-      {
-        accessorKey: 'lpu',
-        header: 'ЛПУ',
-        size: 130,
-        type: 'select',
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        enableSorting: true,
-        selectOptions: lpus.map(lpu => ({ label: lpu, value: lpu })),
-      },
-      {
-        accessorKey: 'network',
-        header: 'Сеть',
-        size: 130,
-        type: 'select',
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        enableSorting: true,
-        selectOptions: networks.map(network => ({
-          label: network,
-          value: network,
-        })),
-      },
-      {
-        accessorKey: 'sku',
-        header: 'SKU',
-        size: 100,
-        type: 'select',
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        enableSorting: true,
-        selectOptions: skus.map(sku => ({ label: sku, value: sku })),
-      },
-      {
-        accessorKey: 'saleType',
-        header: 'Тип продаж',
-        size: 180,
-        type: 'select',
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        enableSorting: true,
-        selectOptions: saleTypes.map(saleType => ({
-          label: saleType,
-          value: saleType,
-        })),
-      },
-      {
-        accessorKey: 'brand',
-        header: 'Бренд',
-        size: 180,
-        type: 'select',
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        enableSorting: true,
-        selectOptions: brands.map(brand => ({ label: brand, value: brand })),
-      },
-      {
-        accessorKey: 'product',
-        header: 'Продукт',
-        size: 180,
-        type: 'select',
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        enableSorting: true,
-        selectOptions: products.map(product => ({
-          label: product,
-          value: product,
-        })),
-      },
-      {
-        accessorKey: 'month',
-        header: 'Месяц',
-        size: 150,
-        enableSorting: true,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: allMonths.map(month => ({
-          label: month,
-          value: month,
-        })),
-      },
-      { accessorKey: 'year', header: 'Год', size: 150 },
-      {
-        accessorKey: 'indicator',
-        header: 'Показатель',
-        size: 180,
-        type: 'select',
-        filterFn: selectFilter(),
-        enableColumnFilter: true,
-        enableSorting: true,
-        selectOptions: indicators.map(indicator => ({
-          label: indicator,
-          value: indicator,
-        })),
-      },
-      {
-        accessorKey: 'packs',
-        header: 'Упаковки',
-        size: 140,
-        enableSorting: true,
-        enableColumnFilter: true,
-        filterFn: numberFilter(),
-        type: 'number',
-      },
-      { accessorKey: 'sumUsd', header: 'Сумма $', size: 140 },
-      {
-        accessorKey: 'published',
-        header: 'Опубликовано',
-        size: 180,
-        enableSorting: true,
-        enableColumnFilter: true,
-        type: 'select',
-        filterFn: selectFilter(),
-        selectOptions: [
-          { label: 'Опубликовано', value: 'true' },
-          { label: 'Не опубликовано', value: 'false' },
-        ],
-        cell: ({ row }) => (
-          <span
-            className={
-              row.original.published === 'true'
-                ? 'text-green-500'
-                : 'text-red-500'
+export const DbWork: React.FC<IDbWorkProps> = React.memo(
+  ({ current, isLoading, currentData }) => {
+    const allColumns = useMemo(
+      (): (ColumnDef<IDbItem> | boolean)[] => [
+        current === 'sales/primary'
+          ? {
+              accessorKey: 'distributor.id',
+              cell: ({ row }) => row.original.distributor.name,
+              header: 'Сеть',
+              size: 130,
+              type: 'select',
+              filterFn: selectFilter(),
+              enableColumnFilter: true,
+              selectOptions: getUniqueItems(
+                currentData.map(v => ({
+                  label: v.distributor.name,
+                  value: v.distributor.id,
+                })),
+                ['value']
+              ),
             }
-          >
-            {row.original.published === 'true'
-              ? 'Опубликовано'
-              : 'Не опубликовано'}
-          </span>
-        ),
-      },
-      {
-        accessorKey: 'actions',
-        header: '',
-        size: 140,
-        cell: ({ row }) => (
-          <div className="flex items-center gap-2 pr-10">
-            <button
-              type="button"
-              onClick={() => console.log('Edit', row.original.id)}
-              className="p-1.5 rounded-full text-blue-400 hover:bg-blue-100 transition"
-              title="Редактировать"
+          : {
+              accessorKey: 'pharmacy.id',
+              cell: ({ row }) => row.original.pharmacy.name,
+              header: 'Аптека',
+              size: 130,
+              type: 'select',
+              filterFn: selectFilter(),
+              enableColumnFilter: true,
+              selectOptions: getUniqueItems(
+                currentData.map(v => ({
+                  label: v.pharmacy.name,
+                  value: v.pharmacy.id,
+                })),
+                ['value']
+              ),
+            },
+        current !== 'sales/primary' && {
+          accessorKey: 'city',
+          cell: ({ row }) => row.original.city,
+          header: 'Город',
+          size: 130,
+          type: 'string',
+          filterFn: stringFilter(),
+          enableColumnFilter: true,
+        },
+        {
+          accessorKey: 'sku.brand.id',
+          header: 'Бренд',
+          cell: ({ row }) => row.original.sku.brand.name,
+          size: 180,
+          type: 'select',
+          filterFn: selectFilter(),
+          enableColumnFilter: true,
+          selectOptions: getUniqueItems(
+            currentData.map(v => ({
+              label: v.sku.brand.name,
+              value: v.sku.brand.id,
+            })),
+            ['value']
+          ),
+        },
+        {
+          accessorKey: 'sku.id',
+          header: 'Продукт',
+          cell: ({ row }) => row.original.sku.name,
+          size: 180,
+          type: 'select',
+          filterFn: selectFilter(),
+          enableColumnFilter: true,
+          selectOptions: getUniqueItems(
+            currentData.map(v => ({
+              label: v.sku.name,
+              value: v.sku.id,
+            })),
+            ['value']
+          ),
+        },
+        {
+          accessorKey: 'month',
+          header: 'Месяц',
+          cell: ({ row }) => allMonths[row.original.month],
+          size: 150,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          type: 'select',
+          selectOptions: allMonths.map(month => ({
+            label: month,
+            value: month,
+          })),
+        },
+        {
+          accessorKey: 'year',
+          header: 'Год',
+          size: 150,
+          enableSorting: true,
+          type: 'select',
+          filterFn: selectFilter(),
+          enableColumnFilter: true,
+          selectOptions: getUniqueItems(
+            currentData.map(data => ({
+              label: data.year.toString(),
+              value: data.year,
+            })),
+            ['value']
+          ),
+        },
+        {
+          accessorKey: 'indicator',
+          header: 'Показатель',
+          size: 180,
+          type: 'select',
+          filterFn: selectFilter(),
+          enableColumnFilter: true,
+          selectOptions: getUniqueItems(
+            currentData.map(data => ({
+              label: data.indicator,
+              value: data.indicator,
+            })),
+            ['value']
+          ),
+        },
+        {
+          accessorKey: 'packages',
+          header: 'Упаковки',
+          size: 140,
+          enableColumnFilter: true,
+          filterFn: numberFilter(),
+          type: 'number',
+        },
+        {
+          accessorKey: 'amount',
+          header: 'Количество',
+          size: 140,
+        },
+        {
+          accessorKey: 'published',
+          header: 'Опубликовано',
+          size: 180,
+          enableColumnFilter: true,
+          type: 'select',
+          filterFn: selectFilter(),
+          selectOptions: [
+            { label: 'Опубликовано', value: 'true' },
+            { label: 'Не опубликовано', value: 'false' },
+          ],
+          cell: ({ row }) => (
+            <span
+              className={
+                row.original.published ? 'text-green-500' : 'text-red-500'
+              }
             >
-              <Icon name="mdi:pencil" className="size-[1.125rem]" />
-            </button>
-            <button
-              type="button"
-              onClick={() => console.log('Delete', row.original.id)}
-              className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
-              title="Удалить"
-            >
-              <Icon name="mdi:delete" className="size-[1.125rem]" />
-            </button>
-            <button
-              type="button"
-              onClick={() => console.log('Publish', row.original.id)}
-              className="p-1.5 rounded-full text-green-500 hover:bg-green-100 transition"
-              title="Опубликовать"
-            >
-              <Icon name="mdi:publish" className="size-[1.125rem]" />
-            </button>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
+              {row.original.published ? 'Опубликовано' : 'Не опубликовано'}
+            </span>
+          ),
+        },
+        {
+          id: 'actions',
+          header: '',
+          size: 140,
+          cell: ({ row }) => (
+            <div className="flex items-center gap-2 pr-10">
+              <EditDbItemWrapper type={current} defaultData={row.original} />
+              <DeleteDbItemWrapper data={row.original} type={current} />
+              <PublishButton
+                id={row.original.id}
+                currentStatus={row.original.published}
+                type={current}
+              />
+            </div>
+          ),
+        },
+      ],
+      [currentData, current]
+    );
 
-  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
-      allColumns,
-      ignore: ['actions'],
-    });
+    const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+      useColumnVisibility({
+        allColumns: allColumns.filter(Boolean) as ColumnDef<IDbItem>[],
+        ignore: ['actions'],
+      });
 
-  const data = useMemo(
-    () =>
-      generateMocks(10, {
-        id: () => randomId('row'),
-        pharmacy: pharmacies,
-        lpu: lpus,
-        network: networks,
-        sku: skus,
-        saleType: saleTypes,
-        brand: brands,
-        product: products,
-        month: allMonths,
-        year: () => 2024 + randomInt(0, 2),
-        indicator: indicators,
-        packs: () => randomInt(0, 500),
-        published: published,
-        sumUsd: () => randomInt(0, 10000),
-      }),
-    []
-  );
-
-  return (
-    <>
-      <PageSection
-        title={findCurrentTab(tabsItems, current)?.tab.label}
-        headerEnd={
-          <div className="flex items-center gap-4 relative z-100">
-            <Select<true, string>
-              value={['brand', 'group']}
-              setValue={() => {}}
-              checkbox
-              items={[
-                { value: 'brand', label: 'Бренд' },
-                { value: 'group', label: 'Группа' },
-              ]}
-              triggerText="Бренд/Группа"
-            />
-            <Select<false, 'all' | number>
-              value={'all'}
-              setValue={() => {}}
-              items={[
-                { value: 'all', label: 'Все' },
-                { value: 10, label: '10' },
-                { value: 50, label: '50' },
-                { value: 100, label: '100' },
-                { value: 200, label: '200' },
-              ]}
-              triggerText="Количество строк"
-            />
-            <Select<true>
-              value={visibleColumns}
-              setValue={setVisibleColumns}
-              items={columnItems}
-              triggerText="Столбцы"
-              checkbox
-              isMultiple
-              classNames={{
-                menu: 'min-w-[11.25rem] right-0',
-              }}
-            />
-            <ExportToExcelButton data={data} fileName="dbwork.xlsx" />
-            <Button className="px-4 py-2 rounded-full">Опубликовать</Button>
-            <Button className="px-4 py-2 rounded-full">Импорт из файла</Button>
-          </div>
-        }
-      >
-        <Table
-          columns={columnsForTable}
-          data={data}
-          maxHeight={550}
-          isScrollbar
-          rounded="none"
-        />
-      </PageSection>
-    </>
-  );
-});
+    return (
+      <>
+        <PageSection
+          title={
+            findCurrentTab(tabsItems, current.replace('/', '_'))?.tab.label
+          }
+          headerEnd={
+            <div className="flex items-center gap-4 relative z-100">
+              <Select<false, 'all' | number>
+                value={'all'}
+                setValue={() => {}}
+                items={[
+                  { value: 'all', label: 'Все' },
+                  { value: 10, label: '10' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                  { value: 200, label: '200' },
+                ]}
+                triggerText="Количество строк"
+              />
+              <Select<true>
+                value={visibleColumns}
+                setValue={setVisibleColumns}
+                items={columnItems}
+                triggerText="Столбцы"
+                checkbox
+                isMultiple
+                classNames={{
+                  menu: 'min-w-[11.25rem] right-0',
+                }}
+              />
+              <ExportToExcelButton data={currentData} fileName="dbwork.xlsx" />
+              <PublishUnpublishedButton
+                type={current}
+                disabled={currentData.filter(v => !v.published).length === 0}
+                ids={currentData.filter(v => !v.published).map(v => v.id)}
+              />
+              <Button className="px-4 py-2 rounded-full">
+                Импорт из файла
+              </Button>
+              <AddDbItemWrapper type={current} />
+            </div>
+          }
+        >
+          <Table
+            columns={columnsForTable}
+            data={currentData}
+            maxHeight={500}
+            isLoading={isLoading}
+            isScrollbar
+            rounded="none"
+          />
+        </PageSection>
+      </>
+    );
+  }
+);
 
 DbWork.displayName = '_DbWork_';

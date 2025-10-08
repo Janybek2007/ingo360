@@ -2,9 +2,14 @@ import React from 'react';
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis } from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { Month } from '#/shared/constants/months';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 
 const data = [
   { month: Month.JAN, eray: 20, neman: 5, med: 10, bimed: 15, elay: 20 },
@@ -31,6 +36,57 @@ const legends = [
 
 export const DistributorShareDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const periodFilter = usePeriodFilter();
+
+  const usedItems = React.useMemo(() => {
+    const brandItems = [
+      { value: 'brand1', label: 'Бренд 1' },
+      { value: 'brand2', label: 'Бренд 2' },
+      { value: 'brand3', label: 'Бренд 3' },
+    ];
+
+    const groupItems = [
+      { value: 'group1', label: 'Группа 1' },
+      { value: 'group2', label: 'Группа 2' },
+      { value: 'group3', label: 'Группа 3' },
+    ];
+
+    return getUsedItems([
+      {
+        value: Array.isArray(periodFilter.selectedValues)
+          ? periodFilter.selectedValues
+          : [],
+        getLabelFromValue: getPeriodLabel,
+        onDelete: value => {
+          const newValues = (
+            Array.isArray(periodFilter.selectedValues)
+              ? periodFilter.selectedValues
+              : []
+          ).filter(v => v !== value);
+          periodFilter.handleValueChange(newValues);
+        },
+      },
+      {
+        value: brand,
+        items: brandItems,
+        onDelete: () => setBrand(''),
+      },
+      {
+        value: group,
+        items: groupItems,
+        onDelete: () => setGroup(''),
+      },
+    ]);
+  }, [periodFilter, brand, group]);
+
+  const resetFilters = React.useCallback(() => {
+    periodFilter.handleValueChange([]);
+    setBrand('');
+    setGroup('');
+  }, [periodFilter]);
+
   return (
     <PageSection
       legends={legends}
@@ -38,9 +94,10 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4">
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
+            value={brand}
+            setValue={setBrand}
             items={[
+              { value: '', label: 'Все' },
               { value: 'brand1', label: 'Бренд 1' },
               { value: 'brand2', label: 'Бренд 2' },
               { value: 'brand3', label: 'Бренд 3' },
@@ -49,9 +106,10 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
+            value={group}
+            setValue={setGroup}
             items={[
+              { value: '', label: 'Все' },
               { value: 'group1', label: 'Группа 1' },
               { value: 'group2', label: 'Группа 2' },
               { value: 'group3', label: 'Группа 3' },
@@ -59,50 +117,41 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select
-            triggerText={'Год/Месяц/Квартал'}
-            items={[
-              { label: 'Год', value: 'year' },
-              { label: 'Месяц', value: 'month' },
-              { label: 'Квартал', value: 'quarter' },
-            ]}
-            value={'year'}
-            setValue={() => {}}
-            classNames={{
-              trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
-              menu: 'w-full right-0',
-            }}
-          />
+          <PeriodFilters {...periodFilter} />
         </div>
       }
     >
-      <div className="font-inter">
-        <BarChart width={sectionStyle.width - 48} height={500} data={data}>
-          <CartesianGrid strokeDasharray="4 4" vertical={false} />
-          <XAxis
-            axisLine={false}
-            tickLine={false}
-            dataKey="month"
-            className="font-normal text-xs leading-full"
-          />
+      <div className="space-y-4">
+        <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
 
-          <Tooltip
-            labelFormatter={label => `${label}`}
-            formatter={(value: number, name: string) => [`${value}%`, name]}
-          />
+        <div className="font-inter">
+          <BarChart width={sectionStyle.width - 48} height={500} data={data}>
+            <CartesianGrid strokeDasharray="4 4" vertical={false} />
+            <XAxis
+              axisLine={false}
+              tickLine={false}
+              dataKey="month"
+              className="font-normal text-xs leading-full"
+            />
 
-          <Bar
-            dataKey="eray"
-            barSize={60}
-            stackId="a"
-            fill="#1f77b4"
-            name="Эрай"
-          />
-          <Bar dataKey="neman" stackId="a" fill="#ff7f0e" name="Неман" />
-          <Bar dataKey="med" stackId="a" fill="#2ca02c" name="Медсервис" />
-          <Bar dataKey="bimed" stackId="a" fill="#17becf" name="Бимед" />
-          <Bar dataKey="elay" stackId="a" fill="#9467bd" name="Элэй" />
-        </BarChart>
+            <Tooltip
+              labelFormatter={label => `${label}`}
+              formatter={(value: number, name: string) => [`${value}%`, name]}
+            />
+
+            <Bar
+              dataKey="eray"
+              barSize={60}
+              stackId="a"
+              fill="#1f77b4"
+              name="Эрай"
+            />
+            <Bar dataKey="neman" stackId="a" fill="#ff7f0e" name="Неман" />
+            <Bar dataKey="med" stackId="a" fill="#2ca02c" name="Медсервис" />
+            <Bar dataKey="bimed" stackId="a" fill="#17becf" name="Бимед" />
+            <Bar dataKey="elay" stackId="a" fill="#9467bd" name="Элэй" />
+          </BarChart>
+        </div>
       </div>
     </PageSection>
   );

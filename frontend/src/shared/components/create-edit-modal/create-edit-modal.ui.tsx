@@ -40,10 +40,7 @@ export const CreateEditModal = React.memo(
     onSubmit,
     schema,
     portal = true,
-    show = true,
     isSuccess,
-    display,
-    uniqueClass,
   }: ICreateEditModalProps) => {
     type FormData = z.output<TSchema>;
     const {
@@ -58,7 +55,8 @@ export const CreateEditModal = React.memo(
       defaultValues: buildDefaultValues<TSchema>(fields),
     });
 
-    // console.log(errors)
+    console.log(watch());
+
     React.useEffect(() => {
       if (fields) reset(buildDefaultValues<TSchema>(fields));
       if (isSuccess) reset();
@@ -75,105 +73,105 @@ export const CreateEditModal = React.memo(
       <Modal
         classNames={{
           body: 'min-w-[46.875rem] max-w-[46.875rem] font-roboto',
-          root: uniqueClass,
         }}
         title={title}
         closeOnOverlayClick={false}
         onClose={onClose}
-        display={display}
       >
-        {show && (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-4">
-              {fields.map((f, i) => {
-                if (Array.isArray(f)) {
-                  return (
-                    <div className="grid grid-cols-2 gap-4" key={`group-${i}`}>
-                      {f.map((ff, j) => (
-                        <FormField
-                          key={`${ff.label}-${j}`}
-                          select={{
-                            items: ff.selectItems || [],
-                            value: watch(ff.name),
-                            setValue: value =>
-                              setValue(ff.name, value, {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              }),
-                          }}
-                          type={ff.type}
-                          label={ff.label}
-                          name={ff.name}
-                          error={
-                            errors[ff.name as FieldPath<FormData>]?.message as
-                              | string
-                              | undefined
-                          }
-                          register={register(ff.name as FieldPath<FormData>)}
-                          placeholder={ff.placeholder}
-                          classNames={{
-                            input: 'placeholder:text-[#94A3B8]',
-                            root: 'w-full',
-                          }}
-                        />
-                      ))}
-                    </div>
-                  );
-                }
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-4">
+            {fields.map((f, i) => {
+              if (Array.isArray(f)) {
                 return (
-                  <div key={`${f.label}-${i}-key`}>
-                    <FormField
-                      select={{
-                        items: f.selectItems || [],
-                        value: watch(f.name),
-                        setValue: value =>
-                          setValue(f.name, value, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          }),
-                      }}
-                      type={f.type}
-                      label={f.label}
-                      name={f.name}
-                      error={
-                        errors[f.name as FieldPath<FormData>]?.message as
-                          | string
-                          | undefined
-                      }
-                      register={register(f.name as FieldPath<FormData>)}
-                      placeholder={f.placeholder}
-                      classNames={{
-                        input: 'placeholder:text-[#94A3B8]',
-                      }}
-                    />
+                  <div className="grid grid-cols-2 gap-4" key={`group-${i}`}>
+                    {f.map((ff, j) => (
+                      <FormField
+                        key={`${ff.label}-${j}`}
+                        select={{
+                          items: ff.selectItems || [],
+                          value: watch(ff.name),
+                          setValue: value =>
+                            setValue(ff.name, value, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            }),
+                        }}
+                        type={ff.type}
+                        label={ff.label}
+                        name={ff.name}
+                        error={
+                          errors[ff.name as FieldPath<FormData>]?.message as
+                            | string
+                            | undefined
+                        }
+                        register={register(ff.name as FieldPath<FormData>, {
+                          valueAsNumber: ff.type === 'number',
+                        })}
+                        placeholder={ff.placeholder}
+                        classNames={{
+                          input: 'placeholder:text-[#94A3B8]',
+                          root: 'w-full',
+                        }}
+                      />
+                    ))}
                   </div>
                 );
-              })}
-            </div>
+              }
+              return (
+                <div key={`${f.label}-${i}-key`}>
+                  <FormField
+                    select={{
+                      items: f.selectItems || [],
+                      value: watch(f.name),
+                      setValue: value =>
+                        setValue(f.name, value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }),
+                    }}
+                    type={f.type}
+                    label={f.label}
+                    name={f.name}
+                    error={
+                      errors[f.name as FieldPath<FormData>]?.message as
+                        | string
+                        | undefined
+                    }
+                    register={register(f.name as FieldPath<FormData>, {
+                      valueAsNumber: f.type === 'number',
+                    })}
+                    placeholder={f.placeholder}
+                    classNames={{
+                      input: 'placeholder:text-[#94A3B8]',
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
 
-            <div className="flex items-center gap-2 justify-end mt-8">
-              <Button
-                type="button"
-                onClick={onClose}
-                className="py-4 px-8 rounded-full"
-                color="default"
-                disabled={isLoading}
-              >
-                Отменить
-              </Button>
-              <Button
-                type="submit"
-                className="py-4 px-8 rounded-full"
-                color="primary"
-                disabled={isDisabled}
-              >
-                {isLoading && loadingPrimaryText
-                  ? loadingPrimaryText
-                  : primaryText}
-              </Button>
-            </div>
-          </form>
-        )}
+          <div className="flex items-center gap-2 justify-end mt-8">
+            <Button
+              type="button"
+              onClick={onClose}
+              className="py-4 px-8 rounded-full"
+              color="default"
+              disabled={isLoading}
+            >
+              Отменить
+            </Button>
+            <Button
+              type="submit"
+              className="py-4 px-8 rounded-full"
+              color="primary"
+              disabled={isDisabled}
+            >
+              {isLoading && loadingPrimaryText
+                ? loadingPrimaryText
+                : primaryText}
+            </Button>
+          </div>
+        </form>
       </Modal>
     );
     return portal ? createPortal(Content, document.body) : Content;

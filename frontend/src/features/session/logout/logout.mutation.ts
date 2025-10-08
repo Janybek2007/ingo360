@@ -26,7 +26,7 @@ export const useLogoutMutation = () => {
     },
     onSuccess: async () => {
       const { toast } = await import('sonner');
-      toast('Вы успешно вышли из аккаунта');
+      toast.success('Вы успешно вышли из аккаунта');
     },
   });
 };

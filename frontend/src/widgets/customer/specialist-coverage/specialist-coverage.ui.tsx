@@ -6,8 +6,15 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import {
+  BRANDS,
+  GROUPS,
+  LPUS,
+  SPECIALTIES,
+} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
+import { getUsedItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface CoverageRow {
@@ -18,12 +25,26 @@ interface CoverageRow {
   doctorsWithVisits: number;
 }
 
-const LPUS = ['ОСО', 'ЛПУ2', 'ЛПУ3'];
-const SPECIALTIES = ['Терапевт', 'Кардиолог', 'Педиатр', 'Хирург'];
-
 export const SpecialistCoverage: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
+  const [brand, setBrand] = React.useState<string>('');
+  const [group, setGroup] = React.useState<string>('');
+  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
+    'money'
+  );
+
+  const usedItems = React.useMemo(() => {
+    return getUsedItems([
+      { value: brand, items: BRANDS, onDelete: () => setBrand('') },
+      { value: group, items: GROUPS, onDelete: () => setGroup('') },
+    ]);
+  }, [brand, group]);
+
+  const resetFilters = React.useCallback(() => {
+    setBrand('');
+    setGroup('');
+  }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<CoverageRow>[] => [
@@ -34,6 +55,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
+        selectOptions: LPUS,
       },
       {
         accessorKey: 'specialty',
@@ -42,7 +64,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
-        selectOptions: SPECIALTIES.map(item => ({ label: item, value: item })),
+        selectOptions: SPECIALTIES,
       },
       {
         accessorKey: 'coveragePercent',
@@ -71,10 +93,10 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount === 'all' ? 100 : rowsCount, {
+    const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
       id: () => randomId('coverage'),
-      lpu: LPUS,
-      specialty: SPECIALTIES,
+      lpu: LPUS.map(v => v.value),
+      specialty: SPECIALTIES.map(v => v.value),
       coveragePercent: () => randomInt(50, 100),
       doctorsWithVisits: () => randomInt(5, 50),
     });
@@ -93,30 +115,22 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
           <Select<false, string>
-            value={'brand1'}
-            setValue={() => {}}
-            items={[
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
+            value={brand}
+            setValue={setBrand}
+            items={[{ value: '', label: 'Все' }, ...BRANDS]}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
-            value={'group1'}
-            setValue={() => {}}
-            items={[
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
+            value={group}
+            setValue={setGroup}
+            items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<false, string>
-            value={'money'}
-            setValue={() => {}}
+          <Select<false, typeof moneyType>
+            value={moneyType}
+            setValue={setMoneyType}
             items={[
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
@@ -152,9 +166,11 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       }
     >
       <Table
+        filters={{ usedItems, resetFilters }}
         columns={columnsForTable}
         data={data}
-        maxHeight={500}
+        maxHeight={400}
+        isScrollbar
         rounded="none"
       />
     </PageSection>

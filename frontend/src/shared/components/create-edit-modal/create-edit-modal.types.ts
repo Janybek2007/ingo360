@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type { IFormFieldProps } from '../ui/form-field';
-import type { IModalProps } from '../ui/modal';
 import type { ISelectProps } from '../ui/select';
 
 export interface ICreateEditModalField {
@@ -17,7 +16,6 @@ export interface ICreateEditModalProps {
   fields: (ICreateEditModalField | ICreateEditModalField[])[];
   title: string;
   primaryText?: string;
-  show?: boolean;
   isLoading?: boolean;
   loadingPrimaryText?: string;
   schema: any;
@@ -25,6 +23,4 @@ export interface ICreateEditModalProps {
   isSuccess?: boolean;
   onClose: VoidFunction;
   onSubmit: (data: any) => void;
-  display?: IModalProps['display'];
-  uniqueClass?: string;
 }

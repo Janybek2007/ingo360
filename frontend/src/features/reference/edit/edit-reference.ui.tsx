@@ -3,64 +3,86 @@ import React from 'react';
 
 import { type IReferenceItem, ReferenceQueries } from '#/entities/reference';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { referencesText } from '#/shared/constants/references-text';
-import type { UseToogleDisplayReturn } from '#/shared/hooks/use-toggle-display';
+import { Icon } from '#/shared/components/ui/icon';
+import { useToggle } from '#/shared/hooks/use-toggle';
 import type {
   ReferencesType,
   ReferencesTypeWithDepUrls,
   ReferencesTypeWithMain,
 } from '#/shared/types/references.type';
+import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
 import { transformData } from '#/shared/utils/transform-data';
 
-import { referencesDependsUrls } from '../constants';
+import { referencesCEFields, referencesDependsUrls } from '../constants';
 import { referenceContractWithType } from '../reference.contracts';
-import { fieldsWithSelectItems } from '../utils/fields-with-select-items';
 import { useEditReferenceMutation } from './edit-reference.mutation';
 
-export const EditReferenceModal: React.FC<{
+const EditReferenceModal: React.FC<{
   type: ReferencesType;
   defaultData: IReferenceItem | null;
-  editDisplay: UseToogleDisplayReturn;
-}> = React.memo(({ type, defaultData, editDisplay }) => {
+  onClose: () => void;
+}> = React.memo(({ type, defaultData, onClose }) => {
   const queryData = useQuery(
     ReferenceQueries.GetReferencesQuery<Record<string, string | number>[]>(
       (referencesDependsUrls[type as ReferencesTypeWithDepUrls] || []).map(
         url => url.url
-      ) || [],
-      editDisplay.isShow
+      ) || []
     )
   );
-  const mutation = useEditReferenceMutation(
-    type,
-    editDisplay.hide,
-    defaultData?.id
-  );
+  const mutation = useEditReferenceMutation(type, onClose, defaultData?.id);
 
   const fields = React.useMemo(
     () =>
-      fieldsWithSelectItems(
-        type,
-        queryData.data || [],
-        transformData(defaultData)
-      ),
-    [defaultData, queryData.data, type]
+      fieldsWithSelectItems({
+        data: queryData.data || [],
+        fields: referencesCEFields[type as ReferencesTypeWithMain],
+        defaultData: transformData(defaultData),
+        dependsUrls:
+          referencesDependsUrls[type as ReferencesTypeWithDepUrls] || [],
+      }),
+    [queryData.data, defaultData, type]
   );
 
   return (
     <CreateEditModal
       portal
-      show={editDisplay.isShow}
-      uniqueClass="er-modal"
-      display={editDisplay.isShow ? 'flex' : 'none'}
       isLoading={mutation.isPending}
       isSuccess={mutation.isSuccess}
-      title={`Редактировать ${referencesText[type as ReferencesTypeWithMain] || 'ресурс'}`}
+      title={`Редактировать запись`}
       fields={fields}
       schema={referenceContractWithType[type as ReferencesTypeWithMain]}
-      onClose={editDisplay.hide}
+      onClose={onClose}
       onSubmit={mutation.mutateAsync}
     />
   );
 });
 
+export const EditReferenceWrapper: React.FC<{
+  type: ReferencesType;
+  defaultData: IReferenceItem | null;
+}> = React.memo(({ type, defaultData }) => {
+  const [open, { toggle, set }] = useToggle();
+
+  return (
+    <>
+      {open && (
+        <EditReferenceModal
+          onClose={() => set(false)}
+          type={type}
+          defaultData={defaultData}
+        />
+      )}
+      <button
+        type="button"
+        className="p-1.5 rounded-full text-blue-400 hover:bg-blue-100 transition"
+        title="Редактировать"
+        onClick={toggle}
+      >
+        <Icon name="mdi:pencil" className="size-[1.125rem]" />
+      </button>
+    </>
+  );
+});
+
+EditReferenceWrapper.displayName = '_EditReferenceWrapper_';
 EditReferenceModal.displayName = '_EditReferenceModal_';

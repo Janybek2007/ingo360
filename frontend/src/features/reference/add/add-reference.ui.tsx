@@ -3,53 +3,71 @@ import React from 'react';
 
 import { ReferenceQueries } from '#/entities/reference';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { referencesText } from '#/shared/constants/references-text';
-import type { UseToogleDisplayReturn } from '#/shared/hooks/use-toggle-display';
+import { Button } from '#/shared/components/ui/button';
+import { useToggle } from '#/shared/hooks/use-toggle';
 import type {
   ReferencesType,
   ReferencesTypeWithDepUrls,
   ReferencesTypeWithMain,
 } from '#/shared/types/references.type';
+import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
 
-import { referencesDependsUrls } from '../constants';
+import { referencesCEFields, referencesDependsUrls } from '../constants';
 import { referenceContractWithType } from '../reference.contracts';
-import { fieldsWithSelectItems } from '../utils/fields-with-select-items';
 import { useAddReferenceMutation } from './add-reference.mutation';
 
-export const AddReferenceModal: React.FC<{
+const AddReferenceModal: React.FC<{
   type: ReferencesType;
-  addDisplay: UseToogleDisplayReturn;
-}> = React.memo(({ type, addDisplay }) => {
+  onClose: VoidFunction;
+}> = React.memo(({ type, onClose }) => {
   const queryData = useQuery(
     ReferenceQueries.GetReferencesQuery<Record<string, string | number>[]>(
       (referencesDependsUrls[type as ReferencesTypeWithDepUrls] || []).map(
         url => url.url
-      ) || [],
-      addDisplay.isShow
+      ) || []
     )
   );
-  const mutation = useAddReferenceMutation(type, addDisplay.hide);
+  const mutation = useAddReferenceMutation(type, onClose);
 
   const fields = React.useMemo(
-    () => fieldsWithSelectItems(type, queryData.data || []),
+    () =>
+      fieldsWithSelectItems({
+        data: queryData.data || [],
+        fields: referencesCEFields[type as ReferencesTypeWithMain],
+        dependsUrls:
+          referencesDependsUrls[type as ReferencesTypeWithDepUrls] || [],
+      }),
     [queryData.data, type]
   );
 
   return (
     <CreateEditModal
       portal
-      show={addDisplay.isShow}
-      uniqueClass="ar-modal"
-      display={addDisplay.isShow ? 'flex' : 'none'}
       isLoading={mutation.isPending}
       isSuccess={mutation.isSuccess}
-      title={`Добавить ${referencesText[type as ReferencesTypeWithMain] || 'ресурс'}`}
+      title={`Добавить запись`}
       fields={fields}
       schema={referenceContractWithType[type as ReferencesTypeWithMain]}
-      onClose={addDisplay.hide}
+      onClose={onClose}
       onSubmit={mutation.mutateAsync}
     />
   );
 });
 
+export const AddReferenceWrapper: React.FC<{
+  type: ReferencesType;
+}> = React.memo(({ type }) => {
+  const [open, { toggle, set }] = useToggle();
+
+  return (
+    <>
+      {open && <AddReferenceModal onClose={() => set(false)} type={type} />}
+      <Button className="px-4 py-2 rounded-full" onClick={toggle}>
+        Добавить запись
+      </Button>
+    </>
+  );
+});
+
+AddReferenceWrapper.displayName = '_AddReferenceWrapper_';
 AddReferenceModal.displayName = '_AddReferenceModal_';

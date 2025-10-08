@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   CartesianGrid,
   LabelList,
@@ -6,74 +6,133 @@ import {
   LineChart,
   Tooltip,
   XAxis,
+  YAxis,
 } from 'recharts';
 
 import { Month } from '#/shared/constants/months';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import {
+  calculateChartAxis,
+  formatCompactNumber,
+} from '#/shared/utils/format-number';
 
-const data: { month: string; value: number; label: number }[] = [
-  { month: Month.JAN, value: 2.8, label: 280000 },
-  { month: Month.FEB, value: 3.5, label: 350000 },
-  { month: Month.MAR, value: 4.2, label: 420000 },
-  { month: Month.APR, value: 3.9, label: 390000 },
-  { month: Month.MAY, value: 5.0, label: 500000 },
-  { month: Month.JUN, value: 5.8, label: 580000 },
-  { month: Month.JUL, value: 4.0, label: 400000 },
-  { month: Month.AUG, value: 3.9, label: 390000 },
-  { month: Month.SEP, value: 4.5, label: 450000 },
-  { month: Month.OCT, value: 6.0, label: 600000 },
-  { month: Month.NOV, value: 5.3, label: 530000 },
-  { month: Month.DEC, value: 4.2, label: 420000 },
+const rawData: { month: string; value: number; monthIndex: number }[] = [
+  { month: Month.JAN, value: 280000, monthIndex: 0 },
+  { month: Month.FEB, value: 350000, monthIndex: 1 },
+  { month: Month.MAR, value: 420000, monthIndex: 2 },
+  { month: Month.APR, value: 390000, monthIndex: 3 },
+  { month: Month.MAY, value: 500000, monthIndex: 4 },
+  { month: Month.JUN, value: 580000, monthIndex: 5 },
+  { month: Month.JUL, value: 400000, monthIndex: 6 },
+  { month: Month.AUG, value: 390000, monthIndex: 7 },
+  { month: Month.SEP, value: 450000, monthIndex: 8 },
+  { month: Month.OCT, value: 600000, monthIndex: 9 },
+  { month: Month.NOV, value: 530000, monthIndex: 10 },
+  { month: Month.DEC, value: 420000, monthIndex: 11 },
 ];
 
-export const DynamicPrimarySalesAsLine: React.FC = React.memo(() => {
-  const sectionStyle = useSectionStyle();
+interface DynamicPrimarySalesAsLineProps {
+  period: 'year' | 'month' | 'quarter';
+}
 
-  return (
-    <div className="font-inter">
-      <LineChart
-        width={sectionStyle.width - 48}
-        height={500}
-        data={data}
-        margin={{ top: 20, right: 16, bottom: 20 }}
-      >
-        <CartesianGrid strokeDasharray="4 4" />
+export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps> =
+  React.memo(({ period }) => {
+    const sectionStyle = useSectionStyle();
 
-        <XAxis
-          dataKey="month"
-          axisLine={false}
-          tickLine={false}
-          tickMargin={20}
-          className="text-base text-[#474B4E] leading-full font-normal"
-          padding={{ left: 30, right: 30 }}
-        />
+    const data = useMemo(() => {
+      if (period === 'month') {
+        return rawData;
+      }
 
-        <Tooltip
-          labelFormatter={label => `${label}`}
-          formatter={(_, __, props) => {
-            const item = props?.payload;
-            return [`${item.label.toLocaleString()}`, 'Первичка'];
-          }}
-        />
+      if (period === 'year') {
+        const currentYearTotal = rawData.reduce(
+          (sum, item) => sum + item.value,
+          0
+        );
+        return [
+          { month: '2021', value: currentYearTotal * 0.7, monthIndex: 0 },
+          { month: '2022', value: currentYearTotal * 0.85, monthIndex: 1 },
+          { month: '2023', value: currentYearTotal * 0.95, monthIndex: 2 },
+          { month: '2024', value: currentYearTotal, monthIndex: 3 },
+        ];
+      }
 
-        <Line
-          type="linear"
-          dataKey="value"
-          stroke={'#0B5A7C'}
-          strokeWidth={3}
-          dot={false}
-          activeDot={{ r: 6 }}
+      // quarter
+      const quarters = [
+        { month: 'Q1', value: 0, monthIndex: 0 },
+        { month: 'Q2', value: 0, monthIndex: 1 },
+        { month: 'Q3', value: 0, monthIndex: 2 },
+        { month: 'Q4', value: 0, monthIndex: 3 },
+      ];
+
+      rawData.forEach(item => {
+        const quarterIndex = Math.floor(item.monthIndex / 3);
+        quarters[quarterIndex].value += item.value;
+      });
+
+      return quarters;
+    }, [period]);
+
+    const chartAxis = useMemo(
+      () => calculateChartAxis(data, ['value']),
+      [data]
+    );
+
+    return (
+      <div className="font-inter">
+        <LineChart
+          width={sectionStyle.width - 48}
+          height={500}
+          data={data}
+          margin={{ top: 20, right: 16, bottom: 20 }}
         >
-          <LabelList
-            dataKey="label"
-            position="top"
-            className="font-inter text-xs"
-            formatter={value => value?.toLocaleString()}
+          <CartesianGrid strokeDasharray="4 4" vertical={false} />
+
+          <XAxis
+            dataKey="month"
+            axisLine={false}
+            tickLine={false}
+            tickMargin={20}
+            className="text-base text-[#474B4E] leading-full font-normal"
+            padding={{ left: 30, right: 30 }}
           />
-        </Line>
-      </LineChart>
-    </div>
-  );
-});
+
+          <YAxis
+            domain={chartAxis.domain}
+            ticks={chartAxis.ticks}
+            axisLine={false}
+            tickLine={false}
+            hide
+            className="text-base font-normal text-[#474B4E] leading-full"
+            tickMargin={20}
+            tickFormatter={value => formatCompactNumber(value)}
+          />
+
+          <Tooltip
+            labelFormatter={label => `${label}`}
+            formatter={value => {
+              return [value.toLocaleString('ru-RU'), 'Первичка'];
+            }}
+          />
+
+          <Line
+            type="linear"
+            dataKey="value"
+            stroke={'#0B5A7C'}
+            strokeWidth={3}
+            dot={false}
+            activeDot={{ r: 6 }}
+          >
+            <LabelList
+              dataKey="value"
+              position="top"
+              className="font-inter text-xs"
+              formatter={value => formatCompactNumber(value as number)}
+            />
+          </Line>
+        </LineChart>
+      </div>
+    );
+  });
 
 DynamicPrimarySalesAsLine.displayName = '_DynamicPrimarySalesAsLine_';

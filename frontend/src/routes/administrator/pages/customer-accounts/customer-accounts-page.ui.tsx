@@ -10,7 +10,11 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
-import { ROLES, STATUSES, STATUSES_OBJECT } from '#/shared/constants/global';
+import {
+  ROLES,
+  STATUSES,
+  STATUSES_OBJECT,
+} from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { selectFilter } from '#/shared/utils/filter';
 import { generateMocks, randomId } from '#/shared/utils/mock';
@@ -76,7 +80,7 @@ const CustomerAccountsPage: React.FC = () => {
         },
       },
       {
-        accessorKey: 'actions',
+        id: 'actions',
         header: '',
         size: 80,
         cell() {

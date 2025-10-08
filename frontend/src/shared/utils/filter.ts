@@ -66,8 +66,17 @@ export const stringFilter =
 /** Универсальный фильтр для select */
 export const selectFilter =
   <T, VT extends string | number>() =>
-  (row: Row<T>, columnId: string, filterValue: VT[]) => {
-    if (!filterValue || filterValue.length === 0) return true;
+  (
+    row: Row<T>,
+    columnId: string,
+    filterValue: {
+      selectValues: { value: VT; label: string }[];
+      colType: string;
+    }
+  ) => {
+    if (!filterValue || filterValue.selectValues.length === 0) return true;
     const rowValue = row.getValue<VT>(columnId);
-    return filterValue.some(fv => String(fv) === String(rowValue));
+    return filterValue.selectValues.some(
+      fv => String(fv.value) === String(rowValue)
+    );
   };

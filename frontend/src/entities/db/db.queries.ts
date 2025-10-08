@@ -3,19 +3,17 @@ import { queryOptions } from '@tanstack/react-query';
 import { http } from '#/shared/api';
 import type { DbType } from '#/shared/types/db.type';
 
-import type { IDBItemResponse } from './db.types';
+import type { IGetDBItemResponse } from './db.types';
 
 export class DbQueries {
   static queryKeys = {
-    getItems: (type: DbType) => ['get-db-items', type],
+    getDbItems: (urls: DbType[]) => ['get-db-items', urls],
   };
 
-  static GetDbItemsQuery(type: DbType) {
+  static GetDbItemsQuery<T = IGetDBItemResponse>(urls: DbType[]) {
     return queryOptions({
-      queryKey: this.queryKeys.getItems(type),
-      queryFn: () => {
-        return http.get(type).json<IDBItemResponse>();
-      },
+      queryKey: this.queryKeys.getDbItems(urls),
+      queryFn: () => Promise.all(urls.map(url => http.get(url).json<T>())),
     });
   }
 }

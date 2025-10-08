@@ -7,14 +7,12 @@ import {
   ROLES_OBJECT,
   STATUSES,
   STATUSES_OBJECT,
-} from '#/shared/constants/global';
+} from '#/shared/constants/roles_statuses';
 
 export const EditCustomerModal: React.FC<{ onClose: VoidFunction }> =
   React.memo(({ onClose }) => {
     return (
       <CreateEditModal
-        show={true}
-        display="flex"
         fields={[
           { label: 'ФИО', name: 'fullname', placeholder: 'ОсОО' },
           [

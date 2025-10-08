@@ -5,7 +5,7 @@ import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
-import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
+import { generateMocks, randomId } from '#/shared/utils/mock';
 
 type ETabs = 'companies' | 'brands' | 'segments';
 
@@ -13,8 +13,6 @@ interface TableRow {
   place: number;
   company: string;
   sales: number;
-  status: string;
-  lapseTime: string;
 }
 
 const COMPANIES = [
@@ -30,7 +28,31 @@ const COMPANIES = [
   'Coca-Cola',
 ] as const;
 
-const STATUSES = ['Active', 'Pending', 'Inactive', 'Completed'] as const;
+const BRANDS = [
+  'iPhone',
+  'Galaxy',
+  'Pixel',
+  'Surface',
+  'MacBook',
+  'ThinkPad',
+  'PlayStation',
+  'Xbox',
+  'Nintendo',
+  'Kindle',
+] as const;
+
+const SEGMENTS = [
+  'Электроника',
+  'Одежда',
+  'Продукты',
+  'Автомобили',
+  'Мебель',
+  'Косметика',
+  'Спорт',
+  'Книги',
+  'Игрушки',
+  'Бытовая техника',
+] as const;
 
 const tabItems: { value: ETabs; label: string }[] = [
   { value: 'companies', label: 'Компании' },
@@ -38,23 +60,70 @@ const tabItems: { value: ETabs; label: string }[] = [
   { value: 'segments', label: 'Сегменты' },
 ];
 
+const PERIOD_MULTIPLIERS = {
+  mat: 1.0, // MAT (Moving Annual Total) - полная годовая сумма
+  ytd: 0.75, // YTD (Year To Date) - 75% от года (примерно 9 месяцев)
+  month: 0.083, // Месяц - 1/12 от года
+  year: 1.0, // Год - полная сумма
+};
+
 export const MarketEntityProfile: React.FC = React.memo(() => {
   const [activeTab, setActiveTab] = useState<ETabs>('companies');
-  const [filterPeriod, setFilterPeriod] = useState<string>('mat');
-  const [filterTop, setFilterTop] = useState<string>('all');
+  const [filterPeriod, setFilterPeriod] = useState<
+    'mat' | 'ytd' | 'month' | 'year'
+  >('mat');
+  const [filterTop, setFilterTop] = useState<'all' | 'top5' | 'top10'>('all');
 
-  const data = useMemo(
-    () =>
-      generateMocks(100, {
-        place: i => i + 1,
-        id: () => randomId('leader'),
-        company: COMPANIES,
-        sales: () => randomInt(0, 10000),
-        status: STATUSES,
-        lapseTime: () => `${randomInt(0, 24)}h ${randomInt(0, 60)}m`,
-      }),
-    []
-  );
+  const allData = useMemo(() => {
+    const companiesData = generateMocks(100, {
+      place: i => i + 1,
+      id: () => randomId('company'),
+      company: COMPANIES,
+    });
+
+    const brandsData = generateMocks(100, {
+      place: i => i + 1,
+      id: () => randomId('brand'),
+      company: BRANDS,
+    });
+
+    const segmentsData = generateMocks(100, {
+      place: i => i + 1,
+      id: () => randomId('segment'),
+      company: SEGMENTS,
+    });
+
+    return {
+      companies: companiesData,
+      brands: brandsData,
+      segments: segmentsData,
+    };
+  }, []);
+
+  const data = useMemo(() => {
+    let currentData: TableRow[] = allData[activeTab] as unknown as TableRow[];
+
+    const periodMultiplier = PERIOD_MULTIPLIERS[filterPeriod];
+    currentData = currentData.map(item => ({
+      ...item,
+      sales: Math.round(item.sales * periodMultiplier),
+    })) as TableRow[];
+
+    currentData = [...currentData].sort((a, b) => b.sales - a.sales);
+
+    currentData = currentData.map((item, index) => ({
+      ...item,
+      place: index + 1,
+    })) as TableRow[];
+
+    if (filterTop === 'top5') {
+      return currentData.slice(0, 5);
+    } else if (filterTop === 'top10') {
+      return currentData.slice(0, 10);
+    }
+
+    return currentData;
+  }, [allData, activeTab, filterPeriod, filterTop]);
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
@@ -70,19 +139,19 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
       title="Профайл компании, бренда или сегмента"
       headerEnd={
         <div className="flex gap-4 items-center relative z-100">
-          <Select
+          <Select<false, typeof filterPeriod>
             value={filterPeriod}
             setValue={setFilterPeriod}
             items={[
               { value: 'mat', label: 'MAT' },
               { value: 'ytd', label: 'YTD' },
-              { value: 'month', label: 'Месяцы' },
+              { value: 'month', label: 'Месяц' },
               { value: 'year', label: 'Год' },
             ]}
             triggerText="Тип периода"
             classNames={{ menu: 'min-w-[7.5rem] right-0' }}
           />
-          <Select
+          <Select<false, typeof filterTop>
             value={filterTop}
             setValue={setFilterTop}
             items={[

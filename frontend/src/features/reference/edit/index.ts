@@ -1,1 +1,1 @@
-export { EditReferenceModal } from './edit-reference.ui';
+export { EditReferenceWrapper } from './edit-reference.ui';

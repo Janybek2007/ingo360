@@ -14,16 +14,12 @@ const Modal: React.FC<IModalProps> = React.memo(
     onClose,
     classNames,
     closeOnOverlayClick = true,
-    display = 'flex',
   }) => {
     const contentRef = useClickAway<HTMLDivElement>(
       () => closeOnOverlayClick && onClose()
     );
     return (
-      <div
-        className={cn('fixed inset-0 flexCenter z-[300]', classNames?.root)}
-        style={{ display }}
-      >
+      <div className={cn('fixed inset-0 flexCenter z-[300]', classNames?.root)}>
         <div className="overlay"></div>
         <div
           className={cn(

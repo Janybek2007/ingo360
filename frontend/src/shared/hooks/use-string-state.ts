@@ -1,21 +1,21 @@
 import { useCallback, useMemo, useState } from 'react';
 
-type UseStringStateReturn<T extends readonly string[]> = [
-  T[number] | null,
+type UseStringStateReturn<T extends string> = [
+  T | null,
   {
-    set: (val: T[number] | null) => void;
+    set: (val: T | null) => void;
     clear: () => void;
     toggle: () => void;
   },
 ];
 
-export const useStringState = <T extends readonly string[]>(
-  values: T
+export const useStringState = <T extends string>(
+  values: T[]
 ): UseStringStateReturn<T> => {
-  const [value, setValue] = useState<T[number] | null>(null);
+  const [value, setValue] = useState<T | null>(null);
 
   const set = useCallback(
-    (val: T[number] | null) => {
+    (val: T | null) => {
       if (val !== null && !values.includes(val)) {
         throw new Error(`Invalid value: ${val}`);
       }

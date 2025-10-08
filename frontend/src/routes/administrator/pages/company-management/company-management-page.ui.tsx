@@ -13,7 +13,7 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
-import { STATUSES_OBJECT } from '#/shared/constants/global';
+import { STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { numberFilter } from '#/shared/utils/filter';
 
@@ -55,7 +55,7 @@ const CompanyManagementPage: React.FC = () => {
         },
       },
       {
-        accessorKey: 'actions',
+        id: 'actions',
         header: '',
         size: 80,
         cell({}) {

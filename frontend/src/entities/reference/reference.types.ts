@@ -24,3 +24,5 @@ export interface IReferenceItem extends IItem {
   pharmacy_network: IItem;
   distributor: IItem;
 }
+
+export type IGetReferencesResponse = IReferenceItem[];

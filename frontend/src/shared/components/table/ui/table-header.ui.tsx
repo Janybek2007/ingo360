@@ -20,7 +20,8 @@ export function TableHeader({ table }: ITableHeaderProps) {
         <tr key={headerGroup.id} className="bg-[#F9F9F9]">
           {headerGroup.headers.map(header => {
             const columnDef = header.column.columnDef;
-            const canFilter = columnDef.enableColumnFilter;
+            const canFilter =
+              columnDef.enableColumnFilter || columnDef.enableSorting;
 
             return (
               <th

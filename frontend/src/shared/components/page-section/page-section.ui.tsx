@@ -29,7 +29,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
             (beforeHeader || afterHeader || title || legends || headerEnd) && (
               <div className="flex flex-col gap-6">
                 {beforeHeader}
-                <div className="flex items-center flex-wrap justify-between gap-4">
+                <div className="flex items-center flex-wrap justify-between">
                   <div className="flex flex-col">
                     {title && (
                       <h4
@@ -49,7 +49,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
                       </h4>
                     )}
                     {legends && legends.length > 0 && (
-                      <ul className="mt-2 flex items-center gap-4">
+                      <ul className="flex items-center gap-4 mt-4">
                         {legends.map((l, i) => (
                           <li
                             key={`${l.label}-${i}`}

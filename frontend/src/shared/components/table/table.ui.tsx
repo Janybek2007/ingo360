@@ -12,10 +12,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTableScrollbar } from '#/shared/hooks/use-table-scrollbar';
 import { cn } from '#/shared/utils/cn';
 
+import { UsedFilter } from '../used-filter';
 import type { ITableProps } from './table.types';
 import { TableBody } from './ui/table-body.ui';
 import { TableHeader } from './ui/table-header.ui';
 import { TableScrollbar } from './ui/table-scrollbar.ui';
+import { formatUsedItems } from './utils/format-used-items';
 
 export const Table: React.FC<ITableProps> = React.memo(
   ({
@@ -32,6 +34,8 @@ export const Table: React.FC<ITableProps> = React.memo(
     isEmpty,
     loadingNode,
     emptyNode,
+    filters,
+    rowTotal,
   }) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -60,7 +64,7 @@ export const Table: React.FC<ITableProps> = React.memo(
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
       columnResizeMode: 'onChange',
-      defaultColumn: { size: 200 },
+      defaultColumn: { size: 200, minSize: 100 },
     });
 
     const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -70,15 +74,41 @@ export const Table: React.FC<ITableProps> = React.memo(
 
     const showEmpty = isEmpty || data.length === 0;
 
+    const allUsedItems = React.useMemo(
+      () =>
+        formatUsedItems({
+          columnFilters,
+          sorting,
+          columns,
+          externalUsedItems: filters?.usedItems,
+          setColumnFilters,
+          setSorting,
+        }),
+      [filters?.usedItems, columnFilters, sorting, columns]
+    );
+
+    const handleResetFilters = React.useCallback(() => {
+      setColumnFilters([]);
+      setSorting([]);
+      filters?.resetFilters();
+    }, [filters]);
+
     return (
       <div className={cn('relative', className)}>
+        {(filters || columnFilters.length > 0 || sorting.length > 0) && (
+          <UsedFilter
+            usedItems={allUsedItems}
+            resetFilters={handleResetFilters}
+          />
+        )}
         <div
           ref={tableContainerRef}
           className={cn(
             'overflow-auto bg-white noscrollbar border border-[#E4E4E4] font-inter',
             rounded == 'sm' && 'rounded-sm',
             rounded == 'md' && 'rounded-md',
-            rounded == 'lg' && 'rounded-lg'
+            rounded == 'lg' && 'rounded-lg',
+            allUsedItems.length > 0 && 'mt-5'
           )}
           style={{ maxHeight, minHeight }}
         >
@@ -108,6 +138,7 @@ export const Table: React.FC<ITableProps> = React.memo(
                 table={table}
                 highlightRow={highlightRow}
                 pinnedRow={pinnedRow}
+                rowTotal={rowTotal}
               />
             )}
           </table>

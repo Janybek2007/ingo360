@@ -12,6 +12,7 @@ import type {
 import type { IAnchorPosition } from '#/shared/hooks/use-anchor-position';
 
 import type { ISelectItem } from '../ui/select';
+import type { IUsedFilterProps } from '../used-filter';
 
 // Context
 
@@ -36,14 +37,16 @@ export interface ITableProps {
   className?: string;
   maxHeight?: number;
   minHeight?: number;
-  highlightRow?: (row: any) => string;
   isScrollbar?: boolean;
   rounded?: 'none' | 'sm' | 'md' | 'lg';
-  pinnedRow?: (row: any) => boolean;
+  highlightRow?: ITableBodyProps['highlightRow'];
+  pinnedRow?: ITableBodyProps['pinnedRow'];
   isLoading?: boolean;
   isEmpty?: boolean;
   loadingNode?: React.ReactNode;
   emptyNode?: React.ReactNode;
+  filters?: IUsedFilterProps;
+  rowTotal?: ITableBodyProps['rowTotal'];
 }
 
 export interface ITableScrollbarProps {
@@ -58,6 +61,11 @@ export interface ITableBodyProps {
   table: TableType<any>;
   highlightRow?: (row: any) => string;
   pinnedRow?: (row: any) => boolean;
+  rowTotal?: {
+    firstColSpan: number;
+    monthTotals?: number[];
+    grandTotal?: number;
+  };
 }
 
 export interface ITableHeaderProps {
@@ -82,8 +90,8 @@ export interface IFilterActionsProps {
 }
 
 export interface IFilterSelectProps {
-  value: (string | number)[];
-  setValue: (val: (string | number)[]) => void;
+  value: ISelectItem<string | number>[];
+  setValue: (val: ISelectItem<string | number>[]) => void;
   items: ISelectItem<string | number>[];
 }
 

@@ -14,8 +14,8 @@ export interface IDbItem {
   city: string;
   //
   distributor: IDbName;
-  sku: IDbName;
+  sku: IDbName & { brand: IDbName };
   pharmacy: IDbName;
 }
 
-export type IDBItemResponse = IDbItem[];
+export type IGetDBItemResponse = IDbItem[];

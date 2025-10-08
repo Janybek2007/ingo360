@@ -16,15 +16,16 @@ const DbWorkPage: React.FC = () => {
   );
 
   const queryData = useQuery(
-    DbQueries.GetDbItemsQuery(current.replace('_', '/') as DbType)
+    DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType])
   );
 
   return (
     <main>
-      <Tabs items={tabsItems} saveCurrent={setCurrent}></Tabs>
+      <Tabs items={tabsItems} defaultValue={current} saveCurrent={setCurrent} />
       <DbWork
         current={current.replace('_', '/') as DbType}
-        currentData={queryData.data || []}
+        currentData={queryData.data ? queryData.data[0] : []}
+        isLoading={queryData.isLoading}
       />
     </main>
   );

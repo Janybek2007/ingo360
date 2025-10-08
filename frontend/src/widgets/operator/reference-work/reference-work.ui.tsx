@@ -1,32 +1,24 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
-import { AddReferenceModal } from '#/features/reference/add';
-import { DeleteReferenceButton } from '#/features/reference/delete';
-import { EditReferenceModal } from '#/features/reference/edit';
+import { AddReferenceWrapper } from '#/features/reference/add';
+import { DeleteReferenceWrapper } from '#/features/reference/delete';
+import { EditReferenceWrapper } from '#/features/reference/edit';
 import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
-import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
-import { referencesText } from '#/shared/constants/references-text';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { useToggleDisplay } from '#/shared/hooks/use-toggle-display';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 
 import { referencesColumnsWithType } from './constants';
 import type { IReferenceWorkProps } from './reference-work.types';
 
 const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
-  ({ currentData, current }) => {
-    const [modalData, setModalData] = useState<IReferenceItem | null>(null);
-    const editDisplay = useToggleDisplay('.er-modal', { show: 'flex' });
-    const addDisplay = useToggleDisplay('.ar-modal', { show: 'flex' });
-
+  ({ currentData, current, isLoading }) => {
     const allColumns = useMemo(
       (): ColumnDef<IReferenceItem>[] => [
         ...referencesColumnsWithType[current as ReferencesTypeWithMain](
@@ -38,23 +30,12 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
           size: 200,
           cell: ({ row }) => (
             <div className="flex items-center gap-2 pr-10">
-              <button
-                type="button"
-                className="p-1.5 rounded-full text-blue-400 hover:bg-blue-100 transition"
-                title="Редактировать"
-                onClick={() => {
-                  editDisplay.show();
-                  setModalData(row.original);
-                }}
-              >
-                <Icon name="mdi:pencil" className="size-[1.125rem]" />
-              </button>
-              <DeleteReferenceButton item={row.original} type={current} />
+              <EditReferenceWrapper type={current} defaultData={row.original} />
+              <DeleteReferenceWrapper data={row.original} type={current} />
             </div>
           ),
         },
       ],
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       [current, currentData]
     );
 
@@ -97,15 +78,8 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 data={currentData}
                 fileName="reference.xlsx"
               />
-              <Button
-                className="px-4 py-2 rounded-full"
-                onClick={() => {
-                  addDisplay.show();
-                }}
-              >
-                Добавить{' '}
-                {referencesText[current as ReferencesTypeWithMain] || 'ресурс'}
-              </Button>{' '}
+
+              <AddReferenceWrapper type={current} />
             </div>
           }
         >
@@ -113,18 +87,11 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
             columns={columnsForTable}
             data={currentData}
             isScrollbar
+            isLoading={isLoading}
             maxHeight={530}
             rounded="none"
           />
         </PageSection>
-
-        <AddReferenceModal addDisplay={addDisplay} type={current} />
-
-        <EditReferenceModal
-          editDisplay={editDisplay}
-          type={current}
-          defaultData={modalData}
-        />
       </>
     );
   }

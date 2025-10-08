@@ -5,22 +5,12 @@ import z from 'zod';
 import { CompanyQueries } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 
-/*
-POST /api/v1/users
-{
-  email: string;
-  company_id: string
-}
-*/
-
 export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
   ({ onClose }) => {
-    useQuery(CompanyQueries.GetCompaniesQuery());
+    const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
 
     return (
       <CreateEditModal
-        show={true}
-        display="flex"
         fields={[
           { label: 'ФИО', name: 'fullname', placeholder: 'ОсОО' },
           [
@@ -28,12 +18,12 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
               label: 'Компания',
               type: 'select',
               name: 'company',
-              defaultValue: 'company1',
-              selectItems: [
-                { label: 'ОСО', value: 'company1' },
-                { label: 'Ингосстрах', value: 'company2' },
-                { label: 'Альфа', value: 'company3' },
-              ],
+              defaultValue: queryData.data?.[0].id,
+              selectItems:
+                queryData.data?.map(item => ({
+                  label: item.name,
+                  value: item.id,
+                })) || [],
             },
             {
               label: 'Должность',

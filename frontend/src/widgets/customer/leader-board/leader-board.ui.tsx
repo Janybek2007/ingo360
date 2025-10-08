@@ -1,15 +1,15 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Table } from '#/shared/components/table';
+import { Select } from '#/shared/components/ui/select';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface TableRow {
   place: number;
   company: string;
   sales: number;
-  status: string;
-  lapseTime: string;
 }
 
 const COMPANIES = [
@@ -25,39 +25,78 @@ const COMPANIES = [
   'Coca-Cola',
 ] as const;
 
-const STATUSES = ['Active', 'Pending', 'Inactive', 'Completed'] as const;
+const PERIOD_MULTIPLIERS = {
+  mat: 1.0, // MAT (Moving Annual Total) - полная годовая сумма
+  ytd: 0.75, // YTD (Year To Date) - 75% от года (примерно 9 месяцев)
+  month: 0.083, // Месяц - 1/12 от года
+  year: 1.0, // Год - полная сумма
+};
 
 export const LeaderBoard: React.FC = React.memo(() => {
-  const data = useMemo(
+  const [filterPeriod, setFilterPeriod] = useState<
+    'mat' | 'ytd' | 'month' | 'year'
+  >('mat');
+
+  const baseData = useMemo(
     () =>
-      generateMocks(100, {
+      generateMocks(50, {
         place: i => i + 1,
         id: () => randomId('leader'),
         company: COMPANIES,
-        sales: () => randomInt(0, 10000),
-        status: STATUSES,
-        lapseTime: () => `${randomInt(0, 24)}h ${randomInt(0, 60)}m`,
+        sales: () => randomInt(5000, 15000),
       }),
     []
   );
 
+  const data = useMemo(() => {
+    const periodMultiplier = PERIOD_MULTIPLIERS[filterPeriod];
+
+    let processedData = baseData.map(item => ({
+      ...item,
+      sales: Math.round(item.sales * periodMultiplier),
+    }));
+
+    processedData = processedData.sort((a, b) => b.sales - a.sales);
+
+    return processedData.map((item, index) => ({
+      ...item,
+      place: index + 1,
+    }));
+  }, [baseData, filterPeriod]);
+
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
-      { accessorKey: 'place', header: 'Место', size: 320 },
-      { accessorKey: 'company', header: 'Компания', size: 410 },
-      { accessorKey: 'sales', header: 'Продажи', size: 410 },
+      { accessorKey: 'place', header: 'Место', size: 120 },
+      { accessorKey: 'company', header: 'Компания', size: 400 },
+      { accessorKey: 'sales', header: 'Продажи', size: 400 },
     ],
     []
   );
+  const sectionStyle = useSectionStyle();
 
   return (
-    <section className="bg-white rounded-lg">
+    <section
+      style={sectionStyle.style}
+      className="bg-white rounded-lg w-full overflow-hidden"
+    >
       <div className="flex items justify-between h-full font-inter">
-        <div className="max-w-[25rem] min-w-[25rem] px-6 py-6 flex flex-col justify-between text-[#131313]">
-          <div className="flex items-center">
+        <div className="max-w-[30rem] min-w-[30rem] px-6 py-6 flex flex-col justify-between text-[#131313]">
+          <div className="flex items-center justify-between">
             <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
               Рейтинг компаний
             </h4>
+            <Select<false, typeof filterPeriod>
+              value={filterPeriod}
+              setValue={setFilterPeriod}
+              items={[
+                { value: 'mat', label: 'MAT' },
+                { value: 'ytd', label: 'YTD' },
+                { value: 'month', label: 'Месяц' },
+                { value: 'year', label: 'Год' },
+              ]}
+              triggerText="Тип периода"
+              classNames={{ menu: 'min-w-[7.5rem] right-0' }}
+            />
           </div>
           <div>
             <div className="flex flex-col items-center w-full gap-[1.125rem]">

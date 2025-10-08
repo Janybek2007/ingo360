@@ -27,7 +27,7 @@ export const ExportToExcel = React.memo(
       <button
         onClick={handleExport}
         className={cn(
-          'border border-[#94A3B8] rounded-lg gap-2 px-4 py-2',
+          'border border-gray-300 rounded-lg gap-2 px-4 py-2',
           'text-left text-nowrap font-inter',
           'flex items-center justify-center cursor-pointer bg-white'
         )}

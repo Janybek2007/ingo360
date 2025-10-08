@@ -15,6 +15,7 @@ export interface ISelectProps<ISM extends boolean = false, VT = string> {
   leftIcon?: React.ReactNode | ((opened: boolean) => React.ReactNode);
   rightIcon?: React.ReactNode | ((opened: boolean) => React.ReactNode);
   triggerText?: string;
+  labelTemplate?: string;
   changeTriggerText?: boolean;
   classNames?: Partial<{
     root: string;

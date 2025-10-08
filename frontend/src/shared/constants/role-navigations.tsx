@@ -89,7 +89,7 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
     },
     {
       href: routePaths.operator.logs,
-      label: 'Посмотреть логи от...',
+      label: 'Посмотреть логи отчетов',
       icon: (
         <Icon className="size-[1.25rem]" name="mdi:file-document-outline" />
       ),
