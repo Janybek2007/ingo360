@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { UserQueries } from '#/entities/user/user.queries';
 import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -42,6 +44,10 @@ const POSITIONS = ['Менеджер', 'Старший менеджер', 'Сп�
 const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
+
+  const queryData = useQuery(UserQueries.GetUsersQuery());
+
+  console.log(queryData.data);
 
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [

@@ -1,6 +1,9 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
+import { UserQueries } from '#/entities/user/user.queries';
+import type { IUserItem } from '#/entities/user/user.types';
 import { AddUserModal } from '#/features/users/add';
 import { EditUserModal } from '#/features/users/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -11,34 +14,26 @@ import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
 import {
-  ROLES,
   ROLES_OBJECT,
-  STATUSES,
   STATUSES_OBJECT,
 } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { selectFilter, stringFilter } from '#/shared/utils/filter';
-import { generateMocks, randomId } from '#/shared/utils/mock';
-
-interface ClientRow {
-  id: string;
-  fullName: string;
-  role: string;
-  status: string;
-}
 
 const IngoAccountsPage: React.FC = () => {
-  const [search, setSearch] = useState('');
+  const [, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
-  const [editData, setEditData] = useState<ClientRow | null>(null);
-  const [data, setData] = useState<ClientRow[]>([]);
+  const [editData, setEditData] = useState<IUserItem | null>(null);
+  const queryData = useQuery(UserQueries.GetUsersQuery());
 
   const allColumns = useMemo(
-    (): ColumnDef<ClientRow>[] => [
+    (): ColumnDef<IUserItem>[] => [
       {
-        accessorKey: 'fullName',
+        accessorKey: 'first_name',
         header: 'ФИО',
-        size: 480,
+        size: 280,
+        cell: ({ row }) => row.original.first_name || 'Отсутсвует имя',
+        enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
         type: 'string',
@@ -46,16 +41,26 @@ const IngoAccountsPage: React.FC = () => {
       {
         accessorKey: 'role',
         header: 'Роль',
-        size: 480,
+        size: 280,
+        enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
         type: 'string',
         cell(props) {
-          return ROLES_OBJECT[props.getValue() as 'admin'];
+          return ROLES_OBJECT[props.getValue() as 'administrator'];
         },
       },
       {
-        accessorKey: 'status',
+        accessorKey: 'email',
+        header: 'Электронная почта',
+        size: 280,
+        enableSorting: true,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
+      },
+      {
+        accessorKey: 'is_active',
         header: 'Статус',
         enableColumnFilter: true,
         filterFn: selectFilter(),
@@ -64,9 +69,9 @@ const IngoAccountsPage: React.FC = () => {
           { label: 'Active', value: 'active' },
           { label: 'InActive', value: 'inactive' },
         ],
-        size: 480,
+        size: 280,
         cell(props) {
-          return STATUSES_OBJECT[props.getValue() as 'active'];
+          return STATUSES_OBJECT[props.getValue() ? 'active' : 'inactive'];
         },
       },
       {
@@ -94,22 +99,6 @@ const IngoAccountsPage: React.FC = () => {
     [set]
   );
 
-  useEffect(() => {
-    const mocks = generateMocks(5, {
-      id: () => randomId('client'),
-      fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
-      role: ROLES,
-      status: STATUSES,
-    });
-    const filteredData = mocks.filter(
-      row =>
-        row.fullName.toLowerCase().includes(search.toLowerCase()) ||
-        row.role.toLowerCase().includes(search.toLowerCase()) ||
-        row.status.toLowerCase().includes(search.toLowerCase())
-    );
-    setData(filteredData);
-  }, [search]);
-
   return (
     <main>
       {open === 'edit' && editData && <EditUserModal onClose={clear} />}
@@ -119,7 +108,10 @@ const IngoAccountsPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton data={data} fileName="clients.xlsx" />
+            <ExportToExcelButton
+              data={queryData.data || []}
+              fileName="users.xlsx"
+            />
             <Button
               onClick={() => set('create')}
               className="px-4 py-3 rounded-full flex items-center gap-1"
@@ -132,7 +124,7 @@ const IngoAccountsPage: React.FC = () => {
       >
         <Table
           columns={allColumns}
-          data={data}
+          data={queryData.data || []}
           maxHeight={500}
           rounded="none"
         />

@@ -1,4 +1,4 @@
-export type TAddUserResponse = {
+export type TAddCustomerResponse = {
   id: number;
   email: string;
   company_id: number;

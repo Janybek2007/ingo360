@@ -55,8 +55,6 @@ export const CreateEditModal = React.memo(
       defaultValues: buildDefaultValues<TSchema>(fields),
     });
 
-    console.log(watch());
-
     React.useEffect(() => {
       if (fields) reset(buildDefaultValues<TSchema>(fields));
       if (isSuccess) reset();

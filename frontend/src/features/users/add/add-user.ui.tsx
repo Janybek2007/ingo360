@@ -1,21 +1,24 @@
 import React from 'react';
-import z from 'zod';
 
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
 
-const schema = z.object({
-  email: z.email('Неверный формат электронной почты'),
-  role: z.enum(ROLES),
-});
+import { AddUserContract } from '../users.contracts';
+import { useAddUserMutation } from './add-user.mutation';
 
 export const AddUserModal: React.FC<{
   onClose: VoidFunction;
 }> = React.memo(({ onClose }) => {
+  const mutation = useAddUserMutation(onClose);
   return (
     <CreateEditModal
       fields={[
-        { label: 'Электронная почта', name: 'email', type: 'email' },
+        {
+          label: 'Электронная почта',
+          name: 'email',
+          placeholder: 'Введите эл. почту',
+          type: 'email',
+        },
         {
           label: 'Роль',
           type: 'select',
@@ -29,9 +32,9 @@ export const AddUserModal: React.FC<{
         },
       ]}
       onClose={onClose}
-      schema={schema}
+      schema={AddUserContract}
       title="Добавить нового пользователя"
-      onSubmit={() => {}}
+      onSubmit={mutation.mutateAsync}
     />
   );
 });

@@ -1,17 +1,13 @@
 import { z } from 'zod';
 
+import { ROLES } from '#/shared/constants/roles_statuses';
+
 export const AddUserContract = z.object({
-  name: z.string().min(1, 'Поле обязательно'),
-  active_users_limit: z.union([z.string(), z.number()]).transform(Number),
-  contract_number: z.string().min(1, 'Поле обязательно'),
-  contract_end_date: z.string().min(1, 'Поле обязательно'),
-  can_primary_sales: z.boolean().default(false),
-  can_secondary_sales: z.boolean().default(false),
-  can_tertiary_sales: z.boolean().default(false),
-  can_visits: z.boolean().default(false),
-  can_market_analysis: z.boolean().default(false),
+  email: z.email('Неверный email'),
+  company_id: z.number().optional(),
+  role: z.enum(ROLES.slice(0, 2)),
 });
 
-export const EditUserContract = AddUserContract.optional();
+export const EditUserContract = AddUserContract.partial();
 
 export type TAddUserContract = z.infer<typeof AddUserContract>;
