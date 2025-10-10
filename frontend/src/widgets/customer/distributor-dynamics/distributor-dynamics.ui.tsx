@@ -13,10 +13,15 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { Month } from '#/shared/constants/months';
+import {
+  BRANDS,
+  DISTRIBUTORS,
+  GROUPS,
+} from '#/shared/constants/test_constants';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedItems } from '#/shared/utils/get-used-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { randomInt } from '#/shared/utils/mock';
 
 const distributorsData = [
@@ -37,60 +42,38 @@ export const DistributorDynamics: React.FC = React.memo(() => {
   const [distributor, setDistributor] = React.useState<string>('');
   const periodFilter = usePeriodFilter();
 
-  const usedItems = React.useMemo(() => {
-    const brandItems = [
-      { value: 'brand1', label: 'Бренд 1' },
-      { value: 'brand2', label: 'Бренд 2' },
-      { value: 'brand3', label: 'Бренд 3' },
-    ];
-
-    const groupItems = [
-      { value: 'group1', label: 'Группа 1' },
-      { value: 'group2', label: 'Группа 2' },
-      { value: 'group3', label: 'Группа 3' },
-    ];
-
-    const distributorItems = [
-      { value: 'dist1', label: 'Дистр 1' },
-      { value: 'dist2', label: 'Дистр 2' },
-      { value: 'dist3', label: 'Дистр 3' },
-    ];
-
-    return getUsedItems([
+  const usedFilterItems = React.useMemo(() => {
+    return getUsedFilterItems([
       {
-        value: Array.isArray(periodFilter.selectedValues)
-          ? periodFilter.selectedValues
-          : [],
+        value: periodFilter.selectedValues,
         getLabelFromValue: getPeriodLabel,
         onDelete: value => {
-          const newValues = (
-            Array.isArray(periodFilter.selectedValues)
-              ? periodFilter.selectedValues
-              : []
-          ).filter(v => v !== value);
-          periodFilter.handleValueChange(newValues);
+          const newValues = periodFilter.selectedValues.filter(
+            v => v !== value
+          );
+          periodFilter.onChange(newValues);
         },
       },
       {
         value: brand,
-        items: brandItems,
+        items: BRANDS,
         onDelete: () => setBrand(''),
       },
       {
         value: group,
-        items: groupItems,
+        items: GROUPS,
         onDelete: () => setGroup(''),
       },
       {
         value: distributor,
-        items: distributorItems,
+        items: DISTRIBUTORS,
         onDelete: () => setDistributor(''),
       },
     ]);
   }, [periodFilter, brand, group, distributor]);
 
   const resetFilters = React.useCallback(() => {
-    periodFilter.handleValueChange([]);
+    periodFilter.onReset();
     setBrand('');
     setGroup('');
     setDistributor('');
@@ -117,36 +100,21 @@ export const DistributorDynamics: React.FC = React.memo(() => {
           <Select<false, string>
             value={brand}
             setValue={setBrand}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
+            items={[{ value: '', label: 'Все' }, ...BRANDS]}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
             value={group}
             setValue={setGroup}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
+            items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
             value={distributor}
             setValue={setDistributor}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'dist1', label: 'Дистр 1' },
-              { value: 'dist2', label: 'Дистр 2' },
-              { value: 'dist3', label: 'Дистр 3' },
-            ]}
+            items={[{ value: '', label: 'Все' }, ...DISTRIBUTORS]}
             triggerText="Дистрибьютор"
             classNames={{ menu: 'w-[10rem]' }}
           />
@@ -155,7 +123,10 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       }
     >
       <div className="space-y-4">
-        <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
+        <UsedFilter
+          usedFilterItems={usedFilterItems}
+          resetFilters={resetFilters}
+        />
 
         <div className="font-inter">
           <LineChart

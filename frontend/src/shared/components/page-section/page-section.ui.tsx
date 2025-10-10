@@ -29,7 +29,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
             (beforeHeader || afterHeader || title || legends || headerEnd) && (
               <div className="flex flex-col gap-6">
                 {beforeHeader}
-                <div className="flex items-center flex-wrap justify-between">
+                <div className="flex items-center flex-wrap justify-between gap-4">
                   <div className="flex flex-col">
                     {title && (
                       <h4
@@ -67,7 +67,7 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
                       </ul>
                     )}
                   </div>
-                  {headerEnd && <div>{headerEnd}</div>}
+                  {headerEnd && <>{headerEnd}</>}
                 </div>
                 {afterHeader}
               </div>

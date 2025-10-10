@@ -21,7 +21,7 @@ import {
   formatCompactNumber,
 } from '#/shared/utils/format-number';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedItems } from '#/shared/utils/get-used-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 const rawData: { month: string; value: number; monthIndex: number }[] = [
   { month: Month.JAN, value: 280000, monthIndex: 0 },
@@ -44,7 +44,7 @@ export const OverallVisits: React.FC = React.memo(() => {
   const [group, setGroup] = React.useState<string>('');
   const periodFilter = usePeriodFilter();
 
-  const usedItems = React.useMemo(() => {
+  const usedFilterItems = React.useMemo(() => {
     const brandItems = [
       { value: 'brand1', label: 'Бренд 1' },
       { value: 'brand2', label: 'Бренд 2' },
@@ -57,19 +57,15 @@ export const OverallVisits: React.FC = React.memo(() => {
       { value: 'group3', label: 'Группа 3' },
     ];
 
-    return getUsedItems([
+    return getUsedFilterItems([
       {
-        value: Array.isArray(periodFilter.selectedValues)
-          ? periodFilter.selectedValues
-          : [],
+        value: periodFilter.selectedValues,
         getLabelFromValue: getPeriodLabel,
         onDelete: value => {
-          const newValues = (
-            Array.isArray(periodFilter.selectedValues)
-              ? periodFilter.selectedValues
-              : []
-          ).filter(v => v !== value);
-          periodFilter.handleValueChange(newValues);
+          const newValues = periodFilter.selectedValues.filter(
+            v => v !== value
+          );
+          periodFilter.onChange(newValues);
         },
       },
       {
@@ -85,7 +81,7 @@ export const OverallVisits: React.FC = React.memo(() => {
     ]);
   }, [periodFilter, brand, group]);
   const resetFilters = React.useCallback(() => {
-    periodFilter.handleValueChange([]);
+    periodFilter.onReset();
     setBrand('');
     setGroup('');
   }, [periodFilter]);
@@ -160,7 +156,10 @@ export const OverallVisits: React.FC = React.memo(() => {
       }
     >
       <div className="space-y-4">
-        <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
+        <UsedFilter
+          usedFilterItems={usedFilterItems}
+          resetFilters={resetFilters}
+        />
 
         <div className="font-inter">
           <LineChart

@@ -1,70 +1,103 @@
 import React from 'react';
 
 import { Icon } from '../ui/icon';
-import type { IUsedFilterProps } from './used-filter.types';
+import type { IUsedFilterItem, IUsedFilterProps } from './used-filter.types';
 
-export const UsedFilter: React.FC<IUsedFilterProps> = React.memo(
-  ({ usedItems, resetFilters }) => {
-    if (usedItems.length === 0) {
-      return null;
-    }
+export const UsedFilter: React.FC<IUsedFilterProps> = ({
+  usedFilterItems,
+  resetFilters,
+}) => {
+  const groupedItems = React.useMemo(() => {
+    const yearsMap = new Map<string, IUsedFilterItem>();
+    const result: IUsedFilterItem[] = [];
 
-    return (
-      <div className="flex items-center gap-2 flex-wrap font-inter">
-        <div className="flex items-center gap-1.5">
-          <Icon name="lucide:filter" className="size-4 text-gray-400" />
-          <span className="text-sm text-gray-500">Фильтры:</span>
-        </div>
+    usedFilterItems.forEach(item => {
+      const [type, year] = item.value.split('-');
+      if (type === 'year') {
+        const yearItem = { ...item, subItems: [] };
+        yearsMap.set(year, yearItem);
+        result.push(yearItem);
+      }
+    });
 
-        {usedItems.map(item => (
-          <div key={item.value} className="flex items-center gap-1.5">
-            {/* Главный фильтр */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 text-gray-700 rounded text-sm border border-gray-200">
-              <span>{item.label}</span>
-              <button
-                type="button"
-                onClick={item.onDelete}
-                className="hover:text-gray-900"
-                aria-label={`Удалить фильтр ${item.label}`}
-              >
-                <Icon name="lucide:x" className="size-3.5" />
-              </button>
-            </div>
+    usedFilterItems.forEach(item => {
+      const [type, year] = item.value.split('-');
+      if ((type === 'month' || type === 'quarter') && yearsMap.has(year)) {
+        yearsMap
+          .get(year)!
+          .subItems!.push({ ...item, label: item.label.split(' ')[0] });
+      }
+    });
 
-            {/* Подфильтры */}
-            {item.subItems && item.subItems.length > 0 && (
-              <div className="flex items-center gap-1.5">
-                {item.subItems.map(subItem => (
-                  <div
-                    key={subItem.value}
-                    className="flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs border border-gray-200"
-                  >
-                    <span>{subItem.label}</span>
-                    <button
-                      type="button"
-                      onClick={subItem.onDelete}
-                      className="hover:text-gray-900"
-                      aria-label={`Удалить ${subItem.label}`}
-                    >
-                      <Icon name="lucide:x" className="size-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+    yearsMap.forEach(yearItem => {
+      yearItem.subItems?.sort(
+        (a, b) => Number(a.value.split('-')[2]) - Number(b.value.split('-')[2])
+      );
+    });
 
-        <button
-          type="button"
-          onClick={resetFilters}
-          className="px-2.5 py-1 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded"
+    usedFilterItems.forEach(item => {
+      const [type] = item.value.split('-');
+      if (!['year', 'month', 'quarter'].includes(type)) {
+        result.push(item);
+      }
+    });
+
+    return result;
+  }, [usedFilterItems]);
+
+  if (!groupedItems.length) return null;
+
+  return (
+    <div className="flex items-center gap-2 flex-wrap font-inter">
+      {groupedItems.map(item => (
+        <div
+          key={item.value}
+          className={`flex items-center gap-2 ${item.subItems?.length ? 'bg-gray-50/50 rounded-lg p-2 border border-gray-100' : ''}`}
         >
-          Сбросить всё
-        </button>
-      </div>
-    );
-  }
-);
+          <div className="group flex items-center gap-2 px-3 py-1.5 bg-white text-gray-600 rounded-md text-sm border border-gray-200/60 shadow-xs hover:border-gray-300/60 transition-colors">
+            <span className="font-medium">{item.label}</span>
+            <button
+              type="button"
+              onClick={item.onDelete}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label={`Удалить фильтр ${item.label}`}
+            >
+              <Icon name="lucide:x" className="size-3.5" />
+            </button>
+          </div>
+
+          {item.subItems?.length ? (
+            <div className="flex items-center gap-1.5">
+              {item.subItems.map(sub => (
+                <div
+                  key={sub.value}
+                  className="group flex items-center gap-1.5 px-2.5 py-1 bg-white text-gray-500 rounded-md text-xs border border-gray-200/50 hover:border-gray-300/50 transition-colors"
+                >
+                  <span>{sub.label}</span>
+                  <button
+                    type="button"
+                    onClick={sub.onDelete}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label={`Удалить ${sub.label}`}
+                  >
+                    <Icon name="lucide:x" className="size-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={resetFilters}
+        className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+      >
+        Сбросить всё
+      </button>
+    </div>
+  );
+};
 
 UsedFilter.displayName = '_UsedFilter_';

@@ -1,11 +1,11 @@
-export interface IUsedItem {
+export interface IUsedFilterItem {
   label: string;
   value: string;
   onDelete: () => void;
-  subItems?: Omit<IUsedItem, 'subItems'>[];
+  subItems?: Omit<IUsedFilterItem, 'subItems'>[];
 }
 
 export interface IUsedFilterProps {
-  usedItems: IUsedItem[];
+  usedFilterItems: IUsedFilterItem[];
   resetFilters: VoidFunction;
 }

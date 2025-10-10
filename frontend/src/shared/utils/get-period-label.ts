@@ -1,14 +1,22 @@
 import { MonthFull } from '#/shared/constants/months';
 
 export function getPeriodLabel(value: string): string {
-  if (value.startsWith('month-')) {
-    const [, year, monthIndex] = value.split('-');
-    const monthName = Object.values(MonthFull)[parseInt(monthIndex, 10) - 1];
+  const parts = value.split('-');
+
+  if (parts[0] === 'year') {
+    return parts[1];
+  }
+
+  if (parts[0] === 'month') {
+    const year = parts[1];
+    const monthIndex = parseInt(parts[2], 10) - 1;
+    const monthName = Object.values(MonthFull)[monthIndex];
     return `${monthName} ${year}`;
   }
 
-  if (value.startsWith('quarter-')) {
-    const [, year, quarter] = value.split('-');
+  if (parts[0] === 'quarter') {
+    const year = parts[1];
+    const quarter = parts[2];
     return `${quarter}кв ${year}`;
   }
 

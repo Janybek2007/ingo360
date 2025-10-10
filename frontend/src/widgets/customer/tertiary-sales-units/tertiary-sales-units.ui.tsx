@@ -14,6 +14,7 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { Month } from '#/shared/constants/months';
+import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import {
@@ -21,7 +22,7 @@ import {
   formatCompactNumber,
 } from '#/shared/utils/format-number';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedItems } from '#/shared/utils/get-used-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 const rawData: { month: string; value: number; monthIndex: number }[] = [
   { month: Month.JAN, value: 280000, monthIndex: 0 },
@@ -44,49 +45,33 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
   const [group, setGroup] = React.useState<string>('');
   const periodFilter = usePeriodFilter();
 
-  const usedItems = React.useMemo(() => {
-    const brandItems = [
-      { value: 'brand1', label: 'Бренд 1' },
-      { value: 'brand2', label: 'Бренд 2' },
-      { value: 'brand3', label: 'Бренд 3' },
-    ];
-
-    const groupItems = [
-      { value: 'group1', label: 'Группа 1' },
-      { value: 'group2', label: 'Группа 2' },
-      { value: 'group3', label: 'Группа 3' },
-    ];
-
-    return getUsedItems([
+  const usedFilterItems = React.useMemo(() => {
+    return getUsedFilterItems([
       {
-        value: Array.isArray(periodFilter.selectedValues)
-          ? periodFilter.selectedValues
-          : [],
+        value: periodFilter.selectedValues,
         getLabelFromValue: getPeriodLabel,
         onDelete: value => {
-          const newValues = (
-            Array.isArray(periodFilter.selectedValues)
-              ? periodFilter.selectedValues
-              : []
-          ).filter(v => v !== value);
-          periodFilter.handleValueChange(newValues);
+          const newValues = periodFilter.selectedValues.filter(
+            v => v !== value
+          );
+          periodFilter.onChange(newValues);
         },
       },
       {
         value: brand,
-        items: brandItems,
+        items: BRANDS,
         onDelete: () => setBrand(''),
       },
       {
         value: group,
-        items: groupItems,
+        items: GROUPS,
         onDelete: () => setGroup(''),
       },
     ]);
   }, [periodFilter, brand, group]);
 
   const resetFilters = React.useCallback(() => {
-    periodFilter.handleValueChange([]);
+    periodFilter.onReset();
     setBrand('');
     setGroup('');
   }, [periodFilter]);
@@ -135,24 +120,14 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
           <Select<false, string>
             value={brand}
             setValue={setBrand}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
+            items={[{ value: '', label: 'Все' }, ...BRANDS]}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
           <Select<false, string>
             value={group}
             setValue={setGroup}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
+            items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
@@ -161,7 +136,10 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
       }
     >
       <div className="space-y-4">
-        <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
+        <UsedFilter
+          usedFilterItems={usedFilterItems}
+          resetFilters={resetFilters}
+        />
 
         <div className="font-inter">
           <LineChart

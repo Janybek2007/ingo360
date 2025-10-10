@@ -11,10 +11,11 @@ export interface ISelectItem {
 
 export type UsePeriodFilterReturn = {
   period: UsePeriodType;
-  setPeriod: (period: UsePeriodType) => void;
   selectedValues: string[];
   items: ISelectItem[];
-  handleValueChange: (value: string | string[]) => void;
+  setPeriod: (period: UsePeriodType) => void;
+  onChange: (value: string | string[]) => void;
+  onReset: VoidFunction;
 };
 
 export const usePeriodFilter = (): UsePeriodFilterReturn => {
@@ -31,144 +32,123 @@ export const usePeriodFilter = (): UsePeriodFilterReturn => {
     [currentYear]
   );
 
-  // Генерация items для каждого периода
-  const { items, allItemValues } = useMemo(() => {
-    const result: ISelectItem[] = [];
-    const allValues: string[] = [];
-
-    if (period === 'year') {
-      years.forEach(year => {
-        result.push({ label: `${year}`, value: `${year}` });
-        allValues.push(`${year}`);
-      });
-    } else if (period === 'month') {
-      years.forEach(year => {
-        result.push({ label: `${year}`, value: `year-${year}` });
-        Object.values(MonthFull).forEach((monthName, index) => {
-          const value = `month-${year}-${index + 1}`;
-          result.push({ label: `${monthName} ${year}`, value });
-          allValues.push(value);
-        });
-      });
-    } else {
-      years.forEach(year => {
-        result.push({ label: `${year}`, value: `year-${year}` });
-        for (let q = 1; q <= 4; q++) {
-          const value = `quarter-${year}-${q}`;
-          result.push({ label: `${q}кв ${year}`, value });
-          allValues.push(value);
-        }
-      });
-    }
-
-    const isAllSelected =
-      allValues.length > 0 && allValues.every(v => selectedValues.includes(v));
-    const toggleItem: ISelectItem = {
-      label: isAllSelected ? 'Отменить все' : 'Выбрать все',
-      value: 'toggle-all',
-    };
-
-    return { items: [toggleItem, ...result], allItemValues: allValues };
-  }, [period, years, selectedValues]);
-
-  // Вспомогательная функция для получения всех элементов года
   const getYearItems = useCallback(
-    (year: string): string[] => {
-      if (period === 'month') {
+    (year: string) => {
+      if (period === 'month')
         return Array.from({ length: 12 }, (_, i) => `month-${year}-${i + 1}`);
-      } else if (period === 'quarter') {
+      if (period === 'quarter')
         return Array.from({ length: 4 }, (_, i) => `quarter-${year}-${i + 1}`);
-      }
       return [];
     },
     [period]
   );
 
+  const allItemValues = useMemo(() => {
+    const values: string[] = [];
+    years.forEach(year => {
+      if (period === 'month') {
+        for (let i = 1; i <= 12; i++) values.push(`month-${year}-${i}`);
+      } else if (period === 'quarter') {
+        for (let i = 1; i <= 4; i++) values.push(`quarter-${year}-${i}`);
+      } else {
+        values.push(`${year}`);
+      }
+    });
+    return values;
+  }, [period, years]);
+
+  const items = useMemo(() => {
+    const result: ISelectItem[] = [];
+    const toggleLabel = allItemValues.every(v => selectedValues.includes(v))
+      ? 'Отменить все'
+      : 'Выбрать все';
+    const toggleItem: ISelectItem = { label: toggleLabel, value: 'toggle-all' };
+    result.push(toggleItem);
+
+    years.forEach(year => {
+      const yearKey = `year-${year}`;
+      if (period === 'year') {
+        result.push({ label: `${year}`, value: `${year}` });
+      } else if (period === 'month') {
+        result.push({ label: `${year}`, value: yearKey });
+        Object.values(MonthFull).forEach((monthName, idx) => {
+          result.push({
+            label: `${monthName} ${year}`,
+            value: `month-${year}-${idx + 1}`,
+          });
+        });
+      } else if (period === 'quarter') {
+        result.push({ label: `${year}`, value: yearKey });
+        for (let q = 1; q <= 4; q++) {
+          result.push({
+            label: `${q}кв ${year}`,
+            value: `quarter-${year}-${q}`,
+          });
+        }
+      }
+    });
+
+    return result;
+  }, [period, years, selectedValues, allItemValues]);
+
   const handleValueChange = useCallback(
     (value: string | string[]) => {
-      if (value.length === 0) {
-        setSelectedValues([]);
-        return;
-      }
       const valueArray = Array.isArray(value) ? value : [value];
 
-      // Обработка "Выбрать все/Отменить все"
       if (valueArray.includes('toggle-all')) {
-        const realSelectedValues = selectedValues.filter(
-          v => !v.startsWith('year-')
+        const allValuesWithYears =
+          period === 'year'
+            ? allItemValues
+            : [...allItemValues, ...years.map(y => `year-${y}`)];
+        const isAllSelected = allValuesWithYears.every(v =>
+          selectedValues.includes(v)
         );
-        const isAllSelected =
-          allItemValues.length > 0 &&
-          allItemValues.every(v => realSelectedValues.includes(v));
-
-        if (isAllSelected) {
-          setSelectedValues([]);
-        } else {
-          if (period === 'year') {
-            setSelectedValues([...new Set(allItemValues)]);
-          } else {
-            const withYears = [...allItemValues];
-            years.forEach(year => {
-              withYears.push(`year-${year}`);
-            });
-            setSelectedValues([...new Set(withYears)]);
-          }
-        }
-        return;
-      }
-
-      if (period === 'year') {
-        setSelectedValues([...new Set(valueArray)]);
+        setSelectedValues(isAllSelected ? [] : allValuesWithYears);
         return;
       }
 
       const addedYear = valueArray.find(
         v => v.startsWith('year-') && !selectedValues.includes(v)
       );
+      if (addedYear) {
+        const year = addedYear.split('-')[1];
+        const yearItems = getYearItems(year);
+        setSelectedValues(prev =>
+          Array.from(new Set([...prev, addedYear, ...yearItems]))
+        );
+        return;
+      }
+
+      // Проверяем, был ли явно удален какой-то год
       const removedYear = selectedValues.find(
         v => v.startsWith('year-') && !valueArray.includes(v)
       );
 
-      if (addedYear) {
-        const year = addedYear.split('-')[1];
-        const yearItems = getYearItems(year);
-        setSelectedValues([
-          ...new Set([...selectedValues, ...yearItems, addedYear]),
-        ]);
-        return;
-      }
-
       if (removedYear) {
         const year = removedYear.split('-')[1];
         const yearItems = getYearItems(year);
-        setSelectedValues([
-          ...new Set(
-            selectedValues.filter(
-              v => !yearItems.includes(v) && v !== removedYear
-            )
-          ),
-        ]);
+        // Удаляем год и все его месяцы/кварталы
+        const newSelected = selectedValues.filter(
+          v => ![...yearItems, removedYear].includes(v)
+        );
+        setSelectedValues(newSelected);
         return;
       }
 
-      const newValues = valueArray.filter(v => !v.startsWith('year-'));
-      const updatedValues = [...newValues];
+      // Фильтруем значения без year-ключей
+      let updatedValues = valueArray.filter(v => !v.startsWith('year-'));
 
+      // Автоматически добавляем year-ключи для годов, у которых есть выбранные месяцы/кварталы
       years.forEach(year => {
-        const yearItems = getYearItems(String(year));
-        const allYearItemsSelected = yearItems.every(item =>
-          newValues.includes(item)
-        );
         const yearKey = `year-${year}`;
-
-        if (allYearItemsSelected && yearItems.length > 0) {
-          updatedValues.push(yearKey);
-        }
+        const yearItems = getYearItems(`${year}`);
+        const hasAny = yearItems.some(v => updatedValues.includes(v));
+        if (hasAny) updatedValues.push(yearKey);
       });
 
-      setSelectedValues([...new Set(updatedValues)]);
+      setSelectedValues(Array.from(new Set(updatedValues)));
     },
-    [period, selectedValues, allItemValues, years, getYearItems]
+    [period, selectedValues, years, getYearItems, allItemValues]
   );
 
   return {
@@ -176,6 +156,7 @@ export const usePeriodFilter = (): UsePeriodFilterReturn => {
     setPeriod,
     selectedValues,
     items,
-    handleValueChange: handleValueChange as (value: string | string[]) => void,
+    onChange: handleValueChange,
+    onReset: () => setSelectedValues([]),
   };
 };

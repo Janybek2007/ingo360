@@ -20,7 +20,7 @@ import {
   selectFilter,
   stringFilter,
 } from '#/shared/utils/filter';
-import { getUsedItems } from '#/shared/utils/get-used-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface VisitRow {
@@ -43,8 +43,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     'money'
   );
 
-  const usedItems = React.useMemo(() => {
-    return getUsedItems([
+  const usedFilterItems = React.useMemo(() => {
+    return getUsedFilterItems([
       { value: brand, items: BRANDS, onDelete: () => setBrand('') },
       { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
@@ -197,7 +197,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       }
     >
       <Table
-        filters={{ usedItems, resetFilters }}
+        filters={{ usedFilterItems, resetFilters }}
         columns={columnsForTable}
         data={data}
         maxHeight={400}

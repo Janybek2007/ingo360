@@ -14,7 +14,7 @@ import {
 } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
-import { getUsedItems } from '#/shared/utils/get-used-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
 
 interface NumericalDistributionRow {
@@ -35,8 +35,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     'money'
   );
 
-  const usedItems = React.useMemo(() => {
-    return getUsedItems([
+  const usedFilterItems = React.useMemo(() => {
+    return getUsedFilterItems([
       { value: brand, items: BRANDS, onDelete: () => setBrand('') },
       { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
@@ -211,7 +211,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       }
     >
       <Table
-        filters={{ usedItems, resetFilters }}
+        filters={{ usedFilterItems, resetFilters }}
         columns={columnsForTable}
         data={data}
         maxHeight={400}

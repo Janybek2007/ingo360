@@ -17,7 +17,7 @@ import type { ITableProps } from './table.types';
 import { TableBody } from './ui/table-body.ui';
 import { TableHeader } from './ui/table-header.ui';
 import { TableScrollbar } from './ui/table-scrollbar.ui';
-import { formatUsedItems } from './utils/format-used-items';
+import { formatUsedFilterItems } from './utils/format-used-filters';
 
 export const Table: React.FC<ITableProps> = React.memo(
   ({
@@ -74,17 +74,17 @@ export const Table: React.FC<ITableProps> = React.memo(
 
     const showEmpty = isEmpty || data.length === 0;
 
-    const allUsedItems = React.useMemo(
+    const allUsedFilters = React.useMemo(
       () =>
-        formatUsedItems({
+        formatUsedFilterItems({
           columnFilters,
           sorting,
           columns,
-          externalUsedItems: filters?.usedItems,
+          externalUsedFilters: filters?.usedFilterItems,
           setColumnFilters,
           setSorting,
         }),
-      [filters?.usedItems, columnFilters, sorting, columns]
+      [filters?.usedFilterItems, columnFilters, sorting, columns]
     );
 
     const handleResetFilters = React.useCallback(() => {
@@ -97,7 +97,7 @@ export const Table: React.FC<ITableProps> = React.memo(
       <div className={cn('relative', className)}>
         {(filters || columnFilters.length > 0 || sorting.length > 0) && (
           <UsedFilter
-            usedItems={allUsedItems}
+            usedFilterItems={allUsedFilters}
             resetFilters={handleResetFilters}
           />
         )}
@@ -108,7 +108,7 @@ export const Table: React.FC<ITableProps> = React.memo(
             rounded == 'sm' && 'rounded-sm',
             rounded == 'md' && 'rounded-md',
             rounded == 'lg' && 'rounded-lg',
-            allUsedItems.length > 0 && 'mt-5'
+            allUsedFilters.length > 0 && 'mt-5'
           )}
           style={{ maxHeight, minHeight }}
         >

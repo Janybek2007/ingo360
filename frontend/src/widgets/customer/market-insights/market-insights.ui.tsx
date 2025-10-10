@@ -8,7 +8,7 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { stringFilter } from '#/shared/utils/filter';
-import { getUsedItems } from '#/shared/utils/get-used-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface MarketRow {
@@ -54,7 +54,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     'money'
   );
 
-  const usedItems = React.useMemo(() => {
+  const usedFilterItems = React.useMemo(() => {
     const brandItems = [
       { value: 'brand1', label: 'Бренд 1' },
       { value: 'brand2', label: 'Бренд 2' },
@@ -67,7 +67,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       { value: 'group3', label: 'Группа 3' },
     ];
 
-    return getUsedItems([
+    return getUsedFilterItems([
       {
         value: brand,
         items: brandItems,
@@ -243,7 +243,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       }
     >
       <Table
-        filters={{ usedItems, resetFilters }}
+        filters={{ usedFilterItems, resetFilters }}
         columns={columnsForTable}
         data={data}
         maxHeight={400}

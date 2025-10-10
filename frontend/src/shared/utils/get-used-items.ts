@@ -1,4 +1,4 @@
-import type { IUsedItem } from '#/shared/components/used-filter';
+import type { IUsedFilterItem } from '#/shared/components/used-filter';
 
 export interface IFilterConfig {
   value: string | string[];
@@ -7,8 +7,10 @@ export interface IFilterConfig {
   onDelete: (value: string) => void;
 }
 
-export function getUsedItems(filters: IFilterConfig[]): IUsedItem[] {
-  const items: IUsedItem[] = [];
+export function getUsedFilterItems(
+  filters: IFilterConfig[]
+): IUsedFilterItem[] {
+  const items: IUsedFilterItem[] = [];
 
   filters.forEach(filter => {
     const values = Array.isArray(filter.value) ? filter.value : [filter.value];

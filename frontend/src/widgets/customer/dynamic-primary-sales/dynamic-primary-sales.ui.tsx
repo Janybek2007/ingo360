@@ -4,9 +4,10 @@ import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
+import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedItems } from '#/shared/utils/get-used-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
 import { DynamicPrimarySalesAsMixed } from './ui/as-mixed.ui';
@@ -29,49 +30,33 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
     const [group, setGroup] = React.useState<string>('');
     const periodFilter = usePeriodFilter();
 
-    const usedItems = React.useMemo(() => {
-      const brandItems = [
-        { value: 'brand1', label: 'Бренд 1' },
-        { value: 'brand2', label: 'Бренд 2' },
-        { value: 'brand3', label: 'Бренд 3' },
-      ];
-
-      const groupItems = [
-        { value: 'group1', label: 'Группа 1' },
-        { value: 'group2', label: 'Группа 2' },
-        { value: 'group3', label: 'Группа 3' },
-      ];
-
-      return getUsedItems([
+    const usedFilterItems = React.useMemo(() => {
+      return getUsedFilterItems([
         {
-          value: Array.isArray(periodFilter.selectedValues)
-            ? periodFilter.selectedValues
-            : [],
+          value: periodFilter.selectedValues,
           getLabelFromValue: getPeriodLabel,
           onDelete: value => {
-            const newValues = (
-              Array.isArray(periodFilter.selectedValues)
-                ? periodFilter.selectedValues
-                : []
-            ).filter(v => v !== value);
-            periodFilter.handleValueChange(newValues);
+            const newValues = periodFilter.selectedValues.filter(
+              v => v !== value
+            );
+            periodFilter.onChange(newValues);
           },
         },
         {
           value: brand,
-          items: brandItems,
+          items: BRANDS,
           onDelete: () => setBrand(''),
         },
         {
           value: group,
-          items: groupItems,
+          items: GROUPS,
           onDelete: () => setGroup(''),
         },
       ]);
     }, [periodFilter, brand, group]);
 
     const resetFilters = React.useCallback(() => {
-      periodFilter.handleValueChange([]);
+      periodFilter.onReset();
       setBrand('');
       setGroup('');
     }, [periodFilter]);
@@ -96,25 +81,19 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
             <Select<false, string>
               value={brand}
               setValue={setBrand}
-              items={[
-                { value: '', label: 'Все' },
-                { value: 'brand1', label: 'Бренд 1' },
-                { value: 'brand2', label: 'Бренд 2' },
-                { value: 'brand3', label: 'Бренд 3' },
-              ]}
+              items={[{ value: '', label: 'Все' }, ...BRANDS]}
               triggerText="Бренд"
+              changeTriggerText
+              labelTemplate="Бренд: {label}"
               classNames={{ menu: 'w-[10rem]' }}
             />
             <Select<false, string>
               value={group}
               setValue={setGroup}
-              items={[
-                { value: '', label: 'Все' },
-                { value: 'group1', label: 'Группа 1' },
-                { value: 'group2', label: 'Группа 2' },
-                { value: 'group3', label: 'Группа 3' },
-              ]}
+              items={[{ value: '', label: 'Все' }, ...GROUPS]}
               triggerText="Группа"
+              changeTriggerText
+              labelTemplate="Группа: {label}"
               classNames={{ menu: 'w-[10rem]' }}
             />
             <PeriodFilters {...periodFilter} />
@@ -122,7 +101,10 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
         }
       >
         <div className="space-y-4">
-          <UsedFilter usedItems={usedItems} resetFilters={resetFilters} />
+          <UsedFilter
+            usedFilterItems={usedFilterItems}
+            resetFilters={resetFilters}
+          />
 
           {as == 'line' ? (
             <DynamicPrimarySalesAsLine period={periodFilter.period} />

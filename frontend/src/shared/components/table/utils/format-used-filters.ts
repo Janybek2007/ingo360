@@ -7,7 +7,7 @@ import type {
 
 import { filterItems } from '#/shared/constants/filter-items';
 
-import type { IUsedItem } from '../../used-filter';
+import type { IUsedFilterItem } from '../../used-filter';
 
 interface FilterValue {
   header?: string;
@@ -17,11 +17,11 @@ interface FilterValue {
   value?: string | number | (string | number)[];
 }
 
-interface FormatUsedItemsParams {
+interface FormatUsedFilterItemsParams {
   columnFilters: ColumnFiltersState;
   sorting: SortingState;
   columns: ColumnDef<any>[];
-  externalUsedItems?: IUsedItem[];
+  externalUsedFilters?: IUsedFilterItem[];
   setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
   setSorting: React.Dispatch<React.SetStateAction<SortingState>>;
 }
@@ -92,15 +92,15 @@ const formatFilterValue = (
   return String(filterValue);
 };
 
-export const formatUsedItems = ({
+export const formatUsedFilterItems = ({
   columnFilters,
   sorting,
   columns,
-  externalUsedItems = [],
+  externalUsedFilters = [],
   setColumnFilters,
   setSorting,
-}: FormatUsedItemsParams): IUsedItem[] => {
-  const items: IUsedItem[] = [...externalUsedItems];
+}: FormatUsedFilterItemsParams): IUsedFilterItem[] => {
+  const items: IUsedFilterItem[] = [...externalUsedFilters];
 
   columnFilters.forEach(filter => {
     const { id, value: filterValue } = filter as {

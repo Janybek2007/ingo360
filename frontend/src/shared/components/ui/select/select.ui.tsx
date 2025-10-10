@@ -76,7 +76,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     <div className={cn('relative', classNames?.root)} ref={contentRef}>
       <button
         className={cn(
-          'border border-gray-300 rounded-md gap-2 px-3 py-2',
+          'border border-gray-300 rounded-lg gap-2 px-3 py-2',
           'text-left bg-white hover:border-gray-400',
           'flex items-center justify-center cursor-pointer transition-colors',
           classNames?.trigger
@@ -105,8 +105,8 @@ export function Select<ISM extends boolean = false, VT = string>({
       {open && (
         <div
           className={cn(
-            'absolute z-10 w-full bg-white rounded-md max-h-80 overflow-auto',
-            'py-1 noscrollbar border border-gray-200 shadow-sm',
+            'absolute z-10 w-full bg-white rounded-xl max-h-80 overflow-auto',
+            'py-1 noscrollbar border border-gray-200 shadow',
             'top-full mt-1',
             classNames?.menu
           )}

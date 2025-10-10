@@ -8,7 +8,7 @@ import {
 import { Select } from '../ui/select';
 
 export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
-  ({ period, setPeriod, items, selectedValues, handleValueChange }) => {
+  ({ period, setPeriod, items, selectedValues, onChange }) => {
     return (
       <div className="flex gap-4">
         <Select<false, UsePeriodType>
@@ -34,7 +34,7 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
           triggerText={'Выберите значения'}
           items={items}
           value={selectedValues}
-          setValue={handleValueChange}
+          setValue={onChange}
           classNames={{
             trigger: 'gap-4 rounded-full justify-between',
             menu: 'min-w-[10rem] right-0',
