@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 
+import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
+import { queryClient } from '#/shared/libs/react-query';
 
 import {
   AddCustomerContract,
@@ -20,6 +22,9 @@ export const useAddCustomerMutation = (onClose: VoidFunction) => {
     },
     async onSuccess() {
       const { toast } = await import('sonner');
+      queryClient.invalidateQueries({
+        queryKey: UserQueries.queryKeys.getCustomers,
+      });
       onClose();
       setTimeout(() => {
         toast.success('Клиент успешно добавлен');

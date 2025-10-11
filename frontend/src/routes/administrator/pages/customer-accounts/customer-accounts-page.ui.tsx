@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { CompanyQueries } from '#/entities/company';
 import { UserQueries } from '#/entities/user/user.queries';
+import type { IUserItem } from '#/entities/user/user.types';
 import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -12,75 +14,58 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { Icon } from '#/shared/components/ui/icon';
-import {
-  ROLES,
-  STATUSES,
-  STATUSES_OBJECT,
-} from '#/shared/constants/roles_statuses';
+import { ROLES, STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { selectFilter } from '#/shared/utils/filter';
-import { generateMocks, randomId } from '#/shared/utils/mock';
 
-interface CustomerRow {
-  id: string;
+interface CustomerRow extends IUserItem {
   fullName: string;
-  position: string;
-  company: string;
-  role: string;
-  email: string;
-  status: string;
+  companyName: string;
+  statusDisplay: string;
 }
-
-const COMPANIES = ['ОСО', 'Ингосстрах', 'Альфа'] as const;
-const EMAILS = [
-  'ivan@example.com',
-  'petr@example.com',
-  'maria@example.com',
-  'sergey@example.com',
-] as const;
-
-const POSITIONS = ['Менеджер', 'Старший менеджер', 'Специалист'] as const;
 
 const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
 
-  const queryData = useQuery(UserQueries.GetUsersQuery());
+  const customersQuery = useQuery(UserQueries.GetCustomersQuery());
+  const companiesQuery = useQuery(CompanyQueries.GetCompaniesQuery());
 
-  console.log(queryData.data);
+  console.log('Customers data:', customersQuery.data);
+  console.log('Companies data:', companiesQuery.data);
 
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [
       { accessorKey: 'fullName', header: 'ФИО', size: 290 },
       {
-        accessorKey: 'position',
-        header: 'Должность',
-        size: 290,
+        accessorKey: 'role',
+        header: 'Роль',
+        size: 150,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
-        selectOptions: POSITIONS.map(position => ({
-          label: position,
-          value: position,
+        selectOptions: ROLES.map(role => ({
+          label: role,
+          value: role,
         })),
       },
       {
-        accessorKey: 'company',
+        accessorKey: 'companyName',
         header: 'Компания',
         size: 290,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
-        selectOptions: COMPANIES.map(company => ({
-          label: company,
-          value: company,
+        selectOptions: (companiesQuery.data || []).map(company => ({
+          label: company.name,
+          value: company.name,
         })),
       },
       { accessorKey: 'email', header: 'Email', size: 290 },
       {
-        accessorKey: 'status',
+        accessorKey: 'statusDisplay',
         header: 'Статус',
-        size: 290,
+        size: 150,
         cell(props) {
           return STATUSES_OBJECT[props.getValue() as 'active'];
         },
@@ -101,33 +86,35 @@ const CustomerAccountsPage: React.FC = () => {
         },
       },
     ],
-    [set]
+    [set, companiesQuery.data]
   );
 
-  const allData = useMemo(
-    () =>
-      generateMocks(10, {
-        id: () => randomId('customer'),
-        fullName: ['Иван', 'Пётр', 'Сергей', 'Мария', 'Анна'],
-        position: POSITIONS,
-        company: COMPANIES,
-        role: ROLES,
-        email: EMAILS,
-        status: STATUSES,
-      }),
-    []
-  );
+  const allData = useMemo((): CustomerRow[] => {
+    if (!customersQuery.data || !companiesQuery.data) return [];
+
+    return customersQuery.data.map((customer: IUserItem) => {
+      const company = companiesQuery.data.find(
+        c => c.id === customer.company_id
+      );
+      return {
+        ...customer,
+        fullName:
+          `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
+        companyName: company?.name || 'Неизвестная компания',
+        statusDisplay: customer.is_active ? 'active' : 'inactive',
+      } as CustomerRow;
+    });
+  }, [customersQuery.data, companiesQuery.data]);
 
   const data = useMemo(
     () =>
       allData.filter(
-        row =>
+        (row: CustomerRow) =>
           row.fullName.toLowerCase().includes(search.toLowerCase()) ||
-          row.position.toLowerCase().includes(search.toLowerCase()) ||
-          row.company.toLowerCase().includes(search.toLowerCase()) ||
           row.role.toLowerCase().includes(search.toLowerCase()) ||
+          row.companyName.toLowerCase().includes(search.toLowerCase()) ||
           row.email.toLowerCase().includes(search.toLowerCase()) ||
-          row.status.toLowerCase().includes(search.toLowerCase())
+          row.statusDisplay.toLowerCase().includes(search.toLowerCase())
       ),
     [search, allData]
   );
@@ -152,13 +139,23 @@ const CustomerAccountsPage: React.FC = () => {
           </div>
         }
       >
-        <Table
-          columns={allColumns}
-          data={data}
-          isScrollbar
-          maxHeight={500}
-          rounded="none"
-        />
+        {customersQuery.isLoading || companiesQuery.isLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="text-gray-500">Загрузка данных...</div>
+          </div>
+        ) : customersQuery.isError || companiesQuery.isError ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="text-red-500">Ошибка загрузки данных</div>
+          </div>
+        ) : (
+          <Table
+            columns={allColumns}
+            data={data}
+            isScrollbar
+            maxHeight={500}
+            rounded="none"
+          />
+        )}
       </PageSection>
     </main>
   );

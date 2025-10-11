@@ -52,7 +52,10 @@ export class UserQueries {
       queryKey: this.queryKeys.getCustomers,
       queryFn: async () => {
         const response = await http.get('users').json<GetUsersResponse>();
-        return response;
+        return response.map(user => ({
+          ...user,
+          role: this.buildUserRole(user),
+        }));
       },
     });
   }
