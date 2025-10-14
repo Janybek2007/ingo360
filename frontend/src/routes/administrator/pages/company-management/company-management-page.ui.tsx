@@ -18,11 +18,37 @@ import { useStringState } from '#/shared/hooks/use-string-state';
 import { numberFilter } from '#/shared/utils/filter';
 
 const CompanyManagementPage: React.FC = () => {
-  const [, setSearch] = useState('');
+  const [search, setSearch] = useState('');
 
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [openAccess, setOpenAccess] = useState(false);
   const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
+
+  const filteredData = useMemo(() => {
+    if (!search.trim()) return queryData.data || [];
+
+    // Нормализация для корректной работы с кириллицей
+    const normalizeText = (text: string) =>
+      text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    const normalizedSearch = normalizeText(search);
+
+    return (queryData.data || []).filter(
+      (row: ICompanyItem) =>
+        normalizeText(row.name || '').includes(normalizedSearch) ||
+        normalizeText(row.contract_number || '').includes(normalizedSearch) ||
+        normalizeText(String(row.active_users_limit || '')).includes(
+          normalizedSearch
+        ) ||
+        normalizeText(row.contract_end_date || '').includes(normalizedSearch) ||
+        normalizeText(row.is_active ? 'активный' : 'неактивный').includes(
+          normalizedSearch
+        )
+    );
+  }, [search, queryData.data]);
 
   const allColumns = useMemo(
     (): ColumnDef<ICompanyItem>[] => [
@@ -89,7 +115,7 @@ const CompanyManagementPage: React.FC = () => {
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton
-              data={queryData.data || []}
+              data={filteredData}
               fileName="companies.xlsx"
             />
             <Button
@@ -104,7 +130,7 @@ const CompanyManagementPage: React.FC = () => {
       >
         <Table
           columns={allColumns}
-          data={queryData.data || []}
+          data={filteredData}
           isScrollbar
           isLoading={queryData.isLoading}
           maxHeight={500}

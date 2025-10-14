@@ -113,7 +113,7 @@ const CustomerAccountsPage: React.FC = () => {
       {open === 'edit' && <EditCustomerModal onClose={clear} />}
       {open === 'create' && <AddCustomerModal onClose={clear} />}
       <PageSection
-        title="Управление уч. записями клиентов"
+        title="Управление учетными записями клиентов"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />

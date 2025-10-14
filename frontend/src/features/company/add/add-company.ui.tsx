@@ -25,7 +25,7 @@ export const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
               label: '№ Договора',
               name: 'contract_number',
               placeholder: '212312',
-              type: 'number',
+              type: 'text',
             },
             {
               label: 'Срок окончания догвора',

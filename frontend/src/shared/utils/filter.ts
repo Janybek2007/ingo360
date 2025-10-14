@@ -49,11 +49,18 @@ export const stringFilter =
     const rowValue = String(row.getValue(columnId));
     const { type = 'equals', value } = filterValue;
 
+    // Нормализация для корректной работы с кириллицей
+    const normalizeText = (text: string) =>
+      text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
     switch (type) {
       case 'contains':
-        return rowValue.toLowerCase().includes(value.toLowerCase());
+        return normalizeText(rowValue).includes(normalizeText(value));
       case 'startsWith':
-        return rowValue.toLowerCase().startsWith(value.toLowerCase());
+        return normalizeText(rowValue).startsWith(normalizeText(value));
       case 'equals':
         return rowValue === value;
       case 'doesNotEqual':

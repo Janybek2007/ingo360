@@ -103,7 +103,7 @@ export const OverallVisits: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Визитов"
+      title="Визиты"
       headerEnd={
         <div className="flex items-center gap-4">
           <Select<false, string>

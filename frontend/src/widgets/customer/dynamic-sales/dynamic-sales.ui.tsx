@@ -194,8 +194,8 @@ export const DynamicSales: React.FC = React.memo(() => {
     <PageSection
       title="Динамика первичных и вторичных продаж"
       legends={[
-        { label: 'Первичное значение', fill: '#0B5A7C' },
-        { label: 'Вторичное значение', fill: '#E97030' },
+        { label: 'Первичные продажи', fill: '#0B5A7C' },
+        { label: 'Вторичные продажи', fill: '#E97030' },
       ]}
       headerEnd={
         <div className="flex items-center gap-4">
