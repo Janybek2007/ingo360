@@ -153,7 +153,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Показатель нумерической дистрибуции по аптекам"
+      title="Показатель нумерической дистрибьюции по аптекам"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />

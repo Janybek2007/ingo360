@@ -15,20 +15,20 @@ export class UserQueries {
   static GetUserQuery() {
     return queryOptions<GetUserResponse>({
       queryKey: this.queryKeys.getUser,
-      queryFn: async () => {
-        const response = await http.get('users/me').json<GetUserResponse>();
-        return {
-          ...response,
-          role: this.buildUserRole(response),
-        };
-      },
       // queryFn: async () => {
       //   const response = await http.get('users/me').json<GetUserResponse>();
       //   return {
       //     ...response,
-      //     role: 'administrator' as SessionRole,
+      //     role: this.buildUserRole(response),
       //   };
       // },
+      queryFn: async () => {
+        const response = await http.get('users/me').json<GetUserResponse>();
+        return {
+          ...response,
+          role: 'customer' as SessionRole,
+        };
+      },
     });
   }
 

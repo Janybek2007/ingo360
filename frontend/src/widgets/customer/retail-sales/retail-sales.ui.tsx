@@ -169,13 +169,13 @@ export const RetailSales: React.FC = React.memo(() => {
     <PageSection
       beforeHeader={
         <div className="max-w-[36.25rem]">
-          <h4 className="font-semibold text-xl leading-[120%] text-black mb-2">
-            Продажа товара с аптек и ЧП конечному потребителю
-          </h4>
-          <p className="font-normal text-sm leading-[150%] text-[#727272]">
+          {/* <h4 className="font-semibold text-xl leading-[120%] text-black mb-2">
+            Третичные продажи
+          </h4> */}
+          {/* <p className="font-normal text-sm leading-[150%] text-[#727272]">
             Бренды помесячно — в упаковках и $ + динамика отгрузок брендов, SKU.
             Остатки товара на складах, товарный запас в днях
-          </p>
+          </p> */}
         </div>
       }
       headerEnd={

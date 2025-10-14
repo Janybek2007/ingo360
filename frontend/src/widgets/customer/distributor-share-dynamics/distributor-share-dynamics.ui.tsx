@@ -32,7 +32,7 @@ const legends = [
   { label: 'Неман', fill: '#ff7f0e' },
   { label: 'Медсервис', fill: '#2ca02c' },
   { label: 'Бимед', fill: '#17becf' },
-  { label: 'Элэй', fill: '#9467bd' },
+  { label: 'Аптека #33', fill: '#9467bd' },
 ];
 
 export const DistributorShareDynamics: React.FC = React.memo(() => {
@@ -75,7 +75,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   return (
     <PageSection
       legends={legends}
-      title="Динамика долей дистров в первичке"
+      title="Динамика долей дистрибьюторов в первичке"
       headerEnd={
         <div className="flex items-center gap-4">
           <Select<false, string>

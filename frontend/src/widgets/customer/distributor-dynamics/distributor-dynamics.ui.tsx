@@ -93,7 +93,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Динамика вторичных продаж по дистрам (в сравнении)"
+      title="Динамика вторичных продаж по дистрибьюторам (в сравнении)"
       legends={distributorsData.map(d => ({ label: d.name, fill: d.color }))}
       headerEnd={
         <div className="flex items-center gap-4">

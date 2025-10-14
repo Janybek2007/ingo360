@@ -173,7 +173,7 @@ export const DistributorShare: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Доли дистров в деньгах/процентах"
+      title="Доли дистрибьюторов в деньгах/процентах"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />

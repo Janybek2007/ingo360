@@ -63,7 +63,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
 
     return (
       <PageSection
-        title={`Динамика первычных продаж в ${moneyType == 'money' ? 'деньгах' : 'упаковках'}`}
+        title={`Динамика первичных продаж в ${moneyType == 'money' ? 'деньгах' : 'упаковках'}`}
         legends={AsLegends[as]}
         headerEnd={
           <div className="flex items-center gap-4">
