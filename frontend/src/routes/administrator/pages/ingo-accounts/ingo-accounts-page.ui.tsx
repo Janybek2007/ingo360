@@ -21,10 +21,33 @@ import { useStringState } from '#/shared/hooks/use-string-state';
 import { selectFilter, stringFilter } from '#/shared/utils/filter';
 
 const IngoAccountsPage: React.FC = () => {
-  const [, setSearch] = useState('');
+  const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [editData, setEditData] = useState<IUserItem | null>(null);
   const queryData = useQuery(UserQueries.GetUsersQuery());
+
+  const filteredData = useMemo(() => {
+    if (!search.trim()) return queryData.data || [];
+
+    // Нормализация для корректной работы с кириллицей
+    const normalizeText = (text: string) =>
+      text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    const normalizedSearch = normalizeText(search);
+
+    return (queryData.data || []).filter(
+      (row: IUserItem) =>
+        normalizeText(row.first_name || '').includes(normalizedSearch) ||
+        normalizeText(row.last_name || '').includes(normalizedSearch) ||
+        normalizeText(row.patronymic || '').includes(normalizedSearch) ||
+        normalizeText(row.email || '').includes(normalizedSearch) ||
+        normalizeText(row.role || '').includes(normalizedSearch) ||
+        normalizeText(ROLES_OBJECT[row.role] || '').includes(normalizedSearch)
+    );
+  }, [search, queryData.data]);
 
   const allColumns = useMemo(
     (): ColumnDef<IUserItem>[] => [
@@ -104,14 +127,11 @@ const IngoAccountsPage: React.FC = () => {
       {open === 'edit' && editData && <EditUserModal onClose={clear} />}
       {open === 'create' && <AddUserModal onClose={clear} />}
       <PageSection
-        title="Учетные записи indigo"
+        title="Учетные записи INDIGO"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton
-              data={queryData.data || []}
-              fileName="users.xlsx"
-            />
+            <ExportToExcelButton data={filteredData} fileName="users.xlsx" />
             <Button
               onClick={() => set('create')}
               className="px-4 py-3 rounded-full flex items-center gap-1"
@@ -124,7 +144,7 @@ const IngoAccountsPage: React.FC = () => {
       >
         <Table
           columns={allColumns}
-          data={queryData.data || []}
+          data={filteredData}
           maxHeight={500}
           rounded="none"
         />
