@@ -3,12 +3,10 @@ import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import type { HTTPError } from 'ky';
 import qs from 'qs';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 
 import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
-import type { ICheckedBind } from '#/shared/components/ui/checkbox';
 import { queryClient } from '#/shared/libs/react-query';
 import { getError } from '#/shared/utils/get-error';
 
@@ -23,13 +21,10 @@ export const useLoginMutation = () => {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-    watch,
     setError,
   } = useForm({
     resolver: zodResolver(LoginContract),
   });
-  const rememberMe = watch('rememberMe');
 
   const { mutateAsync, status } = useMutation({
     mutationKey: ['session-login'],
@@ -72,20 +67,10 @@ export const useLoginMutation = () => {
     await mutateAsync(vars);
   });
 
-  const rememberMeBind = React.useMemo(
-    (): ICheckedBind => ({
-      checked: rememberMe,
-      onChecked: newV => setValue('rememberMe', newV),
-      onToggle: () => setValue('rememberMe', !rememberMe),
-    }),
-    [rememberMe, setValue]
-  );
-
   return {
     onSubmit,
     register,
     status,
     errors,
-    rememberMeBind,
   };
 };

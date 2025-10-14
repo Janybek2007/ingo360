@@ -22,6 +22,7 @@ interface CoverageRow {
   lpu: string;
   specialty: string;
   coveragePercent: number;
+  generalCallOfDoctors: number;
   doctorsWithVisits: number;
 }
 
@@ -36,20 +37,30 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
+      rowsCount !== 'all' && {
+        value: rowsCount,
+        getLabelFromValue(value) {
+          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
+        },
+        items: [],
+        onDelete: () => setRowsCount('all'),
+      },
       { value: brand, items: BRANDS, onDelete: () => setBrand('') },
       { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
-  }, [brand, group]);
+  }, [brand, group, rowsCount]);
 
   const resetFilters = React.useCallback(() => {
     setBrand('');
     setGroup('');
+    setRowsCount('all');
   }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<CoverageRow>[] => [
       {
-        accessorKey: 'lpu',
+        id: 'lpu',
+        accessorKey: 'lpu.label',
         header: 'ЛПУ',
         size: 224,
         enableColumnFilter: true,
@@ -58,7 +69,8 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         selectOptions: LPUS,
       },
       {
-        accessorKey: 'specialty',
+        id: 'specialty',
+        accessorKey: 'specialty.label',
         header: 'Специальность',
         size: 230,
         enableColumnFilter: true,
@@ -69,6 +81,14 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       {
         accessorKey: 'coveragePercent',
         header: 'Процент охвата врачей',
+        size: 230,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        type: 'number',
+      },
+      {
+        accessorKey: 'generalCallOfDoctors',
+        header: 'Общая колл. врачей',
         size: 230,
         enableColumnFilter: true,
         filterFn: numberFilter(),
@@ -95,16 +115,17 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
       id: () => randomId('coverage'),
-      lpu: LPUS.map(v => v.value),
-      specialty: SPECIALTIES.map(v => v.value),
+      lpu: LPUS,
+      specialty: SPECIALTIES,
       coveragePercent: () => randomInt(50, 100),
+      generalCallOfDoctors: () => randomInt(5, 50),
       doctorsWithVisits: () => randomInt(5, 50),
     });
 
     return allData.filter(
       row =>
-        row.lpu.toLowerCase().includes(search.toLowerCase()) ||
-        row.specialty.toLowerCase().includes(search.toLowerCase())
+        row.lpu.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.specialty.label.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, rowsCount]);
 

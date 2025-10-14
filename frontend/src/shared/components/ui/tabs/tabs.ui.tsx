@@ -45,7 +45,7 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
     return (
       <div
         className={cn(
-          'flex flex-col gap-6 items-start w-full',
+          'flex flex-col gap-6 items-start w-full font-roboto',
           classNames?.root
         )}
       >

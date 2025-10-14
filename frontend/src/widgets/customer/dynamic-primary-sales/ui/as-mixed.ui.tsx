@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 
+import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 
 const rawData = [
@@ -50,7 +51,7 @@ const rawData = [
 ];
 
 interface DynamicPrimarySalesAsMixedProps {
-  period: 'year' | 'month' | 'quarter';
+  period: UsePeriodType;
 }
 
 export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProps> =

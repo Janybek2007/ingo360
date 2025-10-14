@@ -6,7 +6,6 @@ export const LoginContract = z.object({
     z.email('Введен некорректный почта'),
   ]),
   password: z.string().nonempty('Поле пароль не может быть пустым'),
-  rememberMe: z.boolean().default(false),
 });
 
 export type TLoginContract = z.infer<typeof LoginContract>;

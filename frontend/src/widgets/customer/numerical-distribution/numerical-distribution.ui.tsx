@@ -37,20 +37,30 @@ export const NumericalDistribution: React.FC = React.memo(() => {
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
+      rowsCount !== 'all' && {
+        value: rowsCount,
+        getLabelFromValue(value) {
+          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
+        },
+        items: [],
+        onDelete: () => setRowsCount('all'),
+      },
       { value: brand, items: BRANDS, onDelete: () => setBrand('') },
       { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
-  }, [brand, group]);
+  }, [brand, group, rowsCount]);
 
   const resetFilters = React.useCallback(() => {
     setBrand('');
     setGroup('');
+    setRowsCount('all');
   }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<NumericalDistributionRow>[] => [
       {
-        accessorKey: 'sku',
+        id: 'sku',
+        accessorKey: 'sku.label',
         header: 'SKU',
         enableColumnFilter: true,
         size: 150,
@@ -60,7 +70,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         selectOptions: SKUS,
       },
       {
-        accessorKey: 'brand',
+        id: 'brand',
+        accessorKey: 'brand.label',
         header: 'Бренд',
         enableColumnFilter: true,
         size: 150,
@@ -70,7 +81,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         selectOptions: BRANDS,
       },
       {
-        accessorKey: 'group',
+        id: 'group',
+        accessorKey: 'group.label',
         header: 'Группа',
         enableColumnFilter: true,
         size: 150,
@@ -80,7 +92,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         selectOptions: GROUPS,
       },
       {
-        accessorKey: 'distributor',
+        id: 'distributor',
+        accessorKey: 'distributor.label',
         header: 'Дистр',
         enableColumnFilter: true,
         size: 150,
@@ -122,18 +135,18 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
       id: () => randomId('shipment'),
-      sku: SKUS.map(s => s.value),
-      brand: BRANDS.map(b => b.value),
-      group: GROUPS.map(g => g.value),
-      distributor: DISTRIBUTORS.map(d => d.value),
+      sku: SKUS,
+      brand: BRANDS,
+      group: GROUPS,
+      distributor: DISTRIBUTORS,
       months: () => randomArray(12, 10, 500),
     });
     return allData.filter(
       row =>
-        row.sku.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.toLowerCase().includes(search.toLowerCase())
+        row.sku.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.brand.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.group.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.distributor.label.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, rowsCount]);
 

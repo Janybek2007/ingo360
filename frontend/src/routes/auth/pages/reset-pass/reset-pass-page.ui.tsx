@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router';
 
 import { ResetPasswordForm } from '#/features/session/reset-password';
 import { Assets } from '#/shared/assets';
+import { AnchorLeftIcon } from '#/shared/components/icons';
 import { useRouter } from '#/shared/hooks/use-router';
 import { routePaths } from '#/shared/router';
 import { cn } from '#/shared/utils/cn';
@@ -46,7 +47,7 @@ const ResetPassPage: React.FC = () => {
               'leading-[143%] tracking-[0.009375rem] gap-[0.375rem]'
             )}
           >
-            <img src={Assets.Icons.AnchorLeft} alt="Anchor Left | Icon" />
+            <AnchorLeftIcon />
             вернуться на главную страницу
           </Link>
         </div>

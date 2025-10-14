@@ -75,8 +75,15 @@ export const selectFilter =
     }
   ) => {
     if (!filterValue || filterValue.selectValues.length === 0) return true;
-    const rowValue = row.getValue<VT>(columnId);
+    console.log(row.original, columnId);
+    const originalData = row.original as Record<
+      string,
+      { label: string; value: VT; id: number }
+    >;
+    const rowValue = originalData[columnId];
     return filterValue.selectValues.some(
-      fv => String(fv.value) === String(rowValue)
+      fv =>
+        String(fv.value) === String(rowValue.value) ||
+        String(fv.value) === String(rowValue.id)
     );
   };

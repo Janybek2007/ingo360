@@ -3,7 +3,7 @@ import React from 'react';
 
 import { type IReferenceItem, ReferenceQueries } from '#/entities/reference';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { Icon } from '#/shared/components/ui/icon';
+import { MdiPencilIcon } from '#/shared/components/icons';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type {
   ReferencesType,
@@ -78,7 +78,7 @@ export const EditReferenceWrapper: React.FC<{
         title="Редактировать"
         onClick={toggle}
       >
-        <Icon name="mdi:pencil" className="size-[1.125rem]" />
+        <MdiPencilIcon className="size-[1.125rem]" />
       </button>
     </>
   );

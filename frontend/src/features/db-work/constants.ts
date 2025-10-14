@@ -6,22 +6,22 @@ const defaultFields: ICreateEditModalProps['fields'] = [
   [
     {
       name: 'packages',
-      label: 'Пакеты',
-      placeholder: 'Выберите пакеты',
+      label: 'Упаковка',
+      placeholder: 'Введите упаковку',
       type: 'number',
     },
     {
       name: 'amount',
-      label: 'Количество',
-      placeholder: 'Введите количество',
+      label: 'Сумма',
+      placeholder: 'Введите сумму',
       type: 'number',
     },
   ],
   [
     {
       name: 'indicator',
-      label: 'Индикатор',
-      placeholder: 'Выберите индикатор',
+      label: 'Показатель',
+      placeholder: 'Выберите показатель',
     },
     {
       name: 'month',

@@ -2,7 +2,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
 import { Table } from '#/shared/components/table';
-import { Select } from '#/shared/components/ui/select';
+import { type ISelectItem, Select } from '#/shared/components/ui/select';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
@@ -25,17 +26,23 @@ const COMPANIES = [
   'Coca-Cola',
 ] as const;
 
+type FilterPeriod = 'mat' | 'ytd' | '_month' | 'year';
+const filterItems: ISelectItem<FilterPeriod>[] = [
+  { label: 'MAT', value: 'mat' },
+  { label: 'YTD', value: 'ytd' },
+  { label: 'Месяц', value: '_month' },
+  { label: 'Год', value: 'year' },
+];
+
 const PERIOD_MULTIPLIERS = {
   mat: 1.0, // MAT (Moving Annual Total) - полная годовая сумма
   ytd: 0.75, // YTD (Year To Date) - 75% от года (примерно 9 месяцев)
-  month: 0.083, // Месяц - 1/12 от года
+  _month: 0.083, // Месяц - 1/12 от года
   year: 1.0, // Год - полная сумма
 };
 
 export const LeaderBoard: React.FC = React.memo(() => {
-  const [filterPeriod, setFilterPeriod] = useState<
-    'mat' | 'ytd' | 'month' | 'year'
-  >('mat');
+  const [filterPeriod, setFilterPeriod] = useState<FilterPeriod>('mat');
 
   const baseData = useMemo(
     () =>
@@ -47,6 +54,8 @@ export const LeaderBoard: React.FC = React.memo(() => {
       }),
     []
   );
+
+  const sectionStyle = useSectionStyle();
 
   const data = useMemo(() => {
     const periodMultiplier = PERIOD_MULTIPLIERS[filterPeriod];
@@ -72,7 +81,6 @@ export const LeaderBoard: React.FC = React.memo(() => {
     ],
     []
   );
-  const sectionStyle = useSectionStyle();
 
   return (
     <section
@@ -81,22 +89,33 @@ export const LeaderBoard: React.FC = React.memo(() => {
     >
       <div className="flex items justify-between h-full font-inter">
         <div className="max-w-[30rem] min-w-[30rem] px-6 py-6 flex flex-col justify-between text-[#131313]">
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
-              Рейтинг компаний
-            </h4>
-            <Select<false, typeof filterPeriod>
-              value={filterPeriod}
-              setValue={setFilterPeriod}
-              items={[
-                { value: 'mat', label: 'MAT' },
-                { value: 'ytd', label: 'YTD' },
-                { value: 'month', label: 'Месяц' },
-                { value: 'year', label: 'Год' },
-              ]}
-              triggerText="Тип периода"
-              classNames={{ menu: 'min-w-[7.5rem] right-0' }}
-            />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
+                Рейтинг компаний
+              </h4>
+              <Select<false, typeof filterPeriod>
+                value={filterPeriod}
+                setValue={setFilterPeriod}
+                items={filterItems}
+                triggerText="Тип периода"
+                classNames={{ menu: 'min-w-[7.5rem] right-0' }}
+              />
+            </div>
+            {filterPeriod !== 'mat' && (
+              <UsedFilter
+                usedFilterItems={[
+                  {
+                    label:
+                      filterItems.find(item => item.value === filterPeriod)
+                        ?.label || '',
+                    value: filterPeriod,
+                    onDelete: () => setFilterPeriod('mat'),
+                  },
+                ]}
+                resetFilters={() => setFilterPeriod('mat')}
+              />
+            )}
           </div>
           <div>
             <div className="flex flex-col items-center w-full gap-[1.125rem]">

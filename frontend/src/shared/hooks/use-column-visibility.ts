@@ -1,16 +1,16 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export interface UsecolumnVisibilityOptions<T> {
   allColumns: ColumnDef<T>[];
   defaultVisible?: string[];
-  ignore: string[];
+  ignore?: string[];
 }
 
 export function useColumnVisibility<T>({
   allColumns,
   defaultVisible,
-  ignore,
+  ignore = [],
 }: UsecolumnVisibilityOptions<T>) {
   const getInitialVisible = () =>
     defaultVisible ??
@@ -30,25 +30,24 @@ export function useColumnVisibility<T>({
 
     const currentIdsString = currentIds.sort().join(',');
 
-    if (prevColumnIdsRef.current === currentIdsString) {
-      return;
-    }
+    if (prevColumnIdsRef.current === currentIdsString) return;
 
     prevColumnIdsRef.current = currentIdsString;
 
+    // добавляем новые колонки
     const newColumns = currentIds.filter(id => !visibleColumns.includes(id));
     if (newColumns.length > 0) {
       setVisibleColumns(prev => [...prev, ...newColumns]);
     }
 
+    // удаляем несуществующие
     const removedColumns = visibleColumns.filter(
       id => !currentIds.includes(id)
     );
     if (removedColumns.length > 0) {
       setVisibleColumns(prev => prev.filter(id => currentIds.includes(id)));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allColumns, defaultVisible, ignore]);
+  }, [allColumns, ignore, visibleColumns]);
 
   const columnsForTable = useMemo(
     () =>
@@ -62,34 +61,24 @@ export function useColumnVisibility<T>({
   );
 
   const columnItems = useMemo(() => {
-    const items = allColumns
+    return allColumns
       .filter(col => {
         const id = 'accessorKey' in col ? col.accessorKey : col.id;
         return id !== undefined && !ignore.includes(String(id));
       })
       .map(col => {
         const id = 'accessorKey' in col ? col.accessorKey : col.id;
-        const isLastVisible =
-          visibleColumns.length === 1 && visibleColumns.includes(String(id));
         return {
           value: String(id),
           label: 'header' in col ? (col.header as string) : String(id),
-          disabled: isLastVisible,
+          disabled: false,
         };
       });
-    return items;
-  }, [allColumns, ignore, visibleColumns]);
-
-  const handleSetVisibleColumns = useCallback((newVisible: string[]) => {
-    if (newVisible.length === 0) {
-      return;
-    }
-    setVisibleColumns(newVisible);
-  }, []);
+  }, [allColumns, ignore]);
 
   return {
     visibleColumns,
-    setVisibleColumns: handleSetVisibleColumns,
+    setVisibleColumns,
     columnsForTable,
     columnItems,
   };

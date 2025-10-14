@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 
 import { Month } from '#/shared/constants/months';
+import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import {
   calculateChartAxis,
@@ -32,16 +33,20 @@ const rawData: { month: string; value: number; monthIndex: number }[] = [
 ];
 
 interface DynamicPrimarySalesAsLineProps {
-  period: 'year' | 'month' | 'quarter';
+  period: UsePeriodType;
 }
 
 export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps> =
   React.memo(({ period }) => {
     const sectionStyle = useSectionStyle();
+    const currentYear = 24;
 
     const data = useMemo(() => {
       if (period === 'month') {
-        return rawData;
+        return rawData.map(d => ({
+          ...d,
+          month: `${d.month}-${currentYear}`,
+        }));
       }
 
       if (period === 'year') {
@@ -59,10 +64,10 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
 
       // quarter
       const quarters = [
-        { month: 'Q1', value: 0, monthIndex: 0 },
-        { month: 'Q2', value: 0, monthIndex: 1 },
-        { month: 'Q3', value: 0, monthIndex: 2 },
-        { month: 'Q4', value: 0, monthIndex: 3 },
+        { month: `Q1-${currentYear}`, value: 0, monthIndex: 0 },
+        { month: `Q2-${currentYear}`, value: 0, monthIndex: 1 },
+        { month: `Q3-${currentYear}`, value: 0, monthIndex: 2 },
+        { month: `Q4-${currentYear}`, value: 0, monthIndex: 3 },
       ];
 
       rawData.forEach(item => {

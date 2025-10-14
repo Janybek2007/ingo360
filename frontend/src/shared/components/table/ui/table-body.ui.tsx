@@ -18,7 +18,10 @@ export function TableBody({
         const cells = row.getVisibleCells();
 
         return (
-          <tr key={row.id} className={cn('hover:bg-gray-50 group')}>
+          <tr
+            key={row.id}
+            className={cn('hover:bg-gray-50 group border-b border-[#E4E4E4]')}
+          >
             {row.getVisibleCells().map((cell, cellIndex) => {
               const columnDef = cell.column.columnDef;
               const accessor = columnDef.accessorKey;
@@ -31,17 +34,18 @@ export function TableBody({
                     ...(!isPinned &&
                       accessor !== 'actions' &&
                       getCommonPinningStyles(cell.column)),
-                    maxWidth: cell.column.columnDef.size,
-                    minWidth: cell.column.columnDef.size,
+                    minWidth: cell.column.getSize(),
                   }}
                   className={cn(
                     !isPinned &&
                       cell.column.getIsPinned() &&
                       'bg-white group-hover:bg-gray-50',
                     !isLastCell && 'border-r',
-                    'py-[0.875rem] pl-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
-                    isPinned ? 'sticky top-[3.125rem] bottom-0 z-30' : '',
-                    'overflow-hidden text-ellipsis w-full border-b',
+                    'py-[0.875rem] px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
+                    isPinned
+                      ? 'sticky top-[3.125rem] bottom-0 z-30 border-t'
+                      : '',
+                    'overflow-hidden text-ellipsis border-b',
                     highlightRow?.(row.original)
                   )}
                 >

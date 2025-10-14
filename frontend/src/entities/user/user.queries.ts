@@ -19,16 +19,10 @@ export class UserQueries {
         const response = await http.get('users/me').json<GetUserResponse>();
         return {
           ...response,
-          role: this.buildUserRole(response),
+          // role: this.buildUserRole(response),
+          role: 'customer',
         };
       },
-      // queryFn: async () => {
-      //   const response = await http.get('users/me').json<GetUserResponse>();
-      //   return {
-      //     ...response,
-      //     role: 'administrator' as SessionRole,
-      //   };
-      // },
     });
   }
 

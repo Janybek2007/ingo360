@@ -8,7 +8,6 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { allMonths } from '#/shared/constants/months';
 import {
-  BRANDS,
   EMPLOYEES,
   GROUPS,
   LPUS,
@@ -37,28 +36,32 @@ interface VisitRow {
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [brand, setBrand] = React.useState<string>('');
   const [group, setGroup] = React.useState<string>('');
-  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
-    'money'
-  );
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
-      { value: brand, items: BRANDS, onDelete: () => setBrand('') },
+      rowsCount !== 'all' && {
+        value: rowsCount,
+        getLabelFromValue(value) {
+          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
+        },
+        items: [],
+        onDelete: () => setRowsCount('all'),
+      },
       { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
-  }, [brand, group]);
+  }, [group, rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrand('');
     setGroup('');
+    setRowsCount('all');
   }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<VisitRow>[] => [
       {
-        accessorKey: 'lpu',
+        id: 'lpu',
+        accessorKey: 'lpu.label',
         header: 'ЛПУ',
         size: 124,
         enableColumnFilter: true,
@@ -84,7 +87,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         selectOptions: allMonths.map(month => ({ label: month, value: month })),
       },
       {
-        accessorKey: 'specialty',
+        id: 'specialty',
+        accessorKey: 'specialty.label',
         header: 'Специальность',
         size: 190,
         enableColumnFilter: true,
@@ -93,7 +97,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         selectOptions: SPECIALTIES,
       },
       {
-        accessorKey: 'employee',
+        id: 'employee',
+        accessorKey: 'employee.label',
         header: 'Сотрудник',
         size: 159,
         enableColumnFilter: true,
@@ -101,7 +106,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         filterFn: stringFilter(),
       },
       {
-        accessorKey: 'group',
+        id: 'group',
+        accessorKey: 'group.label',
         header: 'Группа',
         size: 220,
         enableColumnFilter: true,
@@ -109,7 +115,12 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         filterFn: selectFilter(),
         selectOptions: GROUPS,
       },
-      { accessorKey: 'visitsTotal', header: 'Визитов всего', size: 150 },
+      {
+        id: 'visitsTotal',
+        accessorKey: 'visitsTotal',
+        header: 'Визитов всего',
+        size: 150,
+      },
     ],
     []
   );
@@ -123,53 +134,37 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
       id: () => randomId('visit'),
-      lpu: LPUS.map(v => v.value),
+      lpu: LPUS,
       year: [2023, 2024, 2025],
       month: allMonths,
-      specialty: SPECIALTIES.map(v => v.value),
-      employee: EMPLOYEES.map(v => v.value),
-      group: GROUPS.map(v => v.value),
+      specialty: SPECIALTIES,
+      employee: EMPLOYEES,
+      group: GROUPS,
       visitsTotal: () => randomInt(5, 20),
     });
 
     return allData.filter(
       row =>
-        row.lpu.toLowerCase().includes(search.toLowerCase()) ||
+        row.lpu.label.toLowerCase().includes(search.toLowerCase()) ||
         row.month.toLowerCase().includes(search.toLowerCase()) ||
-        row.specialty.toLowerCase().includes(search.toLowerCase()) ||
-        row.employee.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.toLowerCase().includes(search.toLowerCase())
+        row.specialty.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.employee.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.group.label.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, rowsCount]);
 
   return (
     <PageSection
-      title="Сумма визитов за выбранный период"
+      title="Количество визитов за выбранный период"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<false, string>
-            value={brand}
-            setValue={setBrand}
-            items={[{ value: '', label: 'Все' }, ...BRANDS]}
-            triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
-          />
           <Select<false, string>
             value={group}
             setValue={setGroup}
             items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
-          />
-          <Select<false, typeof moneyType>
-            value={moneyType}
-            setValue={setMoneyType}
-            items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
-            ]}
-            triggerText="Деньги/Упаковка"
           />
           <Select<false, typeof rowsCount>
             value={rowsCount}

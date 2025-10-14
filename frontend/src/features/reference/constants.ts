@@ -291,7 +291,11 @@ export const referencesCEFields: Record<
   ],
   'clients/pharmacies': [
     { name: 'name', label: 'Название', placeholder: 'Введите название' },
-    { name: 'indicator', label: 'Индикатор', placeholder: 'Введите индикатор' },
+    {
+      name: 'indicator',
+      label: 'Показатель',
+      placeholder: 'Введите показатель',
+    },
     [
       {
         name: 'company_id',

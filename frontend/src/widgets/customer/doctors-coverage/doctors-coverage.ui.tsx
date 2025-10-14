@@ -5,11 +5,16 @@ import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { allMonths } from '#/shared/constants/months';
 
-const data: { name: string; value: number; fill: string }[] = [
-  { name: 'Лор', value: 250, fill: '#1C0072' },
-  { name: 'Уролог', value: 125, fill: '#BC9BF7' },
-  { name: 'ЛПУ', value: 75, fill: '#FED562' },
-  { name: 'Кардио', value: 50, fill: '#F35656' },
+const data: {
+  name: string;
+  value: number;
+  percentage: number;
+  fill: string;
+}[] = [
+  { name: 'Лор', value: 250, percentage: 40, fill: '#1C0072' },
+  { name: 'Уролог', value: 125, percentage: 25, fill: '#BC9BF7' },
+  { name: 'ЛПУ', value: 75, percentage: 15, fill: '#FED562' },
+  { name: 'Кардио', value: 50, percentage: 20, fill: '#F35656' },
 ];
 
 export const DoctorsCoverage: React.FC = React.memo(() => {
@@ -44,7 +49,7 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
               />
             </div>
             <div className="relative min-h-[21.875rem] max-h-[21.875rem] w-full flex items-center justify-center my-3">
-              <PieChart width={300} height={300}>
+              <PieChart width={380} height={380}>
                 <Pie
                   data={data}
                   dataKey="value"
@@ -55,7 +60,11 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
                   innerRadius={80}
                   outerRadius={110}
                   labelLine={false}
-                  label
+                  label={entry =>
+                    idx === 0
+                      ? String(entry.value)
+                      : `${entry.value} (${entry.percentage}%)`
+                  }
                 >
                   {data.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />

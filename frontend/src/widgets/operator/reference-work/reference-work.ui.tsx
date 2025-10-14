@@ -9,6 +9,7 @@ import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
+import { Button } from '#/shared/components/ui/button';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
@@ -26,7 +27,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
         ),
         {
           id: 'actions',
-          header: '',
+          header: 'Действия',
           size: 200,
           cell: ({ row }) => (
             <div className="flex items-center gap-2 pr-10">
@@ -42,7 +43,6 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
     const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
       useColumnVisibility({
         allColumns,
-        ignore: ['actions'],
       });
 
     return (
@@ -68,17 +68,21 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 setValue={setVisibleColumns}
                 items={columnItems}
                 triggerText="Столбцы"
+                showToggleAll
                 isMultiple
                 checkbox
                 classNames={{
-                  menu: 'min-w-[13.75rem] right-0',
+                  menu: 'w-max right-0',
+                  menuItem: 'pr-10',
                 }}
               />
               <ExportToExcelButton
                 data={currentData}
                 fileName="reference.xlsx"
               />
-
+              <Button className="px-4 py-2 rounded-full">
+                Импорт из файла
+              </Button>
               <AddReferenceWrapper type={current} />
             </div>
           }

@@ -39,20 +39,30 @@ export const Shipments: React.FC = React.memo(() => {
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
+      rowsCount !== 'all' && {
+        value: rowsCount,
+        getLabelFromValue(value) {
+          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
+        },
+        items: [],
+        onDelete: () => setRowsCount('all'),
+      },
       { value: brand, items: BRANDS, onDelete: () => setBrand('') },
       { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
-  }, [brand, group]);
+  }, [brand, group, rowsCount]);
 
   const resetFilters = React.useCallback(() => {
     setBrand('');
     setGroup('');
+    setRowsCount('all');
   }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<ShipmentRow>[] => [
       {
-        accessorKey: 'sku',
+        id: 'sku',
+        accessorKey: 'sku.label',
         header: 'SKU',
         enableColumnFilter: true,
         size: 150,
@@ -62,7 +72,8 @@ export const Shipments: React.FC = React.memo(() => {
         selectOptions: SKUS,
       },
       {
-        accessorKey: 'brand',
+        id: 'brand',
+        accessorKey: 'brand.label',
         header: 'Бренд',
         enableColumnFilter: true,
         size: 150,
@@ -72,7 +83,8 @@ export const Shipments: React.FC = React.memo(() => {
         selectOptions: BRANDS,
       },
       {
-        accessorKey: 'promoType',
+        id: 'promoType',
+        accessorKey: 'promoType.label',
         header: 'Тип промоции',
         enableColumnFilter: true,
         size: 250,
@@ -82,7 +94,8 @@ export const Shipments: React.FC = React.memo(() => {
         selectOptions: PROMOTION_TYPES,
       },
       {
-        accessorKey: 'group',
+        id: 'group',
+        accessorKey: 'group.label',
         header: 'Группа',
         enableColumnFilter: true,
         size: 150,
@@ -92,7 +105,8 @@ export const Shipments: React.FC = React.memo(() => {
         selectOptions: GROUPS,
       },
       {
-        accessorKey: 'distributor',
+        id: 'distributor',
+        accessorKey: 'distributor.label',
         header: 'Дистр',
         enableColumnFilter: true,
         size: 150,
@@ -133,21 +147,21 @@ export const Shipments: React.FC = React.memo(() => {
   const data = useMemo(() => {
     const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
       id: () => randomId('shipment'),
-      sku: SKUS.map(s => s.value),
-      brand: BRANDS.map(b => b.value),
-      promoType: PROMOTION_TYPES.map(p => p.value),
-      group: GROUPS.map(g => g.value),
-      distributor: DISTRIBUTORS.map(d => d.value),
+      sku: SKUS,
+      brand: BRANDS,
+      promoType: PROMOTION_TYPES,
+      group: GROUPS,
+      distributor: DISTRIBUTORS,
       months: () => randomArray(12, 10, 500),
       total: () => 0,
     });
     return allData.filter(
       row =>
-        row.sku.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.toLowerCase().includes(search.toLowerCase()) ||
-        row.promoType.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.toLowerCase().includes(search.toLowerCase())
+        row.sku.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.brand.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.promoType.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.group.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.distributor.label.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, rowsCount]);
 
@@ -167,7 +181,7 @@ export const Shipments: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Отгрузки"
+      title="Первичные продажи"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />

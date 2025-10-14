@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 
 import { ForgotPasswordForm } from '#/features/session/forgot-password';
 import { Assets } from '#/shared/assets';
+import { AnchorLeftIcon } from '#/shared/components/icons';
 import { routePaths } from '#/shared/router';
 import { cn } from '#/shared/utils/cn';
 
@@ -39,7 +40,7 @@ const ForgotPage: React.FC = () => {
               'leading-[143%] tracking-[0.009375rem] gap-[0.375rem]'
             )}
           >
-            <img src={Assets.Icons.AnchorLeft} alt="Anchor Left | Icon" />
+            <AnchorLeftIcon />
             вернуться на главную страницу
           </Link>
         </div>

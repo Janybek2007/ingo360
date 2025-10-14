@@ -33,8 +33,8 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
       (): (ColumnDef<IDbItem> | boolean)[] => [
         current === 'sales/primary'
           ? {
-              accessorKey: 'distributor.id',
-              cell: ({ row }) => row.original.distributor.name,
+              id: 'distributor',
+              accessorKey: 'distributor.name',
               header: 'Сеть',
               size: 130,
               type: 'select',
@@ -49,8 +49,8 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
               ),
             }
           : {
-              accessorKey: 'pharmacy.id',
-              cell: ({ row }) => row.original.pharmacy.name,
+              id: 'pharmacy',
+              accessorKey: 'pharmacy.name',
               header: 'Аптека',
               size: 130,
               type: 'select',
@@ -65,8 +65,8 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
               ),
             },
         current !== 'sales/primary' && {
+          id: 'city',
           accessorKey: 'city',
-          cell: ({ row }) => row.original.city,
           header: 'Город',
           size: 130,
           type: 'string',
@@ -74,9 +74,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           enableColumnFilter: true,
         },
         {
-          accessorKey: 'sku.brand.id',
+          id: 'brand',
+          accessorKey: 'sku.brand.name',
           header: 'Бренд',
-          cell: ({ row }) => row.original.sku.brand.name,
           size: 180,
           type: 'select',
           filterFn: selectFilter(),
@@ -90,9 +90,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           ),
         },
         {
-          accessorKey: 'sku.id',
+          id: 'sku',
+          accessorKey: 'sku.name',
           header: 'Продукт',
-          cell: ({ row }) => row.original.sku.name,
           size: 180,
           type: 'select',
           filterFn: selectFilter(),
@@ -159,7 +159,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
         },
         {
           accessorKey: 'amount',
-          header: 'Количество',
+          header: 'Сумма',
           size: 140,
         },
         {
@@ -234,8 +234,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 setValue={setVisibleColumns}
                 items={columnItems}
                 triggerText="Столбцы"
-                checkbox
+                showToggleAll
                 isMultiple
+                checkbox
                 classNames={{
                   menu: 'min-w-[11.25rem] right-0',
                 }}

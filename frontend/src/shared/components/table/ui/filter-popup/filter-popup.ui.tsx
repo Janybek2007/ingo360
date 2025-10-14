@@ -2,10 +2,9 @@
 import type { SortDirection } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Icon } from '#/shared/components/ui/icon';
+import { LucideFilterIcon } from '#/shared/components/icons';
 import { filterItems } from '#/shared/constants/filter-items';
 import { useClickAway } from '#/shared/hooks/use-click-away';
-import { cn } from '#/shared/utils/cn';
 import { getPopupStyle } from '#/shared/utils/get-popup-style';
 
 import type { IFilterPopupProps } from '../../table.types';
@@ -116,55 +115,51 @@ export function FilterPopup({
 
   return (
     <div
-      style={getPopupStyle(popupPosition)}
       ref={contentRef}
-      className={cn(
-        'absolute z-50 w-max min-w-[18.75rem] max-w-[23rem] bg-white border border-gray-200',
-        'rounded shadow-sm p-3 mt-2'
-      )}
+      style={getPopupStyle(popupPosition)}
+      className="absolute z-50 bg-white border border-gray-300 rounded-sm shadow-xl p-0 mt-1 w-[300px]"
     >
-      <SortButtons
-        isSorted={column.getIsSorted() as SortDirection}
-        toggleSorting={column.toggleSorting}
-        resetSorting={() => {
-          column.clearSorting();
-          onClose();
-        }}
-      />
+      <div className="p-3">
+        <SortButtons
+          isSorted={column.getIsSorted() as SortDirection}
+          toggleSorting={column.toggleSorting}
+          resetSorting={() => {
+            column.clearSorting();
+            onClose();
+          }}
+        />
 
-      {column.columnDef.enableColumnFilter && (
-        <div className="mb-3">
-          <h4 className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
-            <Icon
-              name="lucide:filter"
-              className="text-gray-400 size-[0.875rem]"
-            />
-            Фильтр
-          </h4>
+        {column.columnDef.enableColumnFilter && (
+          <div className="mb-3">
+            <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+              <LucideFilterIcon className="size-[1rem]" />
+              Фильтр
+            </h4>
 
-          {colType === 'select' ? (
-            <FilterSelect
-              value={Array.isArray(value) ? value : []}
-              setValue={setValue}
-              items={selectOptions}
-            />
-          ) : (
-            <FilterInput
-              filterType={filterType}
-              setFilterType={setFilterType}
-              filterItems={filterItems(colType)}
-              colType={colType}
-              value={Array.isArray(value) ? value[0] : value}
-              setValue={setValue}
-              value2={value2}
-              setValue2={setValue2}
-            />
-          )}
-        </div>
-      )}
+            {colType === 'select' ? (
+              <FilterSelect
+                value={Array.isArray(value) ? value : []}
+                setValue={setValue}
+                items={selectOptions}
+              />
+            ) : (
+              <FilterInput
+                filterType={filterType}
+                setFilterType={setFilterType}
+                filterItems={filterItems(colType)}
+                colType={colType}
+                value={Array.isArray(value) ? value[0] : value}
+                setValue={setValue}
+                value2={value2}
+                setValue2={setValue2}
+              />
+            )}
+          </div>
+        )}
 
-      {/* Actions */}
-      <FilterActions onClose={onClose} onApply={applyFilter} />
+        {/* Actions */}
+        <FilterActions onClose={onClose} onApply={applyFilter} />
+      </div>
     </div>
   );
 }

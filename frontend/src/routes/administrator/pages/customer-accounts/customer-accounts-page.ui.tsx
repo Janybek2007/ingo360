@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
-import { CompanyQueries } from '#/entities/company';
 import { UserQueries } from '#/entities/user/user.queries';
 import type { IUserItem } from '#/entities/user/user.types';
 import { AddCustomerModal } from '#/features/customer/add';
@@ -29,10 +28,6 @@ const CustomerAccountsPage: React.FC = () => {
   const [open, { set, clear }] = useStringState(['create', 'edit']);
 
   const customersQuery = useQuery(UserQueries.GetCustomersQuery());
-  const companiesQuery = useQuery(CompanyQueries.GetCompaniesQuery());
-
-  console.log('Customers data:', customersQuery.data);
-  console.log('Companies data:', companiesQuery.data);
 
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [
@@ -56,10 +51,7 @@ const CustomerAccountsPage: React.FC = () => {
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
-        selectOptions: (companiesQuery.data || []).map(company => ({
-          label: company.name,
-          value: company.name,
-        })),
+        selectOptions: [],
       },
       { accessorKey: 'email', header: 'Email', size: 290 },
       {
@@ -86,25 +78,22 @@ const CustomerAccountsPage: React.FC = () => {
         },
       },
     ],
-    [set, companiesQuery.data]
+    [set]
   );
 
   const allData = useMemo((): CustomerRow[] => {
-    if (!customersQuery.data || !companiesQuery.data) return [];
+    if (!customersQuery.data) return [];
 
     return customersQuery.data.map((customer: IUserItem) => {
-      const company = companiesQuery.data.find(
-        c => c.id === customer.company_id
-      );
       return {
         ...customer,
         fullName:
           `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
-        companyName: company?.name || 'Неизвестная компания',
+        companyName: '',
         statusDisplay: customer.is_active ? 'active' : 'inactive',
       } as CustomerRow;
     });
-  }, [customersQuery.data, companiesQuery.data]);
+  }, [customersQuery.data]);
 
   const data = useMemo(
     () =>
@@ -139,23 +128,14 @@ const CustomerAccountsPage: React.FC = () => {
           </div>
         }
       >
-        {customersQuery.isLoading || companiesQuery.isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <div className="text-gray-500">Загрузка данных...</div>
-          </div>
-        ) : customersQuery.isError || companiesQuery.isError ? (
-          <div className="flex justify-center items-center py-8">
-            <div className="text-red-500">Ошибка загрузки данных</div>
-          </div>
-        ) : (
-          <Table
-            columns={allColumns}
-            data={data}
-            isScrollbar
-            maxHeight={500}
-            rounded="none"
-          />
-        )}
+        <Table
+          columns={allColumns}
+          data={data}
+          isScrollbar
+          isLoading={customersQuery.isLoading}
+          maxHeight={500}
+          rounded="none"
+        />
       </PageSection>
     </main>
   );

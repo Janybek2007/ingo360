@@ -8,7 +8,14 @@ import {
 import { Select } from '../ui/select';
 
 export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
-  ({ period, setPeriod, items, selectedValues, onChange }) => {
+  ({
+    period,
+    setPeriod,
+    items,
+    selectedValues,
+    onChange,
+    isSelectValues = true,
+  }) => {
     return (
       <div className="flex gap-4">
         <Select<false, UsePeriodType>
@@ -28,18 +35,20 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
           }}
         />
 
-        <Select<true, string>
-          isMultiple
-          checkbox
-          triggerText={'Выберите значения'}
-          items={items}
-          value={selectedValues}
-          setValue={onChange}
-          classNames={{
-            trigger: 'gap-4 rounded-full justify-between',
-            menu: 'min-w-[10rem] right-0',
-          }}
-        />
+        {isSelectValues && (
+          <Select<true, string>
+            isMultiple
+            checkbox
+            triggerText={'Выберите значения'}
+            items={items}
+            value={selectedValues}
+            setValue={onChange}
+            classNames={{
+              trigger: 'gap-4 rounded-full justify-between',
+              menu: 'min-w-[10rem] right-0',
+            }}
+          />
+        )}
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
@@ -21,19 +21,26 @@ export function Select<ISM extends boolean = false, VT = string>({
   changeTriggerText = false,
   isMultiple,
   labelTemplate = '{label}',
+  showToggleAll = false,
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
 
-  const uniqueItems = React.useMemo(() => {
+  const uniqueItems = useMemo(() => {
     const map = new Map<VT, ISelectItem<VT>>();
     for (const item of items) {
-      if (!map.has(item.value)) {
-        map.set(item.value, item);
-      }
+      if (!map.has(item.value)) map.set(item.value, item);
     }
     return Array.from(map.values());
   }, [items]);
+
+  const isSelected = useCallback(
+    (item: ISelectItem<VT>) => {
+      if (isMultiple && Array.isArray(value)) return value.includes(item.value);
+      return value === item.value;
+    },
+    [value, isMultiple]
+  );
 
   const handleSelect = useCallback(
     (item: ISelectItem<VT>) => {
@@ -50,7 +57,15 @@ export function Select<ISM extends boolean = false, VT = string>({
     [setValue, set, value, isMultiple]
   );
 
-  const findItemLabel = React.useMemo(() => {
+  const handleToggleAll = useCallback(() => {
+    if (!isMultiple || !Array.isArray(value)) return;
+    const allSelected = uniqueItems.every(item => value.includes(item.value));
+    console.log(uniqueItems.map(item => item.value));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setValue(allSelected ? [] : (uniqueItems.map(item => item.value) as any));
+  }, [isMultiple, uniqueItems, value, setValue]);
+
+  const findItemLabel = useMemo(() => {
     if (changeTriggerText && Array.isArray(value)) {
       return uniqueItems
         .filter(item => value.includes(item.value))
@@ -62,15 +77,10 @@ export function Select<ISM extends boolean = false, VT = string>({
     }
   }, [uniqueItems, value, changeTriggerText]);
 
-  const isSelected = useCallback(
-    (item: ISelectItem<VT>) => {
-      if (isMultiple && Array.isArray(value)) {
-        return value.includes(item.value);
-      }
-      return value === item.value;
-    },
-    [value, isMultiple]
-  );
+  const allSelected = useMemo(() => {
+    if (!isMultiple || !Array.isArray(value)) return false;
+    return uniqueItems.every(item => value.includes(item.value));
+  }, [uniqueItems, value, isMultiple]);
 
   return (
     <div className={cn('relative', classNames?.root)} ref={contentRef}>
@@ -85,12 +95,11 @@ export function Select<ISM extends boolean = false, VT = string>({
         onClick={toggle}
         title={findItemLabel || triggerText}
       >
-        {typeof leftIcon == 'function' ? leftIcon(open) : leftIcon}
+        {typeof leftIcon === 'function' ? leftIcon(open) : leftIcon}
         {(triggerText || findItemLabel) && (
           <span
             className={cn(
-              'ext-sm font-medium text-nowrap',
-              'overflow-hidden text-ellipsis max-w-full',
+              'text-nowrap overflow-hidden text-ellipsis max-w-full leading-full',
               classNames?.triggerText
             )}
           >
@@ -99,24 +108,43 @@ export function Select<ISM extends boolean = false, VT = string>({
               : triggerText}
           </span>
         )}
-        {typeof rightIcon == 'function' ? rightIcon(open) : rightIcon}
+        {typeof rightIcon === 'function' ? rightIcon(open) : rightIcon}
       </button>
 
       {open && (
         <div
           className={cn(
             'absolute z-10 w-full bg-white rounded-xl max-h-80 overflow-auto',
-            'py-1 noscrollbar border border-gray-200 shadow',
+            'py-1 noscrollbar border border-gray-200 shadow-xs',
             'top-full mt-1',
             classNames?.menu
           )}
         >
+          {showToggleAll && (
+            <button
+              type="button"
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 w-full text-left hover:bg-blue-50 hover:text-blue-600 transition-colors',
+                classNames?.menuItem
+              )}
+              onClick={handleToggleAll}
+            >
+              <Checkbox
+                checked={allSelected}
+                onChecked={() => handleToggleAll()}
+              />
+              <span className="overflow-hidden max-w-full">
+                {allSelected ? 'Снять все' : 'Выбрать все'}
+              </span>
+            </button>
+          )}
+
           {uniqueItems.map(item => (
             <button
               key={`${item.value}-${item.label}-key`}
               type="button"
               className={cn(
-                'flex items-center justify-between px-3 py-2 cursor-pointer text-left text-nowrap',
+                'flex items-center gap-2 px-3 py-2 cursor-pointer text-left text-nowrap',
                 'w-full hover:bg-blue-50 hover:text-blue-600 transition-colors',
                 'font-normal group',
                 classNames?.menuItem
@@ -127,9 +155,7 @@ export function Select<ISM extends boolean = false, VT = string>({
               <div className="flex items-center gap-2">
                 {item.icon && (
                   <Icon
-                    {...uiSet.icon(item.icon, {
-                      className: 'text-gray-400',
-                    })}
+                    {...uiSet.icon(item.icon, { className: 'text-gray-400' })}
                   />
                 )}
                 {checkbox && (

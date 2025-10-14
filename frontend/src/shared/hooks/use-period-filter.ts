@@ -4,15 +4,16 @@ import { MonthFull } from '#/shared/constants/months';
 
 export type UsePeriodType = 'year' | 'month' | 'quarter';
 
-export interface ISelectItem {
+export interface IFilterPeriodSelectItem {
   label: string;
   value: string;
 }
 
 export type UsePeriodFilterReturn = {
   period: UsePeriodType;
+  isSelectValues?: boolean;
   selectedValues: string[];
-  items: ISelectItem[];
+  items: IFilterPeriodSelectItem[];
   setPeriod: (period: UsePeriodType) => void;
   onChange: (value: string | string[]) => void;
   onReset: VoidFunction;
@@ -58,11 +59,14 @@ export const usePeriodFilter = (): UsePeriodFilterReturn => {
   }, [period, years]);
 
   const items = useMemo(() => {
-    const result: ISelectItem[] = [];
+    const result: IFilterPeriodSelectItem[] = [];
     const toggleLabel = allItemValues.every(v => selectedValues.includes(v))
       ? 'Отменить все'
       : 'Выбрать все';
-    const toggleItem: ISelectItem = { label: toggleLabel, value: 'toggle-all' };
+    const toggleItem: IFilterPeriodSelectItem = {
+      label: toggleLabel,
+      value: 'toggle-all',
+    };
     result.push(toggleItem);
 
     years.forEach(year => {

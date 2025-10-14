@@ -2,15 +2,13 @@ import React from 'react';
 import { Link } from 'react-router';
 
 import { Button } from '#/shared/components/ui/button';
-import { Checkbox } from '#/shared/components/ui/checkbox';
 import { FormField } from '#/shared/components/ui/form-field';
 import { routePaths } from '#/shared/router';
 
 import { useLoginMutation } from './login.mutation';
 
 export const LoginForm: React.FC = React.memo(() => {
-  const { onSubmit, register, status, errors, rememberMeBind } =
-    useLoginMutation();
+  const { onSubmit, register, status, errors } = useLoginMutation();
 
   return (
     <form onSubmit={onSubmit}>
@@ -34,16 +32,7 @@ export const LoginForm: React.FC = React.memo(() => {
         />
       </div>
       <div className="flex items-center justify-between mt-10 mb-5 rounded">
-        <div className="flex items-center gap-2">
-          <Checkbox {...rememberMeBind} />
-          <button
-            type="button"
-            onClick={rememberMeBind.onToggle}
-            className="text-c1__1"
-          >
-            Запомнить меня
-          </button>
-        </div>
+        <div></div>
         <Link
           to={routePaths.auth.forgot}
           className="font-medium underline text-c1__2"

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
 import { cn } from '#/shared/utils/cn';
 
-import { Icon } from '../../ui/icon';
+import { LucideFilterIcon } from '../../icons';
 import type { ITableHeaderProps } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 import { FilterPopup } from './filter-popup/filter-popup.ui';
@@ -17,7 +17,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
   return (
     <thead className={cn('sticky top-0 z-10')}>
       {table.getHeaderGroups().map(headerGroup => (
-        <tr key={headerGroup.id} className="bg-[#F9F9F9]">
+        <tr key={headerGroup.id}>
           {headerGroup.headers.map(header => {
             const columnDef = header.column.columnDef;
             const canFilter =
@@ -25,17 +25,16 @@ export function TableHeader({ table }: ITableHeaderProps) {
 
             return (
               <th
+                onDoubleClick={() => header.column.resetSize()}
                 key={header.id}
                 className={cn(
-                  'py-4 pl-4 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
-                  'border-b border-[#E4E4E4] not-last:border-r bg-[#F9F9F9] group'
+                  'py-4 pl-4 pr-10 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
+                  'border-b border-[#E4E4E4] not-last:border-r bg-gray-50 group'
                 )}
                 style={{
                   ...getCommonPinningStyles(header.column),
-                  minWidth: header.column.getSize(),
                   maxWidth: header.column.getSize(),
                 }}
-                onDoubleClick={() => header.column.resetSize()}
               >
                 <button
                   type="button"
@@ -43,7 +42,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
                   onMouseDown={header.getResizeHandler()}
                   onTouchStart={header.getResizeHandler()}
                   className={cn(
-                    'absolute right-0 top-0 h-full w-2 select-none touch-manipulation',
+                    'absolute right-0 top-0 h-full w-1.5 select-none touch-manipulation',
                     'bg-transparent hover:bg-blue-400/50 active:bg-blue-500 transition-colors'
                   )}
                   style={{
@@ -69,7 +68,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
                         );
                       }}
                     >
-                      <Icon name="lucide:filter" className="size-[1rem]" />
+                      <LucideFilterIcon className="size-[1rem]" />
                     </button>
                   )}
                 </div>

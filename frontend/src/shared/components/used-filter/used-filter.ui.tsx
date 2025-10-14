@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Icon } from '../ui/icon';
+import { LucideXIcon } from '../icons';
 import type { IUsedFilterItem, IUsedFilterProps } from './used-filter.types';
 
 export const UsedFilter: React.FC<IUsedFilterProps> = ({
@@ -12,7 +12,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     const result: IUsedFilterItem[] = [];
 
     usedFilterItems.forEach(item => {
-      const [type, year] = item.value.split('-');
+      const [type, year] = String(item.value).split('-');
       if (type === 'year') {
         const yearItem = { ...item, subItems: [] };
         yearsMap.set(year, yearItem);
@@ -21,7 +21,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     });
 
     usedFilterItems.forEach(item => {
-      const [type, year] = item.value.split('-');
+      const [type, year] = String(item.value).split('-');
       if ((type === 'month' || type === 'quarter') && yearsMap.has(year)) {
         yearsMap
           .get(year)!
@@ -31,12 +31,14 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
 
     yearsMap.forEach(yearItem => {
       yearItem.subItems?.sort(
-        (a, b) => Number(a.value.split('-')[2]) - Number(b.value.split('-')[2])
+        (a, b) =>
+          Number(String(a.value).split('-')[2]) -
+          Number(String(b.value).split('-')[2])
       );
     });
 
     usedFilterItems.forEach(item => {
-      const [type] = item.value.split('-');
+      const [type] = String(item.value).split('-');
       if (!['year', 'month', 'quarter'].includes(type)) {
         result.push(item);
       }
@@ -62,7 +64,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
               className="text-gray-400 hover:text-gray-600 transition-colors"
               aria-label={`Удалить фильтр ${item.label}`}
             >
-              <Icon name="lucide:x" className="size-3.5" />
+              <LucideXIcon className="size-4" />
             </button>
           </div>
 
@@ -80,7 +82,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
                     className="text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label={`Удалить ${sub.label}`}
                   >
-                    <Icon name="lucide:x" className="size-3" />
+                    <LucideXIcon className="size-3" />
                   </button>
                 </div>
               ))}

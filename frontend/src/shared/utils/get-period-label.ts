@@ -1,7 +1,7 @@
 import { MonthFull } from '#/shared/constants/months';
 
-export function getPeriodLabel(value: string): string {
-  const parts = value.split('-');
+export function getPeriodLabel(value: string | number): string {
+  const parts = String(value).split('-');
 
   if (parts[0] === 'year') {
     return parts[1];
@@ -20,5 +20,5 @@ export function getPeriodLabel(value: string): string {
     return `${quarter}кв ${year}`;
   }
 
-  return value;
+  return value.toString();
 }

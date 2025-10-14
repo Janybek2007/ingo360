@@ -18,7 +18,7 @@ export const Sidebar: React.FC = React.memo(() => {
   return (
     <aside
       id="sidebar"
-      className="min-w-[16.875rem] max-w-[16.875rem] border-l border-r border-c3 bg-white h-screen py-8 px-6 flex flex-col"
+      className="min-w-[18.75rem] max-w-[18.75rem] border-l border-r border-c3 bg-white h-screen py-8 px-6 flex flex-col"
     >
       <div className="mb-8">
         <img

@@ -1,10 +1,8 @@
-import type { ICheckboxProps } from '../checkbox';
 import type { IIconProps } from '../icon';
 
 export interface IDropdown {
   label: string;
   icon?: string | IIconProps;
-  checkbox?: Pick<ICheckboxProps, 'checked' | 'onChecked'>;
   onSelect?: VoidFunction;
 }
 

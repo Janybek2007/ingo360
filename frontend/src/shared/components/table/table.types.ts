@@ -74,7 +74,7 @@ export interface ITableHeaderProps {
 
 export interface IFilterPopupProps {
   column: Column<any, unknown>;
-  onClose: () => void;
+  onClose: VoidFunction;
   popupPosition: TableContextProps['popupPosition'];
 }
 

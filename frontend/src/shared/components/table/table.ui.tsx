@@ -30,8 +30,8 @@ export const Table: React.FC<ITableProps> = React.memo(
     rounded = 'lg',
     highlightRow,
     pinnedRow,
-    isLoading,
-    isEmpty,
+    isLoading = false,
+    isEmpty = false,
     loadingNode,
     emptyNode,
     filters,
@@ -63,8 +63,8 @@ export const Table: React.FC<ITableProps> = React.memo(
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
+      defaultColumn: { minSize: 40 },
       columnResizeMode: 'onChange',
-      defaultColumn: { size: 200, minSize: 100 },
     });
 
     const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -72,7 +72,10 @@ export const Table: React.FC<ITableProps> = React.memo(
     const { thumbWidth, thumbPosition, onThumbMouseDown, isDragging } =
       useTableScrollbar(tableContainerRef, scrollbarRef, isScrollbar);
 
-    const showEmpty = isEmpty || data.length === 0;
+    const showEmpty =
+      isEmpty ||
+      data.length === 0 ||
+      table.getFilteredRowModel().rows.length === 0;
 
     const allUsedFilters = React.useMemo(
       () =>
@@ -116,30 +119,29 @@ export const Table: React.FC<ITableProps> = React.memo(
             id="custom-table"
             className="w-full text-sm border-separate border-spacing-0"
           >
-            <TableHeader table={table} />
-            {isLoading ? (
-              <tbody>
-                <tr>
-                  <td colSpan={columns.length} className="py-14 text-center">
-                    {loadingNode || 'Загрузка...'}
-                  </td>
-                </tr>
-              </tbody>
-            ) : showEmpty ? (
-              <tbody>
-                <tr>
-                  <td colSpan={columns.length} className="py-14 text-center">
-                    {emptyNode || 'Отсутствуют данные'}
-                  </td>
-                </tr>
-              </tbody>
-            ) : (
-              <TableBody
-                table={table}
-                highlightRow={highlightRow}
-                pinnedRow={pinnedRow}
-                rowTotal={rowTotal}
+            {columns.length === 0 || isLoading || showEmpty ? (
+              <TableState
+                state={
+                  columns.length === 0
+                    ? 'not-columns'
+                    : isLoading
+                      ? 'loading'
+                      : 'empty'
+                }
+                colSpan={columns.length}
+                loadingNode={loadingNode}
+                emptyNode={emptyNode}
               />
+            ) : (
+              <>
+                <TableHeader table={table} />
+                <TableBody
+                  table={table}
+                  highlightRow={highlightRow}
+                  pinnedRow={pinnedRow}
+                  rowTotal={rowTotal}
+                />
+              </>
             )}
           </table>
         </div>
@@ -158,4 +160,38 @@ export const Table: React.FC<ITableProps> = React.memo(
   }
 );
 
+const TableState: React.FC<{
+  state: 'not-columns' | 'loading' | 'empty';
+  colSpan: number;
+  loadingNode?: React.ReactNode;
+  emptyNode?: React.ReactNode;
+}> = React.memo(({ state, colSpan, loadingNode, emptyNode }) => {
+  return state === 'not-columns' ? (
+    <tbody>
+      <tr>
+        <td colSpan={colSpan} className="py-14 text-center text-gray-500">
+          Нет выбранных колонок для отображения
+        </td>
+      </tr>
+    </tbody>
+  ) : state === 'loading' ? (
+    <tbody>
+      <tr>
+        <td colSpan={colSpan} className="py-14 text-center">
+          {loadingNode || 'Загрузка...'}
+        </td>
+      </tr>
+    </tbody>
+  ) : (
+    <tbody>
+      <tr>
+        <td colSpan={colSpan} className="py-14 text-center">
+          {emptyNode || 'Отсутствуют данные'}
+        </td>
+      </tr>
+    </tbody>
+  );
+});
+
+TableState.displayName = '_TableState_';
 Table.displayName = '_Table_';

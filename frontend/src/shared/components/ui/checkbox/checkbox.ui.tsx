@@ -7,27 +7,23 @@ import type { ICheckboxProps } from './checkbox.types';
 const Checkbox: React.FC<ICheckboxProps> = React.memo(
   ({ classNames, checked, onChecked }) => {
     return (
-      <div
-        role="checkbox"
-        aria-checked={checked}
-        tabIndex={0}
-        onClick={() => onChecked?.(!checked)}
-        onKeyDown={e => {
-          if (e.key === ' ' || e.key === 'Enter') {
-            e.preventDefault();
-            onChecked?.(!checked);
-          }
-        }}
+      <label
         className={cn(
-          'w-[1.115rem] h-[1.115rem] rounded-md border border-gray-300 flexCenter cursor-pointer select-none',
+          'inline-flex items-center justify-center w-[1.115rem] h-[1.115rem] rounded-md border border-gray-300 cursor-pointer select-none',
           'transition-all duration-200',
           checked ? 'bg-blue-500 border-blue-500' : 'bg-white',
           classNames?.root
         )}
       >
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={e => onChecked?.(e.target.checked)}
+          className="hidden"
+        />
         {checked && (
           <svg
-            className="w-[0.65rem] h-[0.65rem] text-white"
+            className="w-[0.65rem] h-[0.65rem] text-white pointer-events-none"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -38,7 +34,7 @@ const Checkbox: React.FC<ICheckboxProps> = React.memo(
             <polyline points="20 6 9 17 4 12" />
           </svg>
         )}
-      </div>
+      </label>
     );
   }
 );

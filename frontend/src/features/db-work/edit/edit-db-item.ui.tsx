@@ -3,7 +3,7 @@ import React from 'react';
 
 import { DbQueries, type IDbItem } from '#/entities/db';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { Icon } from '#/shared/components/ui/icon';
+import { MdiPencilIcon } from '#/shared/components/icons';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
@@ -73,7 +73,7 @@ export const EditDbItemWrapper: React.FC<{
         title="Редактировать"
         onClick={toggle}
       >
-        <Icon name="mdi:pencil" className="size-[1.125rem]" />
+        <MdiPencilIcon className="size-[1.125rem]" />
       </button>
     </>
   );

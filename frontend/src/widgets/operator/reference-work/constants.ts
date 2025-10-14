@@ -30,11 +30,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'region.id',
+      id: 'region',
+      accessorKey: 'region.name',
       header: 'Область',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.region?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -56,11 +56,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'country.id',
+      id: 'country',
+      accessorKey: 'country.name',
       header: 'Страна',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.country?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -82,11 +82,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'settlement.id',
+      id: 'settlement',
+      accessorKey: 'settlement.name',
       header: 'Населённый пункт',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.settlement?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -98,11 +98,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'region.id',
+      id: 'region',
+      accessorKey: 'region.name',
       header: 'Область',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.region?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -116,11 +116,11 @@ export const referencesColumnsWithType: Record<
   ],
   'products/product-groups': data => [
     {
-      accessorKey: 'company.id',
+      id: 'company',
+      accessorKey: 'company.name',
       header: 'Компания',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -160,11 +160,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'company.id',
+      id: 'company',
+      accessorKey: 'company.name',
       header: 'Компания',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -176,11 +176,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'promotion_type.id',
+      id: 'promotion_type',
+      accessorKey: 'promotion_type.name',
       header: 'Тип промоции',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.promotion_type?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -192,11 +192,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'product_group.id',
+      id: 'product_group',
+      accessorKey: 'product_group.name',
       header: 'Группа',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.product_group?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -248,11 +248,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'company.id',
+      id: 'company',
+      accessorKey: 'company.name',
       header: 'Компания',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -264,11 +264,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'brand.id',
+      id: 'brand',
+      accessorKey: 'brand.name',
       header: 'Бренд',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.brand?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -280,11 +280,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'promotion_type.id',
+      id: 'promotion_type',
+      accessorKey: 'promotion_type.name',
       header: 'Тип промоции',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.promotion_type?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -296,11 +296,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'product_group.id',
+      id: 'product_group',
+      accessorKey: 'product_group.name',
       header: 'Группа',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.product_group?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -312,11 +312,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'dosage_form.id',
+      id: 'dosage_form',
+      accessorKey: 'dosage_form.name',
       header: 'Форма выпуска',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.dosage_form?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -328,11 +328,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'dosage.id',
+      id: 'dosage',
+      accessorKey: 'dosage.name',
       header: 'Дозировка',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.dosage?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -344,11 +344,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'segment.id',
+      id: 'segment',
+      accessorKey: 'segment.name',
       header: 'Сегмент',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.segment?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -380,11 +380,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'company.id',
+      id: 'company',
+      accessorKey: 'company.name',
       header: 'Компания',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -396,11 +396,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'position.id',
+      id: 'position',
+      accessorKey: 'position.name',
       header: 'Должность',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.position?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -412,11 +412,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'product_group.id',
+      id: 'product_group',
+      accessorKey: 'product_group.name',
       header: 'Группа',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.product_group?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -428,11 +428,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'region.id',
+      id: 'region',
+      accessorKey: 'region.name',
       header: 'Регион',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.region?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -444,11 +444,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'district.id',
+      id: 'district',
+      accessorKey: 'district.name',
       header: 'Район',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.district?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -480,11 +480,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'settlement.id',
+      id: 'settlement',
+      accessorKey: 'settlement.name',
       header: 'Населенный пункт',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.settlement?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -496,11 +496,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'district.id',
+      id: 'district',
+      accessorKey: 'district.name',
       header: 'Район',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.district?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -550,11 +550,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'responsible_employee.id',
+      id: 'responsible_employee',
+      accessorKey: 'responsible_employee.full_name',
       header: 'Ответственный сотрудник',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.responsible_employee?.full_name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -566,11 +566,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'medical_facility.id',
+      id: 'medical_facility',
+      accessorKey: 'medical_facility.name',
       header: 'ЛПУ',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.medical_facility?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -582,11 +582,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'speciality.id',
+      id: 'speciality',
+      accessorKey: 'speciality.name',
       header: 'Специальность',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.speciality?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -598,11 +598,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'client_category.id',
+      id: 'client_category',
+      accessorKey: 'client_category.name',
       header: 'Категория',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.client_category?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -624,11 +624,11 @@ export const referencesColumnsWithType: Record<
       type: 'string',
     },
     {
-      accessorKey: 'company.id',
+      id: 'company',
+      accessorKey: 'company.name',
       header: 'Компания',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.company?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -640,11 +640,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'distributor.id',
+      id: 'distributor',
+      accessorKey: 'distributor.name',
       header: 'Дистрибьютор/Сеть',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.distributor?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -656,11 +656,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'responsible_employee.id',
+      id: 'responsible_employee',
+      accessorKey: 'responsible_employee.full_name',
       header: 'Ответственный сотрудник',
       size: 250,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.responsible_employee?.full_name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -672,11 +672,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'settlement.id',
+      id: 'settlement',
+      accessorKey: 'settlement.name',
       header: 'Населенный пункт',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.settlement?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -688,11 +688,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'district.id',
+      id: 'district',
+      accessorKey: 'district.name',
       header: 'Район',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.district?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -705,7 +705,7 @@ export const referencesColumnsWithType: Record<
     },
     {
       accessorKey: 'indicator',
-      header: 'Индикатор',
+      header: 'Показатель',
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
@@ -718,11 +718,11 @@ export const referencesColumnsWithType: Record<
         ),
     },
     {
-      accessorKey: 'client_category.id',
+      id: 'client_category',
+      accessorKey: 'client_category.name',
       header: 'Категория',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.client_category?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(
@@ -734,11 +734,11 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      accessorKey: 'product_group.id',
+      id: 'product_group',
+      accessorKey: 'product_group.name',
       header: 'Группа',
       size: 200,
       enableColumnFilter: true,
-      cell: ({ row }) => row.original.product_group?.name,
       filterFn: selectFilter(),
       type: 'select',
       selectOptions: getUniqueItems(

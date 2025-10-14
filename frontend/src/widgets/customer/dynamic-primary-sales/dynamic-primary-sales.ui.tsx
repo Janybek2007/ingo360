@@ -42,16 +42,8 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
             periodFilter.onChange(newValues);
           },
         },
-        {
-          value: brand,
-          items: BRANDS,
-          onDelete: () => setBrand(''),
-        },
-        {
-          value: group,
-          items: GROUPS,
-          onDelete: () => setGroup(''),
-        },
+        { value: brand, items: BRANDS, onDelete: () => setBrand('') },
+        { value: group, items: GROUPS, onDelete: () => setGroup('') },
       ]);
     }, [periodFilter, brand, group]);
 
@@ -59,6 +51,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       periodFilter.onReset();
       setBrand('');
       setGroup('');
+      periodFilter.setPeriod('month');
     }, [periodFilter]);
 
     return (
@@ -96,7 +89,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               labelTemplate="Группа: {label}"
               classNames={{ menu: 'w-[10rem]' }}
             />
-            <PeriodFilters {...periodFilter} />
+            <PeriodFilters isSelectValues={as == 'mixed'} {...periodFilter} />
           </div>
         }
       >

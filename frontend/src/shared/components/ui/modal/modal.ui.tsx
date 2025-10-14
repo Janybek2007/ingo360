@@ -3,7 +3,7 @@ import React from 'react';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { cn } from '#/shared/utils/cn';
 
-import { Icon } from '../icon';
+import { LucideXIcon } from '../../icons';
 import type { IModalProps } from './modal.types';
 
 const Modal: React.FC<IModalProps> = React.memo(
@@ -39,7 +39,7 @@ const Modal: React.FC<IModalProps> = React.memo(
               onClick={onClose}
               className="size-8 rounded-full bg-[#EDEDED] text-[#818181] flexCenter"
             >
-              <Icon name="lucide:x" className="size-[1.25rem]" />
+              <LucideXIcon className="size-[1.25rem]" />
             </button>
           </div>
           {children}

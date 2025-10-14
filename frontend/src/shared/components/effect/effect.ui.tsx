@@ -15,7 +15,7 @@ export const Effect: React.FC = React.memo(() => {
     if (scale === 1.25) {
       root.style.setProperty('font-size', '85%');
     } else if (scale === 1) {
-      root.style.setProperty('font-size', '95%');
+      root.style.setProperty('font-size', '90%');
     }
 
     if (expHeaderSize) {

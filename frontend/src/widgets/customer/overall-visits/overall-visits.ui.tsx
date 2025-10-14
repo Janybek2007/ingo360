@@ -14,6 +14,7 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { Month } from '#/shared/constants/months';
+import { GROUPS } from '#/shared/constants/test_constants';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import {
@@ -40,23 +41,10 @@ const rawData: { month: string; value: number; monthIndex: number }[] = [
 
 export const OverallVisits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const [brand, setBrand] = React.useState<string>('');
   const [group, setGroup] = React.useState<string>('');
   const periodFilter = usePeriodFilter();
 
   const usedFilterItems = React.useMemo(() => {
-    const brandItems = [
-      { value: 'brand1', label: 'Бренд 1' },
-      { value: 'brand2', label: 'Бренд 2' },
-      { value: 'brand3', label: 'Бренд 3' },
-    ];
-
-    const groupItems = [
-      { value: 'group1', label: 'Группа 1' },
-      { value: 'group2', label: 'Группа 2' },
-      { value: 'group3', label: 'Группа 3' },
-    ];
-
     return getUsedFilterItems([
       {
         value: periodFilter.selectedValues,
@@ -68,21 +56,12 @@ export const OverallVisits: React.FC = React.memo(() => {
           periodFilter.onChange(newValues);
         },
       },
-      {
-        value: brand,
-        items: brandItems,
-        onDelete: () => setBrand(''),
-      },
-      {
-        value: group,
-        items: groupItems,
-        onDelete: () => setGroup(''),
-      },
+      { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
-  }, [periodFilter, brand, group]);
+  }, [periodFilter, group]);
+
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    setBrand('');
     setGroup('');
   }, [periodFilter]);
 
@@ -128,26 +107,9 @@ export const OverallVisits: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4">
           <Select<false, string>
-            value={brand}
-            setValue={setBrand}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
-            triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
-          />
-          <Select<false, string>
             value={group}
             setValue={setGroup}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
+            items={[{ value: '', label: 'Все' }, ...GROUPS]}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
@@ -193,7 +155,7 @@ export const OverallVisits: React.FC = React.memo(() => {
             <Tooltip
               labelFormatter={label => `${label}`}
               formatter={value => {
-                return [(value as number).toLocaleString('ru-RU'), 'Визиты'];
+                return [(value as number).toLocaleString('ru-RU'), 'Визитов'];
               }}
             />
 

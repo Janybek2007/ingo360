@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
 import { ConfirmModal } from '#/shared/components/confirm-modal';
-import { Icon } from '#/shared/components/ui/icon';
+import { MdiDeleteIcon } from '#/shared/components/icons';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { ReferencesType } from '#/shared/types/references.type';
 
@@ -34,7 +34,7 @@ export const DeleteReferenceWrapper: React.FC<{
         title="Удалить"
         onClick={toggle}
       >
-        <Icon name="mdi:delete" className="size-[1.125rem]" />
+        <MdiDeleteIcon className="size-[1.125rem]" />
       </button>
     </>
   );

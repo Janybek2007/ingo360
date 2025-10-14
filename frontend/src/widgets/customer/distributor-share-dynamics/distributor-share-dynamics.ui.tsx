@@ -53,16 +53,8 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
           periodFilter.onChange(newValues);
         },
       },
-      {
-        value: brand,
-        items: BRANDS,
-        onDelete: () => setBrand(''),
-      },
-      {
-        value: group,
-        items: GROUPS,
-        onDelete: () => setGroup(''),
-      },
+      { value: brand, items: BRANDS, onDelete: () => setBrand('') },
+      { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
   }, [periodFilter, brand, group]);
 

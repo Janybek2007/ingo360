@@ -3,7 +3,7 @@ import { useDebounce } from 'use-debounce';
 
 import { cn } from '#/shared/utils/cn';
 
-import { Icon } from '../ui/icon';
+import { LucideSearchIcon } from '../icons';
 import type { ISearchInputProps } from './search-input.types';
 
 export const SearchInput: React.FC<ISearchInputProps> = React.memo(
@@ -18,12 +18,12 @@ export const SearchInput: React.FC<ISearchInputProps> = React.memo(
     return (
       <div
         className={cn(
-          'px-3 py-2 rounded-lg border border-gray-300 gap-2.5',
-          'flex items-center justify-start',
-          'bg-white'
+          'border border-gray-300 rounded-lg gap-2 px-3 py-2',
+          'bg-white hover:border-gray-400',
+          'flex items-center justify-start transition-colors'
         )}
       >
-        <Icon name="lucide:search" className="size-[1.15rem]" color="#94A3B8" />
+        <LucideSearchIcon className="size-[1.15rem] text-[rgb(148, 163, 184)]" />
         <input
           type="text"
           value={value}

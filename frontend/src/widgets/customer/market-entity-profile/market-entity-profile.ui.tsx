@@ -72,7 +72,9 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
   const [filterPeriod, setFilterPeriod] = useState<
     'mat' | 'ytd' | 'month' | 'year'
   >('mat');
-  const [filterTop, setFilterTop] = useState<'all' | 'top5' | 'top10'>('all');
+  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
+    'money'
+  );
 
   const allData = useMemo(() => {
     const companiesData = generateMocks(100, {
@@ -116,14 +118,8 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
       place: index + 1,
     })) as TableRow[];
 
-    if (filterTop === 'top5') {
-      return currentData.slice(0, 5);
-    } else if (filterTop === 'top10') {
-      return currentData.slice(0, 10);
-    }
-
     return currentData;
-  }, [allData, activeTab, filterPeriod, filterTop]);
+  }, [allData, activeTab, filterPeriod]);
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
@@ -139,6 +135,15 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
       title="Профайл компании, бренда или сегмента"
       headerEnd={
         <div className="flex gap-4 items-center relative z-100">
+          <Select<false, typeof moneyType>
+            value={moneyType}
+            setValue={setMoneyType}
+            items={[
+              { value: 'money', label: 'Деньги' },
+              { value: 'packaging', label: 'Упаковка' },
+            ]}
+            triggerText="Деньги/Упаковка"
+          />
           <Select<false, typeof filterPeriod>
             value={filterPeriod}
             setValue={setFilterPeriod}
@@ -151,26 +156,17 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
             triggerText="Тип периода"
             classNames={{ menu: 'min-w-[7.5rem] right-0' }}
           />
-          <Select<false, typeof filterTop>
-            value={filterTop}
-            setValue={setFilterTop}
-            items={[
-              { value: 'all', label: 'Все' },
-              { value: 'top5', label: 'Топ 5' },
-              { value: 'top10', label: 'Топ 10' },
-            ]}
-            triggerText="Топ 10"
-            classNames={{ menu: 'min-w-[7.5rem] right-0' }}
-          />
         </div>
       }
       classNames={{ wrapper: 'gap-3' }}
       afterHeader={
-        <Tabs
-          saveCurrent={current => setActiveTab(current as ETabs)}
-          classNames={{ tabs: 'p-0 rounded-none border-none' }}
-          items={tabItems}
-        />
+        <>
+          <Tabs
+            saveCurrent={current => setActiveTab(current as ETabs)}
+            classNames={{ tabs: 'p-0 rounded-none border-none' }}
+            items={tabItems}
+          />
+        </>
       }
     >
       <div className="flex items justify-between h-full font-inter">

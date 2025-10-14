@@ -1,3 +1,4 @@
+import '../shared/assets/fonts/fonts.css';
 import './styles/app.css';
 
 import { createRoot } from 'react-dom/client';

@@ -6,12 +6,12 @@ const RequiredNumber = (message: string) => z.number(message);
 
 const DefaultSchema = z.object({
   sku_id: RequiredNumber('Выберите SKU'),
-  indicator: z.string().min(1, 'Введите индикатор'),
+  indicator: z.string().min(1, 'Введите показатель'),
   month: RequiredNumber('Выберите месяц'),
   year: RequiredNumber('Выберите год'),
   quarter: RequiredNumber('Выберите квартал'),
-  packages: RequiredNumber('Выберите пакеты'),
-  amount: RequiredNumber('Выберите количество'),
+  packages: RequiredNumber('Выберите упаковку'),
+  amount: RequiredNumber('Выберите сумму'),
 });
 
 export const dbItemContractWithType: Record<DbType, z.ZodTypeAny> = {

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Assets } from '#/shared/assets';
-import { Icon } from '#/shared/components/ui/icon';
+import { FlowbiteBellOutlineIcon } from '#/shared/components/icons';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
 
@@ -36,7 +36,7 @@ export const Notifications: React.FC = React.memo(() => {
         className="relative p-2 border border-[#E7EAE9] rounded-lg hover:bg-gray-50"
         onClick={toggle}
       >
-        <Icon name="flowbite:bell-outline" className="size-[1.25rem]" />
+        <FlowbiteBellOutlineIcon className="size-[1.25rem]" />
         {notifications.length > 0 && (
           <span className="absolute -top-1 -right-1 block h-5 w-5 rounded-full bg-red-500 text-white text-xs text-center leading-5">
             {notifications.length}

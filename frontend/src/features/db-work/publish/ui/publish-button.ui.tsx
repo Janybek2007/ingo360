@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Icon } from '#/shared/components/ui/icon';
+import { MdiPublishIcon } from '#/shared/components/icons';
 import type { DbType } from '#/shared/types/db.type';
 
 import { usePublishMutation } from '../publish.mutation';
@@ -19,7 +19,7 @@ export const PublishButton: React.FC<{
       disabled={mutation.isPending}
       onClick={() => mutation.mutateAsync([id])}
     >
-      <Icon name="mdi:publish" className="size-[1.125rem]" />
+      <MdiPublishIcon className="size-[1.125rem]" />
     </button>
   );
 });

@@ -1,7 +1,7 @@
 export interface IUsedFilterItem {
   label: string;
-  value: string;
-  onDelete: () => void;
+  value: string | number;
+  onDelete: VoidFunction;
   subItems?: Omit<IUsedFilterItem, 'subItems'>[];
 }
 

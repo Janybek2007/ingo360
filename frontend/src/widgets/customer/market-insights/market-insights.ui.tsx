@@ -6,6 +6,13 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import {
+  BRANDS,
+  DISTRIBUTORS,
+  GROUPS,
+  PROMOTION_TYPES,
+  SKUS,
+} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { stringFilter } from '#/shared/utils/filter';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -23,73 +30,35 @@ interface MarketRow {
   YTD6M25: number;
 }
 
-const SKUS = [
-  'Товар 1',
-  'Товар 2',
-  'Товар 3',
-  'Товар 4',
-  'Товар 5',
-  'Товар 6',
-  'Товар 7',
-  'Товар 8',
-  'Товар 9',
-  'Товар 10',
-  'Товар 11',
-  'Товар 12',
-  'Товар 13',
-  'Товар 14',
-  'Товар 15',
-] as const;
-const BRANDS = ['Бренд 1', 'Бренд 2'] as const;
-const PROMO_TYPES = ['Промо', 'Акция'] as const;
-const GROUPS = ['Группа 1', 'Группа 2'] as const;
-const DISTRIBUTORS = ['Эрай', 'Альфа', 'Бета'] as const;
-
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [brand, setBrand] = React.useState<string>('');
-  const [group, setGroup] = React.useState<string>('');
   const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
     'money'
   );
 
   const usedFilterItems = React.useMemo(() => {
-    const brandItems = [
-      { value: 'brand1', label: 'Бренд 1' },
-      { value: 'brand2', label: 'Бренд 2' },
-      { value: 'brand3', label: 'Бренд 3' },
-    ];
-
-    const groupItems = [
-      { value: 'group1', label: 'Группа 1' },
-      { value: 'group2', label: 'Группа 2' },
-      { value: 'group3', label: 'Группа 3' },
-    ];
-
     return getUsedFilterItems([
-      {
-        value: brand,
-        items: brandItems,
-        onDelete: () => setBrand(''),
-      },
-      {
-        value: group,
-        items: groupItems,
-        onDelete: () => setGroup(''),
+      rowsCount !== 'all' && {
+        value: rowsCount,
+        getLabelFromValue(value) {
+          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
+        },
+        items: [],
+        onDelete: () => setRowsCount('all'),
       },
     ]);
-  }, [brand, group]);
+  }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrand('');
-    setGroup('');
+    setRowsCount('all');
   }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<MarketRow>[] => [
       {
-        accessorKey: 'sku',
+        id: 'sku',
+        accessorKey: 'sku.label',
         header: 'Компания',
         size: 134,
         enableColumnFilter: true,
@@ -97,7 +66,8 @@ export const MarketInsights: React.FC = React.memo(() => {
         type: 'string',
       },
       {
-        accessorKey: 'brand',
+        id: 'brand',
+        accessorKey: 'brand.label',
         header: 'Бренд',
         size: 134,
         enableColumnFilter: true,
@@ -105,7 +75,8 @@ export const MarketInsights: React.FC = React.memo(() => {
         type: 'string',
       },
       {
-        accessorKey: 'segment',
+        id: 'segment',
+        accessorKey: 'segment.label',
         header: 'Сегмент',
         size: 134,
         enableColumnFilter: true,
@@ -113,7 +84,8 @@ export const MarketInsights: React.FC = React.memo(() => {
         type: 'string',
       },
       {
-        accessorKey: 'group',
+        id: 'group',
+        accessorKey: 'group.label',
         header: 'Форма выписка',
         size: 144,
         enableColumnFilter: true,
@@ -121,7 +93,8 @@ export const MarketInsights: React.FC = React.memo(() => {
         type: 'string',
       },
       {
-        accessorKey: 'distributor',
+        id: 'distributor',
+        accessorKey: 'distributor.label',
         header: 'Дозировка',
         size: 134,
         enableColumnFilter: true,
@@ -158,7 +131,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       id: () => randomId('market'),
       sku: SKUS,
       brand: BRANDS,
-      segment: PROMO_TYPES,
+      segment: PROMOTION_TYPES,
       group: GROUPS,
       distributor: DISTRIBUTORS,
       YTD6M23: () => randomInt(0, 1000),
@@ -168,11 +141,11 @@ export const MarketInsights: React.FC = React.memo(() => {
 
     return allData.filter(
       row =>
-        row.sku.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.toLowerCase().includes(search.toLowerCase()) ||
-        row.segment.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.toLowerCase().includes(search.toLowerCase())
+        row.sku.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.brand.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.segment.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.group.label.toLowerCase().includes(search.toLowerCase()) ||
+        row.distributor.label.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, rowsCount]);
 
@@ -182,30 +155,6 @@ export const MarketInsights: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<false, string>
-            value={brand}
-            setValue={setBrand}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'brand1', label: 'Бренд 1' },
-              { value: 'brand2', label: 'Бренд 2' },
-              { value: 'brand3', label: 'Бренд 3' },
-            ]}
-            triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
-          />
-          <Select<false, string>
-            value={group}
-            setValue={setGroup}
-            items={[
-              { value: '', label: 'Все' },
-              { value: 'group1', label: 'Группа 1' },
-              { value: 'group2', label: 'Группа 2' },
-              { value: 'group3', label: 'Группа 3' },
-            ]}
-            triggerText="Группа"
-            classNames={{ menu: 'w-[10rem]' }}
-          />
           <Select<false, typeof moneyType>
             value={moneyType}
             setValue={setMoneyType}

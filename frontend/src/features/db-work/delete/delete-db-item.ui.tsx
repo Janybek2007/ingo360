@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { IDbItem } from '#/entities/db';
 import { ConfirmModal } from '#/shared/components/confirm-modal';
-import { Icon } from '#/shared/components/ui/icon';
+import { MdiDeleteIcon } from '#/shared/components/icons';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
 
@@ -34,7 +34,7 @@ export const DeleteDbItemWrapper: React.FC<{
         title="Удалить"
         onClick={toggle}
       >
-        <Icon name="mdi:delete" className="size-[1.125rem]" />
+        <MdiDeleteIcon className="size-[1.125rem]" />
       </button>
     </>
   );

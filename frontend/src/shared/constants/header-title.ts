@@ -15,5 +15,5 @@ export const headerTitle: Record<string, string> = {
 
   [routePaths.operator.dbWork]: 'Работа с базами данных',
   [routePaths.operator.referenceWork]: 'Работа со справочниками',
-  [routePaths.operator.logs]: 'Просмотреть логи отчетов',
+  [routePaths.administrator.logs]: 'Просмотреть логи отчетов',
 };
