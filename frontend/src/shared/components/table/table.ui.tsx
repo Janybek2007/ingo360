@@ -36,7 +36,7 @@ export const Table: React.FC<ITableProps> = React.memo(
     emptyNode,
     filters,
     rowTotal,
-    enableColumnResizing,
+    enableColumnResizing = true,
   }) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -67,7 +67,7 @@ export const Table: React.FC<ITableProps> = React.memo(
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
       columnResizeMode: 'onChange',
-      defaultColumn: { size: 200 },
+      defaultColumn: { size: 200, enableResizing: enableColumnResizing },
       enableColumnResizing,
     });
 

@@ -39,7 +39,7 @@ export function TableHeader({ table, extraSizes = 0 }: ITableHeaderProps) {
                   flexShrink: 0,
                 }}
               >
-                {header.column.getIsResizing() && (
+                {header.column.columnDef.enableResizing && (
                   <button
                     type="button"
                     aria-label="Resize column"
