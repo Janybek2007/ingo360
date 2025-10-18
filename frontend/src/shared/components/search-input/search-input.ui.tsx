@@ -23,7 +23,10 @@ export const SearchInput: React.FC<ISearchInputProps> = React.memo(
           'flex items-center justify-start transition-colors'
         )}
       >
-        <LucideSearchIcon className="size-[1.15rem] text-[rgb(148, 163, 184)]" />
+        <LucideSearchIcon
+          style={{ color: 'rgb(148, 163, 184)' }}
+          className="size-[1.15rem]"
+        />
         <input
           type="text"
           value={value}

@@ -45,7 +45,10 @@ export interface ITableProps {
   isEmpty?: boolean;
   loadingNode?: React.ReactNode;
   emptyNode?: React.ReactNode;
-  filters?: IUsedFilterProps;
+  enableColumnResizing?: boolean;
+  filters?: IUsedFilterProps & {
+    custom?: ColumnFiltersState;
+  };
   rowTotal?: ITableBodyProps['rowTotal'];
 }
 
@@ -70,6 +73,7 @@ export interface ITableBodyProps {
 
 export interface ITableHeaderProps {
   table: TableType<any>;
+  extraSizes?: number;
 }
 
 export interface IFilterPopupProps {

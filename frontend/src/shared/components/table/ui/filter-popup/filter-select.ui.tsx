@@ -60,7 +60,7 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
             placeholder="Поиск..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
           />
         </div>
 

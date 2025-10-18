@@ -5,9 +5,7 @@ import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
-import { uiSet } from '#/shared/utils/ui-set';
 
-import { Icon } from '../icon';
 import type { IDropdownProps } from './dropdown.types';
 
 export const Dropdown: React.FC<IDropdownProps> = React.memo(
@@ -58,11 +56,9 @@ export const Dropdown: React.FC<IDropdownProps> = React.memo(
                 >
                   <div className="flex items-center gap-2">
                     {item.icon && (
-                      <Icon
-                        {...uiSet.icon(item.icon, {
-                          className: 'text-[#94A3B8] group-hover:text-blue-500',
-                        })}
-                      />
+                      <span className="text-[#94A3B8] group-hover:text-blue-500">
+                        {item.icon}
+                      </span>
                     )}
                     <span>{item.label}</span>
                   </div>

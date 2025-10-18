@@ -96,7 +96,6 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
           <XAxis
             dataKey="month"
             axisLine={false}
-            tickLine={false}
             tickMargin={20}
             className="text-base text-[#474B4E] leading-full font-normal"
             padding={{ left: 30, right: 30 }}

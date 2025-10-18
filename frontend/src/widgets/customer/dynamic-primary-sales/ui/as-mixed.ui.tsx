@@ -3,163 +3,55 @@ import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 
 import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { processPeriodData } from '#/shared/utils/process-period-data';
 
-const rawData = [
-  // Неделя 1 (1n): периоды 1-2-3
-  { period: 1, week: 1, cycle: 1, remains: 65, primary: 35, trade_stock: 52 },
-  { period: 2, week: 1, cycle: 1, remains: 70, primary: 40, trade_stock: 54 },
-  { period: 3, week: 1, cycle: 1, remains: 80, primary: 45, trade_stock: 56 },
+const generateRawData = () => {
+  const currentYear = new Date().getFullYear();
+  const data = [];
 
-  // Неделя 2 (2n): периоды 4-5-6
-  { period: 4, week: 2, cycle: 1, remains: 85, primary: 42, trade_stock: 58 },
-  { period: 5, week: 2, cycle: 1, remains: 88, primary: 35, trade_stock: 88 },
-  { period: 6, week: 2, cycle: 1, remains: 85, primary: 28, trade_stock: 58 },
+  for (let yearOffset = 1; yearOffset >= 0; yearOffset--) {
+    const year = currentYear - yearOffset;
+    for (let month = 1; month <= 12; month++) {
+      const quarter = Math.ceil(month / 3);
+      data.push({
+        year,
+        month,
+        quarter,
+        remains: Math.floor(Math.random() * 40) + 60,
+        primary: Math.floor(Math.random() * 40) + 30,
+        trade_stock: Math.floor(Math.random() * 50) + 40,
+      });
+    }
+  }
 
-  // Неделя 3 (3n): периоды 7-8-9
-  { period: 7, week: 3, cycle: 1, remains: 75, primary: 55, trade_stock: 55 },
-  { period: 8, week: 3, cycle: 1, remains: 75, primary: 60, trade_stock: 55 },
-  { period: 9, week: 3, cycle: 1, remains: 85, primary: 28, trade_stock: 55 },
+  return data;
+};
 
-  // Неделя 4 (4n): периоды 10-11-12
-  { period: 10, week: 4, cycle: 1, remains: 90, primary: 40, trade_stock: 50 },
-  {
-    period: 11,
-    week: 4,
-    cycle: 1,
-    remains: 100,
-    primary: 48,
-    trade_stock: 80,
-  },
-  { period: 12, week: 4, cycle: 1, remains: 85, primary: 52, trade_stock: 50 },
-
-  // Второй цикл
-  { period: 1, week: 1, cycle: 2, remains: 75, primary: 38, trade_stock: 48 },
-  { period: 2, week: 1, cycle: 2, remains: 70, primary: 48, trade_stock: 48 },
-  { period: 3, week: 1, cycle: 2, remains: 65, primary: 42, trade_stock: 38 },
-
-  { period: 4, week: 2, cycle: 2, remains: 75, primary: 55, trade_stock: 52 },
-  { period: 5, week: 2, cycle: 2, remains: 80, primary: 28, trade_stock: 52 },
-  { period: 6, week: 2, cycle: 2, remains: 75, primary: 58, trade_stock: 52 },
-
-  { period: 7, week: 3, cycle: 2, remains: 65, primary: 48, trade_stock: 45 },
-  { period: 8, week: 3, cycle: 2, remains: 65, primary: 40, trade_stock: 95 },
-  { period: 9, week: 3, cycle: 2, remains: 82, primary: 28, trade_stock: 45 },
-
-  { period: 10, week: 4, cycle: 2, remains: 72, primary: 42, trade_stock: 48 },
-  { period: 11, week: 4, cycle: 2, remains: 80, primary: 55, trade_stock: 48 },
-  { period: 12, week: 4, cycle: 2, remains: 65, primary: 52, trade_stock: 48 },
-];
+const rawData = generateRawData();
 
 interface DynamicPrimarySalesAsMixedProps {
   period: UsePeriodType;
+  selectedValues: string[];
 }
 
 export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProps> =
-  React.memo(({ period }) => {
+  React.memo(({ period, selectedValues }) => {
     const sectionStyle = useSectionStyle();
 
     const data = useMemo(() => {
-      if (period === 'month') {
-        return rawData;
-      }
-
-      if (period === 'year') {
-        // Группируем по циклам (годам)
-        const cycles = rawData.reduce(
-          (acc, item) => {
-            if (!acc[item.cycle]) {
-              acc[item.cycle] = {
-                period: item.cycle,
-                week: item.cycle,
-                cycle: item.cycle,
-                remains: 0,
-                primary: 0,
-                trade_stock: 0,
-                count: 0,
-              };
-            }
-            acc[item.cycle].remains += item.remains;
-            acc[item.cycle].primary += item.primary;
-            acc[item.cycle].trade_stock += item.trade_stock;
-            acc[item.cycle].count += 1;
-            return acc;
-          },
-          {} as Record<
-            number,
-            {
-              period: number;
-              week: number;
-              cycle: number;
-              remains: number;
-              primary: number;
-              trade_stock: number;
-              count: number;
-            }
-          >
-        );
-
-        // Вычисляем средние значения
-        return Object.values(cycles).map(item => ({
-          period: item.period,
-          week: item.week,
-          cycle: item.cycle,
-          remains: Math.round(item.remains / item.count),
-          primary: Math.round(item.primary / item.count),
-          trade_stock: Math.round(item.trade_stock / item.count),
-        }));
-      }
-
-      // quarter - группируем по неделям
-      const weeks = rawData.reduce(
-        (acc, item) => {
-          const key = `${item.cycle}-${item.week}`;
-          if (!acc[key]) {
-            acc[key] = {
-              period: item.week,
-              week: item.week,
-              cycle: item.cycle,
-              remains: 0,
-              primary: 0,
-              trade_stock: 0,
-              count: 0,
-            };
-          }
-          acc[key].remains += item.remains;
-          acc[key].primary += item.primary;
-          acc[key].trade_stock += item.trade_stock;
-          acc[key].count += 1;
-          return acc;
-        },
-        {} as Record<
-          string,
-          {
-            period: number;
-            week: number;
-            cycle: number;
-            remains: number;
-            primary: number;
-            trade_stock: number;
-            count: number;
-          }
-        >
-      );
-
-      // Вычисляем средние значения
-      return Object.values(weeks).map(item => ({
-        period: item.period,
-        week: item.week,
-        cycle: item.cycle,
-        remains: Math.round(item.remains / item.count),
-        primary: Math.round(item.primary / item.count),
-        trade_stock: Math.round(item.trade_stock / item.count),
-      }));
-    }, [period]);
+      return processPeriodData({
+        rawData,
+        period,
+        selectedValues,
+        aggregateFields: ['remains', 'primary', 'trade_stock'],
+      });
+    }, [period, selectedValues]);
 
     const processedData = useMemo(
       () =>
-        data.map(d => ({
+        data.map((d, idx) => ({
           ...d,
-          xIndex: `${d.cycle}-${d.period}`,
+          xIndex: `${idx}`,
         })),
       [data]
     );
@@ -172,8 +64,6 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
 
       if (!item) return null;
 
-      const isMiddleOfWeek = index % 3 === 1;
-
       return (
         <g>
           <text
@@ -182,19 +72,8 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             textAnchor="middle"
             className="fill-black text-xs leading-full font-normal"
           >
-            {item.period}
+            {item.label}
           </text>
-
-          {isMiddleOfWeek && period === 'month' && (
-            <text
-              x={x}
-              y={y + 25}
-              textAnchor="middle"
-              className="fill-black text-xs leading-full font-normal"
-            >
-              {item.week}
-            </text>
-          )}
         </g>
       );
     };
@@ -212,15 +91,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             labelFormatter={label => {
               const item = processedData.find(d => d.xIndex === label);
               if (!item) return label;
-
-              if (period === 'year') {
-                return `Год ${item.cycle}`;
-              }
-              if (period === 'quarter') {
-                return `Цикл ${item.cycle}, Неделя ${item.week}`;
-              }
-              // month
-              return `Цикл ${item.cycle}, Период ${item.period}`;
+              return item.fullLabel;
             }}
             formatter={(value, name) => {
               const label =
@@ -235,7 +106,6 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
           <XAxis
             dataKey="xIndex"
             axisLine={false}
-            tickLine={false}
             tick={<CustomXAxisTick />}
             tickMargin={10}
             padding={{ left: 10, right: 10 }}

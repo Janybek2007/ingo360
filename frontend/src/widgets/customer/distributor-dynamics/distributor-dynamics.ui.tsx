@@ -5,7 +5,6 @@ import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
-import { Month } from '#/shared/constants/months';
 import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
@@ -15,6 +14,7 @@ import {
 } from '#/shared/utils/format-number';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { processPeriodData } from '#/shared/utils/process-period-data';
 
 const distributorsData = [
   { name: 'Эрай', color: '#156082', value: 'era' },
@@ -24,104 +24,31 @@ const distributorsData = [
   { name: 'Эляй', color: '#A02B93', value: 'elyay' },
 ];
 
-const chartData = [
-  {
-    month: Month.JAN,
-    Эрай: 280000,
-    Неман: 350000,
-    Медсервис: 420000,
-    Бимед: 390000,
-    Эляй: 500000,
-  },
-  {
-    month: Month.FEB,
-    Эрай: 300000,
-    Неман: 360000,
-    Медсервис: 430000,
-    Бимед: 400000,
-    Эляй: 510000,
-  },
-  {
-    month: Month.MAR,
-    Эрай: 320000,
-    Неман: 370000,
-    Медсервис: 440000,
-    Бимед: 410000,
-    Эляй: 520000,
-  },
-  {
-    month: Month.APR,
-    Эрай: 330000,
-    Неман: 380000,
-    Медсервис: 450000,
-    Бимед: 420000,
-    Эляй: 530000,
-  },
-  {
-    month: Month.MAY,
-    Эрай: 350000,
-    Неман: 400000,
-    Медсервис: 460000,
-    Бимед: 430000,
-    Эляй: 540000,
-  },
-  {
-    month: Month.JUN,
-    Эрай: 370000,
-    Неман: 420000,
-    Медсервис: 470000,
-    Бимед: 440000,
-    Эляй: 550000,
-  },
-  {
-    month: Month.JUL,
-    Эрай: 360000,
-    Неман: 410000,
-    Медсервис: 465000,
-    Бимед: 435000,
-    Эляй: 545000,
-  },
-  {
-    month: Month.AUG,
-    Эрай: 380000,
-    Неман: 430000,
-    Медсервис: 480000,
-    Бимед: 450000,
-    Эляй: 560000,
-  },
-  {
-    month: Month.SEP,
-    Эрай: 400000,
-    Неман: 440000,
-    Медсервис: 490000,
-    Бимед: 460000,
-    Эляй: 570000,
-  },
-  {
-    month: Month.OCT,
-    Эрай: 420000,
-    Неман: 460000,
-    Медсервис: 500000,
-    Бимед: 470000,
-    Эляй: 580000,
-  },
-  {
-    month: Month.NOV,
-    Эрай: 430000,
-    Неман: 470000,
-    Медсервис: 510000,
-    Бимед: 480000,
-    Эляй: 590000,
-  },
-  {
-    month: Month.DEC,
-    Эрай: 440000,
-    Неман: 480000,
-    Медсервис: 520000,
-    Бимед: 490000,
-    Эляй: 600000,
-  },
-];
+const generateRawData = () => {
+  const currentYear = new Date().getFullYear();
+  const data = [];
+
+  for (let yearOffset = 1; yearOffset >= 0; yearOffset--) {
+    const year = currentYear - yearOffset;
+    for (let month = 1; month <= 12; month++) {
+      const quarter = Math.ceil(month / 3);
+      data.push({
+        year,
+        month,
+        quarter,
+        Эрай: Math.floor(Math.random() * 150000) + 280000,
+        Неман: Math.floor(Math.random() * 150000) + 350000,
+        Медсервис: Math.floor(Math.random() * 150000) + 420000,
+        Бимед: Math.floor(Math.random() * 150000) + 390000,
+        Эляй: Math.floor(Math.random() * 150000) + 500000,
+      });
+    }
+  }
+
+  return data;
+};
+
+const rawData = generateRawData();
 
 const formatMoney = (value: number) => formatCompactNumber(value);
 
@@ -135,6 +62,15 @@ export const DistributorDynamics: React.FC = React.memo(() => {
   const [distributors, setDistributors] = React.useState<string[]>(
     distributorsData.map(d => d.value)
   );
+
+  const chartData = useMemo(() => {
+    return processPeriodData({
+      rawData,
+      period: periodFilter.period,
+      selectedValues: periodFilter.selectedValues,
+      aggregateFields: ['Эрай', 'Неман', 'Медсервис', 'Бимед', 'Эляй'],
+    });
+  }, [periodFilter.period, periodFilter.selectedValues]);
 
   const usedFilterItems = useMemo(() => {
     return getUsedFilterItems([
@@ -218,7 +154,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         distributorsData.map(d => d.name) as any
       ),
-    []
+    [chartData]
   );
 
   return (
@@ -277,9 +213,8 @@ export const DistributorDynamics: React.FC = React.memo(() => {
             >
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="label"
                 axisLine={false}
-                tickLine={false}
                 tickMargin={20}
                 className="text-[#474B4E] font-normal text-base leading-full"
                 padding={{ left: 20, right: 20 }}
@@ -309,12 +244,12 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                       const { cx, cy, value, payload } = props;
                       return (
                         <g
-                          key={d.name + payload.month}
+                          key={d.name + payload.label}
                           onMouseEnter={() =>
                             showTooltip(
                               cx!,
                               cy!,
-                              payload.month as string,
+                              payload.fullLabel as string,
                               d.name,
                               value as number,
                               d.color

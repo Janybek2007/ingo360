@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { SortDirection } from '@tanstack/react-table';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { LucideFilterIcon } from '#/shared/components/icons';
 import { filterItems } from '#/shared/constants/filter-items';
-import { useClickAway } from '#/shared/hooks/use-click-away';
 import { getPopupStyle } from '#/shared/utils/get-popup-style';
 
 import type { IFilterPopupProps } from '../../table.types';
+import { useFilterPopup } from '../../utils/use-filter-popup';
 import { FilterActions } from './filter-actions.ui';
 import { FilterInput } from './filter-input.ui';
 import { FilterSelect } from './filter-select.ui';
@@ -18,106 +17,29 @@ export function FilterPopup({
   onClose,
   popupPosition,
 }: IFilterPopupProps) {
-  const contentRef = useClickAway<HTMLDivElement>(onClose);
-
   const colType = column.columnDef.type ?? 'string';
   const selectOptions = useMemo(
     () => column.columnDef.selectOptions ?? [],
     [column.columnDef.selectOptions]
   );
 
-  const initialFilterValue = column.getFilterValue();
-  const initialFilterType = useMemo(() => {
-    if (colType === 'select') return 'select';
-    if (
-      initialFilterValue &&
-      typeof initialFilterValue === 'object' &&
-      'type' in initialFilterValue
-    ) {
-      return initialFilterValue.type as string;
-    }
-    return colType === 'number' ? '=' : 'contains';
-  }, [initialFilterValue, colType]);
-
-  const initialValue = useMemo(() => {
-    if (colType === 'select') {
-      if (
-        initialFilterValue &&
-        typeof initialFilterValue === 'object' &&
-        'selectValues' in initialFilterValue
-      ) {
-        return (initialFilterValue as any).selectValues;
-      }
-      return selectOptions;
-    }
-    if (
-      initialFilterValue &&
-      typeof initialFilterValue === 'object' &&
-      'value' in initialFilterValue
-    ) {
-      return Array.isArray(initialFilterValue.value)
-        ? initialFilterValue.value[0]
-        : initialFilterValue.value;
-    }
-    return '';
-  }, [colType, initialFilterValue, selectOptions]);
-
-  const initialValue2 = useMemo(() => {
-    if (
-      colType === 'number' &&
-      initialFilterValue &&
-      typeof initialFilterValue === 'object' &&
-      'value' in initialFilterValue
-    ) {
-      return Array.isArray(initialFilterValue.value)
-        ? (initialFilterValue.value[1] ?? '')
-        : '';
-    }
-    return '';
-  }, [initialFilterValue, colType]);
-
-  const [filterType, setFilterType] = useState<string>(initialFilterType);
-  const [value, setValue] = useState<any>(initialValue);
-  const [value2, setValue2] = useState<string | number>(initialValue2);
-
-  useEffect(() => {
-    setFilterType(initialFilterType);
-    setValue(initialValue);
-    setValue2(initialValue2);
-  }, [initialFilterType, initialValue, initialValue2]);
-
-  const applyFilter = useCallback(() => {
-    if (colType === 'select') {
-      column.setFilterValue({
-        selectValues: value,
-        colType,
-        header: column.columnDef.header,
-      });
-    } else if (colType === 'number' && filterType === 'between') {
-      column.setFilterValue({
-        type: filterType,
-        value: [value, value2],
-        colType,
-        header: column.columnDef.header,
-      });
-    } else {
-      column.setFilterValue({
-        type: filterType,
-        value,
-        colType,
-        header: column.columnDef.header,
-      });
-    }
-    onClose();
-  }, [colType, filterType, onClose, value, column, value2]);
-
+  const {
+    contentRef,
+    filterType,
+    value,
+    value2,
+    setFilterType,
+    setValue,
+    setValue2,
+    applyFilter,
+  } = useFilterPopup({ column, onClose, selectOptions, colType });
   if (popupPosition.x === 0 || popupPosition.y === 0) return null;
 
   return (
     <div
       ref={contentRef}
       style={getPopupStyle(popupPosition)}
-      className="absolute z-50 bg-white border border-gray-300 rounded-sm shadow-xl p-0 mt-1 w-[300px]"
+      className="absolute z-50 font-inter bg-white border border-gray-300 rounded-sm shadow-xl p-0 mt-1 w-[300px]"
     >
       <div className="p-3">
         <SortButtons

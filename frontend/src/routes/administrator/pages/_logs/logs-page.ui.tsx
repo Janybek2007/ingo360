@@ -2,9 +2,9 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
+import { MdiDeleteIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab, Tabs } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
@@ -199,7 +199,7 @@ const LogsPage: React.FC = () => {
               className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
               title="Удалить"
             >
-              <Icon name="mdi:delete" className="size-[1.125rem]" />
+              <MdiDeleteIcon className="size-[1.125rem]" />
             </button>
           </div>
         ),

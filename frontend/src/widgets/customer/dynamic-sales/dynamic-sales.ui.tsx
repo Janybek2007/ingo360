@@ -12,7 +12,6 @@ import {
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
-import { Month } from '#/shared/constants/months';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import {
@@ -21,86 +20,30 @@ import {
 } from '#/shared/utils/format-number';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { processPeriodData } from '#/shared/utils/process-period-data';
 
-const rawData: {
-  month: string;
-  primaryValue: number;
-  secondaryValue: number;
-  monthIndex: number;
-}[] = [
-  {
-    month: Month.JAN,
-    primaryValue: 280000,
-    secondaryValue: 320000,
-    monthIndex: 0,
-  },
-  {
-    month: Month.FEB,
-    primaryValue: 350000,
-    secondaryValue: 390000,
-    monthIndex: 1,
-  },
-  {
-    month: Month.MAR,
-    primaryValue: 420000,
-    secondaryValue: 400000,
-    monthIndex: 2,
-  },
-  {
-    month: Month.APR,
-    primaryValue: 390000,
-    secondaryValue: 410000,
-    monthIndex: 3,
-  },
-  {
-    month: Month.MAY,
-    primaryValue: 500000,
-    secondaryValue: 530000,
-    monthIndex: 4,
-  },
-  {
-    month: Month.JUN,
-    primaryValue: 580000,
-    secondaryValue: 550000,
-    monthIndex: 5,
-  },
-  {
-    month: Month.JUL,
-    primaryValue: 440000,
-    secondaryValue: 440000,
-    monthIndex: 6,
-  },
-  {
-    month: Month.AUG,
-    primaryValue: 390000,
-    secondaryValue: 410000,
-    monthIndex: 7,
-  },
-  {
-    month: Month.SEP,
-    primaryValue: 450000,
-    secondaryValue: 480000,
-    monthIndex: 8,
-  },
-  {
-    month: Month.OCT,
-    primaryValue: 600000,
-    secondaryValue: 570000,
-    monthIndex: 9,
-  },
-  {
-    month: Month.NOV,
-    primaryValue: 530000,
-    secondaryValue: 560000,
-    monthIndex: 10,
-  },
-  {
-    month: Month.DEC,
-    primaryValue: 420000,
-    secondaryValue: 450000,
-    monthIndex: 11,
-  },
-];
+const generateRawData = () => {
+  const currentYear = new Date().getFullYear();
+  const data = [];
+
+  for (let yearOffset = 1; yearOffset >= 0; yearOffset--) {
+    const year = currentYear - yearOffset;
+    for (let month = 1; month <= 12; month++) {
+      const quarter = Math.ceil(month / 3);
+      data.push({
+        year,
+        month,
+        quarter,
+        primaryValue: Math.floor(Math.random() * 200000) + 300000,
+        secondaryValue: Math.floor(Math.random() * 200000) + 350000,
+      });
+    }
+  }
+
+  return data;
+};
+
+const rawData = generateRawData();
 
 export const DynamicSales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
@@ -126,64 +69,13 @@ export const DynamicSales: React.FC = React.memo(() => {
   }, [periodFilter]);
 
   const data = useMemo(() => {
-    if (periodFilter.period === 'month') {
-      return rawData;
-    }
-
-    if (periodFilter.period === 'year') {
-      const currentYearPrimary = rawData.reduce(
-        (sum, item) => sum + item.primaryValue,
-        0
-      );
-      const currentYearSecondary = rawData.reduce(
-        (sum, item) => sum + item.secondaryValue,
-        0
-      );
-
-      return [
-        {
-          month: '2021',
-          primaryValue: currentYearPrimary * 0.7,
-          secondaryValue: currentYearSecondary * 0.7,
-          monthIndex: 0,
-        },
-        {
-          month: '2022',
-          primaryValue: currentYearPrimary * 0.85,
-          secondaryValue: currentYearSecondary * 0.85,
-          monthIndex: 1,
-        },
-        {
-          month: '2023',
-          primaryValue: currentYearPrimary * 0.95,
-          secondaryValue: currentYearSecondary * 0.95,
-          monthIndex: 2,
-        },
-        {
-          month: '2024',
-          primaryValue: currentYearPrimary,
-          secondaryValue: currentYearSecondary,
-          monthIndex: 3,
-        },
-      ];
-    }
-
-    // quarter
-    const quarters = [
-      { month: 'Q1', primaryValue: 0, secondaryValue: 0, monthIndex: 0 },
-      { month: 'Q2', primaryValue: 0, secondaryValue: 0, monthIndex: 1 },
-      { month: 'Q3', primaryValue: 0, secondaryValue: 0, monthIndex: 2 },
-      { month: 'Q4', primaryValue: 0, secondaryValue: 0, monthIndex: 3 },
-    ];
-
-    rawData.forEach(item => {
-      const quarterIndex = Math.floor(item.monthIndex / 3);
-      quarters[quarterIndex].primaryValue += item.primaryValue;
-      quarters[quarterIndex].secondaryValue += item.secondaryValue;
+    return processPeriodData({
+      rawData,
+      period: periodFilter.period,
+      selectedValues: periodFilter.selectedValues,
+      aggregateFields: ['primaryValue', 'secondaryValue'],
     });
-
-    return quarters;
-  }, [periodFilter.period]);
+  }, [periodFilter.period, periodFilter.selectedValues]);
 
   const chartAxis = useMemo(
     () => calculateChartAxis(data, ['primaryValue', 'secondaryValue']),
@@ -218,11 +110,10 @@ export const DynamicSales: React.FC = React.memo(() => {
           >
             <CartesianGrid strokeDasharray="4 4" vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="label"
               axisLine={false}
-              tickLine={false}
               tickMargin={20}
-              className="text-base font-normal text-[#474B4E] leading-full"
+              className="text-base text-[#474B4E] leading-full font-normal"
               padding={{ left: 30, right: 30 }}
             />
             <YAxis
@@ -236,7 +127,12 @@ export const DynamicSales: React.FC = React.memo(() => {
               tickFormatter={value => formatCompactNumber(value)}
             />
             <Tooltip
-              labelFormatter={label => `${label}`}
+              labelFormatter={(label, payload) => {
+                if (payload && payload[0]) {
+                  return payload[0].payload.fullLabel || label;
+                }
+                return label;
+              }}
               formatter={(value, name) => {
                 const label = name === 'primaryValue' ? 'Первичка' : 'Вторичка';
                 return [value.toLocaleString('ru-RU'), label];

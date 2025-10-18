@@ -19,8 +19,7 @@ export class UserQueries {
         const response = await http.get('users/me').json<GetUserResponse>();
         return {
           ...response,
-          // role: this.buildUserRole(response),
-          role: 'customer',
+          role: this.buildUserRole(response),
         };
       },
     });

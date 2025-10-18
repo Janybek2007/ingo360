@@ -11,13 +11,13 @@ export function getPeriodLabel(value: string | number): string {
     const year = parts[1];
     const monthIndex = parseInt(parts[2], 10) - 1;
     const monthName = Object.values(MonthFull)[monthIndex];
-    return `${monthName} ${year}`;
+    return `${monthName} ${year.slice(-2)}`;
   }
 
   if (parts[0] === 'quarter') {
     const year = parts[1];
     const quarter = parts[2];
-    return `${quarter}кв ${year}`;
+    return `${quarter}кв ${year.slice(-2)}`;
   }
 
   return value.toString();

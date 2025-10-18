@@ -14,7 +14,7 @@ import {
   SKUS,
 } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { stringFilter } from '#/shared/utils/filter';
+import { selectFilter } from '#/shared/utils/filter';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
@@ -60,61 +60,58 @@ export const MarketInsights: React.FC = React.memo(() => {
         id: 'sku',
         accessorKey: 'sku.label',
         header: 'Компания',
-        size: 134,
         enableColumnFilter: true,
-        filterFn: stringFilter(),
-        type: 'string',
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: SKUS,
       },
       {
         id: 'brand',
         accessorKey: 'brand.label',
         header: 'Бренд',
-        size: 134,
         enableColumnFilter: true,
-        filterFn: stringFilter(),
-        type: 'string',
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: BRANDS,
       },
       {
         id: 'segment',
         accessorKey: 'segment.label',
         header: 'Сегмент',
-        size: 134,
         enableColumnFilter: true,
-        filterFn: stringFilter(),
-        type: 'string',
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: PROMOTION_TYPES,
       },
       {
         id: 'group',
         accessorKey: 'group.label',
         header: 'Форма выписка',
-        size: 144,
         enableColumnFilter: true,
-        filterFn: stringFilter(),
-        type: 'string',
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: GROUPS,
       },
       {
         id: 'distributor',
         accessorKey: 'distributor.label',
         header: 'Дозировка',
-        size: 134,
         enableColumnFilter: true,
-        filterFn: stringFilter(),
-        type: 'string',
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: DISTRIBUTORS,
       },
       {
         accessorKey: 'YTD6M23',
         header: 'YTD-6M-23',
-        size: 134,
       },
       {
         accessorKey: 'YTD6M24',
         header: 'YTD-6M-24',
-        size: 134,
       },
       {
         accessorKey: 'YTD6M25',
         header: 'YTD-6M-25',
-        size: 134,
       },
     ],
     []
@@ -182,6 +179,7 @@ export const MarketInsights: React.FC = React.memo(() => {
             items={columnItems}
             triggerText="Столбцы"
             checkbox
+            showToggleAll
             isMultiple
             classNames={{
               menu: 'min-w-[11.25rem] right-0',

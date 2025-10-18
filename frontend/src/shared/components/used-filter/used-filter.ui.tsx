@@ -50,7 +50,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   if (!groupedItems.length) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap font-inter">
+    <div className="flex items-center gap-2 flex-wrap font-inter select-none">
       {groupedItems.map(item => (
         <div
           key={item.value}
@@ -71,20 +71,13 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
           {item.subItems?.length ? (
             <div className="flex items-center gap-1.5">
               {item.subItems.map(sub => (
-                <div
+                <button
                   key={sub.value}
+                  onClick={sub.onDelete}
                   className="group flex items-center gap-1.5 px-2.5 py-1 bg-white text-gray-500 rounded-md text-xs border border-gray-200/50 hover:border-gray-300/50 transition-colors"
                 >
                   <span>{sub.label}</span>
-                  <button
-                    type="button"
-                    onClick={sub.onDelete}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    aria-label={`Удалить ${sub.label}`}
-                  >
-                    <LucideXIcon className="size-3" />
-                  </button>
-                </div>
+                </button>
               ))}
             </div>
           ) : null}

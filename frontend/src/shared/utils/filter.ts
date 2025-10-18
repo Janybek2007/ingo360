@@ -82,7 +82,6 @@ export const selectFilter =
     }
   ) => {
     if (!filterValue || filterValue.selectValues.length === 0) return true;
-    console.log(row.original, columnId);
     const originalData = row.original as Record<
       string,
       { label: string; value: VT; id: number }

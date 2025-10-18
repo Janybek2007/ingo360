@@ -1,8 +1,6 @@
-import type { IIconProps } from '../icon';
-
 export interface IDropdown {
   label: string;
-  icon?: string | IIconProps;
+  icon?: React.ReactNode;
   onSelect?: VoidFunction;
 }
 
