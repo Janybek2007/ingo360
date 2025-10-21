@@ -22,6 +22,20 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
             name: 'email',
             placeholder: 'example@example.com',
           },
+          [
+            {
+              label: 'Имя',
+              type: 'text',
+              name: 'first_name',
+              placeholder: 'Иван',
+            },
+            {
+              label: 'Фамилия',
+              type: 'text',
+              name: 'last_name',
+              placeholder: 'Иванов',
+            },
+          ],
           {
             label: 'Компания',
             type: 'select',

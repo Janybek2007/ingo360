@@ -22,6 +22,10 @@ const CompanyManagementPage: React.FC = () => {
 
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [openAccess, setOpenAccess] = useState(false);
+  const [editData, setEditData] = useState<Record<string, unknown> | null>(
+    null
+  );
+  const [accessData, setAccessData] = useState<ICompanyItem | null>(null);
   const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
 
   const filteredData = useMemo(() => {
@@ -39,8 +43,12 @@ const CompanyManagementPage: React.FC = () => {
     return (queryData.data || []).filter(
       (row: ICompanyItem) =>
         normalizeText(row.name || '').includes(normalizedSearch) ||
+        normalizeText(row.ims_name || '').includes(normalizedSearch) ||
         normalizeText(row.contract_number || '').includes(normalizedSearch) ||
         normalizeText(String(row.active_users_limit || '')).includes(
+          normalizedSearch
+        ) ||
+        normalizeText(String(row.active_users || '')).includes(
           normalizedSearch
         ) ||
         normalizeText(row.contract_end_date || '').includes(normalizedSearch) ||
@@ -65,7 +73,11 @@ const CompanyManagementPage: React.FC = () => {
         filterFn: numberFilter(),
         type: 'number',
       },
-      { accessorKey: 'registered', header: 'Зарегистрированные', size: 220 },
+      {
+        accessorKey: 'active_users',
+        header: 'Активные пользователи',
+        size: 220,
+      },
       { accessorKey: 'contract_number', header: '№ Договора', size: 213 },
       {
         accessorKey: 'contract_end_date',
@@ -84,14 +96,23 @@ const CompanyManagementPage: React.FC = () => {
         id: 'actions',
         header: '',
         size: 80,
-        cell({}) {
+        cell(props) {
           return (
             <RowActions
               items={[
-                { type: 'edit', onSelect: () => set('edit') },
+                {
+                  type: 'edit',
+                  onSelect: () => {
+                    setEditData(props.row.original);
+                    setTimeout(() => set('edit'), 0);
+                  },
+                },
                 {
                   type: 'access_settings',
-                  onSelect: () => setOpenAccess(true),
+                  onSelect: () => {
+                    setAccessData(props.row.original);
+                    setOpenAccess(true);
+                  },
                 },
               ]}
             />
@@ -104,10 +125,18 @@ const CompanyManagementPage: React.FC = () => {
 
   return (
     <main>
-      {open === 'edit' && <EditCompanyModal onClose={clear} />}
+      {open === 'edit' && (
+        <EditCompanyModal onClose={clear} companyData={editData} />
+      )}
       {open === 'create' && <AddCompanyModal onClose={clear} />}
-      {openAccess && (
-        <AccessCompanyModal onClose={() => setOpenAccess(false)} />
+      {openAccess && accessData && (
+        <AccessCompanyModal
+          onClose={() => {
+            setOpenAccess(false);
+            setAccessData(null);
+          }}
+          companyData={accessData}
+        />
       )}
       <PageSection
         title="Все Компании"

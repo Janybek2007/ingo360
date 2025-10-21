@@ -14,6 +14,11 @@ export const AddCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
         isSuccess={mutation.isSuccess}
         fields={[
           { label: 'Назвние компании', name: 'name', placeholder: 'ОсОО' },
+          {
+            label: 'Название компании в IMS',
+            name: 'ims_name',
+            placeholder: 'Название в IMS',
+          },
           [
             {
               label: 'Лимит учетных записей',

@@ -1,6 +1,7 @@
 export type TAddCompanyResponse = {
   id: number;
   name: 'string';
+  ims_name: 'string';
   active_users_limit: 0;
   can_primary_sales: true;
   can_secondary_sales: true;

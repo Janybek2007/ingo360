@@ -38,24 +38,34 @@ const IngoAccountsPage: React.FC = () => {
 
     const normalizedSearch = normalizeText(search);
 
-    return (queryData.data || []).filter(
-      (row: IUserItem) =>
+    return (queryData.data || []).filter((row: IUserItem) => {
+      const fullName =
+        `${row.last_name} ${row.first_name} ${row.patronymic || ''}`.trim();
+      return (
         normalizeText(row.first_name || '').includes(normalizedSearch) ||
         normalizeText(row.last_name || '').includes(normalizedSearch) ||
         normalizeText(row.patronymic || '').includes(normalizedSearch) ||
+        normalizeText(fullName).includes(normalizedSearch) ||
         normalizeText(row.email || '').includes(normalizedSearch) ||
         normalizeText(row.role || '').includes(normalizedSearch) ||
         normalizeText(ROLES_OBJECT[row.role] || '').includes(normalizedSearch)
-    );
+      );
+    });
   }, [search, queryData.data]);
 
   const allColumns = useMemo(
     (): ColumnDef<IUserItem>[] => [
       {
-        accessorKey: 'first_name',
+        accessorKey: 'fullName',
         header: 'ФИО',
         size: 280,
-        cell: ({ row }) => row.original.first_name || 'Отсутсвует имя',
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            `${user.last_name} ${user.first_name} ${user.patronymic || ''}`.trim() ||
+            'Не указано'
+          );
+        },
         enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
@@ -108,8 +118,8 @@ const IngoAccountsPage: React.FC = () => {
                 {
                   type: 'edit',
                   onSelect: () => {
-                    set('edit');
                     setEditData(props.row.original);
+                    setTimeout(() => set('edit'), 0);
                   },
                 },
                 { type: 'reset_password', onSelect: () => {} },
@@ -124,7 +134,7 @@ const IngoAccountsPage: React.FC = () => {
 
   return (
     <main>
-      {open === 'edit' && editData && <EditUserModal onClose={clear} />}
+      {open === 'edit' && <EditUserModal onClose={clear} userData={editData} />}
       {open === 'create' && <AddUserModal onClose={clear} />}
       <PageSection
         title="Учетные записи INDIGO"

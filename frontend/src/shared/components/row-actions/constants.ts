@@ -9,8 +9,8 @@ export const DEFAULT_ROW_ACTION_TYPE_ITEM: Record<
   access_settings: {
     label: 'Настройки доступа',
     icon: {
-      name: 'material-symbols-light:admin-panel-settings-rounded',
-      size: 22,
+      name: 'lucide:settings',
+      size: 18,
     },
   },
   reset_password: {

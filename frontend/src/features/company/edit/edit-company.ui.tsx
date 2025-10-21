@@ -1,50 +1,82 @@
 import React from 'react';
-import z from 'zod';
 
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 
-export const EditCompanyModal: React.FC<{ onClose: VoidFunction }> = React.memo(
-  ({ onClose }) => {
-    return (
-      <CreateEditModal
-        fields={[
-          { label: 'Назвние компании', name: 'name', placeholder: 'ОсОО' },
+import { EditCompanyContract } from '../company.contract';
+import { useEditCompanyMutation } from './edit-company.mutation';
+
+export const EditCompanyModal: React.FC<{
+  onClose: VoidFunction;
+  companyData?: Record<string, unknown>;
+}> = React.memo(({ onClose, companyData }) => {
+  const mutation = useEditCompanyMutation(onClose);
+
+  const handleSubmit = async (data: Record<string, unknown>) => {
+    if (companyData?.id) {
+      await mutation.mutateAsync({ id: companyData.id, body: data });
+    }
+  };
+
+  return (
+    <CreateEditModal
+      portal={false}
+      fields={React.useMemo(
+        () => [
+          {
+            label: 'Название компании',
+            name: 'name',
+            placeholder: 'ОсОО',
+            defaultValue: companyData?.name || '',
+          },
+          {
+            label: 'Название компании в IMS',
+            name: 'ims_name',
+            placeholder: 'Название в IMS',
+            defaultValue: companyData?.ims_name || '',
+          },
           [
             {
               label: 'Лимит учетных записей',
-              name: '1',
+              name: 'active_users_limit',
               placeholder: '12',
+              type: 'number',
+              defaultValue: companyData?.active_users_limit || '',
             },
             {
               label: '№ Договора',
-              name: '2',
+              name: 'contract_number',
               placeholder: '212312',
+              type: 'text',
+              defaultValue: companyData?.contract_number || '',
             },
             {
-              label: 'Срок окончания догвора',
-              name: '3',
+              label: 'Срок окончания договора',
+              name: 'contract_end_date',
               type: 'date',
               placeholder: '12.08.2025',
+              defaultValue: companyData?.contract_end_date || '',
             },
             {
               label: 'Статус',
-              name: '4',
+              name: 'is_active',
               type: 'select',
-              defaultValue: 'active',
+              defaultValue: companyData?.is_active ?? true,
               selectItems: [
-                { label: 'Активный', value: 'active' },
-                { label: 'Неактивен', value: 'inactive' },
+                { label: 'Активный', value: true },
+                { label: 'Неактивный', value: false },
               ],
             },
           ],
-        ]}
-        onClose={onClose}
-        schema={z.object({})}
-        title="Редактировать компанию"
-        onSubmit={() => {}}
-      />
-    );
-  }
-);
+        ],
+        [companyData]
+      )}
+      onClose={onClose}
+      schema={EditCompanyContract}
+      title="Редактировать компанию"
+      onSubmit={handleSubmit}
+      isLoading={mutation.isPending}
+    />
+  );
+});
 
 EditCompanyModal.displayName = '_EditCompanyModal_';

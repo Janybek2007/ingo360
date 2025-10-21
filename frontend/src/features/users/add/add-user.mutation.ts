@@ -14,6 +14,8 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
       const response = await http.post('users', {
         body: JSON.stringify({
           email: parsedBody.email,
+          first_name: parsedBody.first_name,
+          last_name: parsedBody.last_name,
           is_operator: parsedBody.role === 'operator',
           is_admin: parsedBody.role === 'administrator',
         }),

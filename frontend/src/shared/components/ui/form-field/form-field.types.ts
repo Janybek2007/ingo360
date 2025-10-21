@@ -20,7 +20,7 @@ export interface IFormFieldProps {
   variant?: TVariants;
   error?: string;
   select?: Pick<
-    ISelectProps<false, string | number>,
+    ISelectProps<false, string | number | boolean>,
     'items' | 'value' | 'setValue'
   >;
 }

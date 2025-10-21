@@ -19,6 +19,20 @@ export const AddUserModal: React.FC<{
           placeholder: 'Введите эл. почту',
           type: 'email',
         },
+        [
+          {
+            label: 'Имя',
+            type: 'text',
+            name: 'first_name',
+            placeholder: 'Иван',
+          },
+          {
+            label: 'Фамилия',
+            type: 'text',
+            name: 'last_name',
+            placeholder: 'Иванов',
+          },
+        ],
         {
           label: 'Роль',
           type: 'select',
