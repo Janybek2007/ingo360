@@ -14,6 +14,10 @@ export interface IUserItem {
   is_operator: boolean;
   is_admin: boolean;
   company_id: number;
+  company: {
+    id: number;
+    name: string;
+  };
   role: SessionRole;
 }
 

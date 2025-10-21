@@ -88,7 +88,7 @@ button {
 .wrapper {
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   max-height: 100vh;
@@ -98,7 +98,7 @@ button {
     padding: 1.5rem;
     width: 100%;
     max-height: calc(100vh - 4.875rem);
-    overflow-y: scroll;
+    overflow-y: auto;
 
     &::-webkit-scrollbar {
       width: 0;

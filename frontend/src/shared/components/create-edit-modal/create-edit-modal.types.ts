@@ -6,10 +6,10 @@ import type { ISelectProps } from '../ui/select';
 export interface ICreateEditModalField {
   label: string;
   name: string;
-  defaultValue?: string | number;
+  defaultValue?: string | number | boolean;
   type?: IFormFieldProps['type'];
   placeholder?: string;
-  selectItems?: ISelectProps<false, string | number>['items'];
+  selectItems?: ISelectProps<false, string | number | boolean>['items'];
 }
 
 export interface ICreateEditModalProps {

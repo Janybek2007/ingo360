@@ -119,7 +119,12 @@ export const Table: React.FC<ITableProps> = React.memo(
             rounded == 'lg' && 'rounded-lg',
             allUsedFilters.length > 0 && 'mt-5'
           )}
-          style={{ maxHeight, minHeight }}
+          style={{
+            maxHeight,
+            minHeight,
+            position: 'relative',
+            zIndex: 1,
+          }}
         >
           {columns.length === 0 || isLoading || showEmpty ? (
             <TableState

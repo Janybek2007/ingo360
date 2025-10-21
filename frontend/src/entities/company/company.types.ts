@@ -1,7 +1,9 @@
 export interface ICompanyItem {
   id: number;
   name: string;
+  ims_name: string;
   active_users_limit: 20;
+  active_users: 0;
   can_primary_sales: false;
   can_secondary_sales: false;
   can_tertiary_sales: false;

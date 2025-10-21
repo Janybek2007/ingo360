@@ -26,6 +26,9 @@ interface CustomerRow extends IUserItem {
 const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
+  const [editData, setEditData] = useState<Record<string, unknown> | null>(
+    null
+  );
 
   const customersQuery = useQuery(UserQueries.GetCustomersQuery());
 
@@ -66,11 +69,17 @@ const CustomerAccountsPage: React.FC = () => {
         id: 'actions',
         header: '',
         size: 80,
-        cell() {
+        cell(props) {
           return (
             <RowActions
               items={[
-                { type: 'edit', onSelect: () => set('edit') },
+                {
+                  type: 'edit',
+                  onSelect: () => {
+                    setEditData(props.row.original);
+                    setTimeout(() => set('edit'), 0);
+                  },
+                },
                 { type: 'reset_password', onSelect: () => {} },
               ]}
             />
@@ -89,7 +98,7 @@ const CustomerAccountsPage: React.FC = () => {
         ...customer,
         fullName:
           `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
-        companyName: '',
+        companyName: customer.company?.name || 'Не указана',
         statusDisplay: customer.is_active ? 'active' : 'inactive',
       } as CustomerRow;
     });
@@ -110,7 +119,9 @@ const CustomerAccountsPage: React.FC = () => {
 
   return (
     <main>
-      {open === 'edit' && <EditCustomerModal onClose={clear} />}
+      {open === 'edit' && (
+        <EditCustomerModal onClose={clear} customerData={editData} />
+      )}
       {open === 'create' && <AddCustomerModal onClose={clear} />}
       <PageSection
         title="Управление учетными записями клиентов"
