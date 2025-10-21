@@ -21,6 +21,7 @@ export const Dropdown: React.FC<IDropdownProps> = React.memo(
         {trigger({
           open,
           onClick(_e) {
+            console.log('Dropdown trigger clicked');
             toggle();
           },
         })}
@@ -43,6 +44,7 @@ export const Dropdown: React.FC<IDropdownProps> = React.memo(
                   classNames?.menuItem
                 )}
                 onClick={e => {
+                  console.log('Dropdown item clicked:', item.label);
                   e.stopPropagation();
                   item.onSelect?.();
                   set(false);
