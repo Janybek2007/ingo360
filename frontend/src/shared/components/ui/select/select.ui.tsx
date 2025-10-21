@@ -114,7 +114,7 @@ export function Select<ISM extends boolean = false, VT = string>({
       {open && (
         <div
           className={cn(
-            'absolute z-10 w-full bg-white rounded-xl max-h-80 overflow-auto',
+            'absolute z-10 w-full bg-white rounded-xl max-h-72 overflow-auto',
             'py-1 noscrollbar border border-gray-200 shadow-xs',
             'top-full mt-1',
             classNames?.menu

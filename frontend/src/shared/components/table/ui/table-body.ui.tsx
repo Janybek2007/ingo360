@@ -34,7 +34,6 @@ export function TableBody({
                     ...(!isPinned &&
                       accessor !== 'actions' &&
                       getCommonPinningStyles(cell.column)),
-                    minWidth: cell.column.getSize(),
                   }}
                   className={cn(
                     !isPinned &&
@@ -49,6 +48,7 @@ export function TableBody({
                     highlightRow?.(row.original)
                   )}
                 >
+                  {}
                   {flexRender(columnDef.cell, cell.getContext())}
                 </td>
               );
@@ -78,8 +78,6 @@ export function TableBody({
                     key={column.id}
                     style={{
                       ...getCommonPinningStyles(column),
-                      maxWidth: column.columnDef.size,
-                      minWidth: column.columnDef.size,
                     }}
                     className={cn(
                       'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white',

@@ -7,12 +7,12 @@ import type { IUserItem } from '#/entities/user/user.types';
 import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
+import { LucidePlusIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
 import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
 import { ROLES, STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { selectFilter } from '#/shared/utils/filter';
@@ -131,9 +131,9 @@ const CustomerAccountsPage: React.FC = () => {
             <ExportToExcelButton data={data} fileName="customers.xlsx" />
             <Button
               onClick={() => set('create')}
-              className="px-4 py-3 rounded-full flex items-center gap-1"
+              className="px-3 py-2 rounded-full flex items-center gap-1"
             >
-              <Icon name="lucide:plus" />
+              <LucidePlusIcon className="size-6" />
               Добавить уч. запись
             </Button>{' '}
           </div>

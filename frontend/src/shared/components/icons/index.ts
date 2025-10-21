@@ -1,9 +1,13 @@
 export { AnchorLeftIcon } from './all/anchor-left.ui';
 export { FlowbiteBellOutlineIcon } from './all/flowbite-bell-outline.ui';
+export { LucideEllipsisVerticalIcon } from './all/lucide-ellipsis-vertical.ui';
 export { LucideFilterIcon } from './all/lucide-filter.ui';
+export { LucidePlusIcon } from './all/lucide-plus.ui';
+export { LucideRefreshCcwIcon } from './all/lucide-refresh-ccw.ui';
 export { LucideSearchIcon } from './all/lucide-search.ui';
 export { LucideXIcon } from './all/lucide-x.ui';
 export { MdiDeleteIcon } from './all/mdi-delete.ui';
 export { MdiPencilIcon } from './all/mdi-pencil.ui';
 export { MdiPublishIcon } from './all/mdi-publish.ui';
+export { MslAdminPanelSettingsRounded } from './all/msl-admin-panel-settings-rounded.ui';
 export type { IStaticIconProps } from './types';

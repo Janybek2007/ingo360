@@ -36,9 +36,12 @@ export const Table: React.FC<ITableProps> = React.memo(
     emptyNode,
     filters,
     rowTotal,
+    enableColumnResizing = true,
   }) => {
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+      filters?.custom || []
+    );
     const [columnPinning, setColumnPinning] = useState<ColumnPinningState>(
       () => {
         const leftPinnedColumns = columns
@@ -50,8 +53,8 @@ export const Table: React.FC<ITableProps> = React.memo(
 
     useEffect(() => {
       setSorting([]);
-      setColumnFilters([]);
-    }, [data, columns]);
+      setColumnFilters(filters?.custom || []);
+    }, [data, columns, filters?.custom]);
 
     const table = useReactTable({
       data,
@@ -63,11 +66,12 @@ export const Table: React.FC<ITableProps> = React.memo(
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
-      defaultColumn: { minSize: 40 },
       columnResizeMode: 'onChange',
+      defaultColumn: { size: 200, enableResizing: enableColumnResizing },
+      enableColumnResizing,
     });
 
-    const tableContainerRef = useRef<HTMLDivElement>(null);
+    const tableContainerRef = useRef<HTMLTableElement>(null);
     const scrollbarRef = useRef<HTMLDivElement>(null);
     const { thumbWidth, thumbPosition, onThumbMouseDown, isDragging } =
       useTableScrollbar(tableContainerRef, scrollbarRef, isScrollbar);
@@ -107,7 +111,8 @@ export const Table: React.FC<ITableProps> = React.memo(
         <div
           ref={tableContainerRef}
           className={cn(
-            'overflow-auto bg-white noscrollbar border border-[#E4E4E4] font-inter',
+            'bg-white noscrollbar border border-[#E4E4E4] font-inter',
+            'overflow-x-auto overflow-y-auto',
             rounded == 'sm' && 'rounded-sm',
             rounded == 'md' && 'rounded-md',
             rounded == 'lg' && 'rounded-lg',
@@ -120,25 +125,24 @@ export const Table: React.FC<ITableProps> = React.memo(
             zIndex: 1,
           }}
         >
-          <table
-            id="custom-table"
-            className="w-full text-sm border-separate border-spacing-0"
-          >
-            {columns.length === 0 || isLoading || showEmpty ? (
-              <TableState
-                state={
-                  columns.length === 0
-                    ? 'not-columns'
-                    : isLoading
-                      ? 'loading'
-                      : 'empty'
-                }
-                colSpan={columns.length}
-                loadingNode={loadingNode}
-                emptyNode={emptyNode}
-              />
-            ) : (
-              <>
+          {columns.length === 0 || isLoading || showEmpty ? (
+            <TableState
+              state={
+                columns.length === 0
+                  ? 'not-columns'
+                  : isLoading
+                    ? 'loading'
+                    : 'empty'
+              }
+              loadingNode={loadingNode}
+              emptyNode={emptyNode}
+            />
+          ) : (
+            <>
+              <table
+                id="custom-table"
+                className="text-sm border-separate border-spacing-0 w-full min-w-max"
+              >
                 <TableHeader table={table} />
                 <TableBody
                   table={table}
@@ -146,9 +150,9 @@ export const Table: React.FC<ITableProps> = React.memo(
                   pinnedRow={pinnedRow}
                   rowTotal={rowTotal}
                 />
-              </>
-            )}
-          </table>
+              </table>
+            </>
+          )}
         </div>
 
         {isScrollbar && (
@@ -167,34 +171,17 @@ export const Table: React.FC<ITableProps> = React.memo(
 
 const TableState: React.FC<{
   state: 'not-columns' | 'loading' | 'empty';
-  colSpan: number;
   loadingNode?: React.ReactNode;
   emptyNode?: React.ReactNode;
-}> = React.memo(({ state, colSpan, loadingNode, emptyNode }) => {
+}> = React.memo(({ state, loadingNode, emptyNode }) => {
   return state === 'not-columns' ? (
-    <tbody>
-      <tr>
-        <td colSpan={colSpan} className="py-14 text-center text-gray-500">
-          Нет выбранных колонок для отображения
-        </td>
-      </tr>
-    </tbody>
+    <div className="py-20 text-center text-gray-500">
+      Нет выбранных колонок для отображения
+    </div>
   ) : state === 'loading' ? (
-    <tbody>
-      <tr>
-        <td colSpan={colSpan} className="py-14 text-center">
-          {loadingNode || 'Загрузка...'}
-        </td>
-      </tr>
-    </tbody>
+    <div className="py-20 text-center">{loadingNode || 'Загрузка...'}</div>
   ) : (
-    <tbody>
-      <tr>
-        <td colSpan={colSpan} className="py-14 text-center">
-          {emptyNode || 'Отсутствуют данные'}
-        </td>
-      </tr>
-    </tbody>
+    <div className="py-20 text-center">{emptyNode || 'Отсутствуют данные'}</div>
   );
 });
 

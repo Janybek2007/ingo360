@@ -28,20 +28,21 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             <Icon
               name="lucide:chevron-down"
               style={{
-                minWidth: '0.875rem',
-                minHeight: '0.875rem',
-                maxWidth: '0.875rem',
-                maxHeight: '0.875rem',
+                minWidth: '0.9rem',
+                minHeight: '0.8rem',
+                maxWidth: '0.9rem',
+                maxHeight: '0.9rem',
               }}
               className="text-gray-500"
             />
           }
           classNames={{
             trigger:
-              'w-full justify-between border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs font-medium bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors',
+              'w-full justify-between border border-gray-300 rounded-sm px-2.5 py-2 text-sm font-medium bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors',
             triggerText: 'text-gray-700',
             menu: 'border border-gray-300 rounded-sm bg-white mt-1 shadow-lg',
-            menuItem: 'text-xs px-2.5 py-1.5 hover:bg-blue-50 rounded-sm',
+            menuItem:
+              'text-sm px-2.5 py-2 hover:bg-blue-50 rounded-sm justify-between',
           }}
         />
         <input
@@ -56,7 +57,7 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             colType === 'number' ? 'Введите число...' : 'Введите текст...'
           }
           className={cn(
-            'w-full border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs bg-white',
+            'w-full border border-gray-300 rounded-sm px-2.5 py-2 text-sm bg-white',
             'text-gray-700 placeholder:text-gray-400',
             'focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors'
           )}
@@ -68,7 +69,7 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             onChange={e => setValue2(Number(e.target.value))}
             placeholder="Введите число (до)..."
             className={cn(
-              'w-full border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs bg-white',
+              'w-full border border-gray-300 rounded-sm px-2.5 py-2 text-sm bg-white',
               'text-gray-700 placeholder:text-gray-400',
               'focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors'
             )}

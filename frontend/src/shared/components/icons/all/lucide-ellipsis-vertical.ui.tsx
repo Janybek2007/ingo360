@@ -2,8 +2,8 @@ import React from 'react';
 
 import type { IStaticIconProps } from '../types';
 
-export const LucideFilterIcon: React.FC<IStaticIconProps> = React.memo(
-  props => {
+export const LucideEllipsisVerticalIcon: React.FC<IStaticIconProps> =
+  React.memo(props => {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -12,17 +12,19 @@ export const LucideFilterIcon: React.FC<IStaticIconProps> = React.memo(
         viewBox="0 0 24 24"
         {...props}
       >
-        <path
+        <g
           fill="none"
           stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"
-          d="M22 3H2l8 9.46V19l4 2v-8.54z"
-        />
+        >
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="12" cy="5" r="1" />
+          <circle cx="12" cy="19" r="1" />
+        </g>
       </svg>
     );
-  }
-);
+  });
 
-LucideFilterIcon.displayName = '_LucideFilterIcon_';
+LucideEllipsisVerticalIcon.displayName = '_LucideEllipsisVerticalIcon_';

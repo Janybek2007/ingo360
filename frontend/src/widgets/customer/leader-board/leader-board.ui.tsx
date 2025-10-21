@@ -75,9 +75,9 @@ export const LeaderBoard: React.FC = React.memo(() => {
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
-      { accessorKey: 'place', header: 'Место', size: 120 },
-      { accessorKey: 'company', header: 'Компания', size: 400 },
-      { accessorKey: 'sales', header: 'Продажи', size: 400 },
+      { accessorKey: 'place', header: 'Место', size: 130 },
+      { accessorKey: 'company', header: 'Компания', size: 300 },
+      { accessorKey: 'sales', header: 'Продажи', size: 300 },
     ],
     []
   );
@@ -129,7 +129,7 @@ export const LeaderBoard: React.FC = React.memo(() => {
           </div>
           <div></div>
         </div>
-        <div className="w-full">
+        <div className="w-full overflow-hidden">
           <Table
             highlightRow={row =>
               row.place === 1 ? 'bg-yellow-100 font-bold' : ''
@@ -137,6 +137,7 @@ export const LeaderBoard: React.FC = React.memo(() => {
             pinnedRow={row => row.place === 1}
             columns={columns}
             data={data}
+            enableColumnResizing={false}
           />
         </div>
       </div>

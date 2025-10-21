@@ -1,38 +1,56 @@
 import React from 'react';
-import { Bar, BarChart, CartesianGrid, Tooltip, XAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  Tooltip,
+  XAxis,
+} from 'recharts';
 
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
-import { Month } from '#/shared/constants/months';
 import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { processPeriodData } from '#/shared/utils/process-period-data';
 
-const data = [
-  { month: Month.JAN, eray: 20, neman: 5, med: 10, bimed: 15, elay: 20 },
-  { month: Month.FEB, eray: 15, neman: 3, med: 8, bimed: 10, elay: 12 },
-  { month: Month.MAR, eray: 25, neman: 6, med: 12, bimed: 15, elay: 20 },
-  { month: Month.APR, eray: 30, neman: 8, med: 15, bimed: 20, elay: 27 },
-  { month: Month.MAY, eray: 28, neman: 6, med: 14, bimed: 18, elay: 22 },
-  { month: Month.JUN, eray: 12, neman: 4, med: 6, bimed: 8, elay: 10 },
-  { month: Month.JUL, eray: 14, neman: 5, med: 7, bimed: 9, elay: 11 },
-  { month: Month.AUG, eray: 22, neman: 7, med: 12, bimed: 14, elay: 18 },
-  { month: Month.SEP, eray: 18, neman: 6, med: 10, bimed: 12, elay: 15 },
-  { month: Month.OCT, eray: 16, neman: 5, med: 9, bimed: 10, elay: 12 },
-  { month: Month.NOV, eray: 24, neman: 7, med: 12, bimed: 16, elay: 22 },
-  { month: Month.DEC, eray: 10, neman: 3, med: 6, bimed: 7, elay: 8 },
-];
+const generateRawData = () => {
+  const currentYear = new Date().getFullYear();
+  const data = [];
+
+  for (let yearOffset = 1; yearOffset >= 0; yearOffset--) {
+    const year = currentYear - yearOffset;
+    for (let month = 1; month <= 12; month++) {
+      const quarter = Math.ceil(month / 3);
+      data.push({
+        year,
+        month,
+        quarter,
+        eray: Math.floor(Math.random() * 15) + 15,
+        neman: Math.floor(Math.random() * 5) + 3,
+        med: Math.floor(Math.random() * 8) + 6,
+        bimed: Math.floor(Math.random() * 10) + 10,
+        elay: Math.floor(Math.random() * 15) + 10,
+      });
+    }
+  }
+
+  return data;
+};
+
+const rawData = generateRawData();
 
 const legends = [
   { label: 'Эрай', fill: '#1f77b4' },
   { label: 'Неман', fill: '#ff7f0e' },
   { label: 'Медсервис', fill: '#2ca02c' },
   { label: 'Бимед', fill: '#17becf' },
-  { label: 'Аптека #33', fill: '#9467bd' },
+  { label: 'Аптека', fill: '#9467bd' },
 ];
 
 export const DistributorShareDynamics: React.FC = React.memo(() => {
@@ -40,6 +58,15 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   const [brand, setBrand] = React.useState<string>('');
   const [group, setGroup] = React.useState<string>('');
   const periodFilter = usePeriodFilter();
+
+  const data = React.useMemo(() => {
+    return processPeriodData({
+      rawData,
+      period: periodFilter.period,
+      selectedValues: periodFilter.selectedValues,
+      aggregateFields: ['eray', 'neman', 'med', 'bimed', 'elay'],
+    });
+  }, [periodFilter.period, periodFilter.selectedValues]);
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -100,26 +127,41 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
             <XAxis
               axisLine={false}
               tickLine={false}
-              dataKey="month"
+              dataKey="label"
               className="font-normal text-xs leading-full"
             />
 
             <Tooltip
-              labelFormatter={label => `${label}`}
+              labelFormatter={(label, payload) => {
+                if (payload && payload[0]) {
+                  return payload[0].payload.fullLabel || label;
+                }
+                return label;
+              }}
               formatter={(value: number, name: string) => [`${value}%`, name]}
             />
 
             <Bar
               dataKey="eray"
-              barSize={60}
+              barSize={periodFilter.period === 'month' ? 40 : 60}
               stackId="a"
               fill="#1f77b4"
               name="Эрай"
-            />
-            <Bar dataKey="neman" stackId="a" fill="#ff7f0e" name="Неман" />
-            <Bar dataKey="med" stackId="a" fill="#2ca02c" name="Медсервис" />
-            <Bar dataKey="bimed" stackId="a" fill="#17becf" name="Бимед" />
-            <Bar dataKey="elay" stackId="a" fill="#9467bd" name="Элэй" />
+            >
+              <LabelList dataKey="eray" content={<SegmentLabel />} />
+            </Bar>
+            <Bar dataKey="neman" stackId="a" fill="#ff7f0e" name="Неман">
+              <LabelList dataKey="neman" content={<SegmentLabel />} />
+            </Bar>
+            <Bar dataKey="med" stackId="a" fill="#2ca02c" name="Медсервис">
+              <LabelList dataKey="med" content={<SegmentLabel />} />
+            </Bar>
+            <Bar dataKey="bimed" stackId="a" fill="#17becf" name="Бимед">
+              <LabelList dataKey="bimed" content={<SegmentLabel />} />
+            </Bar>
+            <Bar dataKey="elay" stackId="a" fill="#9467bd" name="Элэй">
+              <LabelList dataKey="elay" content={<SegmentLabel />} />
+            </Bar>
           </BarChart>
         </div>
       </div>
@@ -127,4 +169,22 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   );
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SegmentLabel: React.FC<any> = React.memo(
+  ({ x, y, width, height, value }) => {
+    return (
+      <text
+        x={x + width / 2}
+        y={y + height / 2 + 4}
+        fill="#fff"
+        fontSize={12}
+        textAnchor="middle"
+      >
+        {value}
+      </text>
+    );
+  }
+);
+
+SegmentLabel.displayName = '_SegmentLabel_';
 DistributorShareDynamics.displayName = '_DistributorShareDynamics_';

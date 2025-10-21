@@ -13,7 +13,6 @@ import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
-import { Month } from '#/shared/constants/months';
 import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
@@ -23,21 +22,29 @@ import {
 } from '#/shared/utils/format-number';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { processPeriodData } from '#/shared/utils/process-period-data';
 
-const rawData: { month: string; value: number; monthIndex: number }[] = [
-  { month: Month.JAN, value: 280000, monthIndex: 0 },
-  { month: Month.FEB, value: 350000, monthIndex: 1 },
-  { month: Month.MAR, value: 420000, monthIndex: 2 },
-  { month: Month.APR, value: 390000, monthIndex: 3 },
-  { month: Month.MAY, value: 500000, monthIndex: 4 },
-  { month: Month.JUN, value: 580000, monthIndex: 5 },
-  { month: Month.JUL, value: 400000, monthIndex: 6 },
-  { month: Month.AUG, value: 390000, monthIndex: 7 },
-  { month: Month.SEP, value: 450000, monthIndex: 8 },
-  { month: Month.OCT, value: 600000, monthIndex: 9 },
-  { month: Month.NOV, value: 530000, monthIndex: 10 },
-  { month: Month.DEC, value: 420000, monthIndex: 11 },
-];
+const generateRawData = () => {
+  const currentYear = new Date().getFullYear();
+  const data = [];
+
+  for (let yearOffset = 1; yearOffset >= 0; yearOffset--) {
+    const year = currentYear - yearOffset;
+    for (let month = 1; month <= 12; month++) {
+      const quarter = Math.ceil(month / 3);
+      data.push({
+        year,
+        month,
+        quarter,
+        value: Math.floor(Math.random() * 300000) + 280000,
+      });
+    }
+  }
+
+  return data;
+};
+
+const rawData = generateRawData();
 
 export const TertiarySalesUnits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
@@ -77,38 +84,13 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
   }, [periodFilter]);
 
   const data = useMemo(() => {
-    if (periodFilter.period === 'month') {
-      return rawData;
-    }
-
-    if (periodFilter.period === 'year') {
-      const currentYearTotal = rawData.reduce(
-        (sum, item) => sum + item.value,
-        0
-      );
-      return [
-        { month: '2021', value: currentYearTotal * 0.7, monthIndex: 0 },
-        { month: '2022', value: currentYearTotal * 0.85, monthIndex: 1 },
-        { month: '2023', value: currentYearTotal * 0.95, monthIndex: 2 },
-        { month: '2024', value: currentYearTotal, monthIndex: 3 },
-      ];
-    }
-
-    // quarter
-    const quarters = [
-      { month: 'Q1', value: 0, monthIndex: 0 },
-      { month: 'Q2', value: 0, monthIndex: 1 },
-      { month: 'Q3', value: 0, monthIndex: 2 },
-      { month: 'Q4', value: 0, monthIndex: 3 },
-    ];
-
-    rawData.forEach(item => {
-      const quarterIndex = Math.floor(item.monthIndex / 3);
-      quarters[quarterIndex].value += item.value;
+    return processPeriodData({
+      rawData,
+      period: periodFilter.period,
+      selectedValues: periodFilter.selectedValues,
+      aggregateFields: ['value'],
     });
-
-    return quarters;
-  }, [periodFilter.period]);
+  }, [periodFilter.period, periodFilter.selectedValues]);
 
   const chartAxis = useMemo(() => calculateChartAxis(data, ['value']), [data]);
 
@@ -151,9 +133,8 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
             <CartesianGrid strokeDasharray="4 4" vertical={false} />
 
             <XAxis
-              dataKey="month"
+              dataKey="label"
               axisLine={false}
-              tickLine={false}
               tickMargin={20}
               className="text-base text-[#474B4E] leading-full font-normal"
               padding={{ left: 30, right: 30 }}
@@ -171,7 +152,12 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
             />
 
             <Tooltip
-              labelFormatter={label => `${label}`}
+              labelFormatter={(label, payload) => {
+                if (payload && payload[0]) {
+                  return payload[0].payload.fullLabel || label;
+                }
+                return label;
+              }}
               formatter={value => {
                 return [
                   (value as number).toLocaleString('ru-RU'),

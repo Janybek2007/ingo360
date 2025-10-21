@@ -10,7 +10,7 @@ import type { ITableHeaderProps } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 import { FilterPopup } from './filter-popup/filter-popup.ui';
 
-export function TableHeader({ table }: ITableHeaderProps) {
+export function TableHeader({ table, extraSizes = 0 }: ITableHeaderProps) {
   const [popupOpen, setPopupOpen] = useState<string | null>(null);
   const { position: popupPosition, updatePosition } = useAnchorPosition();
 
@@ -33,24 +33,28 @@ export function TableHeader({ table }: ITableHeaderProps) {
                 )}
                 style={{
                   ...getCommonPinningStyles(header.column),
-                  maxWidth: header.column.getSize(),
+                  width: `${header.column.getSize() + extraSizes}px`,
+                  minWidth: `${header.column.getSize() + extraSizes}px`,
+                  maxWidth: `${header.column.getSize() + extraSizes}px`,
+                  flexShrink: 0,
                 }}
               >
-                <button
-                  type="button"
-                  aria-label="Resize column"
-                  onMouseDown={header.getResizeHandler()}
-                  onTouchStart={header.getResizeHandler()}
-                  className={cn(
-                    'absolute right-0 top-0 h-full w-1.5 select-none touch-manipulation',
-                    'bg-transparent hover:bg-blue-400/50 active:bg-blue-500 transition-colors'
-                  )}
-                  style={{
-                    padding: 0,
-                    border: 'none',
-                    cursor: 'col-resize',
-                  }}
-                />
+                {header.column.columnDef.enableResizing && (
+                  <button
+                    type="button"
+                    aria-label="Resize column"
+                    onMouseDown={header.getResizeHandler()}
+                    className={cn(
+                      'absolute right-1 top-1 h-[calc(100%-8px)] w-1.5 rounded-full select-none touch-manipulation',
+                      'bg-transparent hover:bg-blue-400/50 active:bg-blue-500 transition-colors'
+                    )}
+                    style={{
+                      padding: 0,
+                      border: 'none',
+                      cursor: 'col-resize',
+                    }}
+                  />
+                )}
                 <div className="flex items-center gap-2">
                   {flexRender(
                     header.column.columnDef.header,

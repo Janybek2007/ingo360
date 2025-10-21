@@ -7,12 +7,12 @@ import { AccessCompanyModal } from '#/features/company/access';
 import { AddCompanyModal } from '#/features/company/add';
 import { EditCompanyModal } from '#/features/company/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
+import { LucidePlusIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
 import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
 import { STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { numberFilter } from '#/shared/utils/filter';
@@ -149,9 +149,9 @@ const CompanyManagementPage: React.FC = () => {
             />
             <Button
               onClick={() => set('create')}
-              className="px-4 py-3 rounded-full flex items-center gap-1"
+              className="px-3 py-2 rounded-full flex items-center gap-1"
             >
-              <Icon name="lucide:plus" />
+              <LucidePlusIcon className="size-6" />
               Добавить компанию
             </Button>{' '}
           </div>

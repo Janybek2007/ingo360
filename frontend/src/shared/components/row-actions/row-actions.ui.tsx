@@ -2,8 +2,8 @@ import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
+import { LucideEllipsisVerticalIcon } from '../icons';
 import { Dropdown } from '../ui/dropdown';
-import { Icon } from '../ui/icon';
 import { DEFAULT_ROW_ACTION_TYPE_ITEM } from './constants';
 import type { IRowActionsProps } from './row-actions.types';
 
@@ -26,10 +26,9 @@ export const RowActions: React.FC<IRowActionsProps> = React.memo(
                 'flex items-center justify-center cursor-pointer'
               )}
             >
-              <Icon
-                color="#94A3B8"
+              <LucideEllipsisVerticalIcon
+                style={{ color: '#94A3B8' }}
                 className="size-[1.25rem]"
-                name="lucide:ellipsis-vertical"
               />
             </button>
           )}

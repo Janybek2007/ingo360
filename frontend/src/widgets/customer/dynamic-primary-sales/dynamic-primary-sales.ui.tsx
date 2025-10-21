@@ -102,7 +102,10 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
           {as == 'line' ? (
             <DynamicPrimarySalesAsLine period={periodFilter.period} />
           ) : (
-            <DynamicPrimarySalesAsMixed period={periodFilter.period} />
+            <DynamicPrimarySalesAsMixed
+              period={periodFilter.period}
+              selectedValues={periodFilter.selectedValues}
+            />
           )}
         </div>
       </PageSection>

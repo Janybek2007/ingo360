@@ -123,7 +123,7 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
-      { accessorKey: 'place', header: 'Место', size: 350 },
+      { accessorKey: 'place', header: 'Место', size: 150 },
       { accessorKey: 'company', header: 'Компания', size: 400 },
       { accessorKey: 'sales', header: 'Сумма продаж', size: 400 },
     ],
@@ -191,13 +191,14 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
           </div>
           <div></div>
         </div>
-        <div className="w-full">
+        <div className="w-full overflow-hidden">
           <Table
             highlightRow={row =>
               row.place === 34 ? 'bg-yellow-100 font-bold' : ''
             }
             pinnedRow={row => row.place === 34}
             columns={columns}
+            enableColumnResizing={false}
             maxHeight={400}
             data={data}
           />

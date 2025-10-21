@@ -36,7 +36,9 @@ interface VisitRow {
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [group, setGroup] = React.useState<string>('');
+  const [groups, setGroups] = React.useState<string[]>(
+    GROUPS.map(v => v.value)
+  );
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -48,12 +50,11 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         items: [],
         onDelete: () => setRowsCount('all'),
       },
-      { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
-  }, [group, rowsCount]);
+  }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setGroup('');
+    setGroups(GROUPS.map(v => v.value));
     setRowsCount('all');
   }, []);
 
@@ -63,7 +64,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         id: 'lpu',
         accessorKey: 'lpu.label',
         header: 'ЛПУ',
-        size: 124,
         enableColumnFilter: true,
         type: 'select',
         filterFn: selectFilter(),
@@ -72,7 +72,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       {
         accessorKey: 'year',
         header: 'Год',
-        size: 130,
         enableColumnFilter: true,
         type: 'number',
         filterFn: numberFilter(),
@@ -80,7 +79,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       {
         accessorKey: 'month',
         header: 'Месяц',
-        size: 130,
         enableColumnFilter: true,
         type: 'select',
         filterFn: selectFilter(),
@@ -90,7 +88,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         id: 'specialty',
         accessorKey: 'specialty.label',
         header: 'Специальность',
-        size: 190,
         enableColumnFilter: true,
         type: 'select',
         filterFn: selectFilter(),
@@ -100,7 +97,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         id: 'employee',
         accessorKey: 'employee.label',
         header: 'Сотрудник',
-        size: 159,
         enableColumnFilter: true,
         type: 'string',
         filterFn: stringFilter(),
@@ -109,7 +105,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         id: 'group',
         accessorKey: 'group.label',
         header: 'Группа',
-        size: 220,
         enableColumnFilter: true,
         type: 'select',
         filterFn: selectFilter(),
@@ -119,7 +114,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         id: 'visitsTotal',
         accessorKey: 'visitsTotal',
         header: 'Визитов всего',
-        size: 150,
       },
     ],
     []
@@ -159,10 +153,13 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<false, string>
-            value={group}
-            setValue={setGroup}
-            items={[{ value: '', label: 'Все' }, ...GROUPS]}
+          <Select<true, string>
+            value={groups}
+            isMultiple
+            checkbox
+            showToggleAll
+            setValue={setGroups}
+            items={GROUPS}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
@@ -184,6 +181,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             items={columnItems}
             triggerText="Столбцы"
             checkbox
+            showToggleAll
             isMultiple
             classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
@@ -192,7 +190,20 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       }
     >
       <Table
-        filters={{ usedFilterItems, resetFilters }}
+        filters={{
+          usedFilterItems,
+          resetFilters,
+          custom: [
+            {
+              id: 'group',
+              value: {
+                colType: 'select',
+                header: 'Группа',
+                selectValues: GROUPS.filter(g => groups.includes(g.value)),
+              },
+            },
+          ],
+        }}
         columns={columnsForTable}
         data={data}
         maxHeight={400}

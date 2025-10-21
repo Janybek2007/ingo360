@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { IStaticIconProps } from '../types';
 
-export const LucideXIcon: React.FC<IStaticIconProps> = React.memo(props => {
+export const LucidePlusIcon: React.FC<IStaticIconProps> = React.memo(props => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,10 +17,10 @@ export const LucideXIcon: React.FC<IStaticIconProps> = React.memo(props => {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="2"
-        d="M18 6L6 18M6 6l12 12"
+        d="M5 12h14m-7-7v14"
       />
     </svg>
   );
 });
 
-LucideXIcon.displayName = '_LucideXIcon_';
+LucidePlusIcon.displayName = '_LucidePlusIcon_';

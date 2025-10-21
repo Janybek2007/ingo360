@@ -31,8 +31,12 @@ interface PharmacyBalanceRow {
 export const PharmacyBalance: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [brand, setBrand] = React.useState<string>('');
-  const [group, setGroup] = React.useState<string>('');
+  const [brands, setBrands] = React.useState<string[]>(
+    BRANDS.map(v => v.value)
+  );
+  const [groups, setGroups] = React.useState<string[]>(
+    GROUPS.map(v => v.value)
+  );
   const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
     'money'
   );
@@ -47,14 +51,12 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         items: [],
         onDelete: () => setRowsCount('all'),
       },
-      { value: brand, items: BRANDS, onDelete: () => setBrand('') },
-      { value: group, items: GROUPS, onDelete: () => setGroup('') },
     ]);
-  }, [brand, group, rowsCount]);
+  }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrand('');
-    setGroup('');
+    setBrands(BRANDS.map(v => v.value));
+    setGroups(GROUPS.map(v => v.value));
     setRowsCount('all');
   }, []);
 
@@ -165,17 +167,23 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<false, string>
-            value={brand}
-            setValue={setBrand}
-            items={[{ value: '', label: 'Все' }, ...BRANDS]}
+          <Select<true, string>
+            value={brands}
+            setValue={setBrands}
+            showToggleAll
+            isMultiple
+            checkbox
+            items={BRANDS}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<false, string>
-            value={group}
-            setValue={setGroup}
-            items={[{ value: '', label: 'Все' }, ...GROUPS]}
+          <Select<true, string>
+            value={groups}
+            isMultiple
+            checkbox
+            showToggleAll
+            setValue={setGroups}
+            items={GROUPS}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
@@ -207,6 +215,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             triggerText="Столбцы"
             isMultiple
             checkbox
+            showToggleAll
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
@@ -216,7 +225,28 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       }
     >
       <Table
-        filters={{ usedFilterItems, resetFilters }}
+        filters={{
+          usedFilterItems,
+          resetFilters,
+          custom: [
+            {
+              id: 'brand',
+              value: {
+                colType: 'select',
+                header: 'Бренд',
+                selectValues: BRANDS.filter(b => brands.includes(b.value)),
+              },
+            },
+            {
+              id: 'group',
+              value: {
+                colType: 'select',
+                header: 'Группа',
+                selectValues: GROUPS.filter(g => groups.includes(g.value)),
+              },
+            },
+          ],
+        }}
         columns={columnsForTable}
         data={data}
         maxHeight={400}

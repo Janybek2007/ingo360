@@ -7,12 +7,12 @@ import type { IUserItem } from '#/entities/user/user.types';
 import { AddUserModal } from '#/features/users/add';
 import { EditUserModal } from '#/features/users/edit';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
+import { LucidePlusIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
 import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import { Icon } from '#/shared/components/ui/icon';
 import {
   ROLES_OBJECT,
   STATUSES_OBJECT,
@@ -144,9 +144,9 @@ const IngoAccountsPage: React.FC = () => {
             <ExportToExcelButton data={filteredData} fileName="users.xlsx" />
             <Button
               onClick={() => set('create')}
-              className="px-4 py-3 rounded-full flex items-center gap-1"
+              className="px-3 py-2 rounded-full flex items-center gap-1"
             >
-              <Icon name="lucide:plus" />
+              <LucidePlusIcon className="size-6" />
               Добавить пользователя
             </Button>{' '}
           </div>

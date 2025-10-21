@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { IStaticIconProps } from '../types';
 
-export const LucideFilterIcon: React.FC<IStaticIconProps> = React.memo(
+export const LucideRefreshCcwIcon: React.FC<IStaticIconProps> = React.memo(
   props => {
     return (
       <svg
@@ -12,17 +12,20 @@ export const LucideFilterIcon: React.FC<IStaticIconProps> = React.memo(
         viewBox="0 0 24 24"
         {...props}
       >
-        <path
+        <g
           fill="none"
           stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"
-          d="M22 3H2l8 9.46V19l4 2v-8.54z"
-        />
+        >
+          <path d="M21 12a9 9 0 0 0-9-9a9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5m-5 4a9 9 0 0 0 9 9a9.75 9.75 0 0 0 6.74-2.74L21 16" />
+          <path d="M16 16h5v5" />
+        </g>
       </svg>
     );
   }
 );
 
-LucideFilterIcon.displayName = '_LucideFilterIcon_';
+LucideRefreshCcwIcon.displayName = '_LucideRefreshCcwIcon_';
