@@ -5,6 +5,7 @@ import type { IDbItem } from '#/entities/db';
 import { AddDbItemWrapper } from '#/features/db-work/add';
 import { DeleteDbItemWrapper } from '#/features/db-work/delete';
 import { EditDbItemWrapper } from '#/features/db-work/edit';
+import { ImportDbItemButton } from '#/features/db-work/import';
 import {
   PublishButton,
   PublishUnpublishedButton,
@@ -13,7 +14,6 @@ import { tabsItems } from '#/routes/operator/pages/db-work/constants';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
-import { Button } from '#/shared/components/ui/button';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
@@ -247,9 +247,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 disabled={currentData.filter(v => !v.published).length === 0}
                 ids={currentData.filter(v => !v.published).map(v => v.id)}
               />
-              <Button className="px-4 py-2 rounded-full">
-                Импорт из файла
-              </Button>
+              <ImportDbItemButton type={current} />
               <AddDbItemWrapper type={current} />
             </div>
           }

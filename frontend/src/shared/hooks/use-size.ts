@@ -51,10 +51,22 @@ export const useSize: UseSizeType = (_element, options = {}): Size => {
 
     updateSize();
     if (typeof window === 'undefined') return;
+
     window.addEventListener('resize', updateSize);
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (targetElement !== window && 'ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver(() => {
+        updateSize();
+      });
+      resizeObserver.observe(targetElement as HTMLElement);
+    }
 
     return () => {
       window.removeEventListener('resize', updateSize);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_element, ...dependcies]);

@@ -51,7 +51,6 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       periodFilter.onReset();
       setBrand('');
       setGroup('');
-      periodFilter.setPeriod('month');
     }, [periodFilter]);
 
     return (

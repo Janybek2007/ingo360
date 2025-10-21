@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { MonthFull } from '#/shared/constants/months';
 
-export type UsePeriodType = 'year' | 'month' | 'quarter';
+export type UsePeriodType = 'year' | 'month' | 'quarter' | 'mat' | 'ytd';
 
 export interface IFilterPeriodSelectItem {
   label: string;
@@ -14,18 +14,23 @@ export type UsePeriodFilterReturn = {
   isSelectValues?: boolean;
   selectedValues: string[];
   items: IFilterPeriodSelectItem[];
+  views: UsePeriodType[];
   setPeriod: (period: UsePeriodType) => void;
   onChange: (value: string | string[]) => void;
   onReset: VoidFunction;
 };
 
-export const usePeriodFilter = (): UsePeriodFilterReturn => {
-  const [period, setPeriod] = useState<UsePeriodType>('month');
+export const usePeriodFilter = (
+  views: UsePeriodType[] = ['year', 'month', 'quarter'],
+  defaultPeriod: UsePeriodType = 'month'
+): UsePeriodFilterReturn => {
+  const [period, setPeriodState] = useState<UsePeriodType>(defaultPeriod);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  useEffect(() => {
+  const setPeriod = useCallback((newPeriod: UsePeriodType) => {
+    setPeriodState(newPeriod);
     setSelectedValues([]);
-  }, [period]);
+  }, []);
 
   const currentYear = new Date().getFullYear();
   const years = useMemo(
@@ -39,6 +44,10 @@ export const usePeriodFilter = (): UsePeriodFilterReturn => {
         return Array.from({ length: 12 }, (_, i) => `month-${year}-${i + 1}`);
       if (period === 'quarter')
         return Array.from({ length: 4 }, (_, i) => `quarter-${year}-${i + 1}`);
+      if (period === 'mat')
+        return Array.from({ length: 12 }, (_, i) => `mat-${year}-${i + 1}`);
+      if (period === 'ytd')
+        return Array.from({ length: 12 }, (_, i) => `ytd-${year}-${i + 1}`);
       return [];
     },
     [period]
@@ -51,6 +60,10 @@ export const usePeriodFilter = (): UsePeriodFilterReturn => {
         for (let i = 1; i <= 12; i++) values.push(`month-${year}-${i}`);
       } else if (period === 'quarter') {
         for (let i = 1; i <= 4; i++) values.push(`quarter-${year}-${i}`);
+      } else if (period === 'mat') {
+        for (let i = 1; i <= 12; i++) values.push(`mat-${year}-${i}`);
+      } else if (period === 'ytd') {
+        for (let i = 1; i <= 12; i++) values.push(`ytd-${year}-${i}`);
       } else {
         values.push(`${year}`);
       }
@@ -89,6 +102,22 @@ export const usePeriodFilter = (): UsePeriodFilterReturn => {
             value: `quarter-${year}-${q}`,
           });
         }
+      } else if (period === 'mat') {
+        result.push({ label: `${year}`, value: yearKey });
+        Object.values(MonthFull).forEach((monthName, idx) => {
+          result.push({
+            label: `${monthName} ${year}`,
+            value: `mat-${year}-${idx + 1}`,
+          });
+        });
+      } else if (period === 'ytd') {
+        result.push({ label: `${year}`, value: yearKey });
+        Object.values(MonthFull).forEach((monthName, idx) => {
+          result.push({
+            label: `${monthName} ${year}`,
+            value: `ytd-${year}-${idx + 1}`,
+          });
+        });
       }
     });
 
@@ -160,7 +189,11 @@ export const usePeriodFilter = (): UsePeriodFilterReturn => {
     setPeriod,
     selectedValues,
     items,
+    views,
     onChange: handleValueChange,
-    onReset: () => setSelectedValues([]),
+    onReset: () => {
+      setSelectedValues([]);
+      setPeriod('month');
+    },
   };
 };
