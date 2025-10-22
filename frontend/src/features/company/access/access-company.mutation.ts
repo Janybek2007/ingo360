@@ -22,7 +22,7 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
       const parsedBody = AccessCompanyContract.parse(body);
 
       const response = await http.put(`companies/${id}`, {
-        body: JSON.stringify(parsedBody),
+        json: parsedBody,
       });
 
       return response.json();

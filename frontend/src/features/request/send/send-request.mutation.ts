@@ -23,7 +23,7 @@ export const useSendRequestMutation = (callback?: VoidFunction) => {
     mutationFn: (parsedBody: TSendRequestContract) => {
       return http
         .post('companies/registration-application', {
-          body: JSON.stringify(parsedBody),
+          json: parsedBody,
         })
         .json<{ id: number }>();
     },
