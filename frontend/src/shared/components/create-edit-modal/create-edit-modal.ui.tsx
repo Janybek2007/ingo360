@@ -97,6 +97,7 @@ export const CreateEditModal = React.memo(
                         type={ff.type}
                         label={ff.label}
                         name={ff.name}
+                        isPasswordToggleShow={ff.isPasswordToggleShow}
                         error={
                           errors[ff.name as FieldPath<FormData>]?.message as
                             | string
@@ -130,6 +131,7 @@ export const CreateEditModal = React.memo(
                     type={f.type}
                     label={f.label}
                     name={f.name}
+                    isPasswordToggleShow={f.isPasswordToggleShow}
                     error={
                       errors[f.name as FieldPath<FormData>]?.message as
                         | string

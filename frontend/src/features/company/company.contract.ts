@@ -17,8 +17,8 @@ export const AddCompanyContract = z.object({
 });
 
 export const EditCompanyContract = z.object({
-  name: z.string().min(1, 'Поле обязательно').optional(),
-  ims_name: z.string().min(1, 'Поле обязательно').optional(),
+  name: z.string().optional(),
+  ims_name: z.string().optional(),
   active_users_limit: z
     .union([z.string(), z.number()])
     .transform(Number)
@@ -26,9 +26,8 @@ export const EditCompanyContract = z.object({
   contract_number: z
     .union([z.string(), z.number()])
     .transform(value => String(value))
-    .pipe(z.string().min(1, 'Поле обязательно'))
     .optional(),
-  contract_end_date: z.string().min(1, 'Поле обязательно').optional(),
+  contract_end_date: z.string().optional(),
   can_primary_sales: z.boolean().optional(),
   can_secondary_sales: z.boolean().optional(),
   can_tertiary_sales: z.boolean().optional(),

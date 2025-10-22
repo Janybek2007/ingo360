@@ -22,7 +22,7 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
     }) => {
       const parsedBody = EditCompanyContract.parse(body);
 
-      const response = await http.put(`companies/${id}`, {
+      const response = await http.patch(`companies/${id}`, {
         body: JSON.stringify({
           name: parsedBody.name,
           ims_name: parsedBody.ims_name,

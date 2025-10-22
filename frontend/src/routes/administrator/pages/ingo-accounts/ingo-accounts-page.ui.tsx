@@ -27,7 +27,9 @@ const IngoAccountsPage: React.FC = () => {
   const queryData = useQuery(UserQueries.GetUsersQuery());
 
   const filteredData = useMemo(() => {
-    if (!search.trim()) return queryData.data || [];
+    if (!search.trim()) {
+      return queryData.data || [];
+    }
 
     // Нормализация для корректной работы с кириллицей
     const normalizeText = (text: string) =>
@@ -110,7 +112,7 @@ const IngoAccountsPage: React.FC = () => {
       {
         id: 'actions',
         header: '',
-        size: 80,
+        size: 120,
         cell(props) {
           return (
             <RowActions
@@ -134,7 +136,12 @@ const IngoAccountsPage: React.FC = () => {
 
   return (
     <main>
-      {open === 'edit' && <EditUserModal onClose={clear} userData={editData} />}
+      {open === 'edit' && editData && (
+        <EditUserModal
+          onClose={clear}
+          userData={editData as unknown as Record<string, unknown>}
+        />
+      )}
       {open === 'create' && <AddUserModal onClose={clear} />}
       <PageSection
         title="Учетные записи INDIGO"
