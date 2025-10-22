@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { LucideXIcon } from '../icons';
+import { Select } from '../ui/select';
 import type { IUsedFilterItem, IUsedFilterProps } from './used-filter.types';
 
 export const UsedFilter: React.FC<IUsedFilterProps> = ({
@@ -22,7 +23,13 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
 
     usedFilterItems.forEach(item => {
       const [type, year] = String(item.value).split('-');
-      if ((type === 'month' || type === 'quarter') && yearsMap.has(year)) {
+      if (
+        (type === 'month' ||
+          type === 'quarter' ||
+          type === 'mat' ||
+          type === 'ytd') &&
+        yearsMap.has(year)
+      ) {
         yearsMap
           .get(year)!
           .subItems!.push({ ...item, label: item.label.split(' ')[0] });
@@ -39,7 +46,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
 
     usedFilterItems.forEach(item => {
       const [type] = String(item.value).split('-');
-      if (!['year', 'month', 'quarter'].includes(type)) {
+      if (!['year', 'month', 'quarter', 'mat', 'ytd'].includes(type)) {
         result.push(item);
       }
     });
@@ -50,7 +57,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   if (!groupedItems.length) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap font-inter select-none">
+    <div className="flex items-center gap-2 flex-wrap font-inter select-none relative z-[50]">
       {groupedItems.map(item => (
         <div
           key={item.value}
@@ -69,16 +76,40 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
           </div>
 
           {item.subItems?.length ? (
-            <div className="flex items-center gap-1.5">
-              {item.subItems.map(sub => (
-                <button
-                  key={sub.value}
-                  onClick={sub.onDelete}
-                  className="group flex items-center gap-1.5 px-2.5 py-1 bg-white text-gray-500 rounded-md text-xs border border-gray-200/50 hover:border-gray-300/50 transition-colors"
-                >
-                  <span>{sub.label}</span>
-                </button>
-              ))}
+            <div className="relative">
+              <Select<true, string>
+                isMultiple
+                checkbox
+                triggerText={`Выбранные: ${item.subItems.filter(sub => sub.onDelete).length}`}
+                items={item.subItems.map(sub => ({
+                  label: sub.label,
+                  value: sub.value as string,
+                }))}
+                value={item.subItems.map(sub => sub.value as string)}
+                indeterminate
+                setValue={values => {
+                  const currentValues =
+                    item.subItems?.map(sub => sub.value as string) || [];
+                  const removedValues = currentValues.filter(
+                    val => !values.includes(val)
+                  );
+
+                  removedValues.forEach(removedValue => {
+                    const removedItem = item.subItems?.find(
+                      sub => sub.value === removedValue
+                    );
+                    if (removedItem?.onDelete) {
+                      removedItem.onDelete();
+                    }
+                  });
+                }}
+                classNames={{
+                  trigger:
+                    'gap-2 px-2.5 py-1 text-base border-gray-200/50 hover:border-gray-300/50',
+                  triggerText: 'leading-[1]',
+                  menu: 'min-w-[8rem] right-0',
+                }}
+              />
             </div>
           ) : null}
         </div>

@@ -2,9 +2,14 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { Tabs } from '#/shared/components/ui/tabs';
+import { UsedFilter } from '#/shared/components/used-filter';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId } from '#/shared/utils/mock';
 
 type ETabs = 'companies' | 'brands' | 'segments';
@@ -65,16 +70,34 @@ const PERIOD_MULTIPLIERS = {
   ytd: 0.75, // YTD (Year To Date) - 75% от года (примерно 9 месяцев)
   month: 0.083, // Месяц - 1/12 от года
   year: 1.0, // Год - полная сумма
+  quarter: 0,
 };
 
 export const MarketEntityProfile: React.FC = React.memo(() => {
   const [activeTab, setActiveTab] = useState<ETabs>('companies');
-  const [filterPeriod, setFilterPeriod] = useState<
-    'mat' | 'ytd' | 'month' | 'year'
-  >('mat');
   const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
     'money'
   );
+  const periodFilter = usePeriodFilter(['mat', 'ytd', 'year', 'month'], 'mat');
+
+  const usedFilterItems = React.useMemo(() => {
+    return getUsedFilterItems([
+      {
+        value: periodFilter.selectedValues,
+        getLabelFromValue: getPeriodLabel,
+        onDelete: value => {
+          const newValues = periodFilter.selectedValues.filter(
+            v => v !== value
+          );
+          periodFilter.onChange(newValues);
+        },
+      },
+    ]);
+  }, [periodFilter]);
+
+  const resetFilters = React.useCallback(() => {
+    periodFilter.onReset();
+  }, [periodFilter]);
 
   const allData = useMemo(() => {
     const companiesData = generateMocks(100, {
@@ -105,7 +128,7 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
   const data = useMemo(() => {
     let currentData: TableRow[] = allData[activeTab] as unknown as TableRow[];
 
-    const periodMultiplier = PERIOD_MULTIPLIERS[filterPeriod];
+    const periodMultiplier = PERIOD_MULTIPLIERS[periodFilter.period];
     currentData = currentData.map(item => ({
       ...item,
       sales: Math.round(item.sales * periodMultiplier),
@@ -119,7 +142,7 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
     })) as TableRow[];
 
     return currentData;
-  }, [allData, activeTab, filterPeriod]);
+  }, [allData, activeTab, periodFilter.period]);
 
   const columns = useMemo<ColumnDef<TableRow>[]>(
     () => [
@@ -144,29 +167,22 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
             ]}
             triggerText="Деньги/Упаковка"
           />
-          <Select<false, typeof filterPeriod>
-            value={filterPeriod}
-            setValue={setFilterPeriod}
-            items={[
-              { value: 'mat', label: 'MAT' },
-              { value: 'ytd', label: 'YTD' },
-              { value: 'month', label: 'Месяц' },
-              { value: 'year', label: 'Год' },
-            ]}
-            triggerText="Тип периода"
-            classNames={{ menu: 'min-w-[7.5rem] right-0' }}
-          />
+          <PeriodFilters {...periodFilter} />
         </div>
       }
       classNames={{ wrapper: 'gap-3' }}
       afterHeader={
-        <>
+        <div>
           <Tabs
             saveCurrent={current => setActiveTab(current as ETabs)}
             classNames={{ tabs: 'p-0 rounded-none border-none' }}
             items={tabItems}
           />
-        </>
+          <UsedFilter
+            usedFilterItems={usedFilterItems}
+            resetFilters={resetFilters}
+          />
+        </div>
       }
     >
       <div className="flex items justify-between h-full font-inter">

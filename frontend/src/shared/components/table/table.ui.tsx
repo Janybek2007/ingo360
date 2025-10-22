@@ -56,6 +56,7 @@ export const Table: React.FC<ITableProps> = React.memo(
       setColumnFilters(filters?.custom || []);
     }, [data, columns, filters?.custom]);
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
       data,
       columns,

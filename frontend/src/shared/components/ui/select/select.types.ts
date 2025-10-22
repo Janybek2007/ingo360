@@ -18,6 +18,7 @@ export interface ISelectProps<ISM extends boolean = false, VT = string> {
   labelTemplate?: string;
   changeTriggerText?: boolean;
   showToggleAll?: boolean;
+  indeterminate?: boolean;
   classNames?: Partial<{
     root: string;
     trigger: string;

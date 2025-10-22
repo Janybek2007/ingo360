@@ -18,7 +18,10 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
     afterHeader,
   }) => {
     const sectionStyle = useSectionStyle();
-    const sectionClassName = cn('w-full bg-white', 'rounded-xl');
+    const sectionClassName = cn(
+      'w-full bg-white transition-all duration-300',
+      'rounded-xl'
+    );
 
     return (
       <section style={sectionStyle.style} className={cn(sectionClassName)}>

@@ -37,6 +37,7 @@ export function useColumnVisibility<T>({
     // добавляем новые колонки
     const newColumns = currentIds.filter(id => !visibleColumns.includes(id));
     if (newColumns.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisibleColumns(prev => [...prev, ...newColumns]);
     }
 

@@ -115,6 +115,68 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
     },
     ...defaultFields,
   ],
+  visits: [
+    [
+      {
+        name: 'product_group_id',
+        label: 'Группа продукта',
+        placeholder: 'Выберите группу продукта',
+        type: 'select',
+      },
+      {
+        name: 'employee_id',
+        label: 'Сотрудник',
+        placeholder: 'Выберите сотрудника',
+        type: 'select',
+      },
+    ],
+    [
+      {
+        name: 'client_type',
+        label: 'Тип клиента',
+        placeholder: 'Введите тип клиента',
+      },
+      {
+        name: 'client_category_id',
+        label: 'Категория клиента',
+        placeholder: 'Выберите категорию клиента',
+        type: 'select',
+      },
+    ],
+    [
+      {
+        name: 'doctor_id',
+        label: 'Врач',
+        placeholder: 'Выберите врача',
+        type: 'select',
+      },
+      {
+        name: 'medical_facility_id',
+        label: 'Медицинское учреждение',
+        placeholder: 'Выберите медицинское учреждение',
+        type: 'select',
+      },
+    ],
+    [
+      {
+        name: 'month',
+        label: 'Месяц',
+        placeholder: 'Выберите месяц',
+        type: 'select',
+        selectItems: allMonths.map((v, i) => ({ label: v, value: i + 1 })),
+      },
+      {
+        name: 'year',
+        label: 'Год',
+        placeholder: 'Выберите год',
+        type: 'select',
+        selectItems: Array.from({ length: 5 }, (_, i) => ({
+          label: (new Date().getFullYear() + i).toString(),
+          value: new Date().getFullYear() + i,
+        })),
+      },
+    ],
+  ],
 };
 
 export const dbItemDependsUrls: Record<
@@ -132,5 +194,12 @@ export const dbItemDependsUrls: Record<
   'sales/tertiary': [
     { fieldName: 'sku_id', url: 'products/skus' },
     { fieldName: 'pharmacy_id', url: 'clients/pharmacies' },
+  ],
+  visits: [
+    { fieldName: 'product_group_id', url: 'products/product-groups' },
+    { fieldName: 'employee_id', url: 'employees/employees' },
+    { fieldName: 'client_category_id', url: 'clients/client-categories' },
+    { fieldName: 'doctor_id', url: 'clients/doctors' },
+    { fieldName: 'medical_facility_id', url: 'clients/medical-facilities' },
   ],
 };

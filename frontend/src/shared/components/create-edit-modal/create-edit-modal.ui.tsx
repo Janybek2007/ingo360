@@ -87,6 +87,7 @@ export const CreateEditModal = React.memo(
                         key={`${ff.label}-${j}`}
                         select={{
                           items: ff.selectItems || [],
+                          // eslint-disable-next-line react-hooks/incompatible-library
                           value: watch(ff.name),
                           setValue: value =>
                             setValue(ff.name, value, {
@@ -116,12 +117,14 @@ export const CreateEditModal = React.memo(
                   </div>
                 );
               }
+              const currentName = watch(f.name);
+
               return (
                 <div key={`${f.label}-${i}-key`}>
                   <FormField
                     select={{
                       items: f.selectItems || [],
-                      value: watch(f.name),
+                      value: currentName,
                       setValue: value =>
                         setValue(f.name, value, {
                           shouldValidate: true,

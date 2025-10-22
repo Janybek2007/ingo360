@@ -1,5 +1,11 @@
 import type { SortDirection } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { LucideFilterIcon } from '#/shared/components/icons';
 import { filterItems } from '#/shared/constants/filter-items';
@@ -33,15 +39,62 @@ export function FilterPopup({
     setValue2,
     applyFilter,
   } = useFilterPopup({ column, onClose, selectOptions, colType });
+
+  const [width, setWidth] = useState(300);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsResizing(true);
+      resizeRef.current = {
+        startX: e.clientX,
+        startWidth: width,
+      };
+    },
+    [width]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing || !resizeRef.current) return;
+
+      const deltaX = e.clientX - resizeRef.current.startX;
+      const newWidth = Math.max(
+        250,
+        Math.min(600, resizeRef.current.startWidth + deltaX)
+      );
+      setWidth(newWidth);
+    },
+    [isResizing]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+    resizeRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
   if (popupPosition.x === 0 || popupPosition.y === 0) return null;
 
   return (
     <div
       ref={contentRef}
-      style={getPopupStyle(popupPosition)}
-      className="absolute z-50 font-inter bg-white border border-gray-300 rounded-sm shadow-xl p-0 mt-1 w-[300px]"
+      style={{ ...getPopupStyle(popupPosition), width: `${width}px` }}
+      className="absolute z-50 font-inter bg-white border border-gray-300 rounded-sm shadow-xl p-0 mt-1 select-none"
     >
-      <div className="p-3">
+      <div className="p-3 relative">
         <SortButtons
           isSorted={column.getIsSorted() as SortDirection}
           toggleSorting={column.toggleSorting}
@@ -82,6 +135,24 @@ export function FilterPopup({
         {/* Actions */}
         <FilterActions onClose={onClose} onApply={applyFilter} />
       </div>
+
+      {/* Left Resize Handle */}
+      <div
+        role="button"
+        tabIndex={0}
+        onMouseDown={handleMouseDown}
+        className="absolute left-0 top-0 w-1 h-full cursor-ew-resize bg-transparent hover:bg-blue-500/20 transition-colors"
+        aria-label="Изменить размер слева"
+      />
+
+      {/* Right Resize Handle */}
+      <div
+        role="button"
+        tabIndex={0}
+        onMouseDown={handleMouseDown}
+        className="absolute right-0 top-0 w-1 h-full cursor-ew-resize bg-transparent hover:bg-blue-500/20 transition-colors"
+        aria-label="Изменить размер справа"
+      />
     </div>
   );
 }

@@ -22,6 +22,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   isMultiple,
   labelTemplate = '{label}',
   showToggleAll = false,
+  indeterminate = false,
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
@@ -145,8 +146,11 @@ export function Select<ISM extends boolean = false, VT = string>({
               type="button"
               className={cn(
                 'flex items-center gap-2 px-3 py-2 cursor-pointer text-left text-nowrap',
-                'w-full hover:bg-blue-50 hover:text-blue-600 transition-colors',
+                'w-full transition-colors',
                 'font-normal group',
+                indeterminate
+                  ? 'hover:bg-blue-50 '
+                  : 'hover:bg-blue-50 hover:text-blue-600 ',
                 classNames?.menuItem
               )}
               onClick={() => handleSelect(item)}
@@ -158,11 +162,14 @@ export function Select<ISM extends boolean = false, VT = string>({
                     {...uiSet.icon(item.icon, { className: 'text-gray-400' })}
                   />
                 )}
-                {checkbox && (
+                {checkbox && !indeterminate && (
                   <Checkbox
                     checked={isSelected(item)}
                     onChecked={() => handleSelect(item)}
                   />
+                )}
+                {indeterminate && (
+                  <Icon name="lucide:minus" className="size-4 text-gray-700" />
                 )}
                 <span className="overflow-hidden text-ellipsis max-w-full">
                   {item.label}

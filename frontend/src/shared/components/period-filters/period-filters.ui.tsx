@@ -15,18 +15,26 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
     selectedValues,
     onChange,
     isSelectValues = true,
+    views,
   }) => {
+    const periodTypeItems = React.useMemo(() => {
+      const allTypes = [
+        { label: 'MAT', value: 'mat' as const },
+        { label: 'YTD', value: 'ytd' as const },
+        { label: 'Год', value: 'year' as const },
+        { label: 'Месяц', value: 'month' as const },
+        { label: 'Квартал', value: 'quarter' as const },
+      ];
+      return allTypes.filter(item => views.includes(item.value));
+    }, [views]);
+
     return (
-      <div className="flex gap-4">
+      <div className="flex gap-4 relative z-[60]">
         <Select<false, UsePeriodType>
           triggerText={'Выберите период'}
           changeTriggerText
           labelTemplate="Период: {label}"
-          items={[
-            { label: 'Год', value: 'year' },
-            { label: 'Месяц', value: 'month' },
-            { label: 'Квартал', value: 'quarter' },
-          ]}
+          items={periodTypeItems}
           value={period}
           setValue={setPeriod}
           classNames={{

@@ -26,7 +26,7 @@ export class UserQueries {
         const response = await http.get('users/me').json<GetUserResponse>();
         return {
           ...response,
-          role: 'administrator' as SessionRole,
+          role: this.buildUserRole(response),
         };
       },
     });

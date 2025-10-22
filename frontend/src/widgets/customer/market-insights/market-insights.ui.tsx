@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
@@ -14,7 +15,9 @@ import {
   SKUS,
 } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { selectFilter } from '#/shared/utils/filter';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
@@ -36,6 +39,12 @@ export const MarketInsights: React.FC = React.memo(() => {
   const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
     'money'
   );
+  const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
+
+  const resetFilters = React.useCallback(() => {
+    setRowsCount('all');
+    periodFilter.onReset();
+  }, [periodFilter]);
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -47,12 +56,18 @@ export const MarketInsights: React.FC = React.memo(() => {
         items: [],
         onDelete: () => setRowsCount('all'),
       },
+      {
+        value: periodFilter.selectedValues,
+        getLabelFromValue: getPeriodLabel,
+        onDelete: value => {
+          const newValues = periodFilter.selectedValues.filter(
+            v => v !== value
+          );
+          periodFilter.onChange(newValues);
+        },
+      },
     ]);
-  }, [rowsCount]);
-
-  const resetFilters = React.useCallback(() => {
-    setRowsCount('all');
-  }, []);
+  }, [rowsCount, periodFilter]);
 
   const allColumns = useMemo(
     (): ColumnDef<MarketRow>[] => [
@@ -152,6 +167,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
+          <PeriodFilters {...periodFilter} />
           <Select<false, typeof moneyType>
             value={moneyType}
             setValue={setMoneyType}

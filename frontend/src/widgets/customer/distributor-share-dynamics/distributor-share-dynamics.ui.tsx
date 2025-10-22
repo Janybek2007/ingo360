@@ -27,15 +27,23 @@ const generateRawData = () => {
     const year = currentYear - yearOffset;
     for (let month = 1; month <= 12; month++) {
       const quarter = Math.ceil(month / 3);
+      const eray = Math.floor(Math.random() * 15) + 15;
+      const neman = Math.floor(Math.random() * 5) + 3;
+      const med = Math.floor(Math.random() * 8) + 6;
+      const bimed = Math.floor(Math.random() * 10) + 10;
+      const elay = Math.floor(Math.random() * 15) + 10;
+
       data.push({
         year,
         month,
         quarter,
-        eray: Math.floor(Math.random() * 15) + 15,
-        neman: Math.floor(Math.random() * 5) + 3,
-        med: Math.floor(Math.random() * 8) + 6,
-        bimed: Math.floor(Math.random() * 10) + 10,
-        elay: Math.floor(Math.random() * 15) + 10,
+        eray,
+        neman,
+        med,
+        bimed,
+        elay,
+        totalAll: eray + neman + med + bimed + elay,
+        total: 10,
       });
     }
   }
@@ -46,6 +54,7 @@ const generateRawData = () => {
 const rawData = generateRawData();
 
 const legends = [
+  { label: 'Всего', fill: '#6c757d' },
   { label: 'Эрай', fill: '#1f77b4' },
   { label: 'Неман', fill: '#ff7f0e' },
   { label: 'Медсервис', fill: '#2ca02c' },
@@ -64,7 +73,15 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       rawData,
       period: periodFilter.period,
       selectedValues: periodFilter.selectedValues,
-      aggregateFields: ['eray', 'neman', 'med', 'bimed', 'elay'],
+      aggregateFields: [
+        'eray',
+        'neman',
+        'med',
+        'bimed',
+        'elay',
+        'total',
+        'totalAll',
+      ],
     });
   }, [periodFilter.period, periodFilter.selectedValues]);
 
@@ -121,8 +138,13 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
           resetFilters={resetFilters}
         />
 
-        <div className="font-inter">
-          <BarChart width={sectionStyle.width - 48} height={500} data={data}>
+        <div className="fontp-inter">
+          <BarChart
+            className="transition-all duration-300"
+            width={sectionStyle.width - 48}
+            height={500}
+            data={data}
+          >
             <CartesianGrid strokeDasharray="4 4" vertical={false} />
             <XAxis
               axisLine={false}
@@ -162,6 +184,9 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
             <Bar dataKey="elay" stackId="a" fill="#9467bd" name="Элэй">
               <LabelList dataKey="elay" content={<SegmentLabel />} />
             </Bar>
+            <Bar dataKey="total" stackId="a" fill="#6c757d" name="Всего">
+              <LabelList content={<TotalLabel />} />
+            </Bar>
           </BarChart>
         </div>
       </div>
@@ -186,5 +211,25 @@ const SegmentLabel: React.FC<any> = React.memo(
   }
 );
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const TotalLabel: React.FC<any> = React.memo(
+  ({ x, y, width, height, value, payload }) => {
+    const totalAll = payload?.totalAll || value;
+    return (
+      <text
+        x={x + width / 2}
+        y={y + height / 2 + 4}
+        fill="#fff"
+        fontSize={12}
+        fontWeight="bold"
+        textAnchor="middle"
+      >
+        {totalAll}
+      </text>
+    );
+  }
+);
+
 SegmentLabel.displayName = '_SegmentLabel_';
+TotalLabel.displayName = '_TotalLabel_';
 DistributorShareDynamics.displayName = '_DistributorShareDynamics_';
