@@ -19,29 +19,81 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
     }) => {
       const parsedBody = EditUserContract.parse(body);
 
-      const response = await http.put(`users/${id}`, {
-        body: JSON.stringify({
+      const response = await http.patch(`users/${id}`, {
+        json: {
           email: parsedBody.email,
           password: parsedBody.password,
+          first_name: parsedBody.first_name,
+          last_name: parsedBody.last_name,
           is_active: parsedBody.is_active,
           is_superuser: parsedBody.is_superuser,
           is_verified: parsedBody.is_verified,
           is_operator: parsedBody.role === 'operator',
           is_admin: parsedBody.role === 'administrator',
           company_id: parsedBody.company_id,
-        }),
+        },
       });
 
       return response.json<TAddUserResponse>();
     },
-    async onSuccess() {
+    async onSuccess(data) {
       const { toast } = await import('sonner');
 
       onClose();
 
-      queryClient.invalidateQueries({
+      // Принудительная инвалидация всех связанных запросов
+      await queryClient.invalidateQueries({
         queryKey: UserQueries.queryKeys.getUsers,
       });
+      await queryClient.invalidateQueries({
+        queryKey: UserQueries.queryKeys.getCustomers,
+      });
+
+      // Дополнительная инвалидация по префиксу
+      await queryClient.invalidateQueries({
+        predicate: query => {
+          return (
+            query.queryKey.includes('get-users') ||
+            query.queryKey.includes('get-customers') ||
+            query.queryKey.includes('users')
+          );
+        },
+      });
+
+      // Принудительное обновление всех связанных запросов
+      await queryClient.refetchQueries({
+        queryKey: UserQueries.queryKeys.getUsers,
+      });
+      await queryClient.refetchQueries({
+        queryKey: UserQueries.queryKeys.getCustomers,
+      });
+
+      // Дополнительно: обновление кэша вручную
+      queryClient.setQueryData(
+        UserQueries.queryKeys.getUsers,
+        (oldData: unknown) => {
+          if (!oldData || !Array.isArray(oldData)) return oldData;
+          return oldData.map((user: unknown) => {
+            if (typeof user === 'object' && user !== null && 'id' in user) {
+              return user.id === data.id ? { ...user, ...data } : user;
+            }
+            return user;
+          });
+        }
+      );
+
+      queryClient.setQueryData(
+        UserQueries.queryKeys.getCustomers,
+        (oldData: unknown) => {
+          if (!oldData || !Array.isArray(oldData)) return oldData;
+          return oldData.map((user: unknown) => {
+            if (typeof user === 'object' && user !== null && 'id' in user) {
+              return user.id === data.id ? { ...user, ...data } : user;
+            }
+            return user;
+          });
+        }
+      );
 
       setTimeout(() => {
         toast.success('Пользователь успешно обновлен');

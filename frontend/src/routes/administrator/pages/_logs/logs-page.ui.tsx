@@ -1,71 +1,113 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
+import { ConfirmModal } from '#/shared/components/confirm-modal';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { MdiDeleteIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import { findCurrentTab, Tabs } from '#/shared/components/ui/tabs';
-import { allMonths } from '#/shared/constants/months';
+// import { findCurrentTab, Tabs } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
-import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
-import { tabsItems } from './constants';
+// import { tabsItems } from './constants';
+import { useDeleteLogMutation } from './delete-log.mutation';
+import { LogsQueries } from './logs.queries';
+import type { ImportLog } from './logs.types';
 
-interface LogRow {
-  id: string;
-  company: string;
-  uploadDate: string;
-  pharmacy: string; // Аптека / ЧП
-  lpu: string; // ЛПУ
-  network: string; // Сеть
-  sku: string;
-  saleType: string; // Тип продаж
-  brand: string;
-  product: string;
-  month: string;
-  year: number;
-  indicator: string;
-  packs: number;
-  sumUsd: number;
-}
-
-const saleTypes = ['Первичные', 'Вторичные', 'Третичные'];
-const pharmacies = ['Аптека 1', 'Аптека 2', 'ЧП Иванов'] as const;
-const lpus = ['ЛПУ №1', 'ЛПУ №2', 'ЛПУ №3'] as const;
-const networks = ['Сеть А', 'Сеть B', 'Сеть C'] as const;
-const skus = ['SKU-001', 'SKU-002', 'SKU-003'] as const;
-const brands = ['Бренд A', 'Бренд B', 'Бренд C'] as const;
-const companies = ['Компания 1', 'Компания 2', 'Компания 3'] as const;
-const products = ['Продукт X', 'Продукт Y', 'Продукт Z'] as const;
-const indicators = ['Показатель 1', 'Показатель 2'] as const;
+// Получаем уникальные значения для фильтров из данных
+const getUniqueValues = (data: ImportLog[], key: keyof ImportLog) => {
+  return Array.from(new Set(data.map(item => item[key])));
+};
 
 const LogsPage: React.FC = () => {
-  const [rowsCount, setRowsCount] = React.useState(10);
-  const [tab, setTab] = React.useState(tabsItems[0].value);
+  // const [tab, setTab] = React.useState(tabsItems[0].value);
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+  const [logToDelete, setLogToDelete] = React.useState<ImportLog | null>(null);
+
+  // Получаем данные с API
+  const { data: importLogs = [], isLoading } = useQuery(
+    LogsQueries.GetImportLogsQuery()
+  );
+
+  // Mutation для удаления
+  const deleteLogMutation = useDeleteLogMutation();
+
+  // Обработчики для удаления
+  const handleDeleteClick = (log: ImportLog) => {
+    setLogToDelete(log);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (logToDelete) {
+      deleteLogMutation.mutate(logToDelete.id);
+      setDeleteModalOpen(false);
+      setLogToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setLogToDelete(null);
+  };
+
   const allColumns = useMemo(
-    (): ColumnDef<LogRow>[] => [
-      { accessorKey: 'id', header: 'ID', size: 140 },
+    (): ColumnDef<ImportLog>[] => [
       {
-        accessorKey: 'company',
-        header: 'Компания',
-        size: 124,
+        accessorKey: 'id',
+        header: 'ID',
+        size: 80,
+      },
+      {
+        id: 'user_full_name',
+        header: 'ФИО',
+        size: 200,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
-        selectOptions: companies.map(company => ({
-          label: company,
-          value: company,
-        })),
+        selectOptions: importLogs.map(log => {
+          const fullName = `${log.user_last_name} ${log.user_first_name}`;
+          return {
+            label: fullName,
+            value: fullName,
+          };
+        }),
+        cell: ({ row }) => {
+          const { user_first_name, user_last_name } = row.original;
+          return `${user_last_name} ${user_first_name}`;
+        },
       },
       {
-        accessorKey: 'uploadDate',
-        header: 'Дата загрузки',
-        size: 155,
+        accessorKey: 'target_table',
+        header: 'Целевая таблица',
+        size: 180,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        type: 'select',
+        selectOptions: getUniqueValues(importLogs, 'target_table').map(
+          table => ({
+            label: String(table),
+            value: table,
+          })
+        ),
+      },
+      {
+        accessorKey: 'records_count',
+        header: 'Количество записей',
+        size: 150,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        type: 'number',
+      },
+      {
+        accessorKey: 'created_at',
+        header: 'Дата создания',
+        size: 180,
         cell: ({ row }) => {
-          const date = new Date(row.original.uploadDate);
+          const date = new Date(row.original.created_at);
           return new Intl.DateTimeFormat('ru-RU', {
             day: '2-digit',
             month: '2-digit',
@@ -76,118 +118,6 @@ const LogsPage: React.FC = () => {
         },
       },
       {
-        accessorKey: 'pharmacy',
-        header: 'Аптека / ЧП',
-        size: 155,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: pharmacies.map(pharmacy => ({
-          label: pharmacy,
-          value: pharmacy,
-        })),
-      },
-      {
-        accessorKey: 'lpu',
-        header: 'ЛПУ',
-        size: 130,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: lpus.map(lpu => ({
-          label: lpu,
-          value: lpu,
-        })),
-      },
-      {
-        accessorKey: 'network',
-        header: 'Сеть',
-        size: 130,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: networks.map(network => ({
-          label: network,
-          value: network,
-        })),
-      },
-      {
-        accessorKey: 'sku',
-        header: 'SKU',
-        size: 100,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: skus.map(sku => ({ label: sku, value: sku })),
-      },
-      {
-        accessorKey: 'saleType',
-        header: 'Тип продаж',
-        size: 180,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: saleTypes.map(saleType => ({
-          label: saleType,
-          value: saleType,
-        })),
-      },
-      {
-        accessorKey: 'brand',
-        header: 'Бренд',
-        size: 180,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: brands.map(brand => ({ label: brand, value: brand })),
-      },
-      {
-        accessorKey: 'product',
-        header: 'Продукт',
-        size: 180,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: products.map(product => ({
-          label: product,
-          value: product,
-        })),
-      },
-      {
-        accessorKey: 'month',
-        header: 'Месяц',
-        size: 150,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: allMonths.map(month => ({
-          label: month,
-          value: month,
-        })),
-      },
-      { accessorKey: 'year', header: 'Год', size: 150 },
-      {
-        accessorKey: 'indicator',
-        header: 'Показатель',
-        size: 180,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        type: 'select',
-        selectOptions: indicators.map(indicator => ({
-          label: indicator,
-          value: indicator,
-        })),
-      },
-      {
-        accessorKey: 'packs',
-        header: 'Упаковки',
-        size: 140,
-        enableColumnFilter: true,
-        filterFn: numberFilter(),
-        type: 'number',
-      },
-      { accessorKey: 'sumUsd', header: 'Сумма $', size: 140 },
-      {
         id: 'actions',
         header: '',
         size: 60,
@@ -195,8 +125,9 @@ const LogsPage: React.FC = () => {
           <div className="flex items-center gap-2 pr-10">
             <button
               type="button"
-              onClick={() => console.log('Delete', row.original.id)}
-              className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
+              onClick={() => handleDeleteClick(row.original)}
+              disabled={deleteLogMutation.isPending}
+              className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
               title="Удалить"
             >
               <MdiDeleteIcon className="size-[1.125rem]" />
@@ -205,7 +136,7 @@ const LogsPage: React.FC = () => {
         ),
       },
     ],
-    []
+    [importLogs, deleteLogMutation.isPending]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -214,46 +145,23 @@ const LogsPage: React.FC = () => {
       ignore: ['actions'],
     });
 
-  const data = useMemo(
-    () =>
-      generateMocks(rowsCount, {
-        id: () => randomId('row'),
-        company: companies,
-        uploadDate: () => new Date().toISOString(),
-        pharmacy: pharmacies,
-        lpu: lpus,
-        network: networks,
-        sku: skus,
-        saleType: saleTypes,
-        brand: brands,
-        product: products,
-        month: allMonths,
-        year: () => 2024 + randomInt(0, 2), // 2024-2025
-        indicator: indicators,
-        packs: () => randomInt(0, 500),
-        sumUsd: () => randomInt(0, 10000),
-      }),
-    [rowsCount]
-  );
+  if (isLoading) {
+    return (
+      <main>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Загрузка...</div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main>
-      <Tabs items={tabsItems} saveCurrent={setTab}></Tabs>
+      {/* <Tabs items={tabsItems} saveCurrent={setTab}></Tabs> */}
       <PageSection
-        title={findCurrentTab(tabsItems, tab)?.tab.label}
+        title="Отчеты"
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
-            <Select
-              value={rowsCount}
-              setValue={setRowsCount}
-              items={[
-                { value: 10, label: '10' },
-                { value: 50, label: '50' },
-                { value: 100, label: '100' },
-                { value: 200, label: '200' },
-              ]}
-              triggerText="Количество строк"
-            />
             <Select<true>
               value={visibleColumns}
               setValue={setVisibleColumns}
@@ -262,17 +170,35 @@ const LogsPage: React.FC = () => {
               checkbox
               classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
-            <ExportToExcelButton data={data} fileName="logs.xlsx" />
+            <ExportToExcelButton
+              data={importLogs}
+              fileName="import_logs.xlsx"
+            />
           </div>
         }
       >
         <Table
           columns={columnsForTable}
-          data={data}
+          data={importLogs}
           maxHeight={500}
           rounded="none"
         />
       </PageSection>
+
+      {/* Модальное окно подтверждения удаления */}
+      {deleteModalOpen && logToDelete && (
+        <ConfirmModal
+          title="Удаление лога импорта"
+          message={`Вы уверены, что хотите удалить лог импорта от пользователя ${logToDelete.user_last_name} ${logToDelete.user_first_name}?`}
+          confirmText="Удалить"
+          cancelText="Отмена"
+          confirmAs="danger"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          onClose={handleCancelDelete}
+          disabled={deleteLogMutation.isPending}
+        />
+      )}
     </main>
   );
 };

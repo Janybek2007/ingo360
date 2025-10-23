@@ -23,6 +23,13 @@ export class UserQueries {
           role: 'customer',
         };
       },
+      // queryFn: async () => {
+      //   const response = await http.get('users/me').json<GetUserResponse>();
+      //   return {
+      //     ...response,
+      //     role: 'customer' as SessionRole,
+      //   };
+      // },
     });
   }
 

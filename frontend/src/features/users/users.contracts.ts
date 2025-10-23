@@ -12,9 +12,9 @@ export const AddUserContract = z.object({
 
 export const EditUserContract = z.object({
   email: z.string().email('Неверный email').optional(),
-  password: z.string().min(6, 'Минимум 6 символов').optional(),
-  first_name: z.string().min(1, 'Поле обязательно').optional(),
-  last_name: z.string().min(1, 'Поле обязательно').optional(),
+  password: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
   is_active: z.boolean().optional(),
   is_superuser: z.boolean().optional(),
   is_verified: z.boolean().optional(),

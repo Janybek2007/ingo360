@@ -23,10 +23,11 @@ export const useForgotMutation = () => {
   const { status, mutateAsync } = useMutation({
     mutationKey: ['session-forgot-password'],
     mutationFn: async (vars: TForgotPasswordContract) => {
-      const body = JSON.stringify({
-        email: vars.email,
+      const response = await http.post('auth/forgot-password', {
+        json: {
+          email: vars.email,
+        },
       });
-      const response = await http.post('auth/forgot-password', { body });
       return response;
     },
     onSuccess: async () => {

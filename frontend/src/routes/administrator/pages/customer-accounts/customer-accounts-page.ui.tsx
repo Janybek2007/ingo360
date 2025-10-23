@@ -26,9 +26,7 @@ interface CustomerRow extends IUserItem {
 const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
-  const [editData, setEditData] = useState<Record<string, unknown> | null>(
-    null
-  );
+  const [editData, setEditData] = useState<CustomerRow | null>(null);
 
   const customersQuery = useQuery(UserQueries.GetCustomersQuery());
 
@@ -68,7 +66,7 @@ const CustomerAccountsPage: React.FC = () => {
       {
         id: 'actions',
         header: '',
-        size: 80,
+        size: 120,
         cell(props) {
           return (
             <RowActions
@@ -119,8 +117,11 @@ const CustomerAccountsPage: React.FC = () => {
 
   return (
     <main>
-      {open === 'edit' && (
-        <EditCustomerModal onClose={clear} customerData={editData} />
+      {open === 'edit' && editData && (
+        <EditCustomerModal
+          onClose={clear}
+          customerData={editData as unknown as Record<string, unknown>}
+        />
       )}
       {open === 'create' && <AddCustomerModal onClose={clear} />}
       <PageSection

@@ -31,7 +31,7 @@ export const useSetPasswordMutation = (token: string | null) => {
     mutationKey: ['set-password'],
     mutationFn: async (parsedBody: TSetPasswordContract) => {
       const response = await http.post('users/set-password', {
-        body: JSON.stringify(parsedBody),
+        json: parsedBody,
       });
 
       return response.json<{ message: string; user_id: number }>();

@@ -16,7 +16,7 @@ export const useAddCompanyMutation = (onClose: VoidFunction) => {
     mutationFn: async (body: TAddCompanyContract) => {
       const parsedBody = AddCompanyContract.parse(body);
       const response = await http.post('companies', {
-        body: JSON.stringify(parsedBody),
+        json: parsedBody,
       });
       return response.json<TAddCompanyResponse>();
     },

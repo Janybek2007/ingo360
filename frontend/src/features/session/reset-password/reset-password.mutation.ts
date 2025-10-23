@@ -31,7 +31,7 @@ export const useResetPasswordMutation = (token: string | null) => {
     mutationKey: ['reset-password'],
     mutationFn: (parsedBody: TResetPasswordContract) => {
       return http.post('auth/reset-password', {
-        body: JSON.stringify(parsedBody),
+        json: parsedBody,
       });
     },
     onSuccess: async () => {

@@ -2,38 +2,31 @@ import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import { LucideEllipsisVerticalIcon } from '../icons';
-import { Dropdown } from '../ui/dropdown';
 import { DEFAULT_ROW_ACTION_TYPE_ITEM } from './constants';
 import type { IRowActionsProps } from './row-actions.types';
 
 export const RowActions: React.FC<IRowActionsProps> = React.memo(
   ({ items }) => {
     return (
-      <div className="w-max">
-        <Dropdown
-          items={items.map(item => ({
-            label: item.label || DEFAULT_ROW_ACTION_TYPE_ITEM[item.type].label,
-            icon: DEFAULT_ROW_ACTION_TYPE_ITEM[item.type].icon,
-            onSelect: item.onSelect,
-          }))}
-          trigger={({ onClick }) => (
+      <div className="flex items-center gap-2">
+        {items.map((item, index) => {
+          const actionConfig = DEFAULT_ROW_ACTION_TYPE_ITEM[item.type];
+          return (
             <button
-              onClick={onClick}
+              key={`${item.type}-${index}`}
+              onClick={item.onSelect}
               className={cn(
-                'border border-[#E7EAE9] rounded-full gap-2 p-1',
-                'text-left bg-white gap-1',
-                'flex items-center justify-center cursor-pointer'
+                'border border-[#E7EAE9] rounded-full p-2',
+                'bg-white hover:bg-gray-50 transition-colors',
+                'flex items-center justify-center cursor-pointer',
+                'hover:border-gray-300'
               )}
+              title={item.label || actionConfig.label}
             >
-              <LucideEllipsisVerticalIcon
-                style={{ color: '#94A3B8' }}
-                className="size-[1.25rem]"
-              />
+              {actionConfig.icon}
             </button>
-          )}
-          classNames={{ menu: 'min-w-[15rem] -ml-[12.5rem]' }}
-        />
+          );
+        })}
       </div>
     );
   }

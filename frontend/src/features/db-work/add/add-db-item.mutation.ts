@@ -17,7 +17,7 @@ export const useAddReferenceMutation = (
     mutationFn: async (parsedBody: any) => {
       return http
         .post(`${type}`, {
-          body: JSON.stringify(parsedBody),
+          json: parsedBody,
         })
         .json<IDbItem>();
     },

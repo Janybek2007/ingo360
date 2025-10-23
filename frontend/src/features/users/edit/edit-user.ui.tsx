@@ -38,6 +38,7 @@ export const EditUserModal: React.FC<{
             name: 'password',
             placeholder: 'Введите новый пароль',
             type: 'password',
+            isPasswordToggleShow: true,
           },
           [
             {

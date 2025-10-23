@@ -15,7 +15,7 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
         ids.map(id =>
           http
             .patch(`${type}/${id}`, {
-              body: JSON.stringify({ published: !currentStatus }),
+              json: { published: !currentStatus },
             })
             .json<Pick<IDbItem, 'published' | 'id'>>()
         )

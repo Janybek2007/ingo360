@@ -22,9 +22,7 @@ const CompanyManagementPage: React.FC = () => {
 
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [openAccess, setOpenAccess] = useState(false);
-  const [editData, setEditData] = useState<Record<string, unknown> | null>(
-    null
-  );
+  const [editData, setEditData] = useState<ICompanyItem | null>(null);
   const [accessData, setAccessData] = useState<ICompanyItem | null>(null);
   const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
 
@@ -95,7 +93,7 @@ const CompanyManagementPage: React.FC = () => {
       {
         id: 'actions',
         header: '',
-        size: 80,
+        size: 120,
         cell(props) {
           return (
             <RowActions
@@ -125,8 +123,11 @@ const CompanyManagementPage: React.FC = () => {
 
   return (
     <main>
-      {open === 'edit' && (
-        <EditCompanyModal onClose={clear} companyData={editData} />
+      {open === 'edit' && editData && (
+        <EditCompanyModal
+          onClose={clear}
+          companyData={editData as unknown as Record<string, unknown>}
+        />
       )}
       {open === 'create' && <AddCompanyModal onClose={clear} />}
       {openAccess && accessData && (

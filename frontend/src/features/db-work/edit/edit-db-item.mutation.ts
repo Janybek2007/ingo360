@@ -23,7 +23,7 @@ export const useEditDbItemMutation = (
       }
       return http
         .patch(`${type}/${id}`, {
-          body: JSON.stringify(parsedBody),
+          json: parsedBody,
         })
         .json<IDbItem>();
     },
