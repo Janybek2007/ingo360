@@ -124,10 +124,7 @@ const CompanyManagementPage: React.FC = () => {
   return (
     <main>
       {open === 'edit' && editData && (
-        <EditCompanyModal
-          onClose={clear}
-          companyData={editData as unknown as Record<string, unknown>}
-        />
+        <EditCompanyModal onClose={clear} companyData={editData} />
       )}
       {open === 'create' && <AddCompanyModal onClose={clear} />}
       {openAccess && accessData && (

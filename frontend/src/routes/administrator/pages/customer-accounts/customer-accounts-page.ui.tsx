@@ -118,10 +118,7 @@ const CustomerAccountsPage: React.FC = () => {
   return (
     <main>
       {open === 'edit' && editData && (
-        <EditCustomerModal
-          onClose={clear}
-          customerData={editData as unknown as Record<string, unknown>}
-        />
+        <EditCustomerModal onClose={clear} customerData={editData} />
       )}
       {open === 'create' && <AddCustomerModal onClose={clear} />}
       <PageSection

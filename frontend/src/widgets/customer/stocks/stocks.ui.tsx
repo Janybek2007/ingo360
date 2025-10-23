@@ -15,10 +15,15 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { filterBySearch } from '#/shared/utils/search';
 
 interface StockRow {
+  sku_id: number;
   sku_name: string;
+  brand_id: number;
   brand_name: string;
+  promotion_type_id: number;
   promotion_type_name: string;
+  distributor_id: number;
   distributor_name: string;
+  product_group_id: number;
   product_group_name: string;
   year: number;
   quarter: number;
@@ -42,15 +47,15 @@ export const Stocks: React.FC = React.memo(() => {
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
-  const [brands, setBrands] = React.useState<string[]>([]);
-  const [groups, setGroups] = React.useState<string[]>([]);
+  const [brands, setBrands] = React.useState<number[]>([]);
+  const [groups, setGroups] = React.useState<number[]>([]);
   const [indicator, setIndicator] = React.useState<'amount' | 'packages'>(
     'amount'
   );
 
   React.useEffect(() => {
-    setBrands([...new Set(sales.map(s => s.brand_name))]);
-    setGroups([...new Set(sales.map(s => s.product_group_name))]);
+    setBrands([...new Set(sales.map(s => s.brand_id))]);
+    setGroups([...new Set(sales.map(s => s.product_group_id))]);
   }, [sales]);
 
   const usedFilterItems = React.useMemo(() => {
@@ -67,8 +72,8 @@ export const Stocks: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(sales.map(s => s.brand_name));
-    setGroups(sales.map(s => s.product_group_name));
+    setBrands([...new Set(sales.map(s => s.brand_id))]);
+    setGroups([...new Set(sales.map(s => s.product_group_id))]);
     setRowsCount('all');
   }, [sales]);
 
@@ -85,7 +90,7 @@ export const Stocks: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.sku_name,
+            value: v.sku_id,
             label: v.sku_name,
           })),
           ['value']
@@ -102,7 +107,7 @@ export const Stocks: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.brand_name,
+            value: v.brand_id,
             label: v.brand_name,
           })),
           ['value']
@@ -119,7 +124,7 @@ export const Stocks: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.promotion_type_name,
+            value: v.promotion_type_id,
             label: v.promotion_type_name,
           })),
           ['value']
@@ -136,7 +141,7 @@ export const Stocks: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.product_group_name,
+            value: v.product_group_id,
             label: v.product_group_name,
           })),
           ['value']
@@ -153,7 +158,7 @@ export const Stocks: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.distributor_name,
+            value: v.distributor_id,
             label: v.distributor_name,
           })),
           ['value']
@@ -280,27 +285,27 @@ export const Stocks: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
+          <Select<true, number>
             value={brands}
             setValue={setBrands}
             isMultiple
             showToggleAll
             checkbox
             items={sales.map(s => ({
-              value: s.brand_name,
+              value: s.brand_id,
               label: s.brand_name,
             }))}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
-          <Select<true, string>
+          <Select<true, number>
             value={groups}
             setValue={setGroups}
             isMultiple
             checkbox
             showToggleAll
             items={sales.map(s => ({
-              value: s.product_group_name,
+              value: s.product_group_id,
               label: s.product_group_name,
             }))}
             triggerText="Группа"
@@ -355,9 +360,9 @@ export const Stocks: React.FC = React.memo(() => {
                 header: 'Бренд',
                 selectValues: getUniqueItems(
                   sales
-                    .filter(b => brands.includes(b.brand_name))
+                    .filter(b => brands.includes(b.brand_id))
                     .map(b => ({
-                      value: b.brand_name,
+                      value: b.brand_id,
                       label: b.brand_name,
                     })),
                   ['value']
@@ -371,9 +376,9 @@ export const Stocks: React.FC = React.memo(() => {
                 header: 'Группа',
                 selectValues: getUniqueItems(
                   sales
-                    .filter(g => groups.includes(g.product_group_name))
+                    .filter(g => groups.includes(g.product_group_id))
                     .map(g => ({
-                      value: g.product_group_name,
+                      value: g.product_group_id,
                       label: g.product_group_name,
                     })),
                   ['value']

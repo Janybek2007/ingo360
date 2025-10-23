@@ -137,10 +137,7 @@ const IngoAccountsPage: React.FC = () => {
   return (
     <main>
       {open === 'edit' && editData && (
-        <EditUserModal
-          onClose={clear}
-          userData={editData as unknown as Record<string, unknown>}
-        />
+        <EditUserModal onClose={clear} userData={editData} />
       )}
       {open === 'create' && <AddUserModal onClose={clear} />}
       <PageSection
