@@ -8,6 +8,7 @@ import type {
   SortingState,
   Table as TableType,
 } from '@tanstack/react-table';
+import type { Virtualizer } from '@tanstack/react-virtual';
 
 import type { IAnchorPosition } from '#/shared/hooks/use-anchor-position';
 
@@ -69,11 +70,11 @@ export interface ITableBodyProps {
     monthTotals?: number[];
     grandTotal?: number;
   };
+  rowVirtualizer?: Virtualizer<any, any>;
 }
 
 export interface ITableHeaderProps {
   table: TableType<any>;
-  extraSizes?: number;
 }
 
 export interface IFilterPopupProps {

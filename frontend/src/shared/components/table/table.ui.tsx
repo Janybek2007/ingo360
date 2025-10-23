@@ -7,6 +7,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useTableScrollbar } from '#/shared/hooks/use-table-scrollbar';
@@ -77,6 +78,13 @@ export const Table: React.FC<ITableProps> = React.memo(
     const { thumbWidth, thumbPosition, onThumbMouseDown, isDragging } =
       useTableScrollbar(tableContainerRef, scrollbarRef, isScrollbar);
 
+    const rowVirtualizer = useVirtualizer({
+      count: table.getRowModel().rows.length,
+      getScrollElement: () => tableContainerRef.current,
+      estimateSize: () => 50,
+      overscan: 5,
+    });
+
     const showEmpty =
       isEmpty ||
       data.length === 0 ||
@@ -112,7 +120,7 @@ export const Table: React.FC<ITableProps> = React.memo(
         <div
           ref={tableContainerRef}
           className={cn(
-            'bg-white noscrollbar border border-[#E4E4E4] font-inter',
+            'bg-white noscrollbar border border-l-0 border-[#E4E4E4] font-inter',
             'overflow-x-auto overflow-y-auto',
             rounded == 'sm' && 'rounded-sm',
             rounded == 'md' && 'rounded-md',
@@ -150,6 +158,7 @@ export const Table: React.FC<ITableProps> = React.memo(
                   highlightRow={highlightRow}
                   pinnedRow={pinnedRow}
                   rowTotal={rowTotal}
+                  rowVirtualizer={rowVirtualizer}
                 />
               </table>
             </>

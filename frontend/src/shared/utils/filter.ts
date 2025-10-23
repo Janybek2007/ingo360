@@ -79,17 +79,54 @@ export const selectFilter =
     filterValue: {
       selectValues: { value: VT; label: string }[];
       colType: string;
+      header?: string;
     }
   ) => {
     if (!filterValue || filterValue.selectValues.length === 0) return true;
-    const originalData = row.original as Record<
-      string,
-      { label: string; value: VT; id: number }
-    >;
-    const rowValue = originalData[columnId];
-    return filterValue.selectValues.some(
-      fv =>
-        String(fv.value) === String(rowValue.value) ||
-        String(fv.value) === String(rowValue.id)
-    );
+
+    // Получаем значение из строки
+    const rowValue = row.getValue(columnId);
+
+    // Если значение пустое или undefined
+    if (rowValue === null || rowValue === undefined) return false;
+
+    return filterValue.selectValues.some(fv => {
+      // Если значение - объект с полями value/id
+      if (
+        typeof rowValue === 'object' &&
+        rowValue !== null &&
+        'value' in rowValue
+      ) {
+        const objValue = rowValue as { value: VT; id?: number };
+        // Проверяем по value с учетом типа
+        if (
+          typeof fv.value === 'number' &&
+          typeof objValue.value === 'number'
+        ) {
+          return fv.value === objValue.value;
+        }
+        // Проверяем по id если есть
+        if (
+          'id' in objValue &&
+          typeof objValue.id === 'number' &&
+          typeof fv.value === 'number'
+        ) {
+          return fv.value === objValue.id;
+        }
+        // Строковое сравнение
+        return String(fv.value) === String(objValue.value);
+      }
+
+      // Если значение - примитив (строка или число)
+      // Сравниваем с учетом типа
+      if (typeof fv.value === 'number' && typeof rowValue === 'number') {
+        return fv.value === rowValue;
+      }
+      if (typeof fv.value === 'string' && typeof rowValue === 'string') {
+        return fv.value === rowValue;
+      }
+
+      // Fallback: строковое сравнение для смешанных типов
+      return String(fv.value) === String(rowValue);
+    });
   };

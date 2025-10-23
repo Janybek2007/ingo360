@@ -5,5 +5,6 @@ declare module '@tanstack/react-table' {
     type?: 'string' | 'number' | 'select';
     selectOptions?: { label: string; value: string | number }[];
     accessorKey?: string;
+    lastPinning?: boolean;
   }
 }

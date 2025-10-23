@@ -80,7 +80,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
               <Select<true, string>
                 isMultiple
                 checkbox
-                triggerText={`Выбранные: ${item.subItems.filter(sub => sub.onDelete).length}`}
+                triggerText={`Выбранные: ${[...new Set(item.subItems)].filter(sub => sub.onDelete).length}`}
                 items={item.subItems.map(sub => ({
                   label: sub.label,
                   value: sub.value as string,
@@ -107,7 +107,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
                   trigger:
                     'gap-2 px-2.5 py-1 text-base border-gray-200/50 hover:border-gray-300/50',
                   triggerText: 'leading-[1]',
-                  menu: 'min-w-[8rem] right-0',
+                  menu: 'min-w-[8rem] w-max left-0',
                 }}
               />
             </div>

@@ -10,7 +10,7 @@ import type { ITableHeaderProps } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 import { FilterPopup } from './filter-popup/filter-popup.ui';
 
-export function TableHeader({ table, extraSizes = 0 }: ITableHeaderProps) {
+export function TableHeader({ table }: ITableHeaderProps) {
   const [popupOpen, setPopupOpen] = useState<string | null>(null);
   const { position: popupPosition, updatePosition } = useAnchorPosition();
 
@@ -28,15 +28,14 @@ export function TableHeader({ table, extraSizes = 0 }: ITableHeaderProps) {
                 onDoubleClick={() => header.column.resetSize()}
                 key={header.id}
                 className={cn(
+                  columnDef.lastPinning && 'border-r',
                   'py-4 pl-4 pr-10 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
-                  'border-b border-[#E4E4E4] not-last:border-r bg-gray-50 group'
+                  'border-b border-[#E4E4E4] border-l bg-gray-50 group'
                 )}
                 style={{
                   ...getCommonPinningStyles(header.column),
-                  width: `${header.column.getSize() + extraSizes}px`,
-                  minWidth: `${header.column.getSize() + extraSizes}px`,
-                  maxWidth: `${header.column.getSize() + extraSizes}px`,
-                  flexShrink: 0,
+                  minWidth: `${header.column.getSize()}px`,
+                  maxWidth: `${header.column.getSize()}px`,
                 }}
               >
                 {header.column.columnDef.enableResizing && (

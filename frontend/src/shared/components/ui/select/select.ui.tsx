@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { uiSet } from '#/shared/utils/ui-set';
 
 import { Checkbox } from '../checkbox';
@@ -28,11 +29,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   const contentRef = useClickAway<HTMLDivElement>(() => set(false));
 
   const uniqueItems = useMemo(() => {
-    const map = new Map<VT, ISelectItem<VT>>();
-    for (const item of items) {
-      if (!map.has(item.value)) map.set(item.value, item);
-    }
-    return Array.from(map.values());
+    return getUniqueItems(items, ['value']);
   }, [items]);
 
   const isSelected = useCallback(
@@ -130,10 +127,7 @@ export function Select<ISM extends boolean = false, VT = string>({
               )}
               onClick={handleToggleAll}
             >
-              <Checkbox
-                checked={allSelected}
-                onChecked={() => handleToggleAll()}
-              />
+              <Checkbox checked={allSelected} onChecked={handleToggleAll} />
               <span className="overflow-hidden max-w-full">
                 {allSelected ? 'Снять все' : 'Выбрать все'}
               </span>

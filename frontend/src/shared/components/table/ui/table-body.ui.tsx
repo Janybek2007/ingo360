@@ -10,52 +10,78 @@ export function TableBody({
   highlightRow,
   pinnedRow,
   rowTotal,
+  rowVirtualizer,
 }: ITableBodyProps) {
+  const rows = table.getRowModel().rows;
+  const virtualRows = rowVirtualizer?.getVirtualItems() || [];
+  const totalSize = rowVirtualizer?.getTotalSize() || 0;
+
+  const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start || 0 : 0;
+  const paddingBottom =
+    virtualRows.length > 0
+      ? totalSize - (virtualRows[virtualRows.length - 1]?.end || 0)
+      : 0;
+
   return (
     <tbody>
-      {table.getRowModel().rows.map(row => {
-        const isPinned = pinnedRow?.(row.original);
-        const cells = row.getVisibleCells();
+      {paddingTop > 0 && (
+        <tr>
+          <td style={{ height: `${paddingTop}px` }} />
+        </tr>
+      )}
+      {(rowVirtualizer ? virtualRows : rows.map((_, i) => ({ index: i }))).map(
+        virtualRow => {
+          const row = rows[virtualRow.index];
+          if (!row) return null;
 
-        return (
-          <tr
-            key={row.id}
-            className={cn('hover:bg-gray-50 group border-b border-[#E4E4E4]')}
-          >
-            {row.getVisibleCells().map((cell, cellIndex) => {
-              const columnDef = cell.column.columnDef;
-              const accessor = columnDef.accessorKey;
-              const isLastCell = cellIndex === cells.length - 1;
+          const isPinned = pinnedRow?.(row.original);
 
-              return (
-                <td
-                  key={cell.id}
-                  style={{
-                    ...(!isPinned &&
-                      accessor !== 'actions' &&
-                      getCommonPinningStyles(cell.column)),
-                  }}
-                  className={cn(
-                    !isPinned &&
-                      cell.column.getIsPinned() &&
-                      'bg-white group-hover:bg-gray-50',
-                    !isLastCell && 'border-r',
-                    'py-[0.875rem] px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
-                    isPinned
-                      ? 'sticky top-[3.125rem] bottom-0 z-30 border-t'
-                      : '',
-                    'overflow-hidden text-ellipsis border-b',
-                    highlightRow?.(row.original)
-                  )}
-                >
-                  {}
-                  {flexRender(columnDef.cell, cell.getContext())}
-                </td>
-              );
-            })}
-          </tr>
-        );
-      })}
+          return (
+            <tr
+              key={row.id}
+              className={cn('hover:bg-gray-50 group border-b border-[#E4E4E4]')}
+            >
+              {row.getVisibleCells().map(cell => {
+                const columnDef = cell.column.columnDef;
+                const accessor = columnDef.accessorKey;
+
+                return (
+                  <td
+                    key={cell.id}
+                    style={{
+                      ...(!isPinned &&
+                        accessor !== 'actions' &&
+                        getCommonPinningStyles(cell.column)),
+                      minWidth: `${cell.column.getSize()}px`,
+                      maxWidth: `${cell.column.getSize()}px`,
+                    }}
+                    className={cn(
+                      !isPinned &&
+                        cell.column.getIsPinned() &&
+                        'bg-white group-hover:bg-gray-50',
+                      columnDef.lastPinning && 'border-r',
+                      'py-[0.875rem] border-l px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
+                      isPinned
+                        ? 'sticky top-[3.125rem] bottom-0 z-30 border-t'
+                        : '',
+                      'overflow-hidden text-ellipsis border-b',
+                      highlightRow?.(row.original)
+                    )}
+                  >
+                    {}
+                    {flexRender(columnDef.cell, cell.getContext())}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        }
+      )}
+      {paddingBottom > 0 && (
+        <tr>
+          <td style={{ height: `${paddingBottom}px` }} />
+        </tr>
+      )}
       {rowTotal && (
         <tr className="sticky bottom-0 right-0 z-[16]">
           <td
@@ -72,7 +98,8 @@ export function TableBody({
               const accessor = columnDef.accessorKey as string;
               const columnId = column.id;
 
-              if (accessor === 'total') {
+              if (accessor === 'total' || columnId === 'total') {
+                const total = rowTotal.grandTotal ?? 0;
                 return (
                   <td
                     key={column.id}
@@ -82,10 +109,14 @@ export function TableBody({
                     className={cn(
                       'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white',
                       'sticky bottom-0 z-[20]',
-                      column.getIsPinned() && 'bg-white'
+                      column.getIsPinned() && 'bg-white',
+                      total < 0 && 'text-red-600'
                     )}
                   >
-                    {rowTotal.grandTotal?.toLocaleString('ru-RU') || 0}
+                    {total.toLocaleString('ru-RU', {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 2,
+                    })}
                   </td>
                 );
               }
@@ -93,7 +124,7 @@ export function TableBody({
               const monthMatch = columnId.match(/month(\d+)/);
               if (monthMatch && rowTotal.monthTotals) {
                 const monthIndex = parseInt(monthMatch[1]) - 1;
-                const total = rowTotal.monthTotals[monthIndex] || 0;
+                const total = rowTotal.monthTotals[monthIndex] ?? 0;
 
                 return (
                   <td
@@ -102,9 +133,15 @@ export function TableBody({
                       maxWidth: column.columnDef.size,
                       minWidth: column.columnDef.size,
                     }}
-                    className="text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white  sticky bottom-0 z-[16]"
+                    className={cn(
+                      'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white sticky bottom-0 z-[16]',
+                      total < 0 && 'text-red-600'
+                    )}
                   >
-                    {total.toLocaleString('ru-RU')}
+                    {total.toLocaleString('ru-RU', {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 2,
+                    })}
                   </td>
                 );
               }

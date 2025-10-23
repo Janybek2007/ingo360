@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import {
   Bar,
@@ -8,6 +9,7 @@ import {
   XAxis,
 } from 'recharts';
 
+import { DbQueries } from '#/entities/db';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
@@ -68,6 +70,34 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   const [group, setGroup] = React.useState<string>('');
   const periodFilter = usePeriodFilter();
 
+  const queryData = useQuery(
+    DbQueries.GetDbItemsQuery<
+      {
+        sku_id: 5;
+        sku_name: ' АРТРО 4ТЕ таблетки (2х15 в блистерах)';
+        brand_id: 5;
+        brand_name: ' АРТРО 4ТЕ';
+        promotion_type_id: 1;
+        promotion_type_name: 'промо';
+        product_group_id: 1;
+        product_group_name: 'Группа 1';
+        distributor_id: 4;
+        distributor_name: 'Лекарь';
+        id: 476;
+        year: 2025;
+        quarter: 1;
+        month: 1;
+        packages: 17;
+        share_percent: 2.1963824289405687;
+      }[]
+    >(['sales/primary/reports/distributor-shares'])
+  );
+
+  const sales = React.useMemo(
+    () => (queryData.data ? queryData.data[0] : []),
+    [queryData.data]
+  );
+  console.log(sales);
   const data = React.useMemo(() => {
     return processPeriodData({
       rawData,
