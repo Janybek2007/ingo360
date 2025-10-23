@@ -8,7 +8,6 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
@@ -30,8 +29,8 @@ interface DistributorShareRow {
   year: number;
   quarter: number;
   month: number;
-  packages: number;
-  share_percent: number;
+  amount: number;
+  amount_share_percent: number;
   months: (number | null)[];
 }
 
@@ -49,9 +48,9 @@ export const DistributorShare: React.FC = React.memo(() => {
   );
   const [brands, setBrands] = React.useState<string[]>([]);
   const [groups, setGroups] = React.useState<string[]>([]);
-  const [indicator, setIndicator] = React.useState<'amount' | 'packages'>(
-    'amount'
-  );
+  const [indicator, setIndicator] = React.useState<
+    'amount' | 'amount_share_percent'
+  >('amount');
 
   React.useEffect(() => {
     setBrands([...new Set(sales.map(s => s.brand_name))]);
@@ -72,10 +71,10 @@ export const DistributorShare: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(BRANDS.map(v => v.value));
-    setGroups(GROUPS.map(v => v.value));
+    setBrands([...new Set(sales.map(s => s.brand_name))]);
+    setGroups([...new Set(sales.map(s => s.product_group_name))]);
     setRowsCount('all');
-  }, []);
+  }, [sales]);
 
   const allColumns = useMemo(
     (): ColumnDef<DistributorShareRow>[] => [
@@ -169,9 +168,9 @@ export const DistributorShare: React.FC = React.memo(() => {
         { length: 12 },
         (_, i) =>
           ({
-            accessorFn: row => {
+            accessorFn: (row: DistributorShareRow) => {
               const value = row.months?.[i];
-              return value ? value?.toFixed(2) + '%' : '-';
+              return value;
             },
             id: `month${i + 1}`,
             header: `${2025}/${i + 1}`,
@@ -182,20 +181,29 @@ export const DistributorShare: React.FC = React.memo(() => {
             cell: ({ getValue }) => {
               const value = getValue() as number | null;
               if (value === null || value === undefined) return '-';
-              const formatted = value.toLocaleString('ru-RU', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2,
-              });
-              return (
-                <span className={value < 0 ? 'text-red-600 font-medium' : ''}>
-                  {formatted}
-                </span>
-              );
+
+              if (indicator === 'amount_share_percent') {
+                return (
+                  <span className={value < 0 ? 'text-red-600 font-medium' : ''}>
+                    {value.toFixed(2)}%
+                  </span>
+                );
+              } else {
+                const formatted = value.toLocaleString('ru-RU', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 2,
+                });
+                return (
+                  <span className={value < 0 ? 'text-red-600 font-medium' : ''}>
+                    {formatted}
+                  </span>
+                );
+              }
             },
           }) as ColumnDef<DistributorShareRow>
       ),
     ],
-    [sales]
+    [sales, indicator]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -229,7 +237,7 @@ export const DistributorShare: React.FC = React.memo(() => {
 
       if (monthIndex >= 0 && monthIndex < 12) {
         const currentValue = groupedRow.months[monthIndex];
-        const newValue = row.share_percent;
+        const newValue = row[indicator];
         groupedRow.months[monthIndex] =
           currentValue !== null ? currentValue + newValue : newValue;
       }
@@ -237,7 +245,7 @@ export const DistributorShare: React.FC = React.memo(() => {
 
     const result = Array.from(grouped.values());
     return rowsCount === 'all' ? result : result.slice(0, rowsCount);
-  }, [search, sales, rowsCount]);
+  }, [search, sales, rowsCount, indicator]);
 
   return (
     <PageSection
@@ -251,9 +259,12 @@ export const DistributorShare: React.FC = React.memo(() => {
             isMultiple
             showToggleAll
             checkbox
-            items={BRANDS}
+            items={sales.map(s => ({
+              value: s.brand_name,
+              label: s.brand_name,
+            }))}
             triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
           <Select<true, string>
             value={groups}
@@ -261,16 +272,19 @@ export const DistributorShare: React.FC = React.memo(() => {
             isMultiple
             checkbox
             showToggleAll
-            items={GROUPS}
+            items={sales.map(s => ({
+              value: s.product_group_name,
+              label: s.product_group_name,
+            }))}
             triggerText="Группа"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
           <Select<false, typeof indicator>
             value={indicator}
             setValue={setIndicator}
             items={[
               { value: 'amount', label: 'Деньги' },
-              { value: 'packages', label: 'Упаковка' },
+              { value: 'amount_share_percent', label: 'Проценты' },
             ]}
             changeTriggerText
             labelTemplate="Индикатор: {label}"

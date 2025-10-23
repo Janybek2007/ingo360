@@ -19,3 +19,8 @@ export interface IDbItem {
 }
 
 export type IGetDBItemResponse = IDbItem[];
+
+export type GetDbItemsOptions = {
+  limit?: number;
+  offset?: number;
+};
