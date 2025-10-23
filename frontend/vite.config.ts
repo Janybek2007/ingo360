@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => {
       host: true,
       port: 4000,
       strictPort: true,
+      allowedHosts: ['ingo360.pro'],
     },
     build: {
       target: 'esnext',
