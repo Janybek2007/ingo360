@@ -12,13 +12,13 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
       const parsedBody = AddUserContract.parse(body);
 
       const response = await http.post('users', {
-        body: JSON.stringify({
+        json: {
           email: parsedBody.email,
           first_name: parsedBody.first_name,
           last_name: parsedBody.last_name,
           is_operator: parsedBody.role === 'operator',
           is_admin: parsedBody.role === 'administrator',
-        }),
+        },
       });
 
       return response.json<TAddUserResponse>();

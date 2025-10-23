@@ -23,7 +23,7 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
       const parsedBody = EditCustomerContract.parse(body);
 
       const response = await http.patch(`users/${id}`, {
-        body: JSON.stringify({
+        json: {
           email: parsedBody.email,
           password: parsedBody.password,
           first_name: parsedBody.first_name,
@@ -34,7 +34,7 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
           is_operator: parsedBody.role === 'operator',
           is_admin: parsedBody.role === 'administrator',
           company_id: parsedBody.company_id,
-        }),
+        },
       });
 
       return response.json<TAddCustomerResponse>();

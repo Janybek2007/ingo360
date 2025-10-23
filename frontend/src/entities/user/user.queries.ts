@@ -26,7 +26,7 @@ export class UserQueries {
       //   const response = await http.get('users/me').json<GetUserResponse>();
       //   return {
       //     ...response,
-      //     role: 'operator' as SessionRole,
+      //     role: 'customer' as SessionRole,
       //   };
       // },
     });

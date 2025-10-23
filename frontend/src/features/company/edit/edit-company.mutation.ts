@@ -23,7 +23,7 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
       const parsedBody = EditCompanyContract.parse(body);
 
       const response = await http.patch(`companies/${id}`, {
-        body: JSON.stringify({
+        json: {
           name: parsedBody.name,
           ims_name: parsedBody.ims_name,
           active_users_limit: parsedBody.active_users_limit,
@@ -35,7 +35,7 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
           contract_number: parsedBody.contract_number,
           contract_end_date: parsedBody.contract_end_date,
           is_active: parsedBody.is_active,
-        }),
+        },
       });
 
       return response.json<TAddCompanyResponse>();
