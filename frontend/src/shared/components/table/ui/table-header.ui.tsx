@@ -16,9 +16,11 @@ export function TableHeader({ table }: ITableHeaderProps) {
 
   return (
     <thead className={cn('sticky top-0 z-10')}>
-      {table.getHeaderGroups().map(headerGroup => (
-        <tr key={headerGroup.id}>
-          {headerGroup.headers.map(header => {
+      {table.getHeaderGroups().map((headerGroup, i) => (
+        <tr
+          key={`${headerGroup.id}|${headerGroup.depth}|${headerGroup.headers.length}|${i}`}
+        >
+          {headerGroup.headers.map((header, index) => {
             const columnDef = header.column.columnDef;
             const canFilter =
               columnDef.enableColumnFilter || columnDef.enableSorting;
@@ -26,7 +28,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
             return (
               <th
                 onDoubleClick={() => header.column.resetSize()}
-                key={header.id}
+                key={`${header.id}|${header.depth}|${index}`}
                 className={cn(
                   columnDef.lastPinning && 'border-r',
                   'py-4 pl-4 pr-10 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',

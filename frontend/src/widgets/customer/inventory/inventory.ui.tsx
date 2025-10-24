@@ -28,7 +28,7 @@ interface InventoryRow {
   year: number;
   quarter: number;
   month: number;
-  coverage_months: number;
+  avg_coverage_months: number;
   total_inventory_per_period: number;
   months: (number | null)[];
 }
@@ -48,15 +48,15 @@ export const Inventory: React.FC = React.memo(() => {
     [queryData.data]
   );
 
-  const [brands, setBrands] = React.useState<string[]>([]);
-  const [groups, setGroups] = React.useState<string[]>([]);
+  const [brands, setBrands] = React.useState<number[]>([]);
+  const [groups, setGroups] = React.useState<number[]>([]);
   const [indicator, setIndicator] = React.useState<'amount' | 'packages'>(
     'amount'
   );
 
   React.useEffect(() => {
-    setBrands([...new Set(sales.map(s => s.brand_name))]);
-    setGroups([...new Set(sales.map(s => s.product_group_name))]);
+    setBrands([...new Set(sales.map(s => s.brand_id))]);
+    setGroups([...new Set(sales.map(s => s.product_group_id))]);
   }, [sales]);
 
   const usedFilterItems = React.useMemo(() => {
@@ -73,15 +73,15 @@ export const Inventory: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(sales.map(s => s.brand_name));
-    setGroups(sales.map(s => s.product_group_name));
+    setBrands(sales.map(s => s.brand_id));
+    setGroups(sales.map(s => s.product_group_id));
     setRowsCount('all');
   }, [sales]);
 
   const allColumns = useMemo(
     (): ColumnDef<InventoryRow>[] => [
       {
-        id: 'sku',
+        id: 'sku_id',
         accessorKey: 'sku_name',
         header: 'SKU',
         size: 350,
@@ -91,14 +91,14 @@ export const Inventory: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.sku_name,
+            value: v.sku_id,
             label: v.sku_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'brand',
+        id: 'brand_id',
         accessorKey: 'brand_name',
         header: 'Бренд',
         enableColumnFilter: true,
@@ -108,14 +108,14 @@ export const Inventory: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.brand_name,
+            value: v.brand_id,
             label: v.brand_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'promoType',
+        id: 'promotion_type_id',
         accessorKey: 'promotion_type_name',
         header: 'Тип промоции',
         enableColumnFilter: true,
@@ -125,14 +125,14 @@ export const Inventory: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.promotion_type_name,
+            value: v.promotion_type_id,
             label: v.promotion_type_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'group',
+        id: 'product_group_id',
         accessorKey: 'product_group_name',
         header: 'Группа',
         enableColumnFilter: true,
@@ -142,14 +142,14 @@ export const Inventory: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.product_group_name,
+            value: v.product_group_id,
             label: v.product_group_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'distributor',
+        id: 'distributor_id',
         accessorKey: 'distributor_name',
         header: 'Дистр',
         enableColumnFilter: true,
@@ -159,7 +159,7 @@ export const Inventory: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.distributor_name,
+            value: v.distributor_id,
             label: v.distributor_name,
           })),
           ['value']
@@ -257,7 +257,7 @@ export const Inventory: React.FC = React.memo(() => {
 
       if (monthIndex >= 0 && monthIndex < 12) {
         const currentValue = groupedRow.months[monthIndex];
-        const newValue = row.coverage_months;
+        const newValue = row.avg_coverage_months;
         groupedRow.months[monthIndex] =
           currentValue !== null ? currentValue + newValue : newValue;
       }
@@ -290,35 +290,29 @@ export const Inventory: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
+          <Select<true, number>
             value={brands}
             setValue={setBrands}
             isMultiple
             showToggleAll
             checkbox
-            items={getUniqueItems(
-              sales.map(s => ({
-                value: s.brand_name,
-                label: s.brand_name,
-              })),
-              ['value']
-            )}
+            items={sales.map(s => ({
+              value: s.brand_id,
+              label: s.brand_name,
+            }))}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
-          <Select<true, string>
+          <Select<true, number>
             value={groups}
             setValue={setGroups}
             isMultiple
             checkbox
             showToggleAll
-            items={getUniqueItems(
-              sales.map(s => ({
-                value: s.product_group_name,
-                label: s.product_group_name,
-              })),
-              ['value']
-            )}
+            items={sales.map(s => ({
+              value: s.product_group_id,
+              label: s.product_group_name,
+            }))}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
@@ -370,15 +364,15 @@ export const Inventory: React.FC = React.memo(() => {
           resetFilters,
           custom: [
             {
-              id: 'brand',
+              id: 'brand_id',
               value: {
                 colType: 'select',
                 header: 'Бренд',
                 selectValues: getUniqueItems(
                   sales
-                    .filter(b => brands.includes(b.brand_name))
+                    .filter(b => brands.includes(b.brand_id))
                     .map(b => ({
-                      value: b.brand_name,
+                      value: b.brand_id,
                       label: b.brand_name,
                     })),
                   ['value']
@@ -386,15 +380,15 @@ export const Inventory: React.FC = React.memo(() => {
               },
             },
             {
-              id: 'group',
+              id: 'product_group_id',
               value: {
                 colType: 'select',
                 header: 'Группа',
                 selectValues: getUniqueItems(
                   sales
-                    .filter(g => groups.includes(g.product_group_name))
+                    .filter(g => groups.includes(g.product_group_id))
                     .map(g => ({
-                      value: g.product_group_name,
+                      value: g.product_group_id,
                       label: g.product_group_name,
                     })),
                   ['value']

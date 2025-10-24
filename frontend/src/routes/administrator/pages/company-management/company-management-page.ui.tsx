@@ -15,7 +15,7 @@ import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { numberFilter } from '#/shared/utils/filter';
+import { booleanFilter, numberFilter } from '#/shared/utils/filter';
 
 const CompanyManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -83,9 +83,17 @@ const CompanyManagementPage: React.FC = () => {
         size: 273,
       },
       {
+        id: 'is_active',
         accessorKey: 'is_active',
         header: 'Статус',
-        size: 180,
+        enableColumnFilter: true,
+        filterFn: booleanFilter(),
+        type: 'select',
+        selectOptions: [
+          { label: 'Активен', value: 'true' },
+          { label: 'Неактивен', value: 'false' },
+        ],
+        size: 280,
         cell(props) {
           return STATUSES_OBJECT[props.getValue() ? 'active' : 'inactive'];
         },

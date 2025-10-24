@@ -5,4 +5,6 @@ export interface IDbWorkProps {
   current: DbType;
   currentData: IGetDBItemResponse;
   isLoading: boolean;
+  rowsCount: 'all' | number;
+  setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
 }

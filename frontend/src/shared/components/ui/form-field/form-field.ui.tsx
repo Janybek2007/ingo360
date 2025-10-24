@@ -71,7 +71,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
                 root: 'w-full',
                 triggerText: cn(
                   'text-c1__3 focus:outline-none',
-                  'text-base leading-5',
+                  'text-base leading-5 font-medium',
                   classNames?.input
                 ),
                 trigger:

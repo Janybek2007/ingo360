@@ -14,11 +14,17 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import {
+  ROLES,
   ROLES_OBJECT,
   STATUSES_OBJECT,
 } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { selectFilter, stringFilter } from '#/shared/utils/filter';
+import {
+  booleanFilter,
+  selectFilter,
+  stringFilter,
+} from '#/shared/utils/filter';
+import { filterBySearch } from '#/shared/utils/search';
 
 const IngoAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -27,37 +33,21 @@ const IngoAccountsPage: React.FC = () => {
   const queryData = useQuery(UserQueries.GetUsersQuery());
 
   const filteredData = useMemo(() => {
-    if (!search.trim()) {
-      return queryData.data || [];
-    }
+    if (!queryData.data) return [];
 
-    // Нормализация для корректной работы с кириллицей
-    const normalizeText = (text: string) =>
-      text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-
-    const normalizedSearch = normalizeText(search);
-
-    return (queryData.data || []).filter((row: IUserItem) => {
-      const fullName =
-        `${row.last_name} ${row.first_name} ${row.patronymic || ''}`.trim();
-      return (
-        normalizeText(row.first_name || '').includes(normalizedSearch) ||
-        normalizeText(row.last_name || '').includes(normalizedSearch) ||
-        normalizeText(row.patronymic || '').includes(normalizedSearch) ||
-        normalizeText(fullName).includes(normalizedSearch) ||
-        normalizeText(row.email || '').includes(normalizedSearch) ||
-        normalizeText(row.role || '').includes(normalizedSearch) ||
-        normalizeText(ROLES_OBJECT[row.role] || '').includes(normalizedSearch)
-      );
-    });
+    return filterBySearch<IUserItem>(queryData.data, search, [
+      'first_name',
+      'last_name',
+      'patronymic',
+      'email',
+      'role',
+    ]);
   }, [search, queryData.data]);
 
   const allColumns = useMemo(
     (): ColumnDef<IUserItem>[] => [
       {
+        id: 'fullName',
         accessorKey: 'fullName',
         header: 'ФИО',
         size: 280,
@@ -68,41 +58,43 @@ const IngoAccountsPage: React.FC = () => {
             'Не указано'
           );
         },
-        enableSorting: true,
         enableColumnFilter: true,
         filterFn: stringFilter(),
         type: 'string',
       },
       {
+        id: 'role',
         accessorKey: 'role',
+        accessorFn: row => ROLES_OBJECT[row.role],
         header: 'Роль',
         size: 280,
-        enableSorting: true,
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        type: 'string',
-        cell(props) {
-          return ROLES_OBJECT[props.getValue() as 'administrator'];
-        },
-      },
-      {
-        accessorKey: 'email',
-        header: 'Электронная почта',
-        size: 280,
-        enableSorting: true,
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        type: 'string',
-      },
-      {
-        accessorKey: 'is_active',
-        header: 'Статус',
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
+        selectOptions: ROLES.slice(0, 2).map(role => ({
+          label: ROLES_OBJECT[role],
+          value: role,
+        })),
+      },
+      {
+        id: 'email',
+        accessorKey: 'email',
+        header: 'Электронная почта',
+        size: 280,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
+      },
+      {
+        id: 'is_active',
+        accessorKey: 'is_active',
+        header: 'Статус',
+        enableColumnFilter: true,
+        filterFn: booleanFilter(),
+        type: 'select',
         selectOptions: [
-          { label: 'Active', value: 'active' },
-          { label: 'InActive', value: 'inactive' },
+          { label: 'Активен', value: 'true' },
+          { label: 'Неактивен', value: 'false' },
         ],
         size: 280,
         cell(props) {

@@ -19,16 +19,18 @@ import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import {
+  booleanFilter,
   numberFilter,
   selectFilter,
   stringFilter,
 } from '#/shared/utils/filter';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import type { IDbWorkProps } from './db-work.types';
 
 export const DbWork: React.FC<IDbWorkProps> = React.memo(
-  ({ current, isLoading, currentData }) => {
+  ({ current, isLoading, currentData, rowsCount, setRowsCount }) => {
     const allColumns = useMemo(
       (): (ColumnDef<IDbItem> | boolean)[] => [
         current === 'sales/primary'
@@ -74,7 +76,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           enableColumnFilter: true,
         },
         {
-          id: 'brand',
+          id: 'sku.brand',
           accessorKey: 'sku.brand.name',
           header: 'Бренд',
           size: 180,
@@ -122,7 +124,6 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           accessorKey: 'year',
           header: 'Год',
           size: 150,
-          enableSorting: true,
           type: 'select',
           filterFn: selectFilter(),
           enableColumnFilter: true,
@@ -161,6 +162,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           accessorKey: 'amount',
           header: 'Сумма',
           size: 140,
+          enableColumnFilter: true,
+          filterFn: numberFilter(),
+          type: 'number',
         },
         {
           accessorKey: 'published',
@@ -168,7 +172,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           size: 180,
           enableColumnFilter: true,
           type: 'select',
-          filterFn: selectFilter(),
+          filterFn: booleanFilter(),
           selectOptions: [
             { label: 'Опубликовано', value: 'true' },
             { label: 'Не опубликовано', value: 'false' },
@@ -217,9 +221,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           }
           headerEnd={
             <div className="flex items-center gap-4 relative z-100">
-              <Select<false, 'all' | number>
-                value={'all'}
-                setValue={() => {}}
+              <Select<false, typeof rowsCount>
+                value={rowsCount}
+                setValue={value => setRowsCount(value)}
                 items={[
                   { value: 'all', label: 'Все' },
                   { value: 10, label: '10' },
@@ -255,6 +259,23 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           <Table
             columns={columnsForTable}
             data={currentData}
+            filters={{
+              resetFilters: () => {
+                setRowsCount('all');
+              },
+              usedFilterItems: getUsedFilterItems([
+                rowsCount !== 'all' && {
+                  value: rowsCount,
+                  getLabelFromValue(value) {
+                    return value === 'all'
+                      ? 'Все'
+                      : 'Строки: '.concat(value.toString());
+                  },
+                  items: [],
+                  onDelete: () => setRowsCount('all'),
+                },
+              ]),
+            }}
             maxHeight={500}
             isLoading={isLoading}
             isScrollbar

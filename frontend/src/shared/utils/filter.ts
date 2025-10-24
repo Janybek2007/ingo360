@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // utils/filter.ts
 import type { Row } from '@tanstack/react-table';
 
@@ -70,7 +71,7 @@ export const stringFilter =
     }
   };
 
-/** Универсальный фильтр для select */
+/** Универсальный фильтр для select с поддержкой вложенных путей */
 export const selectFilter =
   <T, VT extends string | number>() =>
   (
@@ -79,54 +80,57 @@ export const selectFilter =
     filterValue: {
       selectValues: { value: VT; label: string }[];
       colType: string;
-      header?: string;
     }
   ) => {
     if (!filterValue || filterValue.selectValues.length === 0) return true;
 
-    // Получаем значение из строки
+    const originalData = row.original as Record<string, any>;
+
+    const path = columnId.split('.');
+
+    const rowValue = path.reduce<any>((acc, key) => {
+      if (acc && typeof acc === 'object') {
+        return acc[key];
+      }
+      return undefined;
+    }, originalData);
+
+    if (!rowValue) return false;
+
+    const compareValue = rowValue?.value ?? rowValue?.id ?? rowValue;
+
+    return filterValue.selectValues.some(
+      fv =>
+        String(fv.value) === String(compareValue) ||
+        String(fv.value) === String(rowValue?.id)
+    );
+  };
+
+/** Универсальный фильтр для boolean (true/false) */
+export const booleanFilter =
+  <T>() =>
+  (
+    row: Row<T>,
+    columnId: string,
+    filterValue: {
+      selectValues: { value: 'true' | 'false'; label: string }[];
+      colType: string;
+    }
+  ) => {
+    // если фильтр не задан или ничего не выбрано — показываем все строки
+    if (!filterValue || filterValue.selectValues.length === 0) return true;
+
     const rowValue = row.getValue(columnId);
 
-    // Если значение пустое или undefined
-    if (rowValue === null || rowValue === undefined) return false;
+    // нормализуем значение ячейки к boolean
+    const normalizedRowValue =
+      typeof rowValue === 'boolean'
+        ? rowValue
+        : String(rowValue).toLowerCase() === 'true';
 
+    // если хотя бы одно выбранное значение совпадает — строка проходит
     return filterValue.selectValues.some(fv => {
-      // Если значение - объект с полями value/id
-      if (
-        typeof rowValue === 'object' &&
-        rowValue !== null &&
-        'value' in rowValue
-      ) {
-        const objValue = rowValue as { value: VT; id?: number };
-        // Проверяем по value с учетом типа
-        if (
-          typeof fv.value === 'number' &&
-          typeof objValue.value === 'number'
-        ) {
-          return fv.value === objValue.value;
-        }
-        // Проверяем по id если есть
-        if (
-          'id' in objValue &&
-          typeof objValue.id === 'number' &&
-          typeof fv.value === 'number'
-        ) {
-          return fv.value === objValue.id;
-        }
-        // Строковое сравнение
-        return String(fv.value) === String(objValue.value);
-      }
-
-      // Если значение - примитив (строка или число)
-      // Сравниваем с учетом типа
-      if (typeof fv.value === 'number' && typeof rowValue === 'number') {
-        return fv.value === rowValue;
-      }
-      if (typeof fv.value === 'string' && typeof rowValue === 'string') {
-        return fv.value === rowValue;
-      }
-
-      // Fallback: строковое сравнение для смешанных типов
-      return String(fv.value) === String(rowValue);
+      const filterBool = fv.value === 'true';
+      return normalizedRowValue === filterBool;
     });
   };

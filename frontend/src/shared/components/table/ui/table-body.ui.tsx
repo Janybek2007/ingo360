@@ -30,7 +30,7 @@ export function TableBody({
         </tr>
       )}
       {(rowVirtualizer ? virtualRows : rows.map((_, i) => ({ index: i }))).map(
-        virtualRow => {
+        (virtualRow, i) => {
           const row = rows[virtualRow.index];
           if (!row) return null;
 
@@ -38,16 +38,16 @@ export function TableBody({
 
           return (
             <tr
-              key={row.id}
+              key={`${row.id}|${row.depth}|${row.getVisibleCells().length}|${i}`}
               className={cn('hover:bg-gray-50 group border-b border-[#E4E4E4]')}
             >
-              {row.getVisibleCells().map(cell => {
+              {row.getVisibleCells().map((cell, index) => {
                 const columnDef = cell.column.columnDef;
                 const accessor = columnDef.accessorKey;
 
                 return (
                   <td
-                    key={cell.id}
+                    key={`${cell.id}|${String(cell.column.columnDef.accessorKey)}|${index}`}
                     style={{
                       ...(!isPinned &&
                         accessor !== 'actions' &&

@@ -13,9 +13,14 @@ import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import { ROLES, STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
+import {
+  ROLES,
+  ROLES_OBJECT,
+  STATUSES_OBJECT,
+} from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { selectFilter } from '#/shared/utils/filter';
+import { selectFilter, stringFilter } from '#/shared/utils/filter';
+import { filterBySearch } from '#/shared/utils/search';
 
 interface CustomerRow extends IUserItem {
   fullName: string;
@@ -32,17 +37,25 @@ const CustomerAccountsPage: React.FC = () => {
 
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [
-      { accessorKey: 'fullName', header: 'ФИО', size: 290 },
+      {
+        accessorKey: 'fullName',
+        header: 'ФИО',
+        size: 290,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
+      },
       {
         accessorKey: 'role',
+        accessorFn: row => ROLES_OBJECT[row.role],
         header: 'Роль',
-        size: 150,
+        size: 280,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         type: 'select',
-        selectOptions: ROLES.map(role => ({
-          label: role,
+        selectOptions: ROLES.slice(1).map(role => ({
           value: role,
+          label: ROLES_OBJECT[role],
         })),
       },
       {
@@ -54,7 +67,14 @@ const CustomerAccountsPage: React.FC = () => {
         type: 'select',
         selectOptions: [],
       },
-      { accessorKey: 'email', header: 'Email', size: 290 },
+      {
+        accessorKey: 'email',
+        header: 'Электронная почта',
+        size: 290,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        type: 'string',
+      },
       {
         accessorKey: 'statusDisplay',
         header: 'Статус',
@@ -102,18 +122,17 @@ const CustomerAccountsPage: React.FC = () => {
     });
   }, [customersQuery.data]);
 
-  const data = useMemo(
-    () =>
-      allData.filter(
-        (row: CustomerRow) =>
-          row.fullName.toLowerCase().includes(search.toLowerCase()) ||
-          row.role.toLowerCase().includes(search.toLowerCase()) ||
-          row.companyName.toLowerCase().includes(search.toLowerCase()) ||
-          row.email.toLowerCase().includes(search.toLowerCase()) ||
-          row.statusDisplay.toLowerCase().includes(search.toLowerCase())
-      ),
-    [search, allData]
-  );
+  const filteredData = useMemo(() => {
+    if (!allData) return [];
+
+    return filterBySearch<IUserItem>(allData, search, [
+      'first_name',
+      'last_name',
+      'patronymic',
+      'email',
+      'role',
+    ]);
+  }, [search, allData]);
 
   return (
     <main>
@@ -126,7 +145,10 @@ const CustomerAccountsPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton data={data} fileName="customers.xlsx" />
+            <ExportToExcelButton
+              data={filteredData}
+              fileName="customers.xlsx"
+            />
             <Button
               onClick={() => set('create')}
               className="px-3 py-2 rounded-full flex items-center gap-1"
@@ -139,7 +161,7 @@ const CustomerAccountsPage: React.FC = () => {
       >
         <Table
           columns={allColumns}
-          data={data}
+          data={filteredData}
           isScrollbar
           isLoading={customersQuery.isLoading}
           maxHeight={500}

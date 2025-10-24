@@ -8,7 +8,6 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
@@ -49,15 +48,15 @@ export const Shipments: React.FC = React.memo(() => {
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
-  const [brands, setBrands] = React.useState<string[]>([]);
-  const [groups, setGroups] = React.useState<string[]>([]);
+  const [brands, setBrands] = React.useState<number[]>([]);
+  const [groups, setGroups] = React.useState<number[]>([]);
   const [indicator, setIndicator] = React.useState<'amount' | 'packages'>(
     'amount'
   );
 
   React.useEffect(() => {
-    setBrands([...new Set(sales.map(s => s.brand_name))]);
-    setGroups([...new Set(sales.map(s => s.product_group_name))]);
+    setBrands([...new Set(sales.map(s => s.brand_id))]);
+    setGroups([...new Set(sales.map(s => s.product_group_id))]);
   }, [sales]);
 
   const usedFilterItems = React.useMemo(() => {
@@ -74,15 +73,15 @@ export const Shipments: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(BRANDS.map(v => v.value));
-    setGroups(GROUPS.map(v => v.value));
+    setBrands([...new Set(sales.map(s => s.brand_id))]);
+    setGroups([...new Set(sales.map(s => s.product_group_id))]);
     setRowsCount('all');
-  }, []);
+  }, [sales]);
 
   const allColumns = useMemo(
     (): ColumnDef<ShipmentRow>[] => [
       {
-        id: 'sku',
+        id: 'sku_id',
         accessorKey: 'sku_name',
         header: 'SKU',
         size: 350,
@@ -92,14 +91,14 @@ export const Shipments: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.sku_name,
+            value: v.sku_id,
             label: v.sku_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'brand',
+        id: 'brand_id',
         accessorKey: 'brand_name',
         header: 'Бренд',
         enableColumnFilter: true,
@@ -109,14 +108,14 @@ export const Shipments: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.brand_name,
+            value: v.brand_id,
             label: v.brand_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'promoType',
+        id: 'promotion_type_id',
         accessorKey: 'promotion_type_name',
         header: 'Тип промоции',
         enableColumnFilter: true,
@@ -126,14 +125,14 @@ export const Shipments: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.promotion_type_name,
+            value: v.promotion_type_id,
             label: v.promotion_type_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'group',
+        id: 'product_group_id',
         accessorKey: 'product_group_name',
         header: 'Группа',
         enableColumnFilter: true,
@@ -143,14 +142,14 @@ export const Shipments: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.product_group_name,
+            value: v.product_group_id,
             label: v.product_group_name,
           })),
           ['value']
         ),
       },
       {
-        id: 'distributor',
+        id: 'distributor_id',
         accessorKey: 'distributor_name',
         header: 'Дистр',
         enableColumnFilter: true,
@@ -160,7 +159,7 @@ export const Shipments: React.FC = React.memo(() => {
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
-            value: v.distributor_name,
+            value: v.distributor_id,
             label: v.distributor_name,
           })),
           ['value']
@@ -287,25 +286,31 @@ export const Shipments: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
+          <Select<true, number>
             value={brands}
             setValue={setBrands}
             showToggleAll
             isMultiple
             checkbox
-            items={BRANDS}
+            items={sales.map(s => ({
+              value: s.brand_id,
+              label: s.brand_name,
+            }))}
             triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
-          <Select<true, string>
+          <Select<true, number>
             value={groups}
             isMultiple
             checkbox
             showToggleAll
             setValue={setGroups}
-            items={GROUPS}
+            items={sales.map(s => ({
+              value: s.brand_id,
+              label: s.product_group_name,
+            }))}
             triggerText="Группа"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
           <Select<false, typeof indicator>
             value={indicator}
@@ -354,15 +359,15 @@ export const Shipments: React.FC = React.memo(() => {
           resetFilters,
           custom: [
             {
-              id: 'brand',
+              id: 'brand_id',
               value: {
                 colType: 'select',
                 header: 'Бренд',
                 selectValues: getUniqueItems(
                   sales
-                    .filter(b => brands.includes(b.brand_name))
+                    .filter(b => brands.includes(b.brand_id))
                     .map(b => ({
-                      value: b.brand_name,
+                      value: b.brand_id,
                       label: b.brand_name,
                     })),
                   ['value']
@@ -370,15 +375,15 @@ export const Shipments: React.FC = React.memo(() => {
               },
             },
             {
-              id: 'group',
+              id: 'product_group_id',
               value: {
                 colType: 'select',
                 header: 'Группа',
                 selectValues: getUniqueItems(
                   sales
-                    .filter(g => groups.includes(g.product_group_name))
+                    .filter(g => groups.includes(g.product_group_id))
                     .map(g => ({
-                      value: g.product_group_name,
+                      value: g.product_group_id,
                       label: g.product_group_name,
                     })),
                   ['value']

@@ -115,9 +115,7 @@ export const formatUsedFilterItems = ({
       Array.isArray(filterValue.selectValues)
     ) {
       const column = columns.find(
-        c =>
-          c.id === id.replace('_', '.') ||
-          c.accessorKey === id.replace('_', '.')
+        c => c.id === id || c.accessorKey === id
       ) as any;
       const selectOptions = column?.selectOptions ?? [];
 
