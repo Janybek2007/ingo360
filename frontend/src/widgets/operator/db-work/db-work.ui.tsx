@@ -39,7 +39,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
               accessorKey: 'distributor.name',
               header: 'Сеть',
               size: 130,
-              type: 'select',
+              filterType: 'select',
               filterFn: selectFilter(),
               enableColumnFilter: true,
               selectOptions: getUniqueItems(
@@ -55,7 +55,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
               accessorKey: 'pharmacy.name',
               header: 'Аптека',
               size: 130,
-              type: 'select',
+              filterType: 'select',
               filterFn: selectFilter(),
               enableColumnFilter: true,
               selectOptions: getUniqueItems(
@@ -71,7 +71,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           accessorKey: 'city',
           header: 'Город',
           size: 130,
-          type: 'string',
+          filterType: 'string',
           filterFn: stringFilter(),
           enableColumnFilter: true,
         },
@@ -80,7 +80,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           accessorKey: 'sku.brand.name',
           header: 'Бренд',
           size: 180,
-          type: 'select',
+          filterType: 'select',
           filterFn: selectFilter(),
           enableColumnFilter: true,
           selectOptions: getUniqueItems(
@@ -96,7 +96,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           accessorKey: 'sku.name',
           header: 'Продукт',
           size: 180,
-          type: 'select',
+          filterType: 'select',
           filterFn: selectFilter(),
           enableColumnFilter: true,
           selectOptions: getUniqueItems(
@@ -114,7 +114,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           size: 150,
           enableColumnFilter: true,
           filterFn: selectFilter(),
-          type: 'select',
+          filterType: 'select',
           selectOptions: allMonths.map(month => ({
             label: month,
             value: month,
@@ -124,7 +124,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           accessorKey: 'year',
           header: 'Год',
           size: 150,
-          type: 'select',
+          filterType: 'select',
           filterFn: selectFilter(),
           enableColumnFilter: true,
           selectOptions: getUniqueItems(
@@ -139,7 +139,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           accessorKey: 'indicator',
           header: 'Показатель',
           size: 180,
-          type: 'select',
+          filterType: 'select',
           filterFn: selectFilter(),
           enableColumnFilter: true,
           selectOptions: getUniqueItems(
@@ -156,7 +156,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           size: 140,
           enableColumnFilter: true,
           filterFn: numberFilter(),
-          type: 'number',
+          filterType: 'number',
         },
         {
           accessorKey: 'amount',
@@ -164,14 +164,14 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           size: 140,
           enableColumnFilter: true,
           filterFn: numberFilter(),
-          type: 'number',
+          filterType: 'number',
         },
         {
           accessorKey: 'published',
           header: 'Опубликовано',
           size: 180,
           enableColumnFilter: true,
-          type: 'select',
+          filterType: 'select',
           filterFn: booleanFilter(),
           selectOptions: [
             { label: 'Опубликовано', value: 'true' },

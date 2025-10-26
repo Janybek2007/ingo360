@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
 
 import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
+import { getError } from '#/shared/utils/get-error';
 
 import {
   AddCustomerContract,
@@ -26,9 +28,16 @@ export const useAddCustomerMutation = (onClose: VoidFunction) => {
         queryKey: UserQueries.queryKeys.getCustomers,
       });
       onClose();
-      setTimeout(() => {
-        toast.success('Клиент успешно добавлен');
-      }, 300);
+      toast.success('Клиент успешно добавлен');
+    },
+    onError: async (error: HTTPError) => {
+      const { toast } = await import('sonner');
+      try {
+        const data = await getError(error.response);
+        toast.error(data);
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
     },
   });
 };

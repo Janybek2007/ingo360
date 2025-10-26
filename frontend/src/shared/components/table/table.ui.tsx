@@ -120,7 +120,7 @@ export const Table: React.FC<ITableProps> = React.memo(
         <div
           ref={tableContainerRef}
           className={cn(
-            'bg-white noscrollbar border border-l-0 border-[#E4E4E4] font-inter',
+            'bg-white noscrollbar border border-[#E4E4E4] font-inter',
             'overflow-x-auto overflow-y-auto',
             rounded == 'sm' && 'rounded-sm',
             rounded == 'md' && 'rounded-md',

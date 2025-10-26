@@ -23,7 +23,7 @@ export function FilterPopup({
   onClose,
   popupPosition,
 }: IFilterPopupProps) {
-  const colType = column.columnDef.type ?? 'string';
+  const colType = column.columnDef.filterType ?? 'string';
   const selectOptions = useMemo(
     () => column.columnDef.selectOptions ?? [],
     [column.columnDef.selectOptions]

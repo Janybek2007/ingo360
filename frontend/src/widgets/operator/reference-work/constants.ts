@@ -17,7 +17,7 @@ export const referencesColumnsWithType: Record<
       header: 'Название',
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'geography/settlements': data => [
@@ -27,7 +27,7 @@ export const referencesColumnsWithType: Record<
       header: 'Название',
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'region',
@@ -36,7 +36,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.region?.name ?? ''),
@@ -53,7 +53,7 @@ export const referencesColumnsWithType: Record<
       header: 'Название',
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'country',
@@ -62,7 +62,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.country?.name ?? ''),
@@ -79,7 +79,7 @@ export const referencesColumnsWithType: Record<
       header: 'Название',
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'settlement',
@@ -88,7 +88,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.settlement?.name ?? ''),
@@ -104,7 +104,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.region?.name ?? ''),
@@ -122,7 +122,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.company?.name ?? ''),
@@ -137,7 +137,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'products/promotion-types': () => [
@@ -147,7 +147,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'products/brands': data => [
@@ -157,7 +157,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'company',
@@ -166,7 +166,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.company?.name ?? ''),
@@ -182,7 +182,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.promotion_type?.name ?? ''),
@@ -198,7 +198,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.product_group?.name ?? ''),
@@ -215,7 +215,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'products/dosage-forms': () => [
@@ -225,7 +225,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'products/segments': () => [
@@ -235,7 +235,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'products/skus': data => [
@@ -245,7 +245,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'company',
@@ -254,7 +254,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.company?.name ?? ''),
@@ -270,7 +270,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.brand?.name ?? ''),
@@ -286,7 +286,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.promotion_type?.name ?? ''),
@@ -302,7 +302,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.product_group?.name ?? ''),
@@ -318,7 +318,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.dosage_form?.name ?? ''),
@@ -334,7 +334,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.dosage?.name ?? ''),
@@ -350,7 +350,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.segment?.name ?? ''),
@@ -367,7 +367,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'employees/employees': data => [
@@ -377,7 +377,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'company',
@@ -386,7 +386,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.company?.name ?? ''),
@@ -402,7 +402,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.position?.name ?? ''),
@@ -418,7 +418,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.product_group?.name ?? ''),
@@ -434,7 +434,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.region?.name ?? ''),
@@ -450,7 +450,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.district?.name ?? ''),
@@ -467,7 +467,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'clients/medical-facilities': data => [
@@ -477,7 +477,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'settlement',
@@ -486,7 +486,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.settlement?.name ?? ''),
@@ -502,7 +502,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.district?.name ?? ''),
@@ -517,7 +517,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'clients/specialities': () => [
@@ -527,7 +527,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'clients/client-categories': () => [
@@ -537,7 +537,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
   ],
   'clients/doctors': data => [
@@ -547,7 +547,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'responsible_employee',
@@ -556,7 +556,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.responsible_employee?.full_name ?? ''),
@@ -572,7 +572,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.medical_facility?.name ?? ''),
@@ -588,7 +588,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.speciality?.name ?? ''),
@@ -604,7 +604,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.client_category?.name ?? ''),
@@ -621,7 +621,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
     },
     {
       id: 'company',
@@ -630,7 +630,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.company?.name ?? ''),
@@ -646,7 +646,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.distributor?.name ?? ''),
@@ -662,7 +662,7 @@ export const referencesColumnsWithType: Record<
       size: 250,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.responsible_employee?.full_name ?? ''),
@@ -678,7 +678,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.settlement?.name ?? ''),
@@ -694,7 +694,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.district?.name ?? ''),
@@ -709,7 +709,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
-      type: 'string',
+      filterType: 'string',
       cell: ({ row }) =>
         React.createElement(
           'span',
@@ -724,7 +724,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.client_category?.name ?? ''),
@@ -740,7 +740,7 @@ export const referencesColumnsWithType: Record<
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
-      type: 'select',
+      filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
           label: String(item.product_group?.name ?? ''),

@@ -10,7 +10,7 @@ export const ExportToExcel = React.memo(
     data,
     fileName = 'export.xlsx',
   }: ExportToExcelProps<T>) => {
-    const handleExport = () => {
+    const handleExport = React.useCallback(() => {
       if (!data || data.length === 0) {
         console.warn('Нет данных для экспорта');
         return;
@@ -21,7 +21,7 @@ export const ExportToExcel = React.memo(
 
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
       XLSX.writeFile(workbook, fileName);
-    };
+    }, [data, fileName]);
 
     return (
       <button

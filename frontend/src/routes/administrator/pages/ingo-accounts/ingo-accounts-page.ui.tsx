@@ -60,7 +60,7 @@ const IngoAccountsPage: React.FC = () => {
         },
         enableColumnFilter: true,
         filterFn: stringFilter(),
-        type: 'string',
+        filterType: 'string',
       },
       {
         id: 'role',
@@ -70,7 +70,7 @@ const IngoAccountsPage: React.FC = () => {
         size: 280,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: ROLES.slice(0, 2).map(role => ({
           label: ROLES_OBJECT[role],
           value: role,
@@ -83,7 +83,7 @@ const IngoAccountsPage: React.FC = () => {
         size: 280,
         enableColumnFilter: true,
         filterFn: stringFilter(),
-        type: 'string',
+        filterType: 'string',
       },
       {
         id: 'is_active',
@@ -91,7 +91,7 @@ const IngoAccountsPage: React.FC = () => {
         header: 'Статус',
         enableColumnFilter: true,
         filterFn: booleanFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: [
           { label: 'Активен', value: 'true' },
           { label: 'Неактивен', value: 'false' },

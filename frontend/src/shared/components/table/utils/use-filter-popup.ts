@@ -11,7 +11,7 @@ interface IUseFilterPopupArgs {
     label: string;
     value: string | number;
   }[];
-  colType: ColumnDefBase<any>['type'];
+  colType: ColumnDefBase<any>['filterType'];
 }
 
 export const useFilterPopup = ({

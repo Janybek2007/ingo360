@@ -67,7 +67,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         size: 224,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: LPUS,
       },
       {
@@ -77,7 +77,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         size: 230,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: SPECIALTIES,
       },
       {
@@ -86,7 +86,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         size: 230,
         enableColumnFilter: true,
         filterFn: numberFilter(),
-        type: 'number',
+        filterType: 'number',
       },
       {
         accessorKey: 'generalCallOfDoctors',
@@ -94,7 +94,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         size: 230,
         enableColumnFilter: true,
         filterFn: numberFilter(),
-        type: 'number',
+        filterType: 'number',
       },
       {
         accessorKey: 'doctorsWithVisits',
@@ -102,7 +102,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         size: 300,
         enableColumnFilter: true,
         filterFn: numberFilter(),
-        type: 'number',
+        filterType: 'number',
       },
     ],
     []

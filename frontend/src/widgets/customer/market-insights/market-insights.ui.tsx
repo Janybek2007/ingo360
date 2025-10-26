@@ -77,7 +77,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         header: 'Компания',
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: SKUS,
       },
       {
@@ -86,7 +86,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         header: 'Бренд',
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: BRANDS,
       },
       {
@@ -95,7 +95,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         header: 'Сегмент',
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: PROMOTION_TYPES,
       },
       {
@@ -104,7 +104,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         header: 'Форма выписка',
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: GROUPS,
       },
       {
@@ -113,7 +113,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         header: 'Дозировка',
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: DISTRIBUTORS,
       },
       {

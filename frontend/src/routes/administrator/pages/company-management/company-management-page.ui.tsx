@@ -69,7 +69,7 @@ const CompanyManagementPage: React.FC = () => {
         size: 227,
         enableColumnFilter: true,
         filterFn: numberFilter(),
-        type: 'number',
+        filterType: 'number',
       },
       {
         accessorKey: 'active_users',
@@ -88,7 +88,7 @@ const CompanyManagementPage: React.FC = () => {
         header: 'Статус',
         enableColumnFilter: true,
         filterFn: booleanFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: [
           { label: 'Активен', value: 'true' },
           { label: 'Неактивен', value: 'false' },

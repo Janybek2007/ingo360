@@ -1,9 +1,13 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 
 import { FormField } from '#/shared/components/ui/form-field';
 
-import type { TUpdatePasswordContract } from './password.contract';
+import {
+  type TUpdatePasswordContract,
+  UpdatePasswordContract,
+} from './password.contract';
 import { useUpdatePasswordMutation } from './password.mutation';
 
 export const ProfilePassword: React.FC = React.memo(() => {
@@ -12,10 +16,10 @@ export const ProfilePassword: React.FC = React.memo(() => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors },
     reset,
-    watch,
   } = useForm<TUpdatePasswordContract>({
+    resolver: zodResolver(UpdatePasswordContract),
     defaultValues: {
       current_password: '',
       new_password: '',
@@ -23,15 +27,16 @@ export const ProfilePassword: React.FC = React.memo(() => {
     },
   });
 
-  const newPassword = watch('new_password');
+  const onSubmit = React.useCallback(
+    (data: TUpdatePasswordContract) => {
+      updatePasswordMutation.mutate(data);
+    },
+    [updatePasswordMutation]
+  );
 
-  const onSubmit = (data: TUpdatePasswordContract) => {
-    updatePasswordMutation.mutate(data);
-  };
-
-  const handleCancel = () => {
+  const handleCancel = React.useCallback(() => {
     reset();
-  };
+  }, [reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -48,13 +53,7 @@ export const ProfilePassword: React.FC = React.memo(() => {
           error={errors.current_password?.message}
         />
         <FormField
-          {...register('new_password', {
-            required: 'Новый пароль обязателен',
-            minLength: {
-              value: 6,
-              message: 'Пароль должен содержать минимум 6 символов',
-            },
-          })}
+          {...register('new_password')}
           label="Новый пароль"
           type="password"
           isPasswordToggleShow
@@ -63,10 +62,7 @@ export const ProfilePassword: React.FC = React.memo(() => {
           error={errors.new_password?.message}
         />
         <FormField
-          {...register('confirm_password', {
-            required: 'Подтверждение пароля обязательно',
-            validate: value => value === newPassword || 'Пароли не совпадают',
-          })}
+          {...register('confirm_password')}
           label="Подтвердите пароль"
           type="password"
           isPasswordToggleShow
@@ -80,14 +76,14 @@ export const ProfilePassword: React.FC = React.memo(() => {
           type="button"
           onClick={handleCancel}
           disabled={updatePasswordMutation.isPending}
-          className="bg-gray-200 py-3 px-6 rounded-3xl disabled:opacity-50"
+          className="bg-gray-200 py-3 px-6 rounded-3xl disabled:opacity-60"
         >
           Отменить
         </button>
         <button
           type="submit"
-          disabled={updatePasswordMutation.isPending || !isDirty}
-          className="bg-gray-950 text-white py-3 px-6 rounded-3xl disabled:opacity-50"
+          disabled={updatePasswordMutation.isPending}
+          className="bg-black text-white py-3 px-6 rounded-3xl disabled:opacity-60"
         >
           {updatePasswordMutation.isPending
             ? 'Обновление...'

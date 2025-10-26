@@ -39,7 +39,7 @@ export function TableBody({
           return (
             <tr
               key={`${row.id}|${row.depth}|${row.getVisibleCells().length}|${i}`}
-              className={cn('hover:bg-gray-50 group border-b border-[#E4E4E4]')}
+              className={cn('hover:bg-gray-50 group')}
             >
               {row.getVisibleCells().map((cell, index) => {
                 const columnDef = cell.column.columnDef;
@@ -59,8 +59,7 @@ export function TableBody({
                       !isPinned &&
                         cell.column.getIsPinned() &&
                         'bg-white group-hover:bg-gray-50',
-                      columnDef.lastPinning && 'border-r',
-                      'py-[0.875rem] border-l px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
+                      'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
                       isPinned
                         ? 'sticky top-[3.125rem] bottom-0 z-30 border-t'
                         : '',

@@ -116,7 +116,7 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
         <button
           type="submit"
           disabled={updatePersonalDataMutation.isPending || !isDirty}
-          className="bg-gray-950 text-white py-3 px-6 rounded-3xl disabled:opacity-50"
+          className="bg-black text-white py-3 px-6 rounded-3xl disabled:opacity-60"
         >
           {updatePersonalDataMutation.isPending ? 'Сохранение...' : 'Сохранить'}
         </button>

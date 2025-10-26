@@ -87,7 +87,7 @@ export const Shipments: React.FC = React.memo(() => {
         size: 350,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
@@ -104,7 +104,7 @@ export const Shipments: React.FC = React.memo(() => {
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
@@ -121,7 +121,7 @@ export const Shipments: React.FC = React.memo(() => {
         enableColumnFilter: true,
         size: 200,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
@@ -138,7 +138,7 @@ export const Shipments: React.FC = React.memo(() => {
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
@@ -155,7 +155,7 @@ export const Shipments: React.FC = React.memo(() => {
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
@@ -164,7 +164,6 @@ export const Shipments: React.FC = React.memo(() => {
           })),
           ['value']
         ),
-        lastPinning: true,
       },
       ...Array.from(
         { length: 12 },
@@ -179,7 +178,7 @@ export const Shipments: React.FC = React.memo(() => {
             size: 140,
             enableColumnFilter: true,
             filterFn: numberFilter(),
-            type: 'number',
+            filterType: 'number',
             cell: ({ getValue }) => {
               const value = getValue() as number | null;
               if (value === null || value === undefined) return '-';
@@ -306,7 +305,7 @@ export const Shipments: React.FC = React.memo(() => {
             showToggleAll
             setValue={setGroups}
             items={sales.map(s => ({
-              value: s.brand_id,
+              value: s.product_group_id,
               label: s.product_group_name,
             }))}
             triggerText="Группа"

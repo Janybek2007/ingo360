@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
 
 import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
+import { getError } from '#/shared/utils/get-error';
 
 import { EditUserContract, type TAddUserContract } from '../users.contracts';
 import type { TAddUserResponse } from '../users.types';
@@ -36,68 +38,24 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
 
       return response.json<TAddUserResponse>();
     },
-    async onSuccess(data) {
+    async onSuccess() {
       const { toast } = await import('sonner');
 
+      await queryClient.refetchQueries({
+        queryKey: UserQueries.queryKeys.getUsers,
+      });
+
       onClose();
-
-      // Принудительная инвалидация всех связанных запросов
-      await queryClient.invalidateQueries({
-        queryKey: UserQueries.queryKeys.getUsers,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: UserQueries.queryKeys.getCustomers,
-      });
-
-      // Дополнительная инвалидация по префиксу
-      await queryClient.invalidateQueries({
-        predicate: query => {
-          return (
-            query.queryKey.includes('get-users') ||
-            query.queryKey.includes('get-customers') ||
-            query.queryKey.includes('users')
-          );
-        },
-      });
-
-      // Принудительное обновление всех связанных запросов
-      await queryClient.refetchQueries({
-        queryKey: UserQueries.queryKeys.getUsers,
-      });
-      await queryClient.refetchQueries({
-        queryKey: UserQueries.queryKeys.getCustomers,
-      });
-
-      // Дополнительно: обновление кэша вручную
-      queryClient.setQueryData(
-        UserQueries.queryKeys.getUsers,
-        (oldData: unknown) => {
-          if (!oldData || !Array.isArray(oldData)) return oldData;
-          return oldData.map((user: unknown) => {
-            if (typeof user === 'object' && user !== null && 'id' in user) {
-              return user.id === data.id ? { ...user, ...data } : user;
-            }
-            return user;
-          });
-        }
-      );
-
-      queryClient.setQueryData(
-        UserQueries.queryKeys.getCustomers,
-        (oldData: unknown) => {
-          if (!oldData || !Array.isArray(oldData)) return oldData;
-          return oldData.map((user: unknown) => {
-            if (typeof user === 'object' && user !== null && 'id' in user) {
-              return user.id === data.id ? { ...user, ...data } : user;
-            }
-            return user;
-          });
-        }
-      );
-
-      setTimeout(() => {
-        toast.success('Пользователь успешно обновлен');
-      }, 300);
+      toast.success('Пользователь успешно обновлен');
+    },
+    onError: async (error: HTTPError) => {
+      const { toast } = await import('sonner');
+      try {
+        const data = await getError(error.response);
+        toast.error(data);
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
     },
   });
 };

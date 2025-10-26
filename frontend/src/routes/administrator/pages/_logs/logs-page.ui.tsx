@@ -67,7 +67,7 @@ const LogsPage: React.FC = () => {
         size: 200,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: importLogs.map(log => {
           const fullName = `${log.user_last_name} ${log.user_first_name}`;
           return {
@@ -86,7 +86,7 @@ const LogsPage: React.FC = () => {
         size: 180,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: getUniqueValues(importLogs, 'target_table').map(
           table => ({
             label: String(table),
@@ -100,7 +100,7 @@ const LogsPage: React.FC = () => {
         size: 150,
         enableColumnFilter: true,
         filterFn: numberFilter(),
-        type: 'number',
+        filterType: 'number',
       },
       {
         accessorKey: 'created_at',

@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
 
 import { CompanyQueries } from '#/entities/company';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
+import { getError } from '#/shared/utils/get-error';
 
 import {
   EditCompanyContract,
@@ -43,15 +45,21 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
     async onSuccess() {
       const { toast } = await import('sonner');
 
-      onClose();
-
       queryClient.invalidateQueries({
         queryKey: CompanyQueries.queryKeys.getCompanies,
       });
 
-      setTimeout(() => {
-        toast.success('Компания успешно обновлена');
-      }, 300);
+      onClose();
+      toast.success('Компания успешно обновлена');
+    },
+    onError: async (error: HTTPError) => {
+      const { toast } = await import('sonner');
+      try {
+        const data = await getError(error.response);
+        toast.error(data);
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
     },
   });
 };

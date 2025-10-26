@@ -21,7 +21,7 @@ export const useLogoutMutation = () => {
         setTimeout(() => {
           queryClient.setQueryData(UserQueries.queryKeys.getUser, null);
           navigate(routePaths.auth.login);
-        }, 700);
+        }, 200);
       }
     },
     onSuccess: async () => {

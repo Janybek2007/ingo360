@@ -20,6 +20,7 @@ export class UserQueries {
         return {
           ...response,
           role: this.buildUserRole(response),
+          // role: "customer"
         };
       },
     });

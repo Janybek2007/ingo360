@@ -49,6 +49,8 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
         ]}
         onClose={onClose}
         schema={AddCustomerContract}
+        isLoading={mutation.isPending}
+        isSuccess={mutation.isSuccess}
         title="Добавить новую учетную запись клиента"
         onSubmit={mutation.mutateAsync}
       />

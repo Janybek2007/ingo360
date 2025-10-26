@@ -15,7 +15,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
   const { position: popupPosition, updatePosition } = useAnchorPosition();
 
   return (
-    <thead className={cn('sticky top-0 z-10')}>
+    <thead className={cn('sticky top-0 z-10 select-none')}>
       {table.getHeaderGroups().map((headerGroup, i) => (
         <tr
           key={`${headerGroup.id}|${headerGroup.depth}|${headerGroup.headers.length}|${i}`}
@@ -30,9 +30,8 @@ export function TableHeader({ table }: ITableHeaderProps) {
                 onDoubleClick={() => header.column.resetSize()}
                 key={`${header.id}|${header.depth}|${index}`}
                 className={cn(
-                  columnDef.lastPinning && 'border-r',
                   'py-4 pl-4 pr-10 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
-                  'border-b border-[#E4E4E4] border-l bg-gray-50 group'
+                  'border-b border-[#E4E4E4] border-r bg-gray-50 group'
                 )}
                 style={{
                   ...getCommonPinningStyles(header.column),

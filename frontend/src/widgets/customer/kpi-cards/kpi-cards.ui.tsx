@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { useSectionStyle } from '#/shared/hooks/use-section-style';
-
 import { kpiCards } from './constants';
 
 const kpiValues: Record<string, number> = {
@@ -14,13 +12,8 @@ const kpiValues: Record<string, number> = {
 };
 
 export const KPICards: React.FC = React.memo(() => {
-  const sectionStyle = useSectionStyle();
-
   return (
-    <section
-      style={sectionStyle.style}
-      className="grid grid-cols-3 gap-6 transition-all duration-300"
-    >
+    <section className="grid grid-cols-3 gap-6 transition-all duration-300">
       {kpiCards.map((card, i) => (
         <div
           key={`${card.key}-${i}-key`}

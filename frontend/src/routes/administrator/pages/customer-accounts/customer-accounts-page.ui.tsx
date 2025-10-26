@@ -43,7 +43,7 @@ const CustomerAccountsPage: React.FC = () => {
         size: 290,
         enableColumnFilter: true,
         filterFn: stringFilter(),
-        type: 'string',
+        filterType: 'string',
       },
       {
         accessorKey: 'role',
@@ -52,7 +52,7 @@ const CustomerAccountsPage: React.FC = () => {
         size: 280,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: ROLES.slice(1).map(role => ({
           value: role,
           label: ROLES_OBJECT[role],
@@ -64,7 +64,7 @@ const CustomerAccountsPage: React.FC = () => {
         size: 290,
         enableColumnFilter: true,
         filterFn: selectFilter(),
-        type: 'select',
+        filterType: 'select',
         selectOptions: [],
       },
       {
@@ -73,7 +73,7 @@ const CustomerAccountsPage: React.FC = () => {
         size: 290,
         enableColumnFilter: true,
         filterFn: stringFilter(),
-        type: 'string',
+        filterType: 'string',
       },
       {
         accessorKey: 'statusDisplay',
