@@ -68,13 +68,17 @@ const LogsPage: React.FC = () => {
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: importLogs.map(log => {
-          const fullName = `${log.user_last_name} ${log.user_first_name}`;
-          return {
-            label: fullName,
-            value: fullName,
-          };
-        }),
+        selectOptions: Array.from(
+          new Set(
+            importLogs.map(log => {
+              const fullName = `${log.user_last_name} ${log.user_first_name}`;
+              return fullName;
+            })
+          )
+        ).map(fullName => ({
+          label: fullName,
+          value: fullName,
+        })),
         cell: ({ row }) => {
           const { user_first_name, user_last_name } = row.original;
           return `${user_last_name} ${user_first_name}`;

@@ -1,5 +1,4 @@
 import {
-  LucideRefreshCcwIcon,
   MdiDeleteIcon,
   MdiPencilIcon,
   MslAdminPanelSettingsRounded,
@@ -21,9 +20,5 @@ export const DEFAULT_ROW_ACTION_TYPE_ITEM: Record<
   access_settings: {
     label: 'Настройки доступа',
     icon: <MslAdminPanelSettingsRounded className="size-[1.125rem]" />,
-  },
-  reset_password: {
-    label: 'Сбросить пароль',
-    icon: <LucideRefreshCcwIcon className="size-[1.125rem]" />,
   },
 };
