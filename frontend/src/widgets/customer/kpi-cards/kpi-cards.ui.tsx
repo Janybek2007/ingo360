@@ -13,7 +13,7 @@ const kpiValues: Record<string, number> = {
 
 export const KPICards: React.FC = React.memo(() => {
   return (
-    <section className="grid grid-cols-3 gap-6 transition-all duration-300">
+    <section className="grid grid-cols-3 gap-6">
       {kpiCards.map((card, i) => (
         <div
           key={`${card.key}-${i}-key`}

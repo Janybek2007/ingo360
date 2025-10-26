@@ -100,7 +100,7 @@ export const LeaderBoard: React.FC = React.memo(() => {
   return (
     <section
       style={sectionStyle.style}
-      className="bg-white rounded-lg w-full overflow-hidden transition-all duration-300"
+      className="bg-white rounded-lg w-full overflow-hidden"
     >
       <div className="flex items justify-between h-full font-inter">
         <div className="max-w-[40rem] min-w-[40rem] px-6 py-6 flex flex-col justify-between text-[#131313]">

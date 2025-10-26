@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -5,7 +6,10 @@ import { Assets } from '#/shared/assets';
 import { FormField } from '#/shared/components/ui/form-field';
 import { useSession } from '#/shared/session';
 
-import type { TUpdatePersonalDataContract } from './personal-data.contract';
+import {
+  type TUpdatePersonalDataContract,
+  UpdatePersonalDataContract,
+} from './personal-data.contract';
 import { useUpdatePersonalDataMutation } from './personal-data.mutation';
 
 export const ProfilePersonalData: React.FC = React.memo(() => {
@@ -18,21 +22,36 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
     formState: { errors, isDirty },
     reset,
   } = useForm<TUpdatePersonalDataContract>({
+    resolver: zodResolver(UpdatePersonalDataContract),
     defaultValues: {
-      first_name: user?.first_name || '',
-      last_name: user?.last_name || '',
-      phone_number: user?.phone_number || '',
-      email: user?.email || '',
+      first_name: user?.first_name,
+      last_name: user?.last_name,
+      phone_number: user?.phone_number,
+      email: user?.email,
     },
   });
 
-  const onSubmit = (data: TUpdatePersonalDataContract) => {
-    updatePersonalDataMutation.mutate(data);
-  };
+  const onSubmit = React.useCallback(
+    (data: TUpdatePersonalDataContract) => {
+      updatePersonalDataMutation.mutate(data);
+    },
+    [updatePersonalDataMutation]
+  );
 
-  const handleCancel = () => {
+  const handleCancel = React.useCallback(() => {
     reset();
-  };
+  }, [reset]);
+
+  React.useEffect(() => {
+    if (user) {
+      reset({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone_number: user.phone_number,
+        email: user.email,
+      });
+    }
+  }, [user, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -40,7 +59,7 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
         <img
           className="w-[7.75rem] h-[7.75rem] rounded-[6.25rem]"
           src={Assets.DefaultAvatar}
-          alt=""
+          alt={`User Avatar | ${user?.first_name}`}
         />
         <div>
           <p>
@@ -59,7 +78,8 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
       <div className="flex gap-5 mt-8">
         <div className="w-full">
           <FormField
-            {...register('first_name', { required: 'Имя обязательно' })}
+            register={register('first_name')}
+            name="first_name"
             label="Имя *"
             type="text"
             placeholder="Введите имя"
@@ -68,7 +88,8 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
         </div>
         <div className="w-full">
           <FormField
-            {...register('last_name', { required: 'Фамилия обязательна' })}
+            register={register('last_name')}
+            name="last_name"
             label="Фамилия *"
             type="text"
             placeholder="Введите фамилию"
@@ -80,13 +101,8 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
       <div className="flex gap-5 mt-8">
         <div className="w-full">
           <FormField
-            {...register('email', {
-              required: 'Email обязателен',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Некорректный email',
-              },
-            })}
+            register={register('email')}
+            name="email"
             label="Email address*"
             type="email"
             placeholder="example@email.com"
@@ -95,10 +111,11 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
         </div>
         <div className="w-full">
           <FormField
-            {...register('phone_number')}
+            register={register('phone_number')}
+            name="phone_number"
             label="Номер телефона"
             type="tel"
-            placeholder="+7 (999) 123-45-67"
+            placeholder="+996 555 55 555"
             error={errors.phone_number?.message}
           />
         </div>

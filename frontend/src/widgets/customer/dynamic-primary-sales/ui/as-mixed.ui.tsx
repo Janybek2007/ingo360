@@ -83,7 +83,6 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
         <ComposedChart
           width={sectionStyle.width - 24}
           height={500}
-          className="transition-all duration-300"
           margin={{ top: 20, right: 16, bottom: 20 }}
           data={processedData}
           barGap={0}

@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
+import { useSession } from '#/shared/session';
 import { getError } from '#/shared/utils/get-error';
 
 import {
@@ -25,6 +26,7 @@ export const useLoginMutation = () => {
   } = useForm({
     resolver: zodResolver(LoginContract),
   });
+  const { setIsWelcomeShown } = useSession();
 
   const { mutateAsync, status } = useMutation({
     mutationKey: ['session-login'],
@@ -45,6 +47,7 @@ export const useLoginMutation = () => {
       if (response.access_token && response.token_type) {
         Cookies.set('access_token', response.access_token);
         Cookies.set('token_type', response.token_type);
+        setIsWelcomeShown(true);
         await queryClient.refetchQueries({
           queryKey: UserQueries.queryKeys.getUser,
         });

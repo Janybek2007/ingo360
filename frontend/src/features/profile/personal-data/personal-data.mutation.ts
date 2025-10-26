@@ -2,6 +2,10 @@ import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
 import { UserQueries } from '#/entities/user/user.queries';
+import type {
+  GetUserResponse,
+  GetUsersResponse,
+} from '#/entities/user/user.types';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { getError } from '#/shared/utils/get-error';
@@ -18,18 +22,19 @@ export const useUpdatePersonalDataMutation = () => {
       const parsedData = UpdatePersonalDataContract.parse(data);
 
       return http
-        .patch('users/me', {
-          json: parsedData,
-        })
-        .json();
+        .patch('users/me', { body: JSON.stringify(parsedData) })
+        .json<GetUsersResponse>();
     },
-    onSuccess: async () => {
+    onSuccess: async data => {
       const { toast } = await import('sonner');
 
-      // Инвалидируем кэш пользователя
-      await queryClient.invalidateQueries({
-        queryKey: UserQueries.queryKeys.getUser,
-      });
+      queryClient.setQueryData(
+        UserQueries.queryKeys.getUser,
+        (oldData: GetUserResponse) => ({
+          ...oldData,
+          ...data,
+        })
+      );
 
       toast.success('Персональные данные успешно обновлены');
     },

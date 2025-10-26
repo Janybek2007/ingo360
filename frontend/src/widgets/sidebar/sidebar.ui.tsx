@@ -25,7 +25,7 @@ export const Sidebar: React.FC = React.memo(() => {
     <aside
       id="sidebar"
       className={cn(
-        'border-l border-r border-c3 bg-white h-screen py-8 flex flex-col transition-all duration-300',
+        'border-l border-r border-c3 bg-white h-screen py-8 flex flex-col',
         isCollapsed
           ? 'min-w-[4.5rem] max-w-[4.5rem] px-3'
           : 'min-w-[18rem] max-w-[18rem] px-6'

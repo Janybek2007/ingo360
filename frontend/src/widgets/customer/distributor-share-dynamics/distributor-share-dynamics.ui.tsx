@@ -139,12 +139,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
         />
 
         <div className="fontp-inter">
-          <BarChart
-            className="transition-all duration-300"
-            width={sectionStyle.width - 48}
-            height={500}
-            data={data}
-          >
+          <BarChart width={sectionStyle.width - 48} height={500} data={data}>
             <CartesianGrid strokeDasharray="4 4" vertical={false} />
             <XAxis
               axisLine={false}

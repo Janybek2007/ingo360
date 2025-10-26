@@ -119,7 +119,6 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
           <LineChart
             width={sectionStyle.width - 48}
             height={500}
-            className="transition-all duration-300"
             data={data}
             margin={{ top: 20, right: 16, bottom: 20 }}
           >

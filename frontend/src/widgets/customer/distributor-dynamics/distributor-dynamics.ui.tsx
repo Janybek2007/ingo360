@@ -216,7 +216,6 @@ export const DistributorDynamics: React.FC = React.memo(() => {
               width={sectionStyle.width - 48}
               height={500}
               data={chartData}
-              className="transition-all duration-300"
               margin={{ top: 20, right: 16, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="4 4" vertical={false} />

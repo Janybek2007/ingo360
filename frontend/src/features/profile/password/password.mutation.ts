@@ -17,10 +17,10 @@ export const useUpdatePasswordMutation = () => {
 
       return http
         .patch('users/me/password', {
-          json: {
+          body: JSON.stringify({
             current_password: parsedData.current_password,
             new_password: parsedData.new_password,
-          },
+          }),
         })
         .json();
     },
