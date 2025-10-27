@@ -48,7 +48,12 @@ const IngoAccountsPage: React.FC = () => {
     (): ColumnDef<IUserItem>[] => [
       {
         id: 'fullName',
-        accessorKey: 'fullName',
+        accessorFn: (row: IUserItem) => {
+          return (
+            `${row.last_name} ${row.first_name} ${row.patronymic || ''}`.trim() ||
+            'Не указано'
+          );
+        },
         header: 'ФИО',
         size: 280,
         cell: ({ row }) => {
@@ -116,7 +121,6 @@ const IngoAccountsPage: React.FC = () => {
                     setTimeout(() => set('edit'), 0);
                   },
                 },
-                { type: 'reset_password', onSelect: () => {} },
               ]}
             />
           );
@@ -137,7 +141,16 @@ const IngoAccountsPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton data={filteredData} fileName="users.xlsx" />
+            <ExportToExcelButton
+              data={filteredData.map(item => ({
+                email: item.email,
+                first_name: item.first_name,
+                last_name: item.last_name,
+                role:
+                  item.role === 'administrator' ? 'Администратор' : 'Оператор',
+              }))}
+              fileName="users.xlsx"
+            />
             <Button
               onClick={() => set('create')}
               className="px-3 py-2 rounded-full flex items-center gap-1"

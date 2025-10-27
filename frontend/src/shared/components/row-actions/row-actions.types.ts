@@ -1,8 +1,4 @@
-export type IRowActionType =
-  | 'edit'
-  | 'delete'
-  | 'access_settings'
-  | 'reset_password';
+export type IRowActionType = 'edit' | 'delete' | 'access_settings';
 
 export interface IRowActionsProps {
   items: {

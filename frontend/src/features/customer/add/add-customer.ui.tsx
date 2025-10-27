@@ -37,6 +37,12 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
             },
           ],
           {
+            label: 'Должность',
+            type: 'text',
+            name: 'position',
+            placeholder: 'Менеджер',
+          },
+          {
             label: 'Компания',
             type: 'select',
             name: 'company_id',

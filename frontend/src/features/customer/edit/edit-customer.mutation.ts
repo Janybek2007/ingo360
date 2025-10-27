@@ -30,6 +30,7 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
           password: parsedBody.password,
           first_name: parsedBody.first_name,
           last_name: parsedBody.last_name,
+          position: parsedBody.position,
           is_active: parsedBody.is_active,
           is_superuser: parsedBody.is_superuser,
           is_verified: parsedBody.is_verified,

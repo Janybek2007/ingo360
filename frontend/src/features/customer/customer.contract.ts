@@ -4,6 +4,7 @@ export const AddCustomerContract = z.object({
   email: z.string().email('Неверный email'),
   first_name: z.string().min(1, 'Поле обязательно'),
   last_name: z.string().min(1, 'Поле обязательно'),
+  position: z.string().min(1, 'Поле обязательно'),
   company_id: z.number('Выберите компанию'),
 });
 
@@ -12,6 +13,7 @@ export const EditCustomerContract = z.object({
   password: z.string().optional(),
   first_name: z.string().optional(),
   last_name: z.string().optional(),
+  position: z.string().optional(),
   is_active: z.boolean().optional(),
   is_superuser: z.boolean().optional(),
   is_verified: z.boolean().optional(),

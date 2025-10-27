@@ -9,6 +9,7 @@ export interface IUserItem {
   first_name: string;
   last_name: string;
   patronymic: string;
+  position?: string;
   phone_number: string;
   last_login: string;
   is_operator: boolean;

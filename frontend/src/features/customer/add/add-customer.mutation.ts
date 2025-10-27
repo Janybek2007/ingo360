@@ -18,7 +18,10 @@ export const useAddCustomerMutation = (onClose: VoidFunction) => {
     mutationFn: async (body: TAddCustomerContract) => {
       const parsedBody = AddCustomerContract.parse(body);
       const response = await http.post('users', {
-        json: parsedBody,
+        json: {
+          ...parsedBody,
+          position: parsedBody.position,
+        },
       });
       return response.json<TAddCustomerResponse>();
     },

@@ -150,7 +150,14 @@ const CompanyManagementPage: React.FC = () => {
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton
-              data={filteredData}
+              data={filteredData.map(item => ({
+                Компания: item.name,
+                'Лимит учетных записей': item.active_users_limit,
+                'Активные пользователи': item.active_users,
+                '№ Договора': item.contract_number,
+                'Срок окончания договора': item.contract_end_date,
+                Статус: item.is_active ? 'Активен' : 'Неактивен',
+              }))}
               fileName="companies.xlsx"
             />
             <Button

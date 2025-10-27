@@ -56,6 +56,13 @@ export const EditCustomerModal: React.FC<{
             defaultValue: customerData?.last_name || '',
           },
         ],
+        {
+          label: 'Должность',
+          type: 'text',
+          name: 'position',
+          placeholder: 'Менеджер',
+          defaultValue: (customerData as { position?: string })?.position || '',
+        },
         [
           {
             label: 'Роль',

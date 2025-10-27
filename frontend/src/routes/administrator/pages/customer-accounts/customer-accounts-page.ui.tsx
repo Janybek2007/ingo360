@@ -13,17 +13,14 @@ import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import {
-  ROLES,
-  ROLES_OBJECT,
-  STATUSES_OBJECT,
-} from '#/shared/constants/roles_statuses';
+import { STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { selectFilter, stringFilter } from '#/shared/utils/filter';
 import { filterBySearch } from '#/shared/utils/search';
 
 interface CustomerRow extends IUserItem {
   fullName: string;
+  position: string;
   companyName: string;
   statusDisplay: string;
 }
@@ -34,6 +31,21 @@ const CustomerAccountsPage: React.FC = () => {
   const [editData, setEditData] = useState<CustomerRow | null>(null);
 
   const customersQuery = useQuery(UserQueries.GetCustomersQuery());
+
+  const allData = useMemo((): CustomerRow[] => {
+    if (!customersQuery.data) return [];
+
+    return customersQuery.data.map((customer: IUserItem) => {
+      return {
+        ...customer,
+        fullName:
+          `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
+        position: (customer as { position?: string }).position || 'Не указана',
+        companyName: customer.company?.name || 'Не указана',
+        statusDisplay: customer.is_active ? 'active' : 'inactive',
+      } as CustomerRow;
+    });
+  }, [customersQuery.data]);
 
   const allColumns = useMemo(
     (): ColumnDef<CustomerRow>[] => [
@@ -46,17 +58,12 @@ const CustomerAccountsPage: React.FC = () => {
         filterType: 'string',
       },
       {
-        accessorKey: 'role',
-        accessorFn: row => ROLES_OBJECT[row.role],
-        header: 'Роль',
-        size: 280,
+        accessorKey: 'position',
+        header: 'Должность',
+        size: 200,
         enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: ROLES.slice(1).map(role => ({
-          value: role,
-          label: ROLES_OBJECT[role],
-        })),
+        filterFn: stringFilter(),
+        filterType: 'string',
       },
       {
         accessorKey: 'companyName',
@@ -65,7 +72,12 @@ const CustomerAccountsPage: React.FC = () => {
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: [],
+        selectOptions: Array.from(
+          new Set(allData.map(item => item.companyName))
+        ).map(company => ({
+          label: company,
+          value: company,
+        })),
       },
       {
         accessorKey: 'email',
@@ -79,6 +91,13 @@ const CustomerAccountsPage: React.FC = () => {
         accessorKey: 'statusDisplay',
         header: 'Статус',
         size: 150,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        selectOptions: [
+          { label: 'Активный', value: 'active' },
+          { label: 'Неактивный', value: 'inactive' },
+        ],
         cell(props) {
           return STATUSES_OBJECT[props.getValue() as 'active'];
         },
@@ -98,37 +117,23 @@ const CustomerAccountsPage: React.FC = () => {
                     setTimeout(() => set('edit'), 0);
                   },
                 },
-                { type: 'reset_password', onSelect: () => {} },
               ]}
             />
           );
         },
       },
     ],
-    [set]
+    [set, allData]
   );
-
-  const allData = useMemo((): CustomerRow[] => {
-    if (!customersQuery.data) return [];
-
-    return customersQuery.data.map((customer: IUserItem) => {
-      return {
-        ...customer,
-        fullName:
-          `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
-        companyName: customer.company?.name || 'Не указана',
-        statusDisplay: customer.is_active ? 'active' : 'inactive',
-      } as CustomerRow;
-    });
-  }, [customersQuery.data]);
 
   const filteredData = useMemo(() => {
     if (!allData) return [];
 
-    return filterBySearch<IUserItem>(allData, search, [
+    return filterBySearch<CustomerRow>(allData, search, [
       'first_name',
       'last_name',
       'patronymic',
+      'position',
       'email',
       'role',
     ]);
@@ -146,7 +151,14 @@ const CustomerAccountsPage: React.FC = () => {
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton
-              data={filteredData}
+              data={filteredData.map(item => ({
+                ФИО: item.fullName,
+                Должность: item.position,
+                Компания: item.companyName,
+                'Электронная почта': item.email,
+                Статус:
+                  item.statusDisplay === 'active' ? 'Активный' : 'Неактивный',
+              }))}
               fileName="customers.xlsx"
             />
             <Button
