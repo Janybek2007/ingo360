@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router';
 import { Assets } from '#/shared/assets';
 import { routePaths } from '#/shared/router';
 
-import { HeaderTitle } from './ui/header-title.ui';
 import { Notifications } from './ui/notifications.ui';
 
 export const ExpHeader: React.FC = React.memo(() => {
@@ -12,9 +11,8 @@ export const ExpHeader: React.FC = React.memo(() => {
   return (
     <header
       id="exp-header"
-      className="bg-white w-full max-h-[4.875rem] min-h-[4.875rem] flex items-center justify-between border-b border-c3 px-6 py-4"
+      className="bg-white w-full max-h-[4.875rem] min-h-[4.875rem] flex items-center justify-end border-b border-c3 px-6 py-4"
     >
-      <HeaderTitle />
       <div className="flex justify-end items-center gap-4">
         <Notifications />
 
