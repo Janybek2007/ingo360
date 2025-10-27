@@ -3,8 +3,9 @@ import qs from 'qs';
 
 import { http } from '#/shared/api';
 import type { ExtraDbType } from '#/shared/types/db.type';
+import type { PaginationParams } from '#/shared/types/pagination';
 
-import type { GetDbItemsOptions, IGetDBItemResponse } from './db.types';
+import type { IGetDBItemResponse } from './db.types';
 
 export class DbQueries {
   static queryKeys = {
@@ -13,7 +14,7 @@ export class DbQueries {
 
   static GetDbItemsQuery<T = IGetDBItemResponse>(
     urls: ExtraDbType[],
-    options?: GetDbItemsOptions
+    options?: PaginationParams
   ) {
     return queryOptions({
       queryKey: this.queryKeys.getDbItems(urls),

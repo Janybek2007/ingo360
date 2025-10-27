@@ -162,7 +162,6 @@ export const DistributorShare: React.FC = React.memo(() => {
           })),
           ['value']
         ),
-        lastPinning: true,
       },
       ...Array.from(
         { length: 12 },

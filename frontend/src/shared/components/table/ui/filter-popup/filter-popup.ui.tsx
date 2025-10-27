@@ -40,7 +40,7 @@ export function FilterPopup({
     applyFilter,
   } = useFilterPopup({ column, onClose, selectOptions, colType });
 
-  const [width, setWidth] = useState(300);
+  const [width, setWidth] = useState(350);
   const [isResizing, setIsResizing] = useState(false);
   const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
 

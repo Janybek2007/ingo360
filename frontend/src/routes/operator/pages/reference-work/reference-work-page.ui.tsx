@@ -14,7 +14,12 @@ const ReferenceWorkPage: React.FC = () => {
     'current',
     parseAsString.withDefault('geography/countries')
   );
-  const queryData = useQuery(ReferenceQueries.GetReferencesQuery([current]));
+  const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
+  const queryData = useQuery(
+    ReferenceQueries.GetReferencesQuery([current], {
+      limit: rowsCount === 'all' ? undefined : rowsCount,
+    })
+  );
 
   return (
     <main>
@@ -27,6 +32,8 @@ const ReferenceWorkPage: React.FC = () => {
         currentData={queryData.data ? queryData.data[0] : []}
         current={current as ReferencesType}
         isLoading={queryData.isLoading}
+        rowsCount={rowsCount}
+        setRowsCount={setRowsCount}
       />
     </main>
   );

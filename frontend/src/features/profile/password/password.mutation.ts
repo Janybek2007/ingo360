@@ -16,11 +16,14 @@ export const useUpdatePasswordMutation = () => {
       const parsedData = UpdatePasswordContract.parse(data);
 
       return http
-        .patch('users/me/password', {
+        .post('users/me/change-password', {
           body: JSON.stringify({
-            current_password: parsedData.current_password,
+            old_password: parsedData.old_password,
             new_password: parsedData.new_password,
           }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         })
         .json();
     },

@@ -1,4 +1,4 @@
-export interface ImportLog {
+export interface ReportLog {
   id: number;
   user_first_name: string;
   user_last_name: string;
@@ -7,6 +7,4 @@ export interface ImportLog {
   created_at: string;
 }
 
-export interface ImportLogsResponse {
-  data: ImportLog[];
-}
+export type IGetReportLogsResponse = ReportLog[];

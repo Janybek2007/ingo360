@@ -17,7 +17,9 @@ const DbWorkPage: React.FC = () => {
   );
 
   const queryData = useQuery(
-    DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType])
+    DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType], {
+      limit: rowsCount === 'all' ? undefined : rowsCount,
+    })
   );
 
   const currentData = React.useMemo(() => {

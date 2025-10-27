@@ -14,12 +14,13 @@ import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import { referencesColumnsWithType } from './constants';
 import type { IReferenceWorkProps } from './reference-work.types';
 
 const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
-  ({ currentData, current, isLoading }) => {
+  ({ currentData, current, isLoading, rowsCount, setRowsCount }) => {
     const allColumns = useMemo(
       (): ColumnDef<IReferenceItem>[] => [
         ...referencesColumnsWithType[current as ReferencesTypeWithMain](
@@ -51,9 +52,9 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
           title={findCurrentTab(tabsItems, current)?.subItem?.label}
           headerEnd={
             <div className="flex items-center gap-4 relative z-100">
-              <Select<false, 'all' | number>
-                value={'all'}
-                setValue={() => {}}
+              <Select<false, typeof rowsCount>
+                value={rowsCount}
+                setValue={setRowsCount}
                 items={[
                   { value: 'all', label: 'Все' },
                   { value: 10, label: '10' },
@@ -88,6 +89,21 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
           <Table
             columns={columnsForTable}
             data={currentData}
+            filters={{
+              resetFilters: () => {
+                setRowsCount('all');
+              },
+              usedFilterItems: getUsedFilterItems([
+                rowsCount !== 'all' && {
+                  value: rowsCount,
+                  getLabelFromValue(value) {
+                    return 'Строки: '.concat(value.toString());
+                  },
+                  items: [],
+                  onDelete: () => setRowsCount('all'),
+                },
+              ]),
+            }}
             isScrollbar
             isLoading={isLoading}
             maxHeight={530}

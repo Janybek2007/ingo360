@@ -4,6 +4,7 @@ import { profilePageRoute } from '#/routes/profile';
 
 import { dbWorkPageRoute } from '../pages/db-work';
 import { referenceWorkPageRoute } from '../pages/reference-work';
+import { reportLogsPageRoute } from '../pages/report-logs';
 
 export const operatorLayoutRoute: RouteObject = {
   lazy: async () => {
@@ -12,5 +13,10 @@ export const operatorLayoutRoute: RouteObject = {
     );
     return { Component };
   },
-  children: [dbWorkPageRoute, referenceWorkPageRoute, profilePageRoute],
+  children: [
+    dbWorkPageRoute,
+    referenceWorkPageRoute,
+    profilePageRoute,
+    reportLogsPageRoute,
+  ],
 };

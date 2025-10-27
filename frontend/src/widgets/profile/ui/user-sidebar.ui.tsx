@@ -18,20 +18,16 @@ export const UserSideBar: React.FC<IUserSidebarProps> = React.memo(
     const { user } = useSession();
     return (
       <aside className="min-w-[16.625rem] max-w-[16.625rem] max bg-white p-6 rounded-2xl">
-        {/* IMG ВРЕМЕННО ПОСТАВЛЕНО */}
         <div className="flex flex-col gap-7 mt-1">
-          {/* USER PHOTO  */}
           <img
             className="w-[4rem] h-[4rem] rounded-[6.25rem]"
             src={Assets.DefaultAvatar}
             alt=""
           />
           <div className="mt-[-1.0625rem]">
-            {/* USER NAME  */}
             <h1 className="text-gray-950 font-bold">
               {user?.first_name} {user?.last_name}
             </h1>
-            {/* USERS EMAIL  */}
             <p className="text-[0.8125rem]">{user?.email}</p>
           </div>
         </div>

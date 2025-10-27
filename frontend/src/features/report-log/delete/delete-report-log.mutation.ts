@@ -1,27 +1,25 @@
 import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
+import { ReportLogsQueries } from '#/entities/report-logs';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { getError } from '#/shared/utils/get-error';
 
-import { LogsQueries } from './logs.queries';
-
-export const useDeleteLogMutation = () => {
+export const useDeleteReportLogMutation = () => {
   return useMutation({
-    mutationKey: ['delete-import-log'],
-    mutationFn: async (importId: number) => {
-      return http.delete(`import_logs/${importId}`).json();
+    mutationKey: ['delete-report-log'],
+    mutationFn: async (reportLogId: number) => {
+      return http.delete(`report_logs/${reportLogId}`).json();
     },
     onSuccess: async () => {
       const { toast } = await import('sonner');
 
-      // Инвалидируем кэш для обновления списка
       await queryClient.invalidateQueries({
-        queryKey: LogsQueries.queryKeys.getImportLogs,
+        queryKey: ReportLogsQueries.queryKeys.getReportLogs,
       });
 
-      toast.success('Лог импорта успешно удален');
+      toast.success('Лог отчета успешно удален');
     },
     onError: async (error: HTTPError) => {
       const { toast } = await import('sonner');
@@ -30,7 +28,7 @@ export const useDeleteLogMutation = () => {
         toast.error(data);
       } catch (e) {
         console.error('Ошибка разбора ответа', e);
-        toast.error('Ошибка при удалении лога импорта');
+        toast.error('Ошибка при удалении лога отчета');
       }
     },
   });

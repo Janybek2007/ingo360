@@ -2,10 +2,10 @@ import type { RouteObject } from 'react-router';
 
 import { routePaths } from '#/shared/router';
 
-export const logsPageRoute: RouteObject = {
-  path: routePaths.administrator.logs,
+export const reportLogsPageRoute: RouteObject = {
+  path: routePaths.operator.reportLogs,
   lazy: async () => {
-    const Component = await import('./logs-page.ui').then(
+    const Component = await import('./report-logs-page.ui').then(
       module => module.default
     );
     return { Component };

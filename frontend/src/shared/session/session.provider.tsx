@@ -21,7 +21,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
 
   return (
     <SessionContext.Provider value={session}>
-      {isLoading ? '' : children}
+      {children}
     </SessionContext.Provider>
   );
 };

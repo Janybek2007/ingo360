@@ -16,196 +16,37 @@ import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
-import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import {
-  booleanFilter,
-  numberFilter,
-  selectFilter,
-  stringFilter,
-} from '#/shared/utils/filter';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
+import { getDbWorkColumns } from './constants';
 import type { IDbWorkProps } from './db-work.types';
 
 export const DbWork: React.FC<IDbWorkProps> = React.memo(
   ({ current, isLoading, currentData, rowsCount, setRowsCount }) => {
-    const allColumns = useMemo(
-      (): (ColumnDef<IDbItem> | boolean)[] => [
-        current === 'sales/primary'
-          ? {
-              id: 'distributor',
-              accessorKey: 'distributor.name',
-              header: 'Сеть',
-              size: 130,
-              filterType: 'select',
-              filterFn: selectFilter(),
-              enableColumnFilter: true,
-              selectOptions: getUniqueItems(
-                currentData.map(v => ({
-                  label: v.distributor.name,
-                  value: v.distributor.id,
-                })),
-                ['value']
-              ),
-            }
-          : {
-              id: 'pharmacy',
-              accessorKey: 'pharmacy.name',
-              header: 'Аптека',
-              size: 130,
-              filterType: 'select',
-              filterFn: selectFilter(),
-              enableColumnFilter: true,
-              selectOptions: getUniqueItems(
-                currentData.map(v => ({
-                  label: v.pharmacy.name,
-                  value: v.pharmacy.id,
-                })),
-                ['value']
-              ),
-            },
-        current !== 'sales/primary' && {
-          id: 'city',
-          accessorKey: 'city',
-          header: 'Город',
-          size: 130,
-          filterType: 'string',
-          filterFn: stringFilter(),
-          enableColumnFilter: true,
-        },
-        {
-          id: 'sku.brand',
-          accessorKey: 'sku.brand.name',
-          header: 'Бренд',
-          size: 180,
-          filterType: 'select',
-          filterFn: selectFilter(),
-          enableColumnFilter: true,
-          selectOptions: getUniqueItems(
-            currentData.map(v => ({
-              label: v.sku.brand.name,
-              value: v.sku.brand.id,
-            })),
-            ['value']
-          ),
-        },
-        {
-          id: 'sku',
-          accessorKey: 'sku.name',
-          header: 'Продукт',
-          size: 180,
-          filterType: 'select',
-          filterFn: selectFilter(),
-          enableColumnFilter: true,
-          selectOptions: getUniqueItems(
-            currentData.map(v => ({
-              label: v.sku.name,
-              value: v.sku.id,
-            })),
-            ['value']
-          ),
-        },
-        {
-          accessorKey: 'month',
-          header: 'Месяц',
-          cell: ({ row }) => allMonths[row.original.month],
-          size: 150,
-          enableColumnFilter: true,
-          filterFn: selectFilter(),
-          filterType: 'select',
-          selectOptions: allMonths.map(month => ({
-            label: month,
-            value: month,
-          })),
-        },
-        {
-          accessorKey: 'year',
-          header: 'Год',
-          size: 150,
-          filterType: 'select',
-          filterFn: selectFilter(),
-          enableColumnFilter: true,
-          selectOptions: getUniqueItems(
-            currentData.map(data => ({
-              label: data.year.toString(),
-              value: data.year,
-            })),
-            ['value']
-          ),
-        },
-        {
-          accessorKey: 'indicator',
-          header: 'Показатель',
-          size: 180,
-          filterType: 'select',
-          filterFn: selectFilter(),
-          enableColumnFilter: true,
-          selectOptions: getUniqueItems(
-            currentData.map(data => ({
-              label: data.indicator,
-              value: data.indicator,
-            })),
-            ['value']
-          ),
-        },
-        {
-          accessorKey: 'packages',
-          header: 'Упаковки',
-          size: 140,
-          enableColumnFilter: true,
-          filterFn: numberFilter(),
-          filterType: 'number',
-        },
-        {
-          accessorKey: 'amount',
-          header: 'Сумма',
-          size: 140,
-          enableColumnFilter: true,
-          filterFn: numberFilter(),
-          filterType: 'number',
-        },
-        {
-          accessorKey: 'published',
-          header: 'Опубликовано',
-          size: 180,
-          enableColumnFilter: true,
-          filterType: 'select',
-          filterFn: booleanFilter(),
-          selectOptions: [
-            { label: 'Опубликовано', value: 'true' },
-            { label: 'Не опубликовано', value: 'false' },
-          ],
-          cell: ({ row }) => (
-            <span
-              className={
-                row.original.published ? 'text-green-500' : 'text-red-500'
-              }
-            >
-              {row.original.published ? 'Опубликовано' : 'Не опубликовано'}
-            </span>
-          ),
-        },
-        {
-          id: 'actions',
-          header: '',
-          size: 140,
-          cell: ({ row }) => (
-            <div className="flex items-center gap-2 pr-10">
-              <EditDbItemWrapper type={current} defaultData={row.original} />
-              <DeleteDbItemWrapper data={row.original} type={current} />
-              <PublishButton
-                id={row.original.id}
-                currentStatus={row.original.published}
-                type={current}
-              />
-            </div>
-          ),
-        },
-      ],
-      [currentData, current]
-    );
+    const allColumns = useMemo((): ColumnDef<IDbItem>[] => {
+      const columns = getDbWorkColumns(current, currentData);
+
+      columns.push({
+        id: 'actions',
+        header: 'Действия',
+        minSize: 80,
+        maxSize: 80,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2 pr-10">
+            <EditDbItemWrapper type={current} defaultData={row.original} />
+            <DeleteDbItemWrapper data={row.original} type={current} />
+            <PublishButton
+              id={row.original.id}
+              currentStatus={row.original.published}
+              type={current}
+            />
+          </div>
+        ),
+      });
+
+      return columns;
+    }, [currentData, current]);
 
     const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
       useColumnVisibility({

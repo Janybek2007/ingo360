@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const UpdatePasswordContract = z
   .object({
-    current_password: z.string().min(1, 'Текущий пароль обязателен'),
+    old_password: z.string().min(1, 'Текущий пароль обязателен'),
     new_password: z
       .string()
       .min(6, 'Новый пароль должен содержать минимум 6 символов'),

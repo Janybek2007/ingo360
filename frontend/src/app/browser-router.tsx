@@ -24,6 +24,7 @@ const browserRouter = () => {
     {
       errorElement: <BubbleError />,
       element: <RootLayout />,
+      HydrateFallback: HydrateFallback,
       children: [
         administratorLayoutRoute,
         customerLayoutRoute,
@@ -49,5 +50,9 @@ function BubbleError(): null {
       );
     }
   }
+  return null;
+}
+
+function HydrateFallback() {
   return null;
 }

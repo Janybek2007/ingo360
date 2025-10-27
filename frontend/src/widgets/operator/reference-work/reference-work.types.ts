@@ -5,4 +5,6 @@ export interface IReferenceWorkProps {
   current: ReferencesType;
   currentData: IReferenceItem[];
   isLoading: boolean;
+  rowsCount: 'all' | number;
+  setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
 }

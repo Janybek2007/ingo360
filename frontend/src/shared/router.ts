@@ -26,13 +26,13 @@ export const routePaths = {
     ingoAccounts: '/ingo-accounts',
     customerAccounts: '/customer-accounts',
     companyManagement: '/company-management',
-    logs: '/logs',
   },
 
   // Operator
   operator: {
     dbWork: '/db-work',
     referenceWork: '/reference-work',
+    reportLogs: '/report-logs',
   },
 };
 
@@ -50,12 +50,12 @@ export const roleAccess = {
     routePaths.administrator.ingoAccounts,
     routePaths.administrator.customerAccounts,
     routePaths.administrator.companyManagement,
-    routePaths.administrator.logs,
     routePaths.profile,
   ],
   operator: [
     routePaths.operator.dbWork,
     routePaths.operator.referenceWork,
+    routePaths.operator.reportLogs,
     routePaths.profile,
   ],
 };

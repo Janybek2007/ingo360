@@ -21,7 +21,7 @@ export const ProfilePassword: React.FC = React.memo(() => {
   } = useForm<TUpdatePasswordContract>({
     resolver: zodResolver(UpdatePasswordContract),
     defaultValues: {
-      current_password: '',
+      old_password: '',
       new_password: '',
       confirm_password: '',
     },
@@ -42,18 +42,18 @@ export const ProfilePassword: React.FC = React.memo(() => {
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       <div className="flex gap-3 flex-col w-full">
         <FormField
-          {...register('current_password', {
-            required: 'Текущий пароль обязателен',
-          })}
+          register={register('old_password')}
+          name="old_password"
           label="Ваш пароль"
           type="password"
           isPasswordToggleShow
           placeholder="Введите ваш пароль"
           classNames={{ root: 'w-1/2' }}
-          error={errors.current_password?.message}
+          error={errors.old_password?.message}
         />
         <FormField
-          {...register('new_password')}
+          register={register('new_password')}
+          name="new_password"
           label="Новый пароль"
           type="password"
           isPasswordToggleShow
@@ -62,7 +62,8 @@ export const ProfilePassword: React.FC = React.memo(() => {
           error={errors.new_password?.message}
         />
         <FormField
-          {...register('confirm_password')}
+          register={register('confirm_password')}
+          name="confirm_password"
           label="Подтвердите пароль"
           type="password"
           isPasswordToggleShow

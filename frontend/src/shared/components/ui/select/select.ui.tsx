@@ -141,7 +141,7 @@ export function Select<ISM extends boolean = false, VT = string>({
               className={cn(
                 'flex items-center gap-2 px-3 py-2 cursor-pointer text-left text-nowrap',
                 'w-full transition-colors',
-                'font-normal group',
+                'font-normal group justify-between',
                 indeterminate
                   ? 'hover:bg-blue-50 '
                   : 'hover:bg-blue-50 hover:text-blue-600 ',
