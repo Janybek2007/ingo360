@@ -38,7 +38,6 @@ export interface ITableProps {
   className?: string;
   maxHeight?: number;
   minHeight?: number;
-  isScrollbar?: boolean;
   rounded?: 'none' | 'sm' | 'md' | 'lg';
   highlightRow?: ITableBodyProps['highlightRow'];
   pinnedRow?: ITableBodyProps['pinnedRow'];
@@ -51,14 +50,6 @@ export interface ITableProps {
     custom?: ColumnFiltersState;
   };
   rowTotal?: ITableBodyProps['rowTotal'];
-}
-
-export interface ITableScrollbarProps {
-  thumbWidth: number;
-  thumbPosition: number;
-  onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
-  scrollbarRef: React.RefObject<HTMLDivElement | null>;
-  isDragging: boolean;
 }
 
 export interface ITableBodyProps {

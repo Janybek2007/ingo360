@@ -174,7 +174,6 @@ const CustomerAccountsPage: React.FC = () => {
         <Table
           columns={allColumns}
           data={filteredData}
-          isScrollbar
           isLoading={customersQuery.isLoading}
           maxHeight={500}
           rounded="none"

@@ -259,7 +259,6 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         data={data}
         maxHeight={400}
         rowTotal={{ firstColSpan: 4, monthTotals, grandTotal }}
-        isScrollbar
         rounded="none"
       />
     </PageSection>

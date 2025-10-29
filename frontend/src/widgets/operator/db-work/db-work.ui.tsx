@@ -119,7 +119,6 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
             }}
             maxHeight={500}
             isLoading={isLoading}
-            isScrollbar
             rounded="none"
           />
         </PageSection>

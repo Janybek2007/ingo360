@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 import { UserQueries } from '#/entities/user/user.queries';
 
+import { WelcomeMessage } from '../components/welcome-message';
 import { SessionContext } from './session.context';
 import type { ISessionContext } from './types';
 import { useInvalidateToken } from './use-invalidate-token';
@@ -23,6 +24,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
 
   return (
     <SessionContext.Provider value={session}>
+      {isWelcomeShown && <WelcomeMessage />}
       {children}
     </SessionContext.Provider>
   );

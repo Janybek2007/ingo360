@@ -14,6 +14,14 @@ export const WelcomeMessage: React.FC = () => {
     return roles[role] || role;
   }, []);
 
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWelcomeShown(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [setIsWelcomeShown]);
+
   if (!isVisible || !user) return null;
 
   const fullName = [user.last_name, user.first_name, user.patronymic]

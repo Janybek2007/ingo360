@@ -360,7 +360,6 @@ export const DistributorShare: React.FC = React.memo(() => {
         columns={columnsForTable}
         data={filteredData}
         maxHeight={500}
-        isScrollbar
         rounded="none"
       />
     </PageSection>

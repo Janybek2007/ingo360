@@ -394,7 +394,6 @@ export const Shipments: React.FC = React.memo(() => {
         columns={columnsForTable}
         data={filteredData}
         maxHeight={500}
-        isScrollbar
         rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
         rounded="none"
       />

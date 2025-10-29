@@ -401,7 +401,6 @@ export const Inventory: React.FC = React.memo(() => {
         isLoading={queryData.isLoading}
         maxHeight={500}
         rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
-        isScrollbar
         rounded="none"
       />
     </PageSection>
