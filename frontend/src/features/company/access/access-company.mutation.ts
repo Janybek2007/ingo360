@@ -21,8 +21,14 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
     }) => {
       const parsedBody = AccessCompanyContract.parse(body);
 
-      const response = await http.put(`companies/${id}`, {
-        json: parsedBody,
+      const response = await http.patch(`companies/${id}`, {
+        json: {
+          can_primary_sales: parsedBody.can_primary_sales === 'true',
+          can_secondary_sales: parsedBody.can_secondary_sales === 'true',
+          can_tertiary_sales: parsedBody.can_tertiary_sales === 'true',
+          can_visits: parsedBody.can_visits === 'true',
+          can_market_analysis: parsedBody.can_market_analysis === 'true',
+        },
       });
 
       return response.json();

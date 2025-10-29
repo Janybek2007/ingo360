@@ -480,6 +480,23 @@ export const referencesColumnsWithType: Record<
       filterType: 'string',
     },
     {
+      id: 'facility_type',
+      accessorKey: 'facility_type',
+      accessorFn: item => item.facility_type ?? '-',
+      header: 'Тип учреждения',
+      size: 200,
+      enableColumnFilter: true,
+      filterFn: selectFilter(),
+      filterType: 'select',
+      selectOptions: getUniqueItems(
+        data.map(item => ({
+          label: String(item.facility_type ?? ''),
+          value: item.facility_type ?? '',
+        })),
+        ['value']
+      ),
+    },
+    {
       id: 'settlement',
       accessorKey: 'settlement.name',
       header: 'Населенный пункт',
@@ -498,6 +515,7 @@ export const referencesColumnsWithType: Record<
     {
       id: 'district',
       accessorKey: 'district.name',
+      accessorFn: item => item.district?.name ?? '-',
       header: 'Район',
       size: 200,
       enableColumnFilter: true,
@@ -513,6 +531,7 @@ export const referencesColumnsWithType: Record<
     },
     {
       accessorKey: 'address',
+      accessorFn: item => item.address ?? '-',
       header: 'Адрес',
       size: 200,
       enableColumnFilter: true,
@@ -552,6 +571,7 @@ export const referencesColumnsWithType: Record<
     {
       id: 'responsible_employee',
       accessorKey: 'responsible_employee.full_name',
+      accessorFn: item => item.responsible_employee?.full_name ?? '-',
       header: 'Ответственный сотрудник',
       size: 200,
       enableColumnFilter: true,
@@ -568,6 +588,7 @@ export const referencesColumnsWithType: Record<
     {
       id: 'medical_facility',
       accessorKey: 'medical_facility.name',
+      accessorFn: item => item.medical_facility?.name ?? '-',
       header: 'ЛПУ',
       size: 200,
       enableColumnFilter: true,
@@ -688,8 +709,9 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      id: 'district',
+      id: 'district.id',
       accessorKey: 'district.name',
+      accessorFn: item => item.district?.name ?? '-',
       header: 'Район',
       size: 200,
       enableColumnFilter: true,
@@ -704,8 +726,10 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
+      id: 'indicator',
       accessorKey: 'indicator',
-      header: 'Показатель',
+      header: 'Индикатор',
+      accessorFn: item => item.indicator ?? '-',
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),

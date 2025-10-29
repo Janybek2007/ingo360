@@ -12,10 +12,11 @@ const http = ky.create({
         const isBrowserContent =
           request.headers.get('BROWSER_CONTENT') === 'true';
         request.headers.delete('BROWSER_CONTENT');
-        const canHeaders = request.headers.get('Content-Type');
-        if (!isBrowserContent && !canHeaders) {
+
+        if (!isBrowserContent && !request.headers.get('Content-Type')) {
           request.headers.set('Content-Type', 'application/json');
         }
+
         const token = Cookies.get('access_token');
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`);

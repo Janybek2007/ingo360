@@ -64,7 +64,11 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
               {...select}
               triggerText={placeholder}
               rightIcon={
-                <Icon className="text-[#94A3B8]" name="lucide:chevron-down" />
+                <Icon
+                  className="text-[#94A3B8]"
+                  name="lucide:chevron-down"
+                  size={18}
+                />
               }
               changeTriggerText={true}
               classNames={{
@@ -75,7 +79,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
                   classNames?.input
                 ),
                 trigger:
-                  'border-none rounded-xl py-[0.875rem] px-3 w-full justify-between',
+                  'border-none rounded-xl py-[0.855rem] px-3 w-full justify-between',
                 menu: 'top-full mt-2 h-max',
               }}
             />

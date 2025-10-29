@@ -104,7 +104,6 @@ export const Stocks: React.FC = React.memo(() => {
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
             value: v.brand_id,
@@ -121,7 +120,6 @@ export const Stocks: React.FC = React.memo(() => {
         size: 200,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
             value: v.promotion_type_id,
@@ -138,7 +136,6 @@ export const Stocks: React.FC = React.memo(() => {
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
             value: v.product_group_id,
@@ -155,7 +152,6 @@ export const Stocks: React.FC = React.memo(() => {
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
         selectOptions: getUniqueItems(
           sales.map(v => ({
             value: v.distributor_id,

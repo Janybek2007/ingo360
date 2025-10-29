@@ -224,6 +224,11 @@ export const referencesCEFields: Record<
   ],
   'clients/medical-facilities': [
     { name: 'name', label: 'Название', placeholder: 'Введите название ЛПУ' },
+    {
+      name: 'facility_type',
+      label: 'Тип учреждения',
+      placeholder: 'Введите тип учреждения',
+    },
     [
       {
         name: 'settlement_id',
@@ -293,8 +298,8 @@ export const referencesCEFields: Record<
     { name: 'name', label: 'Название', placeholder: 'Введите название' },
     {
       name: 'indicator',
-      label: 'Показатель',
-      placeholder: 'Введите показатель',
+      label: 'Индикатор',
+      placeholder: 'Введите индикатор',
     },
     [
       {

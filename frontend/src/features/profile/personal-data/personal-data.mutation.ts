@@ -22,7 +22,7 @@ export const useUpdatePersonalDataMutation = () => {
       const parsedData = UpdatePersonalDataContract.parse(data);
 
       return http
-        .patch('users/me', { body: JSON.stringify(parsedData) })
+        .patch('users/me', { json: parsedData })
         .json<GetUsersResponse>();
     },
     onSuccess: async data => {

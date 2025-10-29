@@ -17,12 +17,9 @@ export const useUpdatePasswordMutation = () => {
 
       return http
         .post('users/me/change-password', {
-          body: JSON.stringify({
+          json: {
             old_password: parsedData.old_password,
             new_password: parsedData.new_password,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
           },
         })
         .json();
