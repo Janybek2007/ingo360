@@ -29,7 +29,7 @@ export const WelcomeMessage: React.FC = () => {
     .join(' ');
 
   return (
-    <div className="fixed bottom-4 left-[calc(50%-15rem)] w-[30rem] z-[10000]">
+    <div className="fixed bottom-4 right-4 w-[30rem] z-[10000]">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full border-l-4 border-blue-500">
         <button
           onClick={() => setIsWelcomeShown(false)}

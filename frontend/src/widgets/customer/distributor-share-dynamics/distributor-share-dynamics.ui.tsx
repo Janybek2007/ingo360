@@ -200,7 +200,7 @@ const SegmentLabel: React.FC<any> = React.memo(
         fontSize={12}
         textAnchor="middle"
       >
-        {value}
+        {value}%
       </text>
     );
   }
