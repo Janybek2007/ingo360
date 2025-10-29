@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
 
 import { CompanyQueries } from '#/entities/company';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
+import { getError } from '#/shared/utils/get-error';
 
 import {
   AccessCompanyContract,
@@ -21,7 +23,7 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
     }) => {
       const parsedBody = AccessCompanyContract.parse(body);
 
-      const response = await http.put(`companies/${id}`, {
+      const response = await http.patch(`companies/${id}`, {
         json: parsedBody,
       });
 
@@ -39,6 +41,15 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
       setTimeout(() => {
         toast.success('Настройки доступа компании успешно обновлены');
       }, 300);
+    },
+    onError: async (error: HTTPError) => {
+      const { toast } = await import('sonner');
+      try {
+        const data = await getError(error.response);
+        toast.error(data);
+      } catch (e) {
+        console.error('Ошибка разбора ответа', e);
+      }
     },
   });
 };

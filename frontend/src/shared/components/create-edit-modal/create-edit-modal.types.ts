@@ -22,6 +22,7 @@ export interface ICreateEditModalProps {
   schema: any;
   portal?: boolean;
   isSuccess?: boolean;
+  alwaysEnablePrimary?: boolean;
   onClose: VoidFunction;
   onSubmit: (data: any) => void;
 }

@@ -24,20 +24,27 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
     }) => {
       const parsedBody = EditCustomerContract.parse(body);
 
+      // Build request body with all fields
+      const requestBody: Record<string, unknown> = {
+        email: parsedBody.email,
+        first_name: parsedBody.first_name,
+        last_name: parsedBody.last_name,
+        position: parsedBody.position,
+        is_active: parsedBody.is_active,
+        is_superuser: parsedBody.is_superuser,
+        is_verified: parsedBody.is_verified,
+        is_operator: parsedBody.role === 'operator',
+        is_admin: parsedBody.role === 'administrator',
+        company_id: parsedBody.company_id,
+      };
+
+      // Only include password if provided and non-empty
+      if (parsedBody.password && parsedBody.password.trim().length > 0) {
+        requestBody.password = parsedBody.password;
+      }
+
       const response = await http.patch(`users/${id}`, {
-        json: {
-          email: parsedBody.email,
-          password: parsedBody.password,
-          first_name: parsedBody.first_name,
-          last_name: parsedBody.last_name,
-          position: parsedBody.position,
-          is_active: parsedBody.is_active,
-          is_superuser: parsedBody.is_superuser,
-          is_verified: parsedBody.is_verified,
-          is_operator: parsedBody.role === 'operator',
-          is_admin: parsedBody.role === 'administrator',
-          company_id: parsedBody.company_id,
-        },
+        json: requestBody,
       });
 
       return response.json<TAddCustomerResponse>();

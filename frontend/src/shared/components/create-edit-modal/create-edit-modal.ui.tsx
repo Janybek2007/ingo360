@@ -41,6 +41,7 @@ export const CreateEditModal = React.memo(
     schema,
     portal = true,
     isSuccess,
+    alwaysEnablePrimary,
   }: ICreateEditModalProps) => {
     type FormData = z.output<TSchema>;
     const {
@@ -167,7 +168,7 @@ export const CreateEditModal = React.memo(
               type="submit"
               className="py-4 px-8 rounded-full"
               color="primary"
-              disabled={isDisabled}
+              disabled={alwaysEnablePrimary ? !!isLoading : isDisabled}
             >
               {isLoading && loadingPrimaryText
                 ? loadingPrimaryText

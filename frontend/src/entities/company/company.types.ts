@@ -2,16 +2,17 @@ export interface ICompanyItem {
   id: number;
   name: string;
   ims_name: string;
-  active_users_limit: 20;
-  active_users: 0;
-  can_primary_sales: false;
-  can_secondary_sales: false;
-  can_tertiary_sales: false;
-  can_visits: false;
-  can_market_analysis: false;
-  contract_number: '654241';
-  contract_end_date: '2025-10-02';
-  is_active: true;
+  active_users_limit: number;
+  active_users: number;
+  can_primary_sales: boolean;
+  can_secondary_sales: boolean;
+  can_tertiary_sales: boolean;
+  can_visits: boolean;
+  can_market_analysis: boolean;
+  contract_number: string;
+  contract_end_date: string;
+  is_active: boolean;
+  address: string;
 }
 
 export type GetCompanyResponse = ICompanyItem[];
