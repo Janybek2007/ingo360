@@ -5,6 +5,8 @@ export interface IItem {
 }
 export interface IReferenceItem extends IItem {
   indicator: string;
+  address: string;
+  facility_type: string;
   country: IItem;
   region: IItem;
   settlement: IItem;

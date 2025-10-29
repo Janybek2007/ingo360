@@ -173,7 +173,6 @@ const CompanyManagementPage: React.FC = () => {
         <Table
           columns={allColumns}
           data={filteredData}
-          isScrollbar
           isLoading={queryData.isLoading}
           maxHeight={500}
           rounded="none"

@@ -104,7 +104,6 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 },
               ]),
             }}
-            isScrollbar
             isLoading={isLoading}
             maxHeight={530}
             rounded="none"

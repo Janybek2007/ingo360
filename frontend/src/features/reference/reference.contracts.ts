@@ -74,7 +74,7 @@ export const referenceContractWithType: Record<
     product_group_id: RequiredNumber('Выберите группу'),
   }),
   'clients/pharmacies': NameSchema.extend({
-    indicator: z.string().min(1, 'Введите показатель'),
+    indicator: z.string().min(1, 'Введите индикатор'),
     company_id: RequiredNumber('Выберите компанию'),
     distributor_id: RequiredNumber('Выберите дистрибьютор/сеть'),
     responsible_employee_id: RequiredNumber(

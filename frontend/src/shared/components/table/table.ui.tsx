@@ -10,14 +10,12 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useTableScrollbar } from '#/shared/hooks/use-table-scrollbar';
 import { cn } from '#/shared/utils/cn';
 
 import { UsedFilter } from '../used-filter';
 import type { ITableProps } from './table.types';
 import { TableBody } from './ui/table-body.ui';
 import { TableHeader } from './ui/table-header.ui';
-import { TableScrollbar } from './ui/table-scrollbar.ui';
 import { formatUsedFilterItems } from './utils/format-used-filters';
 
 export const Table: React.FC<ITableProps> = React.memo(
@@ -27,7 +25,6 @@ export const Table: React.FC<ITableProps> = React.memo(
     className = '',
     maxHeight = 500,
     minHeight = 'auto',
-    isScrollbar = false,
     rounded = 'lg',
     highlightRow,
     pinnedRow,
@@ -74,9 +71,6 @@ export const Table: React.FC<ITableProps> = React.memo(
     });
 
     const tableContainerRef = useRef<HTMLTableElement>(null);
-    const scrollbarRef = useRef<HTMLDivElement>(null);
-    const { thumbWidth, thumbPosition, onThumbMouseDown, isDragging } =
-      useTableScrollbar(tableContainerRef, scrollbarRef, isScrollbar);
 
     const rowVirtualizer = useVirtualizer({
       count: table.getRowModel().rows.length,
@@ -164,16 +158,6 @@ export const Table: React.FC<ITableProps> = React.memo(
             </>
           )}
         </div>
-
-        {isScrollbar && (
-          <TableScrollbar
-            scrollbarRef={scrollbarRef}
-            thumbWidth={thumbWidth}
-            thumbPosition={thumbPosition}
-            onMouseDown={onThumbMouseDown}
-            isDragging={isDragging}
-          />
-        )}
       </div>
     );
   }

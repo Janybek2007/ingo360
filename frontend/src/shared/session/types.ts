@@ -5,6 +5,7 @@ export interface ISessionContext {
   isLoading: boolean;
   isWelcomeShown: boolean;
   setIsWelcomeShown: React.Dispatch<React.SetStateAction<boolean>>;
+  reconnectSocket: VoidFunction;
 }
 
 export interface CheckSessionProps {

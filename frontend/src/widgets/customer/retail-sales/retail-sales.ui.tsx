@@ -282,7 +282,6 @@ export const RetailSales: React.FC = React.memo(() => {
         data={data}
         maxHeight={400}
         rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
-        isScrollbar
         rounded="none"
       />
     </PageSection>

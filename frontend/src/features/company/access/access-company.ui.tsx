@@ -1,9 +1,12 @@
 import React from 'react';
-import z from 'zod';
 
 import type { ICompanyItem } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 
+import {
+  AccessCompanyContract,
+  type TAccessCompanyContract,
+} from './access-company.contract';
 import { useAccessCompanyMutation } from './access-company.mutation';
 
 interface AccessCompanyModalProps {
@@ -15,21 +18,15 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
   ({ onClose, companyData }) => {
     const accessMutation = useAccessCompanyMutation(onClose);
 
-    const handleSubmit = (data: Record<string, string>) => {
-      const transformedData = {
-        can_primary_sales: data.can_primary_sales === 'true',
-        can_secondary_sales: data.can_secondary_sales === 'true',
-        can_tertiary_sales: data.can_tertiary_sales === 'true',
-        can_visits: data.can_visits === 'true',
-        can_market_analysis: data.can_market_analysis === 'true',
-      };
-
-      accessMutation.mutate({
-        id: companyData.id,
-        body: transformedData,
-      });
-    };
-
+    const handleSubmit = React.useCallback(
+      (data: TAccessCompanyContract) => {
+        accessMutation.mutate({
+          id: companyData.id,
+          body: data,
+        });
+      },
+      [accessMutation, companyData.id]
+    );
     return (
       <CreateEditModal
         isLoading={accessMutation.isPending}
@@ -112,13 +109,7 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
           },
         ]}
         onClose={onClose}
-        schema={z.object({
-          can_primary_sales: z.enum(['true', 'false']),
-          can_secondary_sales: z.enum(['true', 'false']),
-          can_tertiary_sales: z.enum(['true', 'false']),
-          can_visits: z.enum(['true', 'false']),
-          can_market_analysis: z.enum(['true', 'false']),
-        })}
+        schema={AccessCompanyContract}
         title={`Настройки доступа компании "${companyData.name}"`}
         onSubmit={handleSubmit}
       />

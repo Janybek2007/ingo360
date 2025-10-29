@@ -269,7 +269,6 @@ export const SecondarySales: React.FC = React.memo(() => {
         data={data}
         maxHeight={500}
         rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
-        isScrollbar
         rounded="none"
       />
     </PageSection>

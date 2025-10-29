@@ -207,7 +207,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         columns={columnsForTable}
         data={data}
         maxHeight={400}
-        isScrollbar
         rounded="none"
       />
     </PageSection>
