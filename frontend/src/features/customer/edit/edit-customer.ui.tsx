@@ -1,5 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
+import { toast } from 'sonner';
 
+import { CompanyQueries } from '#/entities/company';
 import type { IUserItem } from '#/entities/user/user.types';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
@@ -15,9 +18,39 @@ export const EditCustomerModal: React.FC<{
   customerData?: IUserItem & { id: number };
 }> = React.memo(({ onClose, customerData }) => {
   const mutation = useEditCustomerMutation(onClose);
+  const companiesQuery = useQuery(CompanyQueries.GetCompaniesQuery());
 
   const handleSubmit = async (data: TAddCustomerContract) => {
     if (customerData?.id) {
+      const companies = companiesQuery.data || [];
+      const desiredIsActive =
+        (data as unknown as { is_active?: boolean }).is_active ??
+        customerData?.is_active;
+      const targetCompanyId =
+        (data as unknown as { company_id?: number }).company_id ??
+        customerData.company_id;
+
+      if (desiredIsActive) {
+        const company = companies.find(c => c.id === targetCompanyId);
+        if (company && company.active_users_limit > 0) {
+          const isActivating = customerData?.is_active === false;
+          const isMovingCompany =
+            (data as unknown as { company_id?: number }).company_id !==
+              undefined &&
+            (data as unknown as { company_id?: number }).company_id !==
+              customerData.company_id;
+          if (
+            (isActivating || isMovingCompany) &&
+            company.active_users >= company.active_users_limit
+          ) {
+            toast.error(
+              'Достигнут лимит активных пользователей для выбранной компании'
+            );
+            return;
+          }
+        }
+      }
+
       await mutation.mutateAsync({ id: customerData.id, body: data });
     }
   };

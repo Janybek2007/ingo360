@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'sonner';
 
 import type { ICompanyItem } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
@@ -17,6 +18,19 @@ export const EditCompanyModal: React.FC<{
 
   const handleSubmit = async (data: Record<string, unknown>) => {
     if (companyData?.id) {
+      // Prevent lowering limit below current active users (unless 0 = unlimited)
+      const newLimit = Number(
+        (data as { active_users_limit?: number }).active_users_limit
+      );
+      if (Number.isFinite(newLimit) && newLimit > 0) {
+        if (companyData.active_users > newLimit) {
+          toast.error(
+            'Лимит не может быть меньше количества активных пользователей'
+          );
+          return;
+        }
+      }
+
       await mutation.mutateAsync({
         id: companyData.id,
         body: data as TAddCompanyContract,
