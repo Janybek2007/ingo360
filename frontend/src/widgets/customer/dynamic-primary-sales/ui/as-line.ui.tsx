@@ -36,11 +36,11 @@ interface DynamicPrimarySalesAsLineProps {
   period: UsePeriodType;
 }
 
+// sales/primary/reports/sales
 export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps> =
   React.memo(({ period }) => {
     const sectionStyle = useSectionStyle();
     const currentYear = 24;
-
     const data = useMemo(() => {
       if (period === 'month') {
         return rawData.map(d => ({

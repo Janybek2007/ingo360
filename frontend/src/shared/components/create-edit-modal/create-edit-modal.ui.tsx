@@ -95,6 +95,7 @@ export const CreateEditModal = React.memo(
                               shouldValidate: true,
                               shouldDirty: true,
                             }),
+                          search: true,
                         }}
                         type={ff.type}
                         label={ff.label}
@@ -131,6 +132,7 @@ export const CreateEditModal = React.memo(
                           shouldValidate: true,
                           shouldDirty: true,
                         }),
+                      search: true,
                     }}
                     type={f.type}
                     label={f.label}

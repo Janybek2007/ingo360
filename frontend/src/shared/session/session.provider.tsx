@@ -5,19 +5,17 @@ import { UserQueries } from '#/entities/user/user.queries';
 
 import { WelcomeMessage } from '../components/welcome-message';
 import { useNotifications } from './hooks/use-notifications';
+import { useUserAccess } from './hooks/use-user-access';
 import { SessionContext } from './session.context';
 import type { ISessionContext } from './types';
-import { useInvalidateToken } from './use-invalidate-token';
-import { useUserStatus } from './use-user-status';
 
 export const SessionProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const { data, isLoading } = useQuery(UserQueries.GetUserQuery());
   const [isWelcomeShown, setIsWelcomeShown] = useState(false);
-  useInvalidateToken();
-  useUserStatus();
-  const { reconnect } = useNotifications();
+  const { reconnect, lastMessage } = useNotifications();
+  const userAccess = useUserAccess(lastMessage);
 
   const session: ISessionContext = {
     user: data ?? null,
@@ -25,6 +23,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
     isWelcomeShown,
     setIsWelcomeShown,
     reconnectSocket: reconnect,
+    userAccess,
   };
 
   return (

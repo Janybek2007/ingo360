@@ -45,6 +45,7 @@ const generateRawData = () => {
 
 const rawData = generateRawData();
 
+// sales/primary/reports/sales + sales/tertiary/reports/sales
 export const DynamicSales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
   const periodFilter = usePeriodFilter();

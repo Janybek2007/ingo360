@@ -5,10 +5,16 @@ export const getCommonPinningStyles = <T>(
 ): React.CSSProperties => {
   const isPinned = column.getIsPinned();
 
-  return {
-    left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
-    right: isPinned === 'right' ? `${column.getStart('right')}px` : undefined,
+  const styles: React.CSSProperties = {
     position: isPinned ? 'sticky' : 'relative',
-    zIndex: isPinned ? 1 : 0,
+    zIndex: isPinned ? 11 : 0,
   };
+
+  if (isPinned === 'left') {
+    styles.left = `${column.getStart('left')}px`;
+  } else if (isPinned === 'right') {
+    styles.right = `${column.getAfter('right')}px`;
+  }
+
+  return styles;
 };

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
-import { DbQueries } from '#/entities/db';
+import { DbQueries, type TDbItem } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
@@ -14,20 +14,7 @@ import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { filterBySearch } from '#/shared/utils/search';
 
-interface StockRow {
-  sku_id: number;
-  sku_name: string;
-  brand_id: number;
-  brand_name: string;
-  promotion_type_id: number;
-  promotion_type_name: string;
-  distributor_id: number;
-  distributor_name: string;
-  product_group_id: number;
-  product_group_name: string;
-  year: number;
-  quarter: number;
-  month: number;
+interface StockRow extends TDbItem {
   packages: number;
   amount: number;
   total_packages_per_period: number;

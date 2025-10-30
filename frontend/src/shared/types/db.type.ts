@@ -7,11 +7,15 @@ export type DbType =
 export type ExtraDbType =
   | DbType
   | 'sales/primary/reports/stock-levels'
-  | 'sales/primary/reports/shipments'
+  | 'sales/primary/reports/sales'
   | 'sales/primary/reports/stock-coverages'
   | 'sales/primary/reports/distributor-shares'
   | 'sales/secondary/reports/sales'
   | 'sales/secondary/reports/sales-by-distributors'
   | 'sales/tertiary/reports/sales'
   | 'sales/tertiary/reports/numeric-distribution'
-  | 'sales/tertiary/reports/low-stock-pharmacies';
+  | 'sales/tertiary/reports/low-stock-pharmacies'
+  | 'sales/visits/reports/doctors-by-specialty'
+  | 'sales/visits/reports/doctors-with-visits-by-specialty'
+  | 'sales/visits/reports/visits-sum-for-period'
+  | 'sales/visits/reports/visits-by-month';

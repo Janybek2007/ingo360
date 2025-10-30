@@ -26,7 +26,7 @@ export const useAddReferenceMutation = (
       queryClient.setQueryData(
         ReferenceQueries.queryKeys.getReferences([type]),
         (oldData: IReferenceItem[][] | undefined) => [
-          [...(oldData?.[0] ?? []), newItem],
+          [newItem, ...(oldData?.[0] ?? [])],
           ...(oldData?.slice(1) ?? []),
         ]
       );

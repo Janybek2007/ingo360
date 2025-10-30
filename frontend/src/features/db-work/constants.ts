@@ -35,9 +35,9 @@ const defaultFields: ICreateEditModalProps['fields'] = [
       label: 'Год',
       placeholder: 'Выберите год',
       type: 'select',
-      selectItems: Array.from({ length: 5 }, (_, i) => ({
-        label: (new Date().getFullYear() + i).toString(),
-        value: new Date().getFullYear() + i,
+      selectItems: Array.from({ length: 8 }, (_, i) => ({
+        label: (2020 + i).toString(),
+        value: 2020 + i,
       })),
     },
     {
@@ -86,11 +86,20 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
         type: 'select',
       },
     ],
-    {
-      name: 'city',
-      label: 'Город',
-      placeholder: 'Введите город',
-    },
+    [
+      {
+        name: 'city',
+        label: 'Город',
+        placeholder: 'Выберите город',
+        type: 'select',
+      },
+      {
+        name: 'district',
+        label: 'Район',
+        placeholder: 'Выберите район',
+        type: 'select',
+      },
+    ],
     ...defaultFields,
   ],
   'sales/tertiary': [
@@ -108,11 +117,20 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
         type: 'select',
       },
     ],
-    {
-      name: 'city',
-      label: 'Город',
-      placeholder: 'Введите город',
-    },
+    [
+      {
+        name: 'city',
+        label: 'Город',
+        placeholder: 'Выберите город',
+        type: 'select',
+      },
+      {
+        name: 'district',
+        label: 'Район',
+        placeholder: 'Выберите район',
+        type: 'select',
+      },
+    ],
     ...defaultFields,
   ],
   visits: [
@@ -190,10 +208,14 @@ export const dbItemDependsUrls: Record<
   'sales/secondary': [
     { fieldName: 'sku_id', url: 'products/skus' },
     { fieldName: 'pharmacy_id', url: 'clients/pharmacies' },
+    { fieldName: 'city', url: 'geography/settlements' },
+    { fieldName: 'district', url: 'geography/districts' },
   ],
   'sales/tertiary': [
     { fieldName: 'sku_id', url: 'products/skus' },
     { fieldName: 'pharmacy_id', url: 'clients/pharmacies' },
+    { fieldName: 'city', url: 'geography/settlements' },
+    { fieldName: 'district', url: 'geography/districts' },
   ],
   visits: [
     { fieldName: 'product_group_id', url: 'products/product-groups' },

@@ -5,5 +5,6 @@ declare module '@tanstack/react-table' {
     filterType?: 'string' | 'number' | 'select';
     selectOptions?: { label: string; value: string | number }[];
     accessorKey?: string;
+    pinned?: 'left' | 'right';
   }
 }

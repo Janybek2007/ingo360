@@ -59,6 +59,7 @@ export function TableBody({
                       !isPinned &&
                         cell.column.getIsPinned() &&
                         'bg-white group-hover:bg-gray-50',
+                      cell.column.getIsPinned() && 'border-l',
                       'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
                       isPinned &&
                         'sticky top-[3.125rem] bottom-0 z-30 border-t',
@@ -107,7 +108,7 @@ export function TableBody({
                     className={cn(
                       'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white',
                       'sticky bottom-0 z-[20]',
-                      column.getIsPinned() && 'bg-white',
+                      column.getIsPinned() && 'border-l',
                       total < 0 && 'text-red-600'
                     )}
                   >

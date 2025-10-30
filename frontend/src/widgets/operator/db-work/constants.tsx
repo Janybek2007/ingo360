@@ -41,8 +41,8 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       selectOptions: getUniqueItems(
         data.map(v => ({
-          label: v.pharmacy.name,
-          value: v.pharmacy.id,
+          label: v.pharmacy?.name ?? '-',
+          value: v.pharmacy?.id ?? '-',
         })),
         ['value']
       ),
@@ -97,40 +97,18 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
   }
 
   if (type === 'visits') {
-    /*
-    {
-    "id": 1,
-    "client_type": "Аптека",
-    "month": 1,
-    "year": 2025,
-    "product_group": {
-        "id": 2,
-        "name": "Группа 1"
-    },
-    "employee": {
-        "id": 1,
-        "full_name": "Иванов Артем"
-    },
-    "doctor": null,
-    "medical_facility": null,
-    "pharmacy": {
-        "id": 126,
-        "name": "Аптечный пункт №127 НЕМАН-ФАРМ ОсОО Бишкек, Киевская, 133/1"
-    }
-}
-    */
-
     columns.push({
       id: 'pharmacy.id',
       accessorKey: 'pharmacy.name',
+      accessorFn: row => row.pharmacy?.name || '-',
       header: 'Аптека',
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(v => ({
-          label: v.pharmacy.name,
-          value: v.pharmacy.id,
+          label: v.pharmacy?.name ?? '-',
+          value: v.pharmacy?.id ?? '-',
         })),
         ['value']
       ),

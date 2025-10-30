@@ -24,3 +24,20 @@ export interface IDbItem {
 }
 
 export type IGetDBItemResponse = IDbItem[];
+
+export type TDbItem = {
+  id: number;
+  sku_id: number;
+  sku_name: string;
+  brand_id: number;
+  brand_name: string;
+  promotion_type_id: number;
+  promotion_type_name: string;
+  distributor_id: number;
+  distributor_name: string;
+  product_group_id: number;
+  product_group_name: string;
+  year: number;
+  quarter: number;
+  month: number;
+};

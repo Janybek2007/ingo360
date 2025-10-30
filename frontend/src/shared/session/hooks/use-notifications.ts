@@ -6,11 +6,7 @@ import { UserQueries } from '#/entities/user/user.queries';
 
 import { queryClient } from '../../libs/react-query';
 import { useSocket } from '../../libs/socket';
-
-type NotificationMessage = {
-  type: 'token_invalidated';
-  message: string;
-};
+import type { NotificationMessage } from '../types';
 
 export const useNotifications = () => {
   const [token, setToken] = useState(() => Cookies.get('access_token') || null);
@@ -30,7 +26,14 @@ export const useNotifications = () => {
 
   useEffect(() => {
     const msg = lastMessage as NotificationMessage | null;
-    if (msg && msg.type === 'token_invalidated') {
+    if (
+      msg &&
+      [
+        'token_invalidated',
+        'account_deactivated',
+        'company_deactivated',
+      ].includes(msg.type)
+    ) {
       queryClient.setQueryData(UserQueries.queryKeys.getUser, null);
       toast.error(
         msg.message ||
@@ -44,5 +47,6 @@ export const useNotifications = () => {
 
   return {
     reconnect,
+    lastMessage,
   };
 };

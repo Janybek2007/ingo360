@@ -43,9 +43,16 @@ export const Table: React.FC<ITableProps> = React.memo(
     const [columnPinning, setColumnPinning] = useState<ColumnPinningState>(
       () => {
         const leftPinnedColumns = columns
-          .filter(col => col.enablePinning)
+          .filter(
+            col =>
+              col.enablePinning &&
+              (col.pinned === 'left' || col.pinned === undefined)
+          )
           .map(col => col.id || String(col.accessorKey) || '');
-        return { left: leftPinnedColumns, right: [] };
+        const rightPinnedColumns = columns
+          .filter(col => col.enablePinning && col.pinned === 'right')
+          .map(col => col.id || String(col.accessorKey) || '');
+        return { left: leftPinnedColumns, right: rightPinnedColumns };
       }
     );
 
@@ -114,7 +121,7 @@ export const Table: React.FC<ITableProps> = React.memo(
         <div
           ref={tableContainerRef}
           className={cn(
-            'bg-white noscrollbar border border-[#E4E4E4] font-inter',
+            'bg-white border border-[#E4E4E4] font-inter',
             'overflow-x-auto overflow-y-auto',
             rounded == 'sm' && 'rounded-sm',
             rounded == 'md' && 'rounded-md',

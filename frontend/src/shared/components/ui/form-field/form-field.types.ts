@@ -21,6 +21,6 @@ export interface IFormFieldProps {
   error?: string;
   select?: Pick<
     ISelectProps<false, string | number | boolean>,
-    'items' | 'value' | 'setValue'
+    'items' | 'value' | 'setValue' | 'search'
   >;
 }

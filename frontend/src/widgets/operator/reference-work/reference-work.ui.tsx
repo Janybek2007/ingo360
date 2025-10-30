@@ -29,7 +29,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
         {
           id: 'actions',
           header: 'Действия',
-          size: 200,
+          size: 160,
           cell: ({ row }) => (
             <div className="flex items-center gap-2 pr-10">
               <EditReferenceWrapper type={current} defaultData={row.original} />
