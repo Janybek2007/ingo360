@@ -24,7 +24,6 @@ export function randomArray<T extends 'number' | 'string' = 'number'>(
 
 type ValueOrGenerator<T> = readonly T[] | ((index: number) => T);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Schema = Record<string, ValueOrGenerator<any>>;
 
 type SchemaToType<T extends Schema> = {
@@ -41,7 +40,6 @@ export function generateMocks<T extends Schema>(
   schema: T
 ): SchemaToType<T>[] {
   return Array.from({ length: count }).map((_, i) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const obj: any = {};
     for (const key of Object.keys(schema) as Array<keyof T>) {
       const value = schema[key];

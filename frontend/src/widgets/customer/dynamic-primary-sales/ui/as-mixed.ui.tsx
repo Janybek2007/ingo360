@@ -123,7 +123,6 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
       [data]
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const CustomXAxisTick = (props: any) => {
       const { x, y, payload } = props;
       const index = payload.index;

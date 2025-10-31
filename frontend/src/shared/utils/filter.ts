@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // utils/filter.ts
 import type { Row } from '@tanstack/react-table';
 

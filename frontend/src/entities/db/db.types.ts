@@ -72,6 +72,9 @@ export type TDbItem = {
   year: number;
   quarter: number;
   month: number;
+  packages: number;
+  amount: number;
+  amount_share_percent: number;
 };
 
 export type IGetDBItemResponse = IDbItem[];
@@ -83,6 +86,7 @@ export interface IGetDBItemsParams extends PaginationParams {
   brand_ids?: number[];
   distributor_ids?: number[];
   product_group_ids?: number[];
+  search?: string;
   promo_type_id?: number[];
   sku_ids?: number[];
   group_by_period?: 'month' | 'quarter' | 'year';

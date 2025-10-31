@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { IItem } from '#/entities/reference';
 
 export function transformData<T extends Record<string, any>>(data: T | null) {

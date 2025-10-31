@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable */
 import type { Column, ColumnDefBase } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -77,7 +77,6 @@ export const useFilterPopup = ({
   const [value2, setValue2] = useState<string | number>(initialValue2);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFilterType(initialFilterType);
     setValue(initialValue);
     setValue2(initialValue2);

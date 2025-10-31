@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  LoadingTwotoneLoopIcon,
+  LoadingIcon,
   LucideAlertCircleIcon,
   LucideRefreshCcwIcon,
 } from '../icons';
@@ -33,7 +33,7 @@ AsyncBoundary.displayName = 'AsyncBoundary';
 
 const DefaultFallback = () => (
   <div className="flex flex-col items-center justify-center w-full py-20 text-gray-500 animate-pulse">
-    <LoadingTwotoneLoopIcon className="animate-spin size-[32px]" />
+    <LoadingIcon className="animate-spin size-[32px]" />
     <p className="text-sm font-medium">Загрузка данных...</p>
   </div>
 );

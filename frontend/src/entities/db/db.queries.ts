@@ -26,7 +26,7 @@ export class DbQueries {
           urls.map(url =>
             http
               .get(url, {
-                searchParams: qs.stringify(options),
+                searchParams: qs.stringify(options, { arrayFormat: 'repeat' }),
               })
               .json<T>()
           )

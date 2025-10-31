@@ -13,7 +13,6 @@ export const useAddReferenceMutation = (
 ) => {
   return useMutation({
     mutationKey: ['add-db-item', type],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (parsedBody: any) => {
       return http
         .post(`${type}`, {

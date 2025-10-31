@@ -1,6 +1,6 @@
 export { AnchorLeftIcon } from './all/anchor-left.ui';
 export { FlowbiteBellOutlineIcon } from './all/flowbite-bell-outline.ui';
-export { LoadingTwotoneLoopIcon } from './all/loading-twotone-loop.ui';
+export { LoadingIcon } from './all/loading-twotone-loop.ui';
 export { LucideAlertCircleIcon } from './all/lucide-alert-circle.ui';
 export { LucideArrowIcon } from './all/lucide-arrow.ui';
 export { LucideCheckIcon } from './all/lucide-check.ui';

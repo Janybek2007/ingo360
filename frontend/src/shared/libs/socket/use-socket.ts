@@ -4,7 +4,7 @@ import { FULL_API_SOCKET_URL } from '#/shared/constants/environment';
 
 interface UseSocketResult {
   connected: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   lastMessage: any | string | null;
   send: (data: string | Record<string, unknown>) => void;
   disconnect: () => void;

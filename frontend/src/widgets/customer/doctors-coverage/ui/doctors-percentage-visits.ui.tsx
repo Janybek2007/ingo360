@@ -73,8 +73,11 @@ export const DoctorsPercentageVisits: React.FC = React.memo(() => {
   }, []);
 
   return (
-    <AsyncBoundary isLoading={queryData.isLoading} queryError={queryData.error}>
-      <div className="w-1/2 rounded-2xl p-5 bg-white">
+    <div className="w-1/2 rounded-2xl p-5 bg-white">
+      <AsyncBoundary
+        isLoading={queryData.isLoading}
+        queryError={queryData.error}
+      >
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
             Доля врачей с визитами (%)
@@ -139,8 +142,8 @@ export const DoctorsPercentageVisits: React.FC = React.memo(() => {
             </div>
           ))}
         </div>
-      </div>
-    </AsyncBoundary>
+      </AsyncBoundary>
+    </div>
   );
 });
 DoctorsPercentageVisits.displayName = '_DoctorsPercentageVisits_';

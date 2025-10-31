@@ -69,6 +69,7 @@ export default [
         { argsIgnorePattern: '^_' },
       ],
       'no-undef': ['error', { typeof: true }],
+      '@typescript-eslint/no-explicit-any': 'off',
     },
     settings: {
       react: {

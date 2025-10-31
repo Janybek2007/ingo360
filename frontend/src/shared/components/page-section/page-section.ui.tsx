@@ -21,7 +21,10 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
     const sectionClassName = cn('w-full bg-white', 'rounded-xl');
 
     return (
-      <section style={sectionStyle.style} className={cn(sectionClassName)}>
+      <section
+        style={sectionStyle.style}
+        className={cn('relative', sectionClassName)}
+      >
         <div
           className={cn('w-full flex flex-col gap-7 p-6', classNames?.wrapper)}
         >

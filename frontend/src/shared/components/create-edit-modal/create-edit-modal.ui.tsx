@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable */
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { createPortal } from 'react-dom';
@@ -88,7 +88,6 @@ export const CreateEditModal = React.memo(
                         key={`${ff.label}-${j}`}
                         select={{
                           items: ff.selectItems || [],
-                          // eslint-disable-next-line react-hooks/incompatible-library
                           value: watch(ff.name),
                           setValue: value =>
                             setValue(ff.name, value, {

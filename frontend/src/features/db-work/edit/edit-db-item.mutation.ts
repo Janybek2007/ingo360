@@ -14,7 +14,7 @@ export const useEditDbItemMutation = (
 ) => {
   return useMutation({
     mutationKey: ['edit-db-item', type, id],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     mutationFn: async (parsedBody: any) => {
       if (!id) {
         const { toast } = await import('sonner');

@@ -26,8 +26,6 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
 export interface DynamicSalesData extends TDbItem {
-  packages: number;
-  amount: number;
   total_packages_per_period: number;
   total_amount_per_period: number;
   months: (number | null)[];

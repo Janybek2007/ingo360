@@ -12,7 +12,6 @@ const searchInText = (text: string, search: string): boolean => {
   return normalizeText(text).includes(normalizeText(search));
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const searchInFields = <T extends Record<string, any>>(
   item: T,
   search: string,
@@ -52,7 +51,6 @@ const searchInFields = <T extends Record<string, any>>(
   });
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const filterBySearch = <T extends Record<string, any>>(
   items: T[],
   search: string,

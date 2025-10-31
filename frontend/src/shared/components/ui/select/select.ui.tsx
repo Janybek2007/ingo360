@@ -69,7 +69,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   const handleToggleAll = useCallback(() => {
     if (!isMultiple || !Array.isArray(value)) return;
     const allSelected = filteredItems.every(item => value.includes(item.value));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     setValue(allSelected ? [] : (filteredItems.map(item => item.value) as any));
   }, [isMultiple, filteredItems, value, setValue]);
 
@@ -170,7 +170,7 @@ export function Select<ISM extends boolean = false, VT = string>({
                 key={`${item.value}-${item.label}-key`}
                 type="button"
                 className={cn(
-                  'flex items-center gap-2 px-3 py-2 pr-10 cursor-pointer text-left text-nowrap',
+                  'flex items-center gap-2 px-3 py-2 cursor-pointer text-left text-nowrap',
                   'w-full transition-colors',
                   'font-normal group justify-between',
                   indeterminate

@@ -189,7 +189,6 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   );
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SegmentLabel: React.FC<any> = React.memo(
   ({ x, y, width, height, value }) => {
     return (
@@ -206,7 +205,6 @@ const SegmentLabel: React.FC<any> = React.memo(
   }
 );
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TotalLabel: React.FC<any> = React.memo(
   ({ x, y, width, height, value, payload }) => {
     const totalAll = payload?.totalAll || value;

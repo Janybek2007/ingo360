@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import type { IFormFieldProps } from '../ui/form-field';
 import type { ISelectProps } from '../ui/select';
 
