@@ -1,4 +1,3 @@
-import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import React from 'react';
 import { Outlet } from 'react-router';
 import { Toaster } from 'sonner';
@@ -9,18 +8,16 @@ import { SessionProvider } from '#/shared/session';
 const RootLayout: React.FC = () => {
   return (
     <ReactQueryProvider>
-      <NuqsAdapter>
-        <SessionProvider>
-          <Toaster
-            position="bottom-right"
-            richColors
-            closeButton
-            duration={5000}
-            theme="light"
-          />
-          <Outlet />
-        </SessionProvider>
-      </NuqsAdapter>
+      <SessionProvider>
+        <Toaster
+          position="bottom-right"
+          richColors
+          closeButton
+          duration={5000}
+          theme="light"
+        />
+        <Outlet />
+      </SessionProvider>
     </ReactQueryProvider>
   );
 };

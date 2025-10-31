@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { parseAsString, useQueryState } from 'nuqs';
 import React from 'react';
+import useLocalStorageState from 'use-local-storage-state';
 
 import { DbQueries } from '#/entities/db';
 import { Tabs } from '#/shared/components/ui/tabs';
@@ -11,10 +11,9 @@ import { tabsItems } from './constants';
 
 const DbWorkPage: React.FC = () => {
   const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
-  const [current, setCurrent] = useQueryState(
-    'current',
-    parseAsString.withDefault('sales_primary')
-  );
+  const [current, setCurrent] = useLocalStorageState('db-work-tab', {
+    defaultValue: 'sales/tertiary/reports/sales',
+  });
 
   const queryData = useQuery(
     DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType], {

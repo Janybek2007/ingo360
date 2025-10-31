@@ -27,22 +27,48 @@ export interface IDbItem {
 
 export type TDbItem = {
   id: number;
+  //
   sku_id: number;
   sku_name: string;
+  //
   brand_id: number;
   brand_name: string;
+  //
   promotion_type_id: number;
   promotion_type_name: string;
+  //
   distributor_id: number;
   distributor_name: string;
+  //
   product_group_id: number;
   product_group_name: string;
+  product_group: string;
+  //
   segment_id: string;
   segment_name: string;
+  //
+  medical_facility_id: null;
+  medical_facility: string;
+  medical_facility_name: string;
+  //
   pharmacy_id: number;
   pharmacy_name: string;
+  pharmacy: string;
+  //
   responsible_employee_id: number;
   responsible_employee_name: string;
+  //
+  employee_id: number;
+  employee_name: string;
+  employee: string;
+  //
+  indicator_id: string;
+  indicator_name: string;
+  //
+  speciality_id: number;
+  speciality: string;
+  speciality_name: string;
+  //
   year: number;
   quarter: number;
   month: number;

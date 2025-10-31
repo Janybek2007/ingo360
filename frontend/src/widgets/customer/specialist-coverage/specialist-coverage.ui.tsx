@@ -1,42 +1,36 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { DbQueries, type TDbItem } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import {
-  BRANDS,
-  GROUPS,
-  LPUS,
-  SPECIALTIES,
-} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
+import { filterBySearch } from '#/shared/utils/search';
 
-interface CoverageRow {
-  id: string;
-  lpu: string;
-  specialty: string;
-  coveragePercent: number;
-  generalCallOfDoctors: number;
-  doctorsWithVisits: number;
+interface CoverageRow extends TDbItem {
+  count: number;
+  percentage: number;
 }
 
 export const SpecialistCoverage: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [brands, setBrands] = React.useState<string[]>(
-    BRANDS.map(v => v.value)
+
+  const queryData = useQuery(
+    DbQueries.GetDbItemsQuery<CoverageRow[]>([
+      'visits/reports/doctors-with-visits-by-specialty',
+    ])
   );
-  const [groups, setGroups] = React.useState<string[]>(
-    GROUPS.map(v => v.value)
-  );
-  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
-    'money'
+  const visits = React.useMemo(
+    () => (queryData.data ? queryData.data[0] : []),
+    [queryData]
   );
 
   const usedFilterItems = React.useMemo(() => {
@@ -53,51 +47,66 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(BRANDS.map(v => v.value));
-    setGroups(GROUPS.map(v => v.value));
     setRowsCount('all');
   }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<CoverageRow>[] => [
       {
-        id: 'lpu',
-        accessorKey: 'lpu.label',
+        id: 'medical_facility_id',
+        accessorKey: 'medical_facility_name',
+        accessorFn: row => row.medical_facility_name || 'Не указано',
         header: 'ЛПУ',
         size: 224,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: LPUS,
+        selectOptions: getUniqueItems(
+          visits.map(v => ({
+            value: v.medical_facility_id ?? 0,
+            label: v.medical_facility_name ?? 'Не указано',
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'specialty',
-        accessorKey: 'specialty.label',
+        id: 'speciality_id',
+        accessorKey: 'speciality_name',
+        accessorFn: row => row.speciality_name || 'Не указано',
         header: 'Специальность',
         size: 230,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: SPECIALTIES,
+        selectOptions: getUniqueItems(
+          visits.map(v => ({
+            value: v.speciality_id ?? 0,
+            label: v.speciality_name ?? 'Не указано',
+          })),
+          ['value']
+        ),
       },
       {
-        accessorKey: 'coveragePercent',
+        id: 'percentage',
+        accessorKey: 'percentage',
+        accessorFn: row => `${row.percentage.toFixed(1)}%`,
         header: 'Процент охвата врачей',
         size: 230,
         enableColumnFilter: true,
         filterFn: numberFilter(),
         filterType: 'number',
       },
+      // {
+      //   accessorKey: 'generalCallOfDoctors',
+      //   header: 'Общая колл. врачей',
+      //   size: 230,
+      //   enableColumnFilter: true,
+      //   filterFn: numberFilter(),
+      //   filterType: 'number',
+      // },
       {
-        accessorKey: 'generalCallOfDoctors',
-        header: 'Общая колл. врачей',
-        size: 230,
-        enableColumnFilter: true,
-        filterFn: numberFilter(),
-        filterType: 'number',
-      },
-      {
-        accessorKey: 'doctorsWithVisits',
+        id: 'count',
+        accessorKey: 'count',
         header: 'Количество врачей с визитами',
         size: 300,
         enableColumnFilter: true,
@@ -105,7 +114,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         filterType: 'number',
       },
     ],
-    []
+    [visits]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -114,22 +123,14 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       ignore: ['actions'],
     });
 
-  const data = useMemo(() => {
-    const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
-      id: () => randomId('coverage'),
-      lpu: LPUS,
-      specialty: SPECIALTIES,
-      coveragePercent: () => randomInt(50, 100),
-      generalCallOfDoctors: () => randomInt(5, 50),
-      doctorsWithVisits: () => randomInt(5, 50),
-    });
+  const filteredData = useMemo(() => {
+    const searched = filterBySearch(visits, search, [
+      'medical_facility_name',
+      'speciality_name',
+    ]);
 
-    return allData.filter(
-      row =>
-        row.lpu.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.specialty.label.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, rowsCount]);
+    return searched;
+  }, [search, visits]);
 
   return (
     <PageSection
@@ -137,35 +138,6 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
-            value={brands}
-            setValue={setBrands}
-            showToggleAll
-            isMultiple
-            checkbox
-            items={BRANDS}
-            triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
-          />
-          <Select<true, string>
-            value={groups}
-            isMultiple
-            checkbox
-            showToggleAll
-            setValue={setGroups}
-            items={GROUPS}
-            triggerText="Группа"
-            classNames={{ menu: 'w-[10rem]' }}
-          />
-          <Select<false, typeof moneyType>
-            value={moneyType}
-            setValue={setMoneyType}
-            items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
-            ]}
-            triggerText="Деньги/Упаковка"
-          />
           <Select<false, typeof rowsCount>
             value={rowsCount}
             setValue={setRowsCount}
@@ -189,7 +161,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
             classNames={{ menu: 'min-w-[18.75rem] right-0' }}
           />
           <ExportToExcelButton
-            data={data}
+            data={filteredData}
             fileName="specialist-coverage.xlsx"
           />
         </div>
@@ -199,27 +171,9 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         filters={{
           usedFilterItems,
           resetFilters,
-          custom: [
-            {
-              id: 'brand',
-              value: {
-                colType: 'select',
-                header: 'Бренд',
-                selectValues: BRANDS.filter(b => brands.includes(b.value)),
-              },
-            },
-            {
-              id: 'group',
-              value: {
-                colType: 'select',
-                header: 'Группа',
-                selectValues: GROUPS.filter(g => groups.includes(g.value)),
-              },
-            },
-          ],
         }}
         columns={columnsForTable}
-        data={data}
+        data={filteredData}
         maxHeight={400}
         rounded="none"
       />

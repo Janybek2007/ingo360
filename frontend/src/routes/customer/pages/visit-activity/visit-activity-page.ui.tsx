@@ -1,5 +1,7 @@
 import React from 'react';
+import useLocalStorageState from 'use-local-storage-state';
 
+import { LazySection } from '#/shared/components/lazy-section';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { DoctorsCoverage } from '#/widgets/customer/doctors-coverage';
 import { OverallVisits } from '#/widgets/customer/overall-visits';
@@ -9,33 +11,52 @@ import { TertiaryVisits } from '#/widgets/customer/tertiary-visits';
 import { TotalVisitsPeriod } from '#/widgets/customer/total-visits-period';
 
 const VisitActivityPage: React.FC = () => {
+  const [current, setCurrent] = useLocalStorageState('visit-activity-tab', {
+    defaultValue: 'analysis_visits',
+  });
+
   return (
     <main>
       <Tabs
         items={[
-          { label: 'Анализ визитной активности', value: 'analysis-visits' },
-          { label: 'Третичным продажи', value: 'tertiary-sales' },
-          { label: 'Анализ охват специалистов', value: 'analysis-specialists' },
+          { label: 'Анализ визитной активности', value: 'analysis_visits' },
+          { label: 'Третичные продажи', value: 'tertiary_sales' },
+          { label: 'Анализ охват специалистов', value: 'analysis_specialists' },
         ]}
+        defaultValue={current}
+        saveCurrent={setCurrent}
+        classNames={{ content: 'w-full' }}
       >
         {({ current }) => (
-          <div className="space-y-6">
-            {current === 'analysis-visits' && (
+          <div className="space-y-6 w-full">
+            {current === 'analysis_visits' && (
               <>
-                <OverallVisits />
-                <TotalVisitsPeriod />
+                <LazySection>
+                  <OverallVisits />
+                </LazySection>
+                <LazySection>
+                  <TotalVisitsPeriod />
+                </LazySection>
               </>
             )}
-            {current === 'tertiary-sales' && (
+            {current === 'tertiary_sales' && (
               <>
-                <TertiarySalesUnits />
-                <TertiaryVisits />
+                <LazySection>
+                  <TertiarySalesUnits />
+                </LazySection>
+                <LazySection>
+                  <TertiaryVisits />
+                </LazySection>
               </>
             )}
-            {current === 'analysis-specialists' && (
+            {current === 'analysis_specialists' && (
               <>
-                <DoctorsCoverage />
-                <SpecialistCoverage />
+                <LazySection>
+                  <DoctorsCoverage />
+                </LazySection>
+                <LazySection>
+                  <SpecialistCoverage />
+                </LazySection>
               </>
             )}
           </div>

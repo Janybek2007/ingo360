@@ -77,19 +77,19 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       return {
         sales: createMonthsData(
           filteredData[0] || [],
-          row => `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}`,
+          row => `${row.sku_id}`,
           row => row[indicator],
           row => ({ ...row })
         ),
         inventory: createMonthsData(
           filteredData[1] || [],
-          row => `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}`,
+          row => `${row.sku_id}`,
           row => row.coverage_months,
           row => ({ ...row })
         ),
         stocks: createMonthsData(
           filteredData[2] || [],
-          row => `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}`,
+          row => `${row.sku_id}`,
           row => row[indicator],
           row => ({ ...row })
         ),
@@ -192,7 +192,8 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
                   { value: 'amount', label: 'Деньги' },
                   { value: 'packages', label: 'Упаковка' },
                 ]}
-                triggerText="Деньги/Упаковка"
+                changeTriggerText
+                labelTemplate="Индикатор: {label}"
               />
             )}
             <Select<true, number>

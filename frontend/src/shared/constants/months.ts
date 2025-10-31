@@ -47,7 +47,7 @@ export const allMonths = [
   MonthFull.JAN,
   MonthFull.FEB,
   MonthFull.MAR,
-  MonthFull.MAR,
+  MonthFull.APR,
   MonthFull.MAY,
   MonthFull.JUN,
   MonthFull.JUL,

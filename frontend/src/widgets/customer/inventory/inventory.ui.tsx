@@ -221,8 +221,7 @@ export const Inventory: React.FC = React.memo(() => {
 
     const grouped = createMonthsData(
       searched,
-      row =>
-        `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}|${row.distributor_name.trim()}|${row.promotion_type_name.trim()}|${row.product_group_name.trim()}`,
+      row => `${row.sku_id}`,
       row => row.avg_coverage_months,
       row => ({ ...row })
     );

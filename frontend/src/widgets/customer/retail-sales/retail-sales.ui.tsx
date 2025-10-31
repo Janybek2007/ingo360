@@ -147,6 +147,23 @@ export const RetailSales: React.FC = React.memo(() => {
           ['value']
         ),
       },
+      {
+        id: 'indicator_id',
+        accessorKey: 'indicator_name',
+        accessorFn: row => row.indicator_name || '-',
+        header: 'Индикатор',
+        enableColumnFilter: true,
+        size: 150,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        selectOptions: getUniqueItems(
+          sales.map(v => ({
+            value: v.indicator_id || 0,
+            label: v.distributor_name || 'Не указано',
+          })),
+          ['value']
+        ),
+      },
       ...Array.from(
         { length: 12 },
         (_, i) =>
@@ -221,8 +238,7 @@ export const RetailSales: React.FC = React.memo(() => {
 
     const grouped = createMonthsData(
       searched,
-      row =>
-        `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}|${row.distributor_name.trim()}|${row.promotion_type_name.trim()}|${row.product_group_name.trim()}`,
+      row => `${row.sku_id}`,
       row => row[indicator],
       row => ({ ...row })
     );
@@ -296,7 +312,8 @@ export const RetailSales: React.FC = React.memo(() => {
               { value: 'amount', label: 'Деньги' },
               { value: 'packages', label: 'Упаковка' },
             ]}
-            triggerText="Деньги/Упаковка"
+            changeTriggerText
+            labelTemplate="Индикатор: {label}"
           />
           <Select<false, typeof rowsCount>
             value={rowsCount}
@@ -353,7 +370,7 @@ export const RetailSales: React.FC = React.memo(() => {
           columns={columnsForTable}
           data={filteredData}
           maxHeight={400}
-          rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
+          rowTotal={{ firstColSpan: 6, monthTotals, grandTotal }}
           rounded="none"
         />
       </AsyncBoundary>

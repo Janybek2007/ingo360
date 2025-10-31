@@ -126,6 +126,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       {
         id: 'responsible_employee_id',
         accessorKey: 'responsible_employee_name',
+        accessorFn: row => row.responsible_employee_name || '-',
         header: 'Ответственный',
         enableColumnFilter: true,
         size: 180,
@@ -144,6 +145,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         accessorKey: 'total_packages',
         header: 'Упаковок',
         size: 120,
+        enableColumnFilter: true,
         filterFn: numberFilter(),
         filterType: 'number',
       },
@@ -162,14 +164,12 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       'sku_name',
       'brand_name',
       'product_group_name',
-      'distributor_name',
       'promotion_type_name',
     ]);
 
     const grouped = createMonthsData(
       searched,
-      row =>
-        `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}|${row.distributor_name.trim()}|${row.promotion_type_name.trim()}|${row.product_group_name.trim()}`,
+      row => `${row.sku_id}`,
       row => row.total_packages,
       row => ({ ...row })
     );

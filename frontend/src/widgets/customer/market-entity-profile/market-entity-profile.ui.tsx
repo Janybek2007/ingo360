@@ -165,7 +165,8 @@ export const MarketEntityProfile: React.FC = React.memo(() => {
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
             ]}
-            triggerText="Деньги/Упаковка"
+            changeTriggerText
+            labelTemplate="Индикатор: {label}"
           />
           <PeriodFilters {...periodFilter} />
         </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
+import useLocalStorageState from 'use-local-storage-state';
 
 import { Assets } from '#/shared/assets';
 import { LucideArrowIcon } from '#/shared/components/icons';
@@ -11,7 +12,10 @@ import { cn } from '#/shared/utils/cn';
 export const Sidebar: React.FC = React.memo(() => {
   const isActive = useActivePath();
   const { user, isLoading } = useSession();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = useLocalStorageState(
+    'sidebar-collapsed',
+    { defaultValue: false }
+  );
 
   const navigations = React.useMemo(() => {
     return user ? roleNavigations[user.role] : [];
@@ -19,7 +23,7 @@ export const Sidebar: React.FC = React.memo(() => {
 
   const toggleCollapse = React.useCallback(() => {
     setIsCollapsed(prev => !prev);
-  }, []);
+  }, [setIsCollapsed]);
 
   return (
     <aside
@@ -48,10 +52,10 @@ export const Sidebar: React.FC = React.memo(() => {
           aria-label={isCollapsed ? 'Развернуть меню' : 'Свернуть меню'}
         >
           <span className="text-gray-600 font-bold">
-            {isCollapsed ? (
-              <LucideArrowIcon className="size-4" type="chevron-right" />
-            ) : (
+            {!isCollapsed ? (
               <LucideArrowIcon className="size-4" type="chevron-left" />
+            ) : (
+              <LucideArrowIcon className="size-4" type="chevron-right" />
             )}
           </span>
         </button>

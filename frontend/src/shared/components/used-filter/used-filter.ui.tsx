@@ -107,7 +107,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
                   trigger:
                     'gap-2 px-2.5 py-1 text-base border-gray-200/50 hover:border-gray-300/50',
                   triggerText: 'leading-[1]',
-                  menu: 'min-w-[8rem] w-max left-0',
+                  menu: 'min-w-[8rem] w-max max-w-[30rem] left-0',
                 }}
               />
             </div>

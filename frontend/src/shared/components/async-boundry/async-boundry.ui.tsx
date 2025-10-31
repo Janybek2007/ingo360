@@ -32,7 +32,7 @@ export const AsyncBoundary: React.FC<IAsyncBoundaryProps> = ({
 AsyncBoundary.displayName = 'AsyncBoundary';
 
 const DefaultFallback = () => (
-  <div className="flex flex-col items-center justify-center py-10 text-gray-500 animate-pulse">
+  <div className="flex flex-col items-center justify-center w-full py-20 text-gray-500 animate-pulse">
     <LoadingTwotoneLoopIcon className="animate-spin size-[32px]" />
     <p className="text-sm font-medium">Загрузка данных...</p>
   </div>

@@ -41,8 +41,8 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       selectOptions: getUniqueItems(
         data.map(v => ({
-          label: v.pharmacy?.name ?? '-',
-          value: v.pharmacy?.id ?? '-',
+          label: v.pharmacy?.name ?? 'Не указано',
+          value: v.pharmacy?.id ?? 0,
         })),
         ['value']
       ),
@@ -107,8 +107,8 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(v => ({
-          label: v.pharmacy?.name ?? '-',
-          value: v.pharmacy?.id ?? '-',
+          label: v.pharmacy?.name ?? 'Не указано',
+          value: v.pharmacy?.id ?? 0,
         })),
         ['value']
       ),
@@ -156,8 +156,8 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(v => ({
-          label: v.medical_facility?.name || '-',
-          value: v.medical_facility?.id || 'medical_facility_empty',
+          label: v.medical_facility?.name || 'Не указано',
+          value: v.medical_facility?.id || 0,
         })),
         ['value']
       ),
@@ -173,8 +173,8 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(v => ({
-          label: v.doctor?.name || '-',
-          value: v.doctor?.id || 'doctor_empty',
+          label: v.doctor?.name || 'Не указано',
+          value: v.doctor?.id || 0,
         })),
         ['value']
       ),
@@ -262,14 +262,14 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
     {
       accessorKey: 'month',
       header: 'Месяц',
-      cell: ({ row }) => allMonths[row.original.month],
+      cell: ({ row }) => allMonths[row.original.month - 1],
       size: 80,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
-      selectOptions: allMonths.map(month => ({
+      selectOptions: allMonths.map((month, i) => ({
         label: month,
-        value: month,
+        value: i + 1,
       })),
     },
     {

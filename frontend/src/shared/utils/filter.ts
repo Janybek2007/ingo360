@@ -95,15 +95,23 @@ export const selectFilter =
       return undefined;
     }, originalData);
 
-    if (!rowValue) return false;
-
     const compareValue = rowValue?.value ?? rowValue?.id ?? rowValue;
 
-    return filterValue.selectValues.some(
-      fv =>
+    return filterValue.selectValues.some(fv => {
+      if (fv.value === 0) {
+        return (
+          compareValue === null ||
+          compareValue === undefined ||
+          rowValue === null ||
+          rowValue === undefined
+        );
+      }
+
+      return (
         String(fv.value) === String(compareValue) ||
         String(fv.value) === String(rowValue?.id)
-    );
+      );
+    });
   };
 
 /** Универсальный фильтр для boolean (true/false) */

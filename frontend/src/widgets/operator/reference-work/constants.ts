@@ -40,8 +40,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.region?.name ?? '-'),
-          value: item.region?.id ?? '-',
+          label: String(item.region?.name ?? 'Не указано'),
+          value: item.region?.id ?? 0,
         })),
         ['value']
       ),
@@ -67,8 +67,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.country?.name ?? '-'),
-          value: item.country?.id ?? '-',
+          label: String(item.country?.name ?? 'Не указано'),
+          value: item.country?.id ?? 0,
         })),
         ['value']
       ),
@@ -94,8 +94,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.company?.name ?? '-'),
-          value: item.company?.id ?? '-',
+          label: String(item.company?.name ?? 'Не указано'),
+          value: item.company?.id ?? 0,
         })),
         ['value']
       ),
@@ -111,8 +111,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.settlement?.name ?? '-'),
-          value: item.settlement?.id ?? '-',
+          label: String(item.settlement?.name ?? 'Не указано'),
+          value: item.settlement?.id ?? 0,
         })),
         ['value']
       ),
@@ -128,8 +128,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.region?.name ?? '-'),
-          value: item.region?.id ?? '-',
+          label: String(item.region?.name ?? 'Не указано'),
+          value: item.region?.id ?? 0,
         })),
         ['value']
       ),
@@ -147,8 +147,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.company?.name ?? '-'),
-          value: item.company?.id ?? '-',
+          label: String(item.company?.name ?? 'Не указано'),
+          value: item.company?.id ?? 0,
         })),
         ['value']
       ),
@@ -192,8 +192,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.company?.name ?? '-'),
-          value: item.company?.id ?? '-',
+          label: String(item.company?.name ?? 'Не указано'),
+          value: item.company?.id ?? 0,
         })),
         ['value']
       ),
@@ -209,8 +209,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.promotion_type?.name ?? '-'),
-          value: item.promotion_type?.id ?? '-',
+          label: String(item.promotion_type?.name ?? 'Не указано'),
+          value: item.promotion_type?.id ?? 0,
         })),
         ['value']
       ),
@@ -226,8 +226,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.product_group?.name ?? '-'),
-          value: item.product_group?.id ?? '-',
+          label: String(item.product_group?.name ?? 'Не указано'),
+          value: item.product_group?.id ?? 0,
         })),
         ['value']
       ),
@@ -283,8 +283,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.company?.name ?? '-'),
-          value: item.company?.id ?? '-',
+          label: String(item.company?.name ?? 'Не указано'),
+          value: item.company?.id ?? 0,
         })),
         ['value']
       ),
@@ -300,8 +300,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.brand?.name ?? '-'),
-          value: item.brand?.id ?? '-',
+          label: String(item.brand?.name ?? 'Не указано'),
+          value: item.brand?.id ?? 0,
         })),
         ['value']
       ),
@@ -317,8 +317,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.promotion_type?.name ?? '-'),
-          value: item.promotion_type?.id ?? '-',
+          label: String(item.promotion_type?.name ?? 'Не указано'),
+          value: item.promotion_type?.id ?? 0,
         })),
         ['value']
       ),
@@ -334,8 +334,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.product_group?.name ?? '-'),
-          value: item.product_group?.id ?? '-',
+          label: String(item.product_group?.name ?? 'Не указано'),
+          value: item.product_group?.id ?? 0,
         })),
         ['value']
       ),
@@ -351,8 +351,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.dosage_form?.name ?? '-'),
-          value: item.dosage_form?.id ?? '-',
+          label: String(item.dosage_form?.name ?? 'Не указано'),
+          value: item.dosage_form?.id ?? 0,
         })),
         ['value']
       ),
@@ -368,8 +368,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.dosage?.name ?? '-'),
-          value: item.dosage?.id ?? '-',
+          label: String(item.dosage?.name ?? 'Не указано'),
+          value: item.dosage?.id ?? 0,
         })),
         ['value']
       ),
@@ -385,8 +385,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.segment?.name ?? '-'),
-          value: item.segment?.id ?? '-',
+          label: String(item.segment?.name ?? 'Не указано'),
+          value: item.segment?.id ?? 0,
         })),
         ['value']
       ),
@@ -422,8 +422,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.company?.name ?? '-'),
-          value: item.company?.id ?? '-',
+          label: String(item.company?.name ?? 'Не указано'),
+          value: item.company?.id ?? 0,
         })),
         ['value']
       ),
@@ -439,8 +439,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.position?.name ?? '-'),
-          value: item.position?.id ?? '-',
+          label: String(item.position?.name ?? 'Не указано'),
+          value: item.position?.id ?? 0,
         })),
         ['value']
       ),
@@ -456,8 +456,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.product_group?.name ?? '-'),
-          value: item.product_group?.id ?? '-',
+          label: String(item.product_group?.name ?? 'Не указано'),
+          value: item.product_group?.id ?? 0,
         })),
         ['value']
       ),
@@ -473,8 +473,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.region?.name ?? '-'),
-          value: item.region?.id ?? '-',
+          label: String(item.region?.name ?? 'Не указано'),
+          value: item.region?.id ?? 0,
         })),
         ['value']
       ),
@@ -490,8 +490,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.district?.name ?? '-'),
-          value: item.district?.id ?? '-',
+          label: String(item.district?.name ?? 'Не указано'),
+          value: item.district?.id ?? 0,
         })),
         ['value']
       ),
@@ -527,8 +527,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.facility_type ?? '-'),
-          value: item.facility_type ?? '-',
+          label: String(item.facility_type ?? 'Не указано'),
+          value: item.facility_type ?? 0,
         })),
         ['value']
       ),
@@ -544,8 +544,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.settlement?.name ?? '-'),
-          value: item.settlement?.id ?? '-',
+          label: String(item.settlement?.name ?? 'Не указано'),
+          value: item.settlement?.id ?? 0,
         })),
         ['value']
       ),
@@ -561,8 +561,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.district?.name ?? '-'),
-          value: item.district?.id ?? '-',
+          label: String(item.district?.name ?? 'Не указано'),
+          value: item.district?.id ?? 0,
         })),
         ['value']
       ),
@@ -617,8 +617,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.responsible_employee?.full_name ?? '-'),
-          value: item.responsible_employee?.id ?? '-',
+          label: String(item.responsible_employee?.full_name ?? 'Не указано'),
+          value: item.responsible_employee?.id ?? 0,
         })),
         ['value']
       ),
@@ -634,8 +634,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.medical_facility?.name ?? '-'),
-          value: item.medical_facility?.id ?? '-',
+          label: String(item.medical_facility?.name ?? 'Не указано'),
+          value: item.medical_facility?.id ?? 0,
         })),
         ['value']
       ),
@@ -651,8 +651,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.speciality?.name ?? '-'),
-          value: item.speciality?.id ?? '-',
+          label: String(item.speciality?.name ?? 'Не указано'),
+          value: item.speciality?.id ?? 0,
         })),
         ['value']
       ),
@@ -668,8 +668,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.client_category?.name ?? '-'),
-          value: item.client_category?.id ?? '-',
+          label: String(item.client_category?.name ?? 'Не указано'),
+          value: item.client_category?.id ?? 0,
         })),
         ['value']
       ),
@@ -695,8 +695,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.company?.name ?? '-'),
-          value: item.company?.id ?? '-',
+          label: String(item.company?.name ?? 'Не указано'),
+          value: item.company?.id ?? 0,
         })),
         ['value']
       ),
@@ -712,8 +712,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.distributor?.name ?? '-'),
-          value: item.distributor?.id ?? '-',
+          label: String(item.distributor?.name ?? 'Не указано'),
+          value: item.distributor?.id ?? 0,
         })),
         ['value']
       ),
@@ -729,8 +729,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.responsible_employee?.full_name ?? '-'),
-          value: item.responsible_employee?.id ?? '-',
+          label: String(item.responsible_employee?.full_name ?? 'Не указано'),
+          value: item.responsible_employee?.id ?? 0,
         })),
         ['value']
       ),
@@ -746,8 +746,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.settlement?.name ?? '-'),
-          value: item.settlement?.id ?? '-',
+          label: String(item.settlement?.name ?? 'Не указано'),
+          value: item.settlement?.id ?? 0,
         })),
         ['value']
       ),
@@ -763,8 +763,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.district?.name ?? ''),
-          value: item.district?.id ?? '',
+          label: String(item.district?.name ?? 'Не указано'),
+          value: item.district?.id ?? 0,
         })),
         ['value']
       ),
@@ -796,8 +796,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.client_category?.name ?? '-'),
-          value: item.client_category?.id ?? '-',
+          label: String(item.client_category?.name ?? 'Не указано'),
+          value: item.client_category?.id ?? 0,
         })),
         ['value']
       ),
@@ -813,8 +813,8 @@ export const referencesColumnsWithType: Record<
       filterType: 'select',
       selectOptions: getUniqueItems(
         data.map(item => ({
-          label: String(item.product_group?.name ?? '-'),
-          value: item.product_group?.id ?? '-',
+          label: String(item.product_group?.name ?? 'Не указано'),
+          value: item.product_group?.id ?? 0,
         })),
         ['value']
       ),

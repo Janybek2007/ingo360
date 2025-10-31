@@ -108,7 +108,7 @@ export const LucideArrowIcon: React.FC<IStaticIconProps & { type: ArrowType }> =
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            d="m6 9l6 6l6-6"
+            d="m15 18l-6-6l6-6"
           />
         </svg>
       );
@@ -120,6 +120,7 @@ export const LucideArrowIcon: React.FC<IStaticIconProps & { type: ArrowType }> =
           width="24"
           height="24"
           viewBox="0 0 24 24"
+          {...props}
         >
           <path
             fill="none"

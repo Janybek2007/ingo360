@@ -170,7 +170,7 @@ export function Select<ISM extends boolean = false, VT = string>({
                 key={`${item.value}-${item.label}-key`}
                 type="button"
                 className={cn(
-                  'flex items-center gap-2 px-3 py-2 pr-6 cursor-pointer text-left text-nowrap',
+                  'flex items-center gap-2 px-3 py-2 pr-10 cursor-pointer text-left text-nowrap',
                   'w-full transition-colors',
                   'font-normal group justify-between',
                   indeterminate

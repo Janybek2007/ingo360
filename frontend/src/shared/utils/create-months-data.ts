@@ -1,29 +1,3 @@
-/**
- * Преобразует данные с year/month в структуру с массивом months[12]
- * Группирует данные по ключу и агрегирует значения по месяцам
- *
- * @template T - Тип элемента данных, должен содержать year и month
- * @template R - Тип результирующей строки (без поля months)
- *
- * @param data - Массив исходных данных с year и month
- * @param getKey - Функция для создания уникального ключа группировки
- * @param getValue - Функция для извлечения значения из элемента данных
- * @param baseRow - Функция для создания базовой строки (без months)
- *
- * @returns Массив сгруппированных данных, где каждая запись содержит months[12]
- *
- * @example
- * // Пример использования для shipments
- * const result = createMonthsData(
- *   sales,
- *   (row) => `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}`,
- *   (row) => row.amount,
- *   (row) => ({
- *     ...row,
- *     // можно добавить дополнительные поля
- *   })
- * );
- */
 export function createMonthsData<T extends { year: number; month: number }, R>(
   data: T[],
   getKey: (row: T) => string,

@@ -199,7 +199,8 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
               { value: 'amount', label: 'Деньги' },
               { value: 'packages', label: 'Упаковка' },
             ]}
-            triggerText="Деньги/Упаковка"
+            changeTriggerText
+            labelTemplate="Индикатор: {label}"
           />
           <Select<true, number>
             value={brands}

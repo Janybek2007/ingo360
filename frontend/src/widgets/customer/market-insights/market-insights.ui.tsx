@@ -175,7 +175,8 @@ export const MarketInsights: React.FC = React.memo(() => {
               { value: 'money', label: 'Деньги' },
               { value: 'packaging', label: 'Упаковка' },
             ]}
-            triggerText="Деньги/Упаковка"
+            changeTriggerText
+            labelTemplate="Индикатор: {label}"
           />
           <Select<false, typeof rowsCount>
             value={rowsCount}
