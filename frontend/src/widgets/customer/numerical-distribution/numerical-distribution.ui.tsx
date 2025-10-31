@@ -1,43 +1,92 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import { DbQueries } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import {
-  BRANDS,
-  DISTRIBUTORS,
-  GROUPS,
-  SKUS,
-} from '#/shared/constants/test_constants';
+import { SKUS } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
+import { randomId } from '#/shared/utils/mock';
 
 interface NumericalDistributionRow {
   id: string;
-  sku: string;
-  brand: string;
-  group: string;
-  distributor: string;
+  sku: { value: string; label: string };
+  brand: { value: string; label: string };
+  group: { value: string; label: string };
   months: number[];
+}
+
+interface NumericDistributionApiItem {
+  sku_name: string;
+  brand_name: string;
+  product_group_name: string;
+  year: number;
+  quarter: number;
+  month: number; // 1-12
+  pharmacies_with_sku: number;
+  total_pharmacies: number;
+  nd_percent: number; // we will display this in months
+  segment_name: string;
 }
 
 export const NumericalDistribution: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [brands, setBrands] = React.useState<string[]>(
-    BRANDS.map(v => v.value)
+
+  // dynamic options
+  const [brandOptions, setBrandOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+  const [groupOptions, setGroupOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+  const [brands, setBrands] = React.useState<string[]>([]);
+  const [groups, setGroups] = React.useState<string[]>([]);
+
+  const queryData = useQuery(
+    DbQueries.GetDbItemsQuery<NumericDistributionApiItem[]>([
+      'sales/tertiary/reports/numeric-distribution',
+    ])
   );
-  const [groups, setGroups] = React.useState<string[]>(
-    GROUPS.map(v => v.value)
+
+  const items = React.useMemo(
+    () => (queryData.data ? queryData.data[0] : []),
+    [queryData.data]
   );
-  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
-    'money'
-  );
+
+  useEffect(() => {
+    if (!items || items.length === 0) return;
+    const brandItems = getUniqueItems(
+      items.map(v => ({
+        value: v.brand_name.trim(),
+        label: v.brand_name.trim(),
+      })),
+      ['value']
+    );
+    const groupItems = getUniqueItems(
+      items.map(v => ({
+        value: v.product_group_name.trim(),
+        label: v.product_group_name.trim(),
+      })),
+      ['value']
+    );
+
+    setBrandOptions(brandItems);
+    setGroupOptions(groupItems);
+    setBrands(prev =>
+      prev.length === 0 ? brandItems.map(b => b.value) : prev
+    );
+    setGroups(prev =>
+      prev.length === 0 ? groupItems.map(g => g.value) : prev
+    );
+  }, [items]);
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -53,10 +102,15 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(BRANDS.map(v => v.value));
-    setGroups(GROUPS.map(v => v.value));
+    setBrands(brandOptions.map(v => v.value));
+    setGroups(groupOptions.map(v => v.value));
     setRowsCount('all');
-  }, []);
+  }, [brandOptions, groupOptions]);
+
+  const displayYear = React.useMemo(() => {
+    if (items && items.length > 0) return items[0].year;
+    return new Date().getFullYear();
+  }, [items]);
 
   const allColumns = useMemo(
     (): ColumnDef<NumericalDistributionRow>[] => [
@@ -80,7 +134,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         filterFn: selectFilter(),
         filterType: 'select',
         enablePinning: true,
-        selectOptions: BRANDS,
+        selectOptions: brandOptions,
       },
       {
         id: 'group',
@@ -91,18 +145,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         filterFn: selectFilter(),
         filterType: 'select',
         enablePinning: true,
-        selectOptions: GROUPS,
-      },
-      {
-        id: 'distributor',
-        accessorKey: 'distributor.label',
-        header: 'Дистр',
-        enableColumnFilter: true,
-        size: 150,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        enablePinning: true,
-        selectOptions: DISTRIBUTORS,
+        selectOptions: groupOptions,
       },
       ...Array.from(
         { length: 12 },
@@ -110,7 +153,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
           ({
             accessorFn: (row: NumericalDistributionRow) => row.months[i],
             id: `month${i + 1}`,
-            header: `2024/${i + 1}`,
+            header: `${displayYear}/${i + 1}`,
             size: 140,
             enableColumnFilter: true,
             filterFn: numberFilter(),
@@ -125,7 +168,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
           row.months.reduce((a, b) => a + b, 0),
       },
     ],
-    []
+    [displayYear, brandOptions, groupOptions]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -135,22 +178,58 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
-      id: () => randomId('shipment'),
-      sku: SKUS,
-      brand: BRANDS,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      months: () => randomArray(12, 10, 500),
-    });
-    return allData.filter(
-      row =>
-        row.sku.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.label.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, rowsCount]);
+    if (!items) return [] as NumericalDistributionRow[];
+
+    const map = new Map<string, NumericalDistributionRow>();
+
+    for (const item of items) {
+      const key = `${item.sku_name}|${item.brand_name}|${item.product_group_name}`;
+      const existing = map.get(key);
+      if (!existing) {
+        const months = Array(12).fill(0);
+        if (item.month >= 1 && item.month <= 12) {
+          months[item.month - 1] = item.nd_percent ?? 0;
+        }
+        map.set(key, {
+          id: randomId('nd'),
+          sku: { value: item.sku_name, label: item.sku_name },
+          brand: { value: item.brand_name, label: item.brand_name },
+          group: {
+            value: item.product_group_name,
+            label: item.product_group_name,
+          },
+          months,
+        });
+      } else {
+        if (item.month >= 1 && item.month <= 12) {
+          existing.months[item.month - 1] = item.nd_percent ?? 0;
+        }
+      }
+    }
+
+    let rows = Array.from(map.values());
+
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      rows = rows.filter(
+        row =>
+          row.sku.label.toLowerCase().includes(s) ||
+          row.brand.label.toLowerCase().includes(s) ||
+          row.group.label.toLowerCase().includes(s)
+      );
+    }
+
+    if (brands.length > 0) {
+      rows = rows.filter(r => brands.includes(r.brand.value));
+    }
+    if (groups.length > 0) {
+      rows = rows.filter(r => groups.includes(r.group.value));
+    }
+
+    if (rowsCount !== 'all') rows = rows.slice(0, rowsCount);
+
+    return rows;
+  }, [items, search, brands, groups, rowsCount]);
 
   const monthTotals = useMemo(() => {
     const totals = Array(12).fill(0);
@@ -178,7 +257,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             showToggleAll
             isMultiple
             checkbox
-            items={BRANDS}
+            items={brandOptions}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
@@ -188,18 +267,9 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             setValue={setGroups}
-            items={GROUPS}
+            items={groupOptions}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
-          />
-          <Select<false, typeof moneyType>
-            value={moneyType}
-            setValue={setMoneyType}
-            items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
-            ]}
-            triggerText="Деньги/Упаковка"
           />
           <Select<false, typeof rowsCount>
             value={rowsCount}
@@ -242,7 +312,9 @@ export const NumericalDistribution: React.FC = React.memo(() => {
               value: {
                 colType: 'select',
                 header: 'Бренд',
-                selectValues: BRANDS.filter(b => brands.includes(b.value)),
+                selectValues: brandOptions.filter(b =>
+                  brands.includes(b.value)
+                ),
               },
             },
             {
@@ -250,15 +322,18 @@ export const NumericalDistribution: React.FC = React.memo(() => {
               value: {
                 colType: 'select',
                 header: 'Группа',
-                selectValues: GROUPS.filter(g => groups.includes(g.value)),
+                selectValues: groupOptions.filter(g =>
+                  groups.includes(g.value)
+                ),
               },
             },
           ],
         }}
         columns={columnsForTable}
         data={data}
+        isLoading={queryData.isLoading}
         maxHeight={400}
-        rowTotal={{ firstColSpan: 4, monthTotals, grandTotal }}
+        rowTotal={{ firstColSpan: 3, monthTotals, grandTotal }}
         rounded="none"
       />
     </PageSection>

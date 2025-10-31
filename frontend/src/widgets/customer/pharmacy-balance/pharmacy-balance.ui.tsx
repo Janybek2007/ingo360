@@ -1,45 +1,89 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import { DbQueries } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import {
-  BRANDS,
-  DISTRIBUTORS,
-  GROUPS,
-  SKUS,
-} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { selectFilter } from '#/shared/utils/filter';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
+import { randomId } from '#/shared/utils/mock';
 
 interface PharmacyBalanceRow {
   id: string;
-  pharmacy: string;
-  sku: string;
-  brand: string;
-  promoType: string;
-  group: string;
-  distributor: string;
-  months: number[];
+  pharmacy: { value: string; label: string };
+  sku: { value: string; label: string };
+  brand: { value: string; label: string };
+  group: { value: string; label: string };
+  responsible: { value: string; label: string };
+  total_packages: number;
+}
+
+interface LowStockPharmacyApiItem {
+  sku_name: string;
+  pharmacy_name: string;
+  product_group_name: string;
+  responsible_employee_name: string;
+  brand_name: string;
+  total_packages: number;
 }
 
 export const PharmacyBalance: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [brands, setBrands] = React.useState<string[]>(
-    BRANDS.map(v => v.value)
+
+  // dynamic options
+  const [brandOptions, setBrandOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+  const [groupOptions, setGroupOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+  const [brands, setBrands] = React.useState<string[]>([]);
+  const [groups, setGroups] = React.useState<string[]>([]);
+
+  const queryData = useQuery(
+    DbQueries.GetDbItemsQuery<LowStockPharmacyApiItem[]>([
+      'sales/tertiary/reports/low-stock-pharmacies',
+    ])
   );
-  const [groups, setGroups] = React.useState<string[]>(
-    GROUPS.map(v => v.value)
+
+  const items = React.useMemo(
+    () => (queryData.data ? queryData.data[0] : []),
+    [queryData.data]
   );
-  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
-    'money'
-  );
+
+  useEffect(() => {
+    if (!items || items.length === 0) return;
+    const brandItems = getUniqueItems(
+      items.map(v => ({
+        value: v.brand_name.trim(),
+        label: v.brand_name.trim(),
+      })),
+      ['value']
+    );
+    const groupItems = getUniqueItems(
+      items.map(v => ({
+        value: v.product_group_name.trim(),
+        label: v.product_group_name.trim(),
+      })),
+      ['value']
+    );
+
+    setBrandOptions(brandItems);
+    setGroupOptions(groupItems);
+    setBrands(prev =>
+      prev.length === 0 ? brandItems.map(b => b.value) : prev
+    );
+    setGroups(prev =>
+      prev.length === 0 ? groupItems.map(g => g.value) : prev
+    );
+  }, [items]);
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -55,23 +99,32 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(BRANDS.map(v => v.value));
-    setGroups(GROUPS.map(v => v.value));
+    setBrands(brandOptions.map(v => v.value));
+    setGroups(groupOptions.map(v => v.value));
     setRowsCount('all');
-  }, []);
+  }, [brandOptions, groupOptions]);
 
   const allColumns = useMemo(
     (): ColumnDef<PharmacyBalanceRow>[] => [
+      {
+        id: 'pharmacy',
+        accessorKey: 'pharmacy.label',
+        header: 'Аптека',
+        enableColumnFilter: true,
+        size: 180,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        selectOptions: [],
+      },
       {
         id: 'sku',
         accessorKey: 'sku.label',
         header: 'SKU',
         enableColumnFilter: true,
-        size: 150,
+        size: 180,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
-        selectOptions: SKUS,
+        selectOptions: [],
       },
       {
         id: 'brand',
@@ -81,8 +134,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
-        selectOptions: BRANDS,
+        selectOptions: brandOptions,
       },
       {
         id: 'group',
@@ -92,35 +144,23 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
-        selectOptions: GROUPS,
+        selectOptions: groupOptions,
       },
       {
-        id: 'distributor',
-        accessorKey: 'distributor.label',
-        header: 'Дистр',
+        id: 'responsible',
+        accessorKey: 'responsible.label',
+        header: 'Ответственный',
         enableColumnFilter: true,
-        size: 150,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        enablePinning: true,
-        selectOptions: DISTRIBUTORS,
+        size: 180,
       },
-      ...Array.from({ length: 12 }, (_, i) => ({
-        accessorFn: (row: PharmacyBalanceRow) => row.months[i],
-        id: `month${i + 1}`,
-        header: `2024/${i + 1}`,
-        size: 100,
-      })),
       {
-        accessorKey: 'total',
-        header: 'Итого',
+        id: 'total_packages',
+        accessorKey: 'total_packages',
+        header: 'Упаковок',
         size: 120,
-        accessorFn: (row: PharmacyBalanceRow) =>
-          row.months.reduce((a, b) => a + b, 0),
       },
     ],
-    []
+    [brandOptions, groupOptions]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -130,36 +170,42 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     });
 
   const data = useMemo(() => {
-    const allData = generateMocks(rowsCount === 'all' ? 50 : rowsCount, {
-      id: () => randomId('shipment'),
-      sku: SKUS,
-      brand: BRANDS,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      months: () => randomArray(12, 10, 500),
-    });
-    return allData.filter(
-      row =>
-        row.sku.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.label.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, rowsCount]);
+    if (!items) return [] as PharmacyBalanceRow[];
 
-  const monthTotals = useMemo(() => {
-    const totals = Array(12).fill(0);
-    data.forEach(row => {
-      row.months.forEach((value, index) => {
-        totals[index] += value;
-      });
-    });
-    return totals;
-  }, [data]);
+    let rows = items.map(item => ({
+      id: randomId('pharm'),
+      pharmacy: { value: item.pharmacy_name, label: item.pharmacy_name },
+      sku: { value: item.sku_name, label: item.sku_name },
+      brand: { value: item.brand_name, label: item.brand_name },
+      group: { value: item.product_group_name, label: item.product_group_name },
+      responsible: {
+        value: item.responsible_employee_name,
+        label: item.responsible_employee_name,
+      },
+      total_packages: item.total_packages ?? 0,
+    }));
 
-  const grandTotal = useMemo(() => {
-    return monthTotals.reduce((sum, val) => sum + val, 0);
-  }, [monthTotals]);
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      rows = rows.filter(
+        row =>
+          row.pharmacy.label.toLowerCase().includes(s) ||
+          row.sku.label.toLowerCase().includes(s) ||
+          row.brand.label.toLowerCase().includes(s) ||
+          row.group.label.toLowerCase().includes(s) ||
+          row.responsible.label.toLowerCase().includes(s)
+      );
+    }
+
+    if (brands.length > 0)
+      rows = rows.filter(r => brands.includes(r.brand.value));
+    if (groups.length > 0)
+      rows = rows.filter(r => groups.includes(r.group.value));
+
+    if (rowsCount !== 'all') rows = rows.slice(0, rowsCount);
+
+    return rows;
+  }, [items, search, brands, groups, rowsCount]);
 
   return (
     <PageSection
@@ -173,7 +219,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             showToggleAll
             isMultiple
             checkbox
-            items={BRANDS}
+            items={brandOptions}
             triggerText="Бренд"
             classNames={{ menu: 'w-[10rem]' }}
           />
@@ -183,18 +229,9 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             setValue={setGroups}
-            items={GROUPS}
+            items={groupOptions}
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
-          />
-          <Select<false, typeof moneyType>
-            value={moneyType}
-            setValue={setMoneyType}
-            items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
-            ]}
-            triggerText="Деньги/Упаковка"
           />
           <Select<false, typeof rowsCount>
             value={rowsCount}
@@ -234,7 +271,9 @@ export const PharmacyBalance: React.FC = React.memo(() => {
               value: {
                 colType: 'select',
                 header: 'Бренд',
-                selectValues: BRANDS.filter(b => brands.includes(b.value)),
+                selectValues: brandOptions.filter(b =>
+                  brands.includes(b.value)
+                ),
               },
             },
             {
@@ -242,15 +281,17 @@ export const PharmacyBalance: React.FC = React.memo(() => {
               value: {
                 colType: 'select',
                 header: 'Группа',
-                selectValues: GROUPS.filter(g => groups.includes(g.value)),
+                selectValues: groupOptions.filter(g =>
+                  groups.includes(g.value)
+                ),
               },
             },
           ],
         }}
         columns={columnsForTable}
         data={data}
+        isLoading={queryData.isLoading}
         maxHeight={400}
-        rowTotal={{ firstColSpan: 4, monthTotals, grandTotal }}
         rounded="none"
       />
     </PageSection>
