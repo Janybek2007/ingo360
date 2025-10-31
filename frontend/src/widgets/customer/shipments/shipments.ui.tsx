@@ -3,6 +3,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
@@ -175,7 +176,7 @@ export const Shipments: React.FC = React.memo(() => {
         header: 'Итого',
         size: 120,
         cell: ({ row }) => {
-          const rowData = row.original as ShipmentRow;
+          const rowData = row.original;
           const total =
             rowData.months?.reduce((sum, val) => {
               if (val !== null && val !== undefined) {
@@ -209,6 +210,7 @@ export const Shipments: React.FC = React.memo(() => {
       'brand_name',
       'product_group_name',
       'distributor_name',
+      'promotion_type_name',
     ]);
 
     const grouped = createMonthsData(
@@ -225,7 +227,7 @@ export const Shipments: React.FC = React.memo(() => {
   const monthTotals = useMemo(() => {
     const totals = Array(12).fill(0);
     filteredData.forEach(row => {
-      const rowData = row as ShipmentRow;
+      const rowData = row;
       rowData.months?.forEach((value, index) => {
         if (value !== null && value !== undefined) {
           totals[index] += value;
@@ -312,31 +314,34 @@ export const Shipments: React.FC = React.memo(() => {
         </div>
       }
     >
-      <Table
-        filters={{
-          usedFilterItems,
-          resetFilters,
-          custom: createCustomFilters(sales, { brands, groups }, [
-            {
-              id: 'brand_id',
-              header: 'Бренд',
-              valueField: 'brand_id',
-              labelField: 'brand_name',
-            },
-            {
-              id: 'product_group_id',
-              header: 'Группа',
-              valueField: 'product_group_id',
-              labelField: 'product_group_name',
-            },
-          ]),
-        }}
-        columns={columnsForTable}
-        data={filteredData}
-        maxHeight={500}
-        rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
-        rounded="none"
-      />
+      <AsyncBoundary
+        isLoading={queryData.isLoading}
+        queryError={queryData.error}
+      >
+        <Table
+          filters={{
+            usedFilterItems,
+            resetFilters,
+            custom: createCustomFilters(
+              sales,
+              { brand_id: brands, product_group_id: groups },
+              [
+                { id: 'brand_id', header: 'Бренд', labelField: 'brand_name' },
+                {
+                  id: 'product_group_id',
+                  header: 'Группа',
+                  labelField: 'product_group_name',
+                },
+              ]
+            ),
+          }}
+          columns={columnsForTable}
+          data={filteredData}
+          maxHeight={500}
+          rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
+          rounded="none"
+        />
+      </AsyncBoundary>
     </PageSection>
   );
 });

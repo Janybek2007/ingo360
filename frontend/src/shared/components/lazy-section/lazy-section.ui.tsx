@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 
+import { LoadingTwotoneLoopIcon } from '../icons';
 import { PageSection } from '../page-section';
 import type { LazySectionProps } from './lazy-section.types';
 
@@ -39,8 +40,9 @@ export const LazySection: React.FC<LazySectionProps> = ({
 
 const SectionSkeleton: React.FC = () => (
   <PageSection>
-    <div className="relative h-[350px] overflow-hidden rounded-lg bg-gray-100">
-      <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100"></div>
+    <div className="flex flex-col items-center justify-center py-10 text-gray-500 animate-pulse">
+      <LoadingTwotoneLoopIcon className="animate-spin size-[32px]" />{' '}
+      <p className="text-sm font-medium">Загрузка виджета, ожидайте...</p>
     </div>
   </PageSection>
 );

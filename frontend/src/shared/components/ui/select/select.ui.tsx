@@ -4,10 +4,9 @@ import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
-import { uiSet } from '#/shared/utils/ui-set';
 
+import { LucideCheckIcon, LucidMinusIcon } from '../../icons';
 import { Checkbox } from '../checkbox';
-import { Icon } from '../icon';
 import type { ISelectItem, ISelectProps } from './select.types';
 
 export function Select<ISM extends boolean = false, VT = string>({
@@ -183,11 +182,6 @@ export function Select<ISM extends boolean = false, VT = string>({
                 title={item.label}
               >
                 <div className="flex items-center gap-2">
-                  {item.icon && (
-                    <Icon
-                      {...uiSet.icon(item.icon, { className: 'text-gray-400' })}
-                    />
-                  )}
                   {checkbox && !indeterminate && (
                     <Checkbox
                       checked={isSelected(item)}
@@ -195,17 +189,14 @@ export function Select<ISM extends boolean = false, VT = string>({
                     />
                   )}
                   {indeterminate && (
-                    <Icon
-                      name="lucide:minus"
-                      className="size-4 text-gray-700"
-                    />
+                    <LucidMinusIcon className="size-4 text-gray-700" />
                   )}
                   <span className="overflow-hidden text-ellipsis max-w-full">
                     {item.label}
                   </span>
                 </div>
                 {!checkbox && isSelected(item) && (
-                  <Icon name="lucide:check" className="size-4 text-gray-700" />
+                  <LucideCheckIcon className="size-4 text-gray-700" />
                 )}
               </button>
             ))

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { DbQueries } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
@@ -218,25 +219,30 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
           </div>
         }
       >
-        <div className="space-y-4">
-          <UsedFilter
-            usedFilterItems={usedFilterItems}
-            resetFilters={resetFilters}
-          />
+        <AsyncBoundary
+          isLoading={queryData.isLoading}
+          queryError={queryData.error}
+        >
+          <div className="space-y-4">
+            <UsedFilter
+              usedFilterItems={usedFilterItems}
+              resetFilters={resetFilters}
+            />
 
-          {as == 'line' ? (
-            <DynamicPrimarySalesAsLine
-              sales={sales.sales}
-              period={periodFilter.period}
-            />
-          ) : (
-            <DynamicPrimarySalesAsMixed
-              period={periodFilter.period}
-              sales={sales}
-              selectedValues={periodFilter.selectedValues}
-            />
-          )}
-        </div>
+            {as == 'line' ? (
+              <DynamicPrimarySalesAsLine
+                sales={sales.sales}
+                period={periodFilter.period}
+              />
+            ) : (
+              <DynamicPrimarySalesAsMixed
+                period={periodFilter.period}
+                sales={sales}
+                selectedValues={periodFilter.selectedValues}
+              />
+            )}
+          </div>
+        </AsyncBoundary>
       </PageSection>
     );
   });

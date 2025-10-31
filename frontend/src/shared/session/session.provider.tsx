@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { UserQueries } from '#/entities/user/user.queries';
 
 import { WelcomeMessage } from '../components/welcome-message';
+import { useViewportEffect } from '../hooks/useViewportEffect';
 import { useNotifications } from './hooks/use-notifications';
 import { useUserAccess } from './hooks/use-user-access';
 import { SessionContext } from './session.context';
@@ -16,6 +17,8 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
   const [isWelcomeShown, setIsWelcomeShown] = useState(false);
   const { reconnect, lastMessage } = useNotifications();
   const userAccess = useUserAccess(lastMessage);
+
+  useViewportEffect();
 
   const session: ISessionContext = {
     user: data ?? null,

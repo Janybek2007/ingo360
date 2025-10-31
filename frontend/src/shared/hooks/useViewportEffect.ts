@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useSize } from '#/shared/hooks/use-size';
 
-export const Effect: React.FC = React.memo(() => {
+export const useViewportEffect = () => {
   const expHeaderSize = useSize('#exp-header');
   const sidebarSize = useSize('#sidebar');
 
@@ -29,8 +29,4 @@ export const Effect: React.FC = React.memo(() => {
       root.style.setProperty('--sidebar-width', `${sidebarSize.width}px`);
     }
   }, [expHeaderSize, sidebarSize]);
-
-  return null;
-});
-
-Effect.displayName = '_Effect_';
+};

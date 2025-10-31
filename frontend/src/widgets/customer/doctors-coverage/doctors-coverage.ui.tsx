@@ -1,7 +1,7 @@
 import React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 
-import { Icon } from '#/shared/components/ui/icon';
+import { LucideArrowIcon } from '#/shared/components/icons';
 import { Select } from '#/shared/components/ui/select';
 import { allMonths } from '#/shared/constants/months';
 
@@ -37,8 +37,8 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
                 isMultiple
                 setValue={() => {}}
                 rightIcon={
-                  <Icon
-                    name="lucide:chevron-down"
+                  <LucideArrowIcon
+                    type="chevron-down"
                     className="size-[1.125rem]"
                   />
                 }

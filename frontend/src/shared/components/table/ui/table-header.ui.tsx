@@ -31,8 +31,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
                 key={`${header.id}|${header.depth}|${index}`}
                 className={cn(
                   'py-4 pl-4 pr-10 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
-                  'border-b border-[#E4E4E4] border-r bg-gray-50 group',
-                  header.column.getIsPinned() && 'border-l'
+                  'border-b border-[#E4E4E4] border-r bg-gray-50 group'
                 )}
                 style={{
                   ...getCommonPinningStyles(header.column),

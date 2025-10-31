@@ -4,7 +4,7 @@ import type { HTTPError } from 'ky';
 import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
-import { getError } from '#/shared/utils/get-error';
+import { getResponseError } from '#/shared/utils/get-error';
 
 import type { TSendRequestContract } from './send-request.contract';
 import { SendRequestContract } from './send-request.contract';
@@ -36,7 +36,7 @@ export const useSendRequestMutation = (callback?: VoidFunction) => {
     },
     onError: async (error: HTTPError) => {
       try {
-        const data = await getError(error.response);
+        const data = await getResponseError(error.response);
         setError('root', {
           type: 'manual',
           message: data,

@@ -3,7 +3,6 @@ import React from 'react';
 import { cn } from '#/shared/utils/cn';
 import { uiSet } from '#/shared/utils/ui-set';
 
-import { Icon } from '../icon';
 import type { IButtonProps } from './button.types';
 
 const Button: React.FC<IButtonProps> = React.memo(
@@ -11,8 +10,6 @@ const Button: React.FC<IButtonProps> = React.memo(
     children,
     color = 'primary',
     disabled,
-    iconStart,
-    iconEnd,
     onClick,
     roundedFull,
     type,
@@ -37,9 +34,7 @@ const Button: React.FC<IButtonProps> = React.memo(
         disabled={disabled}
         aria-label={ariaLabel}
       >
-        {iconStart && <Icon {...uiSet.icon(iconStart)} />}
         {children}
-        {iconEnd && <Icon {...uiSet.icon(iconEnd)} />}
       </button>
     );
   }

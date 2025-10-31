@@ -33,7 +33,6 @@ export function TableBody({
         (virtualRow, i) => {
           const row = rows[virtualRow.index];
           if (!row) return null;
-
           const isPinned = pinnedRow?.(row.original);
 
           return (
@@ -59,7 +58,6 @@ export function TableBody({
                       !isPinned &&
                         cell.column.getIsPinned() &&
                         'bg-white group-hover:bg-gray-50',
-                      cell.column.getIsPinned() && 'border-l',
                       'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
                       isPinned &&
                         'sticky top-[3.125rem] bottom-0 z-30 border-t',

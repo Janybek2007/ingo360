@@ -3,7 +3,11 @@ import React from 'react';
 import { cn } from '#/shared/utils/cn';
 import { uiSet } from '#/shared/utils/ui-set';
 
-import { Icon } from '../icon';
+import {
+  LucideAlertCircleIcon,
+  LucideArrowIcon,
+  LucideEyeIcon,
+} from '../../icons';
 import { Select } from '../select';
 import type { IFormFieldProps } from './form-field.types';
 
@@ -64,10 +68,9 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
               {...select}
               triggerText={placeholder}
               rightIcon={
-                <Icon
-                  className="text-[#94A3B8]"
-                  name="lucide:chevron-down"
-                  size={18}
+                <LucideArrowIcon
+                  className="text-[#94A3B8] size-[18px]"
+                  type="chevron-down"
                 />
               }
               changeTriggerText={true}
@@ -92,16 +95,13 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-all hover:bg-gray-400/20 p-1 rounded-full"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              <Icon
-                name={showPassword ? 'lucide:eye-off' : 'lucide:eye'}
-                className="size-[1.5rem]"
-              />
+              <LucideEyeIcon off={showPassword} className="size-[1.5rem]" />
             </button>
           )}
         </div>
         {error && (
           <div className="mt-1 flex items-center gap-2 text-sm text-red-600 font-medium animate-fadeIn">
-            <Icon name="lucide:alert-circle" className="size-[1rem]" />
+            <LucideAlertCircleIcon className="size-[1rem]" />
             <p>{error}</p>
           </div>
         )}

@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { LucideArrowIcon } from '#/shared/components/icons';
 import type { IFilterInputProps } from '#/shared/components/table/table.types';
-import { Icon } from '#/shared/components/ui/icon';
 import { Select } from '#/shared/components/ui/select';
 import { cn } from '#/shared/utils/cn';
 
@@ -25,8 +25,8 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
           triggerText="Выберите фильтр"
           changeTriggerText
           rightIcon={
-            <Icon
-              name="lucide:chevron-down"
+            <LucideArrowIcon
+              type="chevron-down"
               style={{
                 minWidth: '0.9rem',
                 minHeight: '0.8rem',

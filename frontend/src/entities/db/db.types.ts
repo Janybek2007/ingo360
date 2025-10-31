@@ -37,6 +37,12 @@ export type TDbItem = {
   distributor_name: string;
   product_group_id: number;
   product_group_name: string;
+  segment_id: string;
+  segment_name: string;
+  pharmacy_id: number;
+  pharmacy_name: string;
+  responsible_employee_id: number;
+  responsible_employee_name: string;
   year: number;
   quarter: number;
   month: number;

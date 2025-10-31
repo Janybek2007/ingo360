@@ -41,10 +41,6 @@ export interface ITableProps {
   rounded?: 'none' | 'sm' | 'md' | 'lg';
   highlightRow?: ITableBodyProps['highlightRow'];
   pinnedRow?: ITableBodyProps['pinnedRow'];
-  isLoading?: boolean;
-  isEmpty?: boolean;
-  loadingNode?: React.ReactNode;
-  emptyNode?: React.ReactNode;
   enableColumnResizing?: boolean;
   filters?: IUsedFilterProps & {
     custom?: ColumnFiltersState;

@@ -3,6 +3,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
@@ -211,6 +212,7 @@ export const Stocks: React.FC = React.memo(() => {
       'brand_name',
       'product_group_name',
       'distributor_name',
+      'promotion_type_name',
     ]);
 
     const grouped = createMonthsData(
@@ -310,32 +312,34 @@ export const Stocks: React.FC = React.memo(() => {
         </div>
       }
     >
-      <Table
-        filters={{
-          usedFilterItems,
-          resetFilters,
-          custom: createCustomFilters(sales, { brands, groups }, [
-            {
-              id: 'brand_id',
-              header: 'Бренд',
-              valueField: 'brand_id',
-              labelField: 'brand_name',
-            },
-            {
-              id: 'product_group_id',
-              header: 'Группа',
-              valueField: 'product_group_id',
-              labelField: 'product_group_name',
-            },
-          ]),
-        }}
-        columns={columnsForTable}
-        data={filteredData}
+      <AsyncBoundary
         isLoading={queryData.isLoading}
-        maxHeight={500}
-        rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
-        rounded="none"
-      />
+        queryError={queryData.error}
+      >
+        <Table
+          filters={{
+            usedFilterItems,
+            resetFilters,
+            custom: createCustomFilters(
+              sales,
+              { brand_id: brands, product_group_id: groups },
+              [
+                { id: 'brand_id', header: 'Бренд', labelField: 'brand_name' },
+                {
+                  id: 'product_group_id',
+                  header: 'Группа',
+                  labelField: 'product_group_name',
+                },
+              ]
+            ),
+          }}
+          columns={columnsForTable}
+          data={filteredData}
+          maxHeight={500}
+          rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
+          rounded="none"
+        />
+      </AsyncBoundary>
     </PageSection>
   );
 });

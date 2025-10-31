@@ -3,7 +3,6 @@ import React from 'react';
 import { Outlet } from 'react-router';
 import { Toaster } from 'sonner';
 
-import { Effect } from '#/shared/components/effect';
 import { ReactQueryProvider } from '#/shared/libs/react-query';
 import { SessionProvider } from '#/shared/session';
 
@@ -12,7 +11,6 @@ const RootLayout: React.FC = () => {
     <ReactQueryProvider>
       <NuqsAdapter>
         <SessionProvider>
-          <Effect />
           <Toaster
             position="bottom-right"
             richColors

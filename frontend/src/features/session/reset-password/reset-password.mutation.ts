@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { http } from '#/shared/api';
 import { useRouter } from '#/shared/hooks/use-router';
 import { routePaths } from '#/shared/router';
-import { getError } from '#/shared/utils/get-error';
+import { getResponseError } from '#/shared/utils/get-error';
 
 import {
   ResetPasswordContract,
@@ -42,7 +42,7 @@ export const useResetPasswordMutation = (token: string | null) => {
     },
     onError: async (error: HTTPError) => {
       try {
-        const message = await getError(error.response);
+        const message = await getResponseError(error.response);
         setError('root', {
           type: 'manual',
           message,

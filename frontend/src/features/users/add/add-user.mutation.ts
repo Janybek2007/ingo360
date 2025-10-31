@@ -4,7 +4,7 @@ import type { HTTPError } from 'ky';
 import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
-import { getError } from '#/shared/utils/get-error';
+import { getResponseError } from '#/shared/utils/get-error';
 
 import { AddUserContract, type TAddUserContract } from '../users.contracts';
 import type { TAddUserResponse } from '../users.types';
@@ -40,7 +40,7 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
     onError: async (error: HTTPError) => {
       const { toast } = await import('sonner');
       try {
-        const data = await getError(error.response);
+        const data = await getResponseError(error.response);
         toast.error(data);
       } catch (e) {
         console.error('Ошибка разбора ответа', e);

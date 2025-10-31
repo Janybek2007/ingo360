@@ -3,7 +3,6 @@ import { getUniqueItems } from '#/shared/utils/get-unique-items';
 export interface CustomFilterMapping {
   id: string;
   header: string;
-  valueField: string;
   labelField: string;
 }
 
@@ -13,7 +12,7 @@ export function createCustomFilters(
   selectedValues: Record<string, number[]>,
   fieldMappings: CustomFilterMapping[]
 ) {
-  return fieldMappings.map(({ id, header, valueField, labelField }) => ({
+  return fieldMappings.map(({ id, header, labelField }) => ({
     id,
     value: {
       colType: 'select' as const,
@@ -21,11 +20,10 @@ export function createCustomFilters(
       selectValues: getUniqueItems(
         data
           .filter(
-            item =>
-              selectedValues[id]?.includes(item[valueField] as number) ?? false
+            item => selectedValues[id]?.includes(item[id] as number) ?? false
           )
           .map(item => ({
-            value: item[valueField],
+            value: item[id],
             label: item[labelField],
           })),
         ['value']

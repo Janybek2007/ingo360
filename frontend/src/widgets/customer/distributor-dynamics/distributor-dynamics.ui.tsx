@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
@@ -301,107 +302,114 @@ export const DistributorDynamics: React.FC = React.memo(() => {
         </div>
       }
     >
-      <div className="space-y-4 relative">
-        <UsedFilter
-          usedFilterItems={usedFilterItems}
-          resetFilters={resetFilters}
-        />
-        <div className="font-inter">
-          {distributors.length === 0 ? (
-            <div className="text-center text-gray-500 py-60">
-              Дистрибьюторы не выбраны
-            </div>
-          ) : (
-            <LineChart
-              width={sectionStyle.width - 48}
-              height={500}
-              data={chartData}
-              margin={{ top: 20, right: 16, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="4 4" vertical={false} />
-              <XAxis
-                dataKey="label"
-                axisLine={false}
-                tickMargin={20}
-                className="text-[#474B4E] font-normal text-base leading-full"
-                padding={{ left: 20, right: 20 }}
-              />
-              <YAxis
-                domain={chartAxis.domain}
-                ticks={chartAxis.ticks}
-                axisLine={false}
-                tickLine={false}
-                className="text-[#474B4E] font-normal text-base leading-full"
-                tickMargin={10}
-                tickFormatter={formatMoney}
-              />
+      <AsyncBoundary
+        isLoading={queryData.isLoading}
+        queryError={queryData.error}
+      >
+        <div className="space-y-4 relative">
+          <UsedFilter
+            usedFilterItems={usedFilterItems}
+            resetFilters={resetFilters}
+          />
+          <div className="font-inter">
+            {distributors.length === 0 ? (
+              <div className="text-center text-gray-500 py-60">
+                Дистрибьюторы не выбраны
+              </div>
+            ) : (
+              <LineChart
+                width={sectionStyle.width - 48}
+                height={500}
+                data={chartData}
+                margin={{ top: 20, right: 16, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="4 4" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickMargin={20}
+                  className="text-[#474B4E] font-normal text-base leading-full"
+                  padding={{ left: 20, right: 20 }}
+                />
+                <YAxis
+                  domain={chartAxis.domain}
+                  ticks={chartAxis.ticks}
+                  axisLine={false}
+                  tickLine={false}
+                  className="text-[#474B4E] font-normal text-base leading-full"
+                  tickMargin={10}
+                  tickFormatter={formatMoney}
+                />
 
-              <Tooltip
-                cursor={false}
-                content={({ active, payload, label }) => {
-                  if (!active || !payload || payload.length === 0) return null;
+                <Tooltip
+                  cursor={false}
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload || payload.length === 0)
+                      return null;
 
-                  return (
-                    <div className="bg-white rounded-md px-3 py-2 shadow-lg border border-gray-200">
-                      <div className="text-xs text-gray-500 font-medium mb-2">
-                        {label}
+                    return (
+                      <div className="bg-white rounded-md px-3 py-2 shadow-lg border border-gray-200">
+                        <div className="text-xs text-gray-500 font-medium mb-2">
+                          {label}
+                        </div>
+                        <div className="space-y-1">
+                          {payload
+                            .filter(
+                              entry =>
+                                entry.value !== undefined &&
+                                entry.value !== null
+                            )
+                            .map((entry, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2"
+                              >
+                                <span
+                                  className="w-2 h-2 rounded-full"
+                                  style={{ backgroundColor: entry.color }}
+                                />
+                                <span className="text-sm font-semibold text-gray-800">
+                                  {entry.name}:{' '}
+                                  {formatMoney(entry.value as number)}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        {payload
-                          .filter(
-                            entry =>
-                              entry.value !== undefined && entry.value !== null
-                          )
-                          .map((entry, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center gap-2"
-                            >
-                              <span
-                                className="w-2 h-2 rounded-full"
-                                style={{ backgroundColor: entry.color }}
-                              />
-                              <span className="text-sm font-semibold text-gray-800">
-                                {entry.name}:{' '}
-                                {formatMoney(entry.value as number)}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  );
-                }}
-              />
+                    );
+                  }}
+                />
 
-              {distributorsData
-                .filter(d => distributors.includes(d.id))
-                .map(d => (
-                  <Line
-                    key={d.name}
-                    type="linear"
-                    dataKey={d.name}
-                    name={d.name}
-                    stroke={d.color}
-                    strokeWidth={3}
-                    activeDot={{ r: 6 }}
-                    dot={{ r: 5, fill: d.color }}
-                    connectNulls={false}
-                  >
-                    <LabelList
+                {distributorsData
+                  .filter(d => distributors.includes(d.id))
+                  .map(d => (
+                    <Line
+                      key={d.name}
+                      type="linear"
                       dataKey={d.name}
-                      position="top"
-                      className="font-inter text-xs hidden"
-                      formatter={value => {
-                        if (value === undefined || value === null) return '';
-                        return formatCompactNumber(value as number);
-                      }}
-                    />
-                  </Line>
-                ))}
-            </LineChart>
-          )}
+                      name={d.name}
+                      stroke={d.color}
+                      strokeWidth={3}
+                      activeDot={{ r: 6 }}
+                      dot={{ r: 5, fill: d.color }}
+                      connectNulls={false}
+                    >
+                      <LabelList
+                        dataKey={d.name}
+                        position="top"
+                        className="font-inter text-xs hidden"
+                        formatter={value => {
+                          if (value === undefined || value === null) return '';
+                          return formatCompactNumber(value as number);
+                        }}
+                      />
+                    </Line>
+                  ))}
+              </LineChart>
+            )}
+          </div>
         </div>
-      </div>
+      </AsyncBoundary>
     </PageSection>
   );
 });

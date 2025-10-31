@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 
 import { Assets } from '#/shared/assets';
-import { Icon } from '#/shared/components/ui/icon';
+import { LucideArrowIcon } from '#/shared/components/icons';
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { useActivePath } from '#/shared/hooks/use-active-path';
 import { useSession } from '#/shared/session/session.context';
@@ -49,9 +49,9 @@ export const Sidebar: React.FC = React.memo(() => {
         >
           <span className="text-gray-600 font-bold">
             {isCollapsed ? (
-              <Icon size={16} name="lucide:chevron-right" />
+              <LucideArrowIcon className="size-4" type="chevron-right" />
             ) : (
-              <Icon size={16} name="lucide:chevron-left" />
+              <LucideArrowIcon className="size-4" type="chevron-left" />
             )}
           </span>
         </button>

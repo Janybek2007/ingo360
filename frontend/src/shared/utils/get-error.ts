@@ -10,7 +10,7 @@ type PydanticErrorResponse = {
   detail: PydanticErrorDetail[] | string;
 };
 
-export async function getError(error: Response): Promise<string> {
+export async function getResponseError(error: Response): Promise<string> {
   try {
     const data = (await error.json()) as PydanticErrorResponse;
 

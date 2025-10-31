@@ -5,7 +5,7 @@ import { type IReferenceItem, ReferenceQueries } from '#/entities/reference';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import type { ReferencesType } from '#/shared/types/references.type';
-import { getError } from '#/shared/utils/get-error';
+import { getResponseError } from '#/shared/utils/get-error';
 
 export const useDeleteReferenceMutation = (
   type: ReferencesType,
@@ -44,7 +44,7 @@ export const useDeleteReferenceMutation = (
     onError: async (error: HTTPError) => {
       const { toast } = await import('sonner');
       try {
-        const data = await getError(error.response);
+        const data = await getResponseError(error.response);
         toast.error(data);
       } catch (e) {
         console.error('Ошибка разбора ответа', e);

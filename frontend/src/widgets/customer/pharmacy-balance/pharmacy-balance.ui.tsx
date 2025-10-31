@@ -1,35 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { DbQueries } from '#/entities/db';
+import { DbQueries, type TDbItem } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
-import { Table } from '#/shared/components/table';
+import { createCustomFilters, Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
-import { selectFilter } from '#/shared/utils/filter';
+import { createMonthsData } from '#/shared/utils/create-months-data';
+import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { randomId } from '#/shared/utils/mock';
+import { filterBySearch } from '#/shared/utils/search';
 
-interface PharmacyBalanceRow {
-  id: string;
-  pharmacy: { value: string; label: string };
-  sku: { value: string; label: string };
-  brand: { value: string; label: string };
-  group: { value: string; label: string };
-  responsible: { value: string; label: string };
-  total_packages: number;
-}
-
-interface LowStockPharmacyApiItem {
-  sku_name: string;
-  pharmacy_name: string;
-  product_group_name: string;
-  responsible_employee_name: string;
-  brand_name: string;
+interface PharmacyBalanceRow extends TDbItem {
   total_packages: number;
 }
 
@@ -37,53 +24,19 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
 
-  // dynamic options
-  const [brandOptions, setBrandOptions] = React.useState<
-    { value: string; label: string }[]
-  >([]);
-  const [groupOptions, setGroupOptions] = React.useState<
-    { value: string; label: string }[]
-  >([]);
-  const [brands, setBrands] = React.useState<string[]>([]);
-  const [groups, setGroups] = React.useState<string[]>([]);
+  const [brands, setBrands] = React.useState<number[]>([]);
+  const [groups, setGroups] = React.useState<number[]>([]);
 
   const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<LowStockPharmacyApiItem[]>([
+    DbQueries.GetDbItemsQuery<PharmacyBalanceRow[]>([
       'sales/tertiary/reports/low-stock-pharmacies',
     ])
   );
 
-  const items = React.useMemo(
+  const sales = React.useMemo(
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
-
-  useEffect(() => {
-    if (!items || items.length === 0) return;
-    const brandItems = getUniqueItems(
-      items.map(v => ({
-        value: v.brand_name.trim(),
-        label: v.brand_name.trim(),
-      })),
-      ['value']
-    );
-    const groupItems = getUniqueItems(
-      items.map(v => ({
-        value: v.product_group_name.trim(),
-        label: v.product_group_name.trim(),
-      })),
-      ['value']
-    );
-
-    setBrandOptions(brandItems);
-    setGroupOptions(groupItems);
-    setBrands(prev =>
-      prev.length === 0 ? brandItems.map(b => b.value) : prev
-    );
-    setGroups(prev =>
-      prev.length === 0 ? groupItems.map(g => g.value) : prev
-    );
-  }, [items]);
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -99,68 +52,103 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(brandOptions.map(v => v.value));
-    setGroups(groupOptions.map(v => v.value));
+    setBrands([]);
+    setGroups([]);
     setRowsCount('all');
-  }, [brandOptions, groupOptions]);
+  }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<PharmacyBalanceRow>[] => [
       {
-        id: 'pharmacy',
-        accessorKey: 'pharmacy.label',
+        id: 'pharmacy_id',
+        accessorKey: 'pharmacy_name',
         header: 'Аптека',
         enableColumnFilter: true,
         size: 180,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: [],
+        selectOptions: getUniqueItems(
+          sales.map(s => ({
+            value: s.pharmacy_id,
+            label: s.pharmacy_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'sku',
-        accessorKey: 'sku.label',
+        id: 'sku_id',
+        accessorKey: 'sku_name',
         header: 'SKU',
         enableColumnFilter: true,
         size: 180,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: [],
+        selectOptions: getUniqueItems(
+          sales.map(s => ({
+            value: s.sku_id,
+            label: s.sku_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'brand',
-        accessorKey: 'brand.label',
+        id: 'brand_id',
+        accessorKey: 'brand_name',
         header: 'Бренд',
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: brandOptions,
+        selectOptions: getUniqueItems(
+          sales.map(s => ({
+            value: s.brand_id,
+            label: s.brand_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'group',
-        accessorKey: 'group.label',
+        id: 'product_group_id',
+        accessorKey: 'product_group_name',
         header: 'Группа',
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: groupOptions,
+        selectOptions: getUniqueItems(
+          sales.map(s => ({
+            value: s.product_group_id,
+            label: s.product_group_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'responsible',
-        accessorKey: 'responsible.label',
+        id: 'responsible_employee_id',
+        accessorKey: 'responsible_employee_name',
         header: 'Ответственный',
         enableColumnFilter: true,
         size: 180,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        selectOptions: getUniqueItems(
+          sales.map(s => ({
+            value: s.responsible_employee_id,
+            label: s.responsible_employee_name,
+          })),
+          ['value']
+        ),
       },
       {
         id: 'total_packages',
         accessorKey: 'total_packages',
         header: 'Упаковок',
         size: 120,
+        filterFn: numberFilter(),
+        filterType: 'number',
       },
     ],
-    [brandOptions, groupOptions]
+    [sales]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -169,43 +157,25 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       ignore: ['actions', 'total'],
     });
 
-  const data = useMemo(() => {
-    if (!items) return [] as PharmacyBalanceRow[];
+  const filteredData = useMemo(() => {
+    const searched = filterBySearch(sales, search, [
+      'sku_name',
+      'brand_name',
+      'product_group_name',
+      'distributor_name',
+      'promotion_type_name',
+    ]);
 
-    let rows = items.map(item => ({
-      id: randomId('pharm'),
-      pharmacy: { value: item.pharmacy_name, label: item.pharmacy_name },
-      sku: { value: item.sku_name, label: item.sku_name },
-      brand: { value: item.brand_name, label: item.brand_name },
-      group: { value: item.product_group_name, label: item.product_group_name },
-      responsible: {
-        value: item.responsible_employee_name,
-        label: item.responsible_employee_name,
-      },
-      total_packages: item.total_packages ?? 0,
-    }));
+    const grouped = createMonthsData(
+      searched,
+      row =>
+        `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}|${row.distributor_name.trim()}|${row.promotion_type_name.trim()}|${row.product_group_name.trim()}`,
+      row => row.total_packages,
+      row => ({ ...row })
+    );
 
-    if (search.trim()) {
-      const s = search.toLowerCase();
-      rows = rows.filter(
-        row =>
-          row.pharmacy.label.toLowerCase().includes(s) ||
-          row.sku.label.toLowerCase().includes(s) ||
-          row.brand.label.toLowerCase().includes(s) ||
-          row.group.label.toLowerCase().includes(s) ||
-          row.responsible.label.toLowerCase().includes(s)
-      );
-    }
-
-    if (brands.length > 0)
-      rows = rows.filter(r => brands.includes(r.brand.value));
-    if (groups.length > 0)
-      rows = rows.filter(r => groups.includes(r.group.value));
-
-    if (rowsCount !== 'all') rows = rows.slice(0, rowsCount);
-
-    return rows;
-  }, [items, search, brands, groups, rowsCount]);
+    return grouped;
+  }, [search, sales]);
 
   return (
     <PageSection
@@ -213,25 +183,31 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
+          <Select<true, number>
             value={brands}
             setValue={setBrands}
             showToggleAll
             isMultiple
             checkbox
-            items={brandOptions}
+            items={sales.map(s => ({
+              value: s.brand_id,
+              label: s.brand_name,
+            }))}
             triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
-          <Select<true, string>
+          <Select<true, number>
             value={groups}
             isMultiple
             checkbox
             showToggleAll
             setValue={setGroups}
-            items={groupOptions}
+            items={sales.map(s => ({
+              value: s.product_group_id,
+              label: s.product_group_name,
+            }))}
             triggerText="Группа"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
           <Select<false, typeof rowsCount>
             value={rowsCount}
@@ -257,43 +233,40 @@ export const PharmacyBalance: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton data={data} fileName="white-spots.xlsx" />
+          <ExportToExcelButton
+            data={filteredData}
+            fileName="white-spots.xlsx"
+          />
         </div>
       }
     >
-      <Table
-        filters={{
-          usedFilterItems,
-          resetFilters,
-          custom: [
-            {
-              id: 'brand',
-              value: {
-                colType: 'select',
-                header: 'Бренд',
-                selectValues: brandOptions.filter(b =>
-                  brands.includes(b.value)
-                ),
-              },
-            },
-            {
-              id: 'group',
-              value: {
-                colType: 'select',
-                header: 'Группа',
-                selectValues: groupOptions.filter(g =>
-                  groups.includes(g.value)
-                ),
-              },
-            },
-          ],
-        }}
-        columns={columnsForTable}
-        data={data}
+      <AsyncBoundary
         isLoading={queryData.isLoading}
-        maxHeight={400}
-        rounded="none"
-      />
+        queryError={queryData.error}
+      >
+        <Table
+          filters={{
+            usedFilterItems,
+            resetFilters,
+            custom: createCustomFilters(
+              sales,
+              { brand_id: brands, product_group_id: groups },
+              [
+                { id: 'brand_id', header: 'Бренд', labelField: 'brand_name' },
+                {
+                  id: 'product_group_id',
+                  header: 'Группа',
+                  labelField: 'product_group_name',
+                },
+              ]
+            ),
+          }}
+          columns={columnsForTable}
+          data={filteredData}
+          maxHeight={400}
+          rounded="none"
+        />
+      </AsyncBoundary>
     </PageSection>
   );
 });

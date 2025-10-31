@@ -5,7 +5,7 @@ import { DbQueries, type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import type { DbType } from '#/shared/types/db.type';
-import { getError } from '#/shared/utils/get-error';
+import { getResponseError } from '#/shared/utils/get-error';
 
 export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
   return useMutation({
@@ -43,7 +43,7 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
     onError: async (error: HTTPError) => {
       const { toast } = await import('sonner');
       try {
-        const data = await getError(error.response);
+        const data = await getResponseError(error.response);
         toast.error(data);
       } catch (e) {
         console.error('Ошибка разбора ответа', e);

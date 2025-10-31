@@ -9,7 +9,7 @@ import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { useSession } from '#/shared/session';
-import { getError } from '#/shared/utils/get-error';
+import { getResponseError } from '#/shared/utils/get-error';
 
 import {
   LoginContract,
@@ -56,7 +56,7 @@ export const useLoginMutation = () => {
     },
     onError: async (error: HTTPError) => {
       try {
-        const data = await getError(error.response);
+        const data = await getResponseError(error.response);
         setError('root', {
           type: 'manual',
           message: data,

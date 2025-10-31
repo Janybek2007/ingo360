@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
@@ -153,92 +154,98 @@ export const DynamicSales: React.FC = React.memo(() => {
         </div>
       }
     >
-      <div className="space-y-4">
-        <UsedFilter
-          usedFilterItems={usedFilterItems}
-          resetFilters={resetFilters}
-        />
+      <AsyncBoundary
+        isLoading={queryData.isLoading}
+        queryError={queryData.error}
+      >
+        <div className="space-y-4">
+          <UsedFilter
+            usedFilterItems={usedFilterItems}
+            resetFilters={resetFilters}
+          />
 
-        <div className="font-inter">
-          <LineChart
-            width={sectionStyle.width - 48}
-            height={500}
-            data={data}
-            margin={{ top: 20, right: 16, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="4 4" vertical={false} />
-            <XAxis
-              dataKey="label"
-              axisLine={false}
-              tickMargin={20}
-              className="text-base text-[#474B4E] leading-full font-normal"
-              padding={{ left: 30, right: 30 }}
-            />
-            <YAxis
-              domain={chartAxis.domain}
-              ticks={chartAxis.ticks}
-              axisLine={false}
-              tickLine={false}
-              hide
-              className="text-base font-normal text-[#474B4E] leading-full"
-              tickMargin={20}
-              tickFormatter={value => formatCompactNumber(value)}
-            />
-            <Tooltip
-              labelFormatter={(label, payload) => {
-                if (payload && payload[0]) {
-                  return payload[0].payload.fullLabel || label;
-                }
-                return label;
-              }}
-              formatter={(value, name) => {
-                const label = name === 'primaryValue' ? 'Первичка' : 'Вторичка';
-                return [value.toLocaleString('ru-RU'), label];
-              }}
-            />
-            <Line
-              type="linear"
-              dataKey="primaryValue"
-              stroke={'#0B5A7C'}
-              strokeWidth={3}
-              activeDot={{ r: 6 }}
-              dot={{ r: 5, fill: '#0B5A7C' }}
-              connectNulls={false}
+          <div className="font-inter">
+            <LineChart
+              width={sectionStyle.width - 48}
+              height={500}
+              data={data}
+              margin={{ top: 20, right: 16, bottom: 20 }}
             >
-              <LabelList
+              <CartesianGrid strokeDasharray="4 4" vertical={false} />
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickMargin={20}
+                className="text-base text-[#474B4E] leading-full font-normal"
+                padding={{ left: 30, right: 30 }}
+              />
+              <YAxis
+                domain={chartAxis.domain}
+                ticks={chartAxis.ticks}
+                axisLine={false}
+                tickLine={false}
+                hide
+                className="text-base font-normal text-[#474B4E] leading-full"
+                tickMargin={20}
+                tickFormatter={value => formatCompactNumber(value)}
+              />
+              <Tooltip
+                labelFormatter={(label, payload) => {
+                  if (payload && payload[0]) {
+                    return payload[0].payload.fullLabel || label;
+                  }
+                  return label;
+                }}
+                formatter={(value, name) => {
+                  const label =
+                    name === 'primaryValue' ? 'Первичка' : 'Вторичка';
+                  return [value.toLocaleString('ru-RU'), label];
+                }}
+              />
+              <Line
+                type="linear"
                 dataKey="primaryValue"
-                position="top"
-                className="font-inter text-xs"
-                formatter={value => {
-                  if (value === undefined || value === null || value === 0)
-                    return '';
-                  return formatCompactNumber(value as number);
-                }}
-              />
-            </Line>
-            <Line
-              type="linear"
-              dataKey="secondaryValue"
-              stroke={'#E97030'}
-              strokeWidth={3}
-              activeDot={{ r: 6 }}
-              dot={{ r: 5, fill: '#E97030' }}
-              connectNulls={false}
-            >
-              <LabelList
+                stroke={'#0B5A7C'}
+                strokeWidth={3}
+                activeDot={{ r: 6 }}
+                dot={{ r: 5, fill: '#0B5A7C' }}
+                connectNulls={false}
+              >
+                <LabelList
+                  dataKey="primaryValue"
+                  position="top"
+                  className="font-inter text-xs"
+                  formatter={value => {
+                    if (value === undefined || value === null || value === 0)
+                      return '';
+                    return formatCompactNumber(value as number);
+                  }}
+                />
+              </Line>
+              <Line
+                type="linear"
                 dataKey="secondaryValue"
-                position="top"
-                className="font-inter text-xs"
-                formatter={value => {
-                  if (value === undefined || value === null || value === 0)
-                    return '';
-                  return formatCompactNumber(value as number);
-                }}
-              />
-            </Line>
-          </LineChart>
+                stroke={'#E97030'}
+                strokeWidth={3}
+                activeDot={{ r: 6 }}
+                dot={{ r: 5, fill: '#E97030' }}
+                connectNulls={false}
+              >
+                <LabelList
+                  dataKey="secondaryValue"
+                  position="top"
+                  className="font-inter text-xs"
+                  formatter={value => {
+                    if (value === undefined || value === null || value === 0)
+                      return '';
+                    return formatCompactNumber(value as number);
+                  }}
+                />
+              </Line>
+            </LineChart>
+          </div>
         </div>
-      </div>
+      </AsyncBoundary>
     </PageSection>
   );
 });

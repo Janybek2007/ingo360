@@ -1,9 +1,6 @@
-import type { IIconProps } from '../icon';
-
 export interface ISelectItem<VT = string> {
   value: VT;
   label: string;
-  icon?: string | IIconProps;
 }
 
 export interface ISelectProps<ISM extends boolean = false, VT = string> {
