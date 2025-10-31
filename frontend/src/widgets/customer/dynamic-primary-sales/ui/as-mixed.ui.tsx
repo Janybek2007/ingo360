@@ -1,42 +1,109 @@
 import React, { useMemo } from 'react';
 import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 
-import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
-const generateRawData = () => {
-  const currentYear = new Date().getFullYear();
-  const data = [];
-
-  for (let yearOffset = 1; yearOffset >= 0; yearOffset--) {
-    const year = currentYear - yearOffset;
-    for (let month = 1; month <= 12; month++) {
-      const quarter = Math.ceil(month / 3);
-      data.push({
-        year,
-        month,
-        quarter,
-        remains: Math.floor(Math.random() * 40) + 60,
-        primary: Math.floor(Math.random() * 40) + 30,
-        trade_stock: Math.floor(Math.random() * 50) + 40,
-      });
-    }
-  }
-
-  return data;
-};
-
-const rawData = generateRawData();
-
-interface DynamicPrimarySalesAsMixedProps {
-  period: UsePeriodType;
-  selectedValues: string[];
-}
+import type { DynamicPrimarySalesAsMixedProps } from '../dynamic-primary-sales.types';
 
 export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProps> =
-  React.memo(({ period, selectedValues }) => {
+  React.memo(({ period, selectedValues, sales: processedSalesData }) => {
     const sectionStyle = useSectionStyle();
+
+    // Преобразуем данные с months в формат для графика
+    const rawData = useMemo(() => {
+      const dataMap = new Map<
+        string,
+        {
+          year: number;
+          month: number;
+          quarter: number;
+          primary: number;
+          remains: number;
+          trade_stock: number;
+        }
+      >();
+
+      // Обрабатываем первичные продажи
+      processedSalesData.sales.forEach(item => {
+        if (!item.months || !Array.isArray(item.months)) return;
+
+        item.months.forEach((value, index) => {
+          if (value !== null) {
+            const month = index + 1;
+            const year = item.year;
+            const quarter = Math.ceil(month / 3);
+            const key = `${year}-${month}`;
+
+            const existing = dataMap.get(key) || {
+              year,
+              month,
+              quarter,
+              primary: 0,
+              remains: 0,
+              trade_stock: 0,
+            };
+            existing.primary += value;
+            dataMap.set(key, existing);
+          }
+        });
+      });
+
+      // Обрабатываем остатки (inventory)
+      processedSalesData.inventory.forEach(item => {
+        if (!item.months || !Array.isArray(item.months)) return;
+
+        item.months.forEach((value, index) => {
+          if (value !== null) {
+            const month = index + 1;
+            const year = item.year;
+            const quarter = Math.ceil(month / 3);
+            const key = `${year}-${month}`;
+
+            const existing = dataMap.get(key) || {
+              year,
+              month,
+              quarter,
+              primary: 0,
+              remains: 0,
+              trade_stock: 0,
+            };
+            existing.remains += value;
+            dataMap.set(key, existing);
+          }
+        });
+      });
+
+      // Обрабатываем товарный запас (stocks)
+      processedSalesData.stocks.forEach(item => {
+        if (!item.months || !Array.isArray(item.months)) return;
+
+        item.months.forEach((value, index) => {
+          if (value !== null) {
+            const month = index + 1;
+            const year = item.year;
+            const quarter = Math.ceil(month / 3);
+            const key = `${year}-${month}`;
+
+            const existing = dataMap.get(key) || {
+              year,
+              month,
+              quarter,
+              primary: 0,
+              remains: 0,
+              trade_stock: 0,
+            };
+            existing.trade_stock += value;
+            dataMap.set(key, existing);
+          }
+        });
+      });
+
+      return Array.from(dataMap.values()).sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+      });
+    }, [processedSalesData]);
 
     const data = useMemo(() => {
       return processPeriodData({
@@ -45,7 +112,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
         selectedValues,
         aggregateFields: ['remains', 'primary', 'trade_stock'],
       });
-    }, [period, selectedValues]);
+    }, [rawData, period, selectedValues]);
 
     const processedData = useMemo(
       () =>

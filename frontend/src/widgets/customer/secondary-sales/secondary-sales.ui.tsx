@@ -1,44 +1,45 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { DbQueries, type TDbItem } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
-import { Table } from '#/shared/components/table';
+import { createCustomFilters, Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import {
-  BRANDS,
-  DISTRIBUTORS,
-  GROUPS,
-  PROMOTION_TYPES,
-  SKUS,
-} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import type { IndicatorType } from '#/shared/types/global';
+import { createMonthsData } from '#/shared/utils/create-months-data';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
+import { filterBySearch } from '#/shared/utils/search';
 
-interface SecondarySalesRow {
-  id: string;
-  sku: string;
-  brand: string;
-  promoType: string;
-  group: string;
-  distributor: string;
-  months: number[];
+interface SecondarySalesRow extends TDbItem {
+  packages: number;
+  amount: number;
+  total_packages_per_period: number;
+  total_amount_per_period: number;
+  months: (number | null)[];
 }
 
 export const SecondarySales: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [brands, setBrands] = React.useState<string[]>(
-    BRANDS.map(v => v.value)
+  const [brands, setBrands] = React.useState<number[]>([]);
+  const [groups, setGroups] = React.useState<number[]>([]);
+  const [indicator, setIndicator] = React.useState<IndicatorType>('amount');
+
+  const queryData = useQuery(
+    DbQueries.GetDbItemsQuery<SecondarySalesRow[]>(
+      ['sales/secondary/reports/sales'],
+      { limit: rowsCount === 'all' ? undefined : rowsCount, offset: 0 }
+    )
   );
-  const [groups, setGroups] = React.useState<string[]>(
-    GROUPS.map(v => v.value)
-  );
-  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
-    'money'
+  const sales = React.useMemo(
+    () => (queryData.data ? queryData.data[0] : []),
+    [queryData.data]
   );
 
   const usedFilterItems = React.useMemo(() => {
@@ -55,89 +56,149 @@ export const SecondarySales: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands(BRANDS.map(v => v.value));
-    setGroups(GROUPS.map(v => v.value));
+    setBrands([]);
+    setGroups([]);
     setRowsCount('all');
   }, []);
 
   const allColumns = useMemo<ColumnDef<SecondarySalesRow>[]>(
     () => [
       {
-        id: 'sku',
-        accessorKey: 'sku.label',
+        id: 'sku_id',
+        accessorKey: 'sku_name',
         header: 'SKU',
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
         enablePinning: true,
-        selectOptions: SKUS,
+        selectOptions: getUniqueItems(
+          sales.map(v => ({
+            value: v.sku_id,
+            label: v.sku_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'brand',
-        accessorKey: 'brand.label',
+        id: 'brand_id',
+        accessorKey: 'brand_name',
         header: 'Бренд',
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
-        selectOptions: BRANDS,
+        selectOptions: getUniqueItems(
+          sales.map(v => ({
+            value: v.brand_id,
+            label: v.brand_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'promoType',
-        accessorKey: 'promoType.label',
+        id: 'promotion_type_id',
+        accessorKey: 'promotion_type_name',
         header: 'Тип промоции',
         enableColumnFilter: true,
         size: 250,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
-        selectOptions: PROMOTION_TYPES,
+        selectOptions: getUniqueItems(
+          sales.map(v => ({
+            value: v.promotion_type_id,
+            label: v.promotion_type_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'group',
-        accessorKey: 'group.label',
+        id: 'product_group_id',
+        accessorKey: 'product_group_name',
         header: 'Группа',
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
-        selectOptions: GROUPS,
+        selectOptions: getUniqueItems(
+          sales.map(v => ({
+            value: v.product_group_id,
+            label: v.product_group_name,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'distributor',
-        accessorKey: 'distributor.label',
+        id: 'distributor_id',
+        accessorKey: 'distributor_name',
         header: 'Дистр',
         enableColumnFilter: true,
         size: 150,
         filterFn: selectFilter(),
         filterType: 'select',
-        enablePinning: true,
-        selectOptions: DISTRIBUTORS,
+        selectOptions: getUniqueItems(
+          sales.map(v => ({
+            value: v.distributor_id,
+            label: v.distributor_name,
+          })),
+          ['value']
+        ),
       },
       ...Array.from(
         { length: 12 },
         (_, i) =>
           ({
-            accessorFn: (row: SecondarySalesRow) => row.months[i],
+            accessorFn: row => {
+              const value = row.months?.[i];
+              return value;
+            },
             id: `month${i + 1}`,
-            header: `2024/${i + 1}`,
+            header: `${2025}/${i + 1}`,
             size: 140,
             enableColumnFilter: true,
             filterFn: numberFilter(),
             filterType: 'number',
+            cell: ({ getValue }) => {
+              const value = getValue() as number | null;
+              if (value === null || value === undefined) return '-';
+              const formatted = value.toLocaleString('ru-RU', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
+              });
+              return (
+                <span className={value < 0 ? 'text-red-600 font-medium' : ''}>
+                  {formatted}
+                </span>
+              );
+            },
           }) as ColumnDef<SecondarySalesRow>
       ),
       {
-        accessorKey: 'total',
+        id: 'total',
         header: 'Итого',
         size: 120,
-        cell: ({ row }) => row.original.months.reduce((a, b) => a + b, 0),
+        cell: ({ row }) => {
+          const rowData = row.original as SecondarySalesRow;
+          const total =
+            rowData.months?.reduce((sum, val) => {
+              if (val !== null && val !== undefined) {
+                return (sum ?? 0) + val;
+              }
+              return sum ?? 0;
+            }, 0 as number) ?? 0;
+          const formatted = total.toLocaleString('ru-RU', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+          });
+          return (
+            <span className={total < 0 ? 'text-red-600 font-medium' : ''}>
+              {formatted}
+            </span>
+          );
+        },
       },
     ],
-    []
+    [sales]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -145,36 +206,37 @@ export const SecondarySales: React.FC = React.memo(() => {
       allColumns,
     });
 
-  const data = useMemo(() => {
-    const allData = generateMocks(rowsCount == 'all' ? 50 : rowsCount, {
-      id: () => randomId('sku'),
-      sku: SKUS,
-      brand: BRANDS,
-      promoType: PROMOTION_TYPES,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      months: () => randomArray(12, 10, 500),
-    });
+  const filteredData = useMemo(() => {
+    const searched = filterBySearch(sales, search, [
+      'sku_name',
+      'brand_name',
+      'product_group_name',
+      'distributor_name',
+    ]);
 
-    return allData.filter(
+    const grouped = createMonthsData(
+      searched,
       row =>
-        row.sku.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.promoType.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.label.toLowerCase().includes(search.toLowerCase())
+        `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}|${row.distributor_name.trim()}|${row.promotion_type_name.trim()}|${row.product_group_name.trim()}`,
+      row => row[indicator],
+      row => ({ ...row })
     );
-  }, [search, rowsCount]);
+
+    return grouped;
+  }, [search, sales, indicator]);
 
   const monthTotals = useMemo(() => {
     const totals = Array(12).fill(0);
-    data.forEach(row => {
-      row.months.forEach((value, index) => {
-        totals[index] += value;
+    filteredData.forEach(row => {
+      const rowData = row as SecondarySalesRow;
+      rowData.months?.forEach((value, index) => {
+        if (value !== null && value !== undefined) {
+          totals[index] += value;
+        }
       });
     });
     return totals;
-  }, [data]);
+  }, [filteredData]);
 
   const grandTotal = useMemo(() => {
     return monthTotals.reduce((sum, val) => sum + val, 0);
@@ -182,37 +244,45 @@ export const SecondarySales: React.FC = React.memo(() => {
 
   return (
     <PageSection
+      title="Вторичные продажи"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-          <Select<true, string>
+          <Select<true, number>
             value={brands}
             setValue={setBrands}
-            isMultiple
             showToggleAll
+            isMultiple
             checkbox
-            items={BRANDS}
+            items={sales.map(s => ({
+              value: s.brand_id,
+              label: s.brand_name,
+            }))}
             triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
-          <Select<true, string>
+          <Select<true, number>
             value={groups}
-            setValue={setGroups}
             isMultiple
             checkbox
             showToggleAll
-            items={GROUPS}
+            setValue={setGroups}
+            items={sales.map(s => ({
+              value: s.product_group_id,
+              label: s.product_group_name,
+            }))}
             triggerText="Группа"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
-          <Select<false, typeof moneyType>
-            value={moneyType}
-            setValue={setMoneyType}
+          <Select<false, typeof indicator>
+            value={indicator}
+            setValue={setIndicator}
             items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
+              { value: 'amount', label: 'Деньги' },
+              { value: 'packages', label: 'Упаковка' },
             ]}
-            triggerText="Деньги/Упаковка"
+            changeTriggerText
+            labelTemplate="Индикатор: {label}"
           />
           <Select<false, typeof rowsCount>
             value={rowsCount}
@@ -238,7 +308,10 @@ export const SecondarySales: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton data={data} fileName="secondary-sales.xlsx" />
+          <ExportToExcelButton
+            data={filteredData}
+            fileName="secondary-sales.xlsx"
+          />
         </div>
       }
     >
@@ -246,27 +319,23 @@ export const SecondarySales: React.FC = React.memo(() => {
         filters={{
           usedFilterItems,
           resetFilters,
-          custom: [
+          custom: createCustomFilters(sales, { brands, groups }, [
             {
-              id: 'brand',
-              value: {
-                colType: 'select',
-                header: 'Бренд',
-                selectValues: BRANDS.filter(b => brands.includes(b.value)),
-              },
+              id: 'brand_id',
+              header: 'Бренд',
+              valueField: 'brand_id',
+              labelField: 'brand_name',
             },
             {
-              id: 'group',
-              value: {
-                colType: 'select',
-                header: 'Группа',
-                selectValues: GROUPS.filter(g => groups.includes(g.value)),
-              },
+              id: 'product_group_id',
+              header: 'Группа',
+              valueField: 'product_group_id',
+              labelField: 'product_group_name',
             },
-          ],
+          ]),
         }}
         columns={columnsForTable}
-        data={data}
+        data={filteredData}
         maxHeight={500}
         rowTotal={{ firstColSpan: 5, monthTotals, grandTotal }}
         rounded="none"

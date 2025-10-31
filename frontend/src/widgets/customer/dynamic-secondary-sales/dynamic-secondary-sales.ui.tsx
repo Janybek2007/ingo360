@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import {
   CartesianGrid,
@@ -9,11 +10,14 @@ import {
   YAxis,
 } from 'recharts';
 
+import { DbQueries, type TDbItem } from '#/entities/db';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
-import { UsedFilter } from '#/shared/components/used-filter';
-import { BRANDS, GROUPS } from '#/shared/constants/test_constants';
+import {
+  type IUsedFilterItem,
+  UsedFilter,
+} from '#/shared/components/used-filter';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import {
@@ -21,67 +25,154 @@ import {
   formatCompactNumber,
 } from '#/shared/utils/format-number';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
-const generateRawData = () => {
-  const currentYear = new Date().getFullYear();
-  const data = [];
-
-  for (let yearOffset = 1; yearOffset >= 0; yearOffset--) {
-    const year = currentYear - yearOffset;
-    for (let month = 1; month <= 12; month++) {
-      const quarter = Math.ceil(month / 3);
-      data.push({
-        year,
-        month,
-        quarter,
-        value: Math.floor(Math.random() * 80000) + 120000,
-      });
-    }
-  }
-
-  return data;
-};
-
-const rawData = generateRawData();
+interface SecondarySalesRow extends TDbItem {
+  packages: number;
+  amount: number;
+  total_packages_per_period: number;
+  total_amount_per_period: number;
+  months: (number | null)[];
+}
 
 export const DynamicSecondarySales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const [unit, setUnit] = React.useState<'money' | 'packaging'>('money');
-  const [brand, setBrand] = React.useState<string>('');
-  const [group, setGroup] = React.useState<string>('');
+  const [indicator, setIndicator] = React.useState<'amount' | 'packages'>(
+    'amount'
+  );
+  const [brands, setBrands] = React.useState<number[]>([]);
+  const [groups, setGroups] = React.useState<number[]>([]);
   const periodFilter = usePeriodFilter();
 
-  const usedFilterItems = React.useMemo(() => {
-    return getUsedFilterItems([
-      {
-        value: periodFilter.selectedValues,
-        getLabelFromValue: getPeriodLabel,
-        onDelete: value => {
-          const newValues = periodFilter.selectedValues.filter(
-            v => v !== value
-          );
-          periodFilter.onChange(newValues);
+  const queryData = useQuery(
+    DbQueries.GetDbItemsQuery<SecondarySalesRow[]>([
+      'sales/secondary/reports/sales',
+    ])
+  );
+  const sales = React.useMemo(
+    () => (queryData.data ? queryData.data[0] : []),
+    [queryData.data]
+  );
+
+  const rawData = React.useMemo(() => {
+    let filtered = sales;
+
+    if (brands.length > 0) {
+      filtered = filtered.filter(item => brands.includes(item.brand_id));
+    }
+
+    if (groups.length > 0) {
+      filtered = filtered.filter(item =>
+        groups.includes(item.product_group_id)
+      );
+    }
+
+    const dataMap = new Map<
+      string,
+      { year: number; month: number; quarter: number; value: number }
+    >();
+
+    filtered.forEach(item => {
+      const key = `${item.year}-${item.month}`;
+      const existing = dataMap.get(key);
+      const value = item[indicator];
+
+      if (existing) {
+        existing.value += value;
+      } else {
+        dataMap.set(key, {
+          year: item.year,
+          month: item.month,
+          quarter: item.quarter,
+          value: value,
+        });
+      }
+    });
+
+    return Array.from(dataMap.values()).sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.month - b.month;
+    });
+  }, [brands, groups, indicator, sales]);
+
+  const availableOptions = React.useMemo(() => {
+    const data = queryData.data ? queryData.data[0] || [] : [];
+
+    const brands = data.map(item => ({
+      value: item.brand_id,
+      label: item.brand_name,
+    }));
+
+    const groups = data.map(item => ({
+      value: item.product_group_id,
+      label: item.product_group_name,
+    }));
+
+    return {
+      brands: getUniqueItems(brands, ['value']),
+      groups: getUniqueItems(groups, ['value']),
+    };
+  }, [queryData.data]);
+
+  const usedFilterItems = React.useMemo((): IUsedFilterItem[] => {
+    return [
+      ...getUsedFilterItems([
+        {
+          value: periodFilter.selectedValues,
+          getLabelFromValue: getPeriodLabel,
+          onDelete: value => {
+            const newValues = periodFilter.selectedValues.filter(
+              v => v !== value
+            );
+            periodFilter.onChange(newValues);
+          },
         },
+      ]),
+      brands.length > 0 && {
+        label: 'Бренды: ',
+        value: 'brand-roots',
+        onDelete: () => setBrands([]),
+        subItems: brands.map(brandId => {
+          const brand = availableOptions.brands.find(b => b.value === brandId);
+          return {
+            label: brand?.label || '',
+            value: brandId,
+            onDelete: () => {
+              setBrands(prev => prev.filter(b => b !== brandId));
+            },
+          };
+        }),
       },
-      {
-        value: brand,
-        items: BRANDS,
-        onDelete: () => setBrand(''),
+      groups.length > 0 && {
+        label: 'Группы: ',
+        value: 'group-roots',
+        onDelete: () => setGroups([]),
+        subItems: groups.map(groupId => {
+          const group = availableOptions.groups.find(g => g.value === groupId);
+          return {
+            label: group?.label || '',
+            value: groupId,
+            onDelete: () => {
+              setGroups(prev => prev.filter(g => g !== groupId));
+            },
+          };
+        }),
       },
-      {
-        value: group,
-        items: GROUPS,
-        onDelete: () => setGroup(''),
-      },
-    ]);
-  }, [periodFilter, brand, group]);
+    ].filter(Boolean) as IUsedFilterItem[];
+  }, [
+    availableOptions.brands,
+    availableOptions.groups,
+    brands,
+    groups,
+    periodFilter,
+  ]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    setBrand('');
-    setGroup('');
+    setBrands([]);
+    setGroups([]);
   }, [periodFilter]);
 
   const data = useMemo(() => {
@@ -91,37 +182,43 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
       selectedValues: periodFilter.selectedValues,
       aggregateFields: ['value'],
     });
-  }, [periodFilter.period, periodFilter.selectedValues]);
+  }, [periodFilter.period, periodFilter.selectedValues, rawData]);
 
   const chartAxis = useMemo(() => calculateChartAxis(data, ['value']), [data]);
 
   return (
     <PageSection
-      title={`Динамика вторичных продаж в ${unit === 'money' ? 'деньгах' : 'упаковках'}`}
+      title={`Динамика вторичных продаж в ${indicator === 'amount' ? 'деньгах' : 'упаковках'}`}
       headerEnd={
         <div className="flex items-center gap-4">
-          <Select<false, typeof unit>
-            value={unit}
-            setValue={setUnit}
+          <Select<false, typeof indicator>
+            value={indicator}
+            setValue={setIndicator}
             items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
+              { value: 'amount', label: 'Деньги' },
+              { value: 'packages', label: 'Упаковка' },
             ]}
             triggerText="Деньги/Упаковка"
           />
-          <Select<false, string>
-            value={brand}
-            setValue={setBrand}
-            items={[{ value: '', label: 'Все' }, ...BRANDS]}
+          <Select<true, number>
+            value={brands}
+            setValue={setBrands}
+            showToggleAll
+            isMultiple
+            checkbox
+            items={availableOptions.brands}
             triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
-          <Select<false, string>
-            value={group}
-            setValue={setGroup}
-            items={[{ value: '', label: 'Все' }, ...GROUPS]}
+          <Select<true, number>
+            value={groups}
+            isMultiple
+            checkbox
+            showToggleAll
+            setValue={setGroups}
+            items={availableOptions.groups}
             triggerText="Группа"
-            classNames={{ menu: 'w-[10rem]' }}
+            classNames={{ menu: 'w-[10rem] w-max left-0' }}
           />
           <PeriodFilters {...periodFilter} />
         </div>

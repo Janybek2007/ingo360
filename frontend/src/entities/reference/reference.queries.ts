@@ -2,7 +2,7 @@ import { queryOptions } from '@tanstack/react-query';
 import qs from 'qs';
 
 import { http } from '#/shared/api';
-import type { PaginationParams } from '#/shared/types/pagination';
+import type { PaginationParams } from '#/shared/types/global';
 
 import type { IGetReferencesResponse } from './reference.types';
 

@@ -9,74 +9,66 @@ import {
   YAxis,
 } from 'recharts';
 
-import { Month } from '#/shared/constants/months';
-import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import {
   calculateChartAxis,
   formatCompactNumber,
 } from '#/shared/utils/format-number';
+import { processPeriodData } from '#/shared/utils/process-period-data';
 
-const rawData: { month: string; value: number; monthIndex: number }[] = [
-  { month: Month.JAN, value: 280000, monthIndex: 0 },
-  { month: Month.FEB, value: 350000, monthIndex: 1 },
-  { month: Month.MAR, value: 420000, monthIndex: 2 },
-  { month: Month.APR, value: 390000, monthIndex: 3 },
-  { month: Month.MAY, value: 500000, monthIndex: 4 },
-  { month: Month.JUN, value: 580000, monthIndex: 5 },
-  { month: Month.JUL, value: 400000, monthIndex: 6 },
-  { month: Month.AUG, value: 390000, monthIndex: 7 },
-  { month: Month.SEP, value: 450000, monthIndex: 8 },
-  { month: Month.OCT, value: 600000, monthIndex: 9 },
-  { month: Month.NOV, value: 530000, monthIndex: 10 },
-  { month: Month.DEC, value: 420000, monthIndex: 11 },
-];
+import type { DynamicPrimarySalesAsLineProps } from '../dynamic-primary-sales.types';
 
-interface DynamicPrimarySalesAsLineProps {
-  period: UsePeriodType;
-}
-
-// sales/primary/reports/sales
 export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps> =
-  React.memo(({ period }) => {
+  React.memo(({ sales, period }) => {
     const sectionStyle = useSectionStyle();
-    const currentYear = 24;
-    const data = useMemo(() => {
-      if (period === 'month') {
-        return rawData.map(d => ({
-          ...d,
-          month: `${d.month}-${currentYear}`,
-        }));
-      }
 
-      if (period === 'year') {
-        const currentYearTotal = rawData.reduce(
-          (sum, item) => sum + item.value,
-          0
-        );
-        return [
-          { month: '2021', value: currentYearTotal * 0.7, monthIndex: 0 },
-          { month: '2022', value: currentYearTotal * 0.85, monthIndex: 1 },
-          { month: '2023', value: currentYearTotal * 0.95, monthIndex: 2 },
-          { month: '2024', value: currentYearTotal, monthIndex: 3 },
-        ];
-      }
+    const rawData = useMemo(() => {
+      const dataMap = new Map<
+        string,
+        {
+          year: number;
+          month: number;
+          quarter: number;
+          value: number;
+        }
+      >();
 
-      // quarter
-      const quarters = [
-        { month: `Q1-${currentYear}`, value: 0, monthIndex: 0 },
-        { month: `Q2-${currentYear}`, value: 0, monthIndex: 1 },
-        { month: `Q3-${currentYear}`, value: 0, monthIndex: 2 },
-        { month: `Q4-${currentYear}`, value: 0, monthIndex: 3 },
-      ];
+      sales.forEach(item => {
+        if (!item.months || !Array.isArray(item.months)) return;
 
-      rawData.forEach(item => {
-        const quarterIndex = Math.floor(item.monthIndex / 3);
-        quarters[quarterIndex].value += item.value;
+        item.months.forEach((value, index) => {
+          if (value !== null) {
+            const month = index + 1;
+            const year = item.year;
+            const quarter = Math.ceil(month / 3);
+            const key = `${year}-${month}`;
+
+            const existing = dataMap.get(key) || {
+              year,
+              month,
+              quarter,
+              value: 0,
+            };
+            existing.value += value;
+            dataMap.set(key, existing);
+          }
+        });
       });
 
-      return quarters;
-    }, [period]);
+      return Array.from(dataMap.values()).sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+      });
+    }, [sales]);
+
+    const data = useMemo(() => {
+      return processPeriodData({
+        rawData,
+        period,
+        selectedValues: [],
+        aggregateFields: ['value'],
+      });
+    }, [rawData, period]);
 
     const chartAxis = useMemo(
       () => calculateChartAxis(data, ['value']),
@@ -94,7 +86,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
           <CartesianGrid strokeDasharray="4 4" vertical={false} />
 
           <XAxis
-            dataKey="month"
+            dataKey="label"
             axisLine={false}
             tickMargin={20}
             className="text-base text-[#474B4E] leading-full font-normal"
@@ -113,9 +105,15 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
           />
 
           <Tooltip
-            labelFormatter={label => `${label}`}
-            formatter={value => {
-              return [value.toLocaleString('ru-RU'), 'Первичка'];
+            labelFormatter={(label, payload) => {
+              if (payload && payload[0]) {
+                return payload[0].payload.fullLabel || label;
+              }
+              return label;
+            }}
+            formatter={(value, name) => {
+              const label = name === 'primaryValue' ? 'Первичка' : 'Вторичка';
+              return [value.toLocaleString('ru-RU'), label];
             }}
           />
 
@@ -124,14 +122,18 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
             dataKey="value"
             stroke={'#0B5A7C'}
             strokeWidth={3}
-            dot={false}
+            dot={{ r: 5, fill: '#0B5A7C' }}
             activeDot={{ r: 6 }}
+            connectNulls={false}
           >
             <LabelList
               dataKey="value"
               position="top"
               className="font-inter text-xs"
-              formatter={value => formatCompactNumber(value as number)}
+              formatter={value => {
+                if (value === undefined || value === null) return '';
+                return formatCompactNumber(value as number);
+              }}
             />
           </Line>
         </LineChart>

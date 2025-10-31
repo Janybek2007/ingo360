@@ -7,7 +7,7 @@ export const getCommonPinningStyles = <T>(
 
   const styles: React.CSSProperties = {
     position: isPinned ? 'sticky' : 'relative',
-    zIndex: isPinned ? 11 : 0,
+    zIndex: isPinned ? 10 : 0,
   };
 
   if (isPinned === 'left') {

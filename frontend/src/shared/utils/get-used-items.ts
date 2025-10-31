@@ -2,7 +2,7 @@ import type { IUsedFilterItem } from '#/shared/components/used-filter';
 
 export interface IFilterConfig {
   value: (string | number) | (string | number)[];
-  items?: Array<{ value: string; label: string }>;
+  items?: Array<{ value: string | number; label: string }>;
   getLabelFromValue?: (value: string | number) => string;
   onDelete: (value: string | number) => void;
   main?: Omit<IFilterConfig, 'value'> & { label: string };

@@ -57,7 +57,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   if (!groupedItems.length) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap font-inter select-none relative z-[50]">
+    <div className="flex items-center gap-2 flex-wrap font-inter select-none relative z-[30]">
       {groupedItems.map(item => (
         <div
           key={item.value}

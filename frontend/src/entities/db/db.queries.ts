@@ -3,21 +3,24 @@ import qs from 'qs';
 
 import { http } from '#/shared/api';
 import type { ExtraDbType } from '#/shared/types/db.type';
-import type { PaginationParams } from '#/shared/types/pagination';
 
-import type { IGetDBItemResponse } from './db.types';
+import type { IGetDBItemResponse, IGetDBItemsParams } from './db.types';
 
 export class DbQueries {
   static queryKeys = {
-    getDbItems: (urls: ExtraDbType[]) => ['get-db-items', urls],
+    getDbItems: (urls: ExtraDbType[], options?: IGetDBItemsParams) => [
+      'get-db-items',
+      urls,
+      options,
+    ],
   };
 
   static GetDbItemsQuery<T = IGetDBItemResponse>(
     urls: ExtraDbType[],
-    options?: PaginationParams
+    options?: IGetDBItemsParams
   ) {
     return queryOptions({
-      queryKey: this.queryKeys.getDbItems(urls),
+      queryKey: this.queryKeys.getDbItems(urls, options),
       queryFn: () =>
         Promise.all(
           urls.map(url =>

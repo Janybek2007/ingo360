@@ -1,3 +1,5 @@
+import type { PaginationParams } from '#/shared/types/global';
+
 export interface IDbName {
   id: number;
   name: string;
@@ -23,8 +25,6 @@ export interface IDbItem {
   medical_facility: null | IDbName;
 }
 
-export type IGetDBItemResponse = IDbItem[];
-
 export type TDbItem = {
   id: number;
   sku_id: number;
@@ -41,3 +41,17 @@ export type TDbItem = {
   quarter: number;
   month: number;
 };
+
+export type IGetDBItemResponse = IDbItem[];
+
+export interface IGetDBItemsParams extends PaginationParams {
+  months?: number[];
+  years?: number[];
+  quarters?: number[];
+  brand_ids?: number[];
+  distributor_ids?: number[];
+  product_group_ids?: number[];
+  promo_type_id?: number[];
+  sku_ids?: number[];
+  group_by_period?: 'month' | 'quarter' | 'year';
+}

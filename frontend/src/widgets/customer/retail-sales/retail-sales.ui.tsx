@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { DbQueries } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
@@ -14,6 +16,7 @@ import {
   SKUS,
 } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import type { IndicatorType } from '#/shared/types/global';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { generateMocks, randomArray, randomId } from '#/shared/utils/mock';
@@ -38,9 +41,19 @@ export const RetailSales: React.FC = React.memo(() => {
   const [groups, setGroups] = React.useState<string[]>(
     GROUPS.map(v => v.value)
   );
-  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
-    'money'
+  const [indicator, setIndicator] = React.useState<IndicatorType>('amount');
+
+  const queryData = useQuery(
+    DbQueries.GetDbItemsQuery<[]>(['sales/tertiary/reports/sales'], {
+      limit: rowsCount === 'all' ? undefined : rowsCount,
+      offset: 0,
+    })
   );
+  const sales = React.useMemo(
+    () => (queryData.data ? queryData.data[0] : []),
+    [queryData.data]
+  );
+  console.log(sales);
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -218,12 +231,12 @@ export const RetailSales: React.FC = React.memo(() => {
             triggerText="Группа"
             classNames={{ menu: 'w-[10rem]' }}
           />
-          <Select<false, typeof moneyType>
-            value={moneyType}
-            setValue={setMoneyType}
+          <Select<false, typeof indicator>
+            value={indicator}
+            setValue={setIndicator}
             items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
+              { value: 'amount', label: 'Деньги' },
+              { value: 'packages', label: 'Упаковка' },
             ]}
             triggerText="Деньги/Упаковка"
           />

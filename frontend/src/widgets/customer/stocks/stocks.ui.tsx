@@ -6,9 +6,10 @@ import { DbQueries, type TDbItem } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
-import { Table } from '#/shared/components/table';
+import { createCustomFilters, Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { createMonthsData } from '#/shared/utils/create-months-data';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -25,6 +26,11 @@ interface StockRow extends TDbItem {
 export const Stocks: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
+  const [brands, setBrands] = React.useState<number[]>([]);
+  const [groups, setGroups] = React.useState<number[]>([]);
+  const [indicator, setIndicator] = React.useState<'amount' | 'packages'>(
+    'amount'
+  );
   const queryData = useQuery(
     DbQueries.GetDbItemsQuery<StockRow[]>([
       'sales/primary/reports/stock-levels',
@@ -34,16 +40,6 @@ export const Stocks: React.FC = React.memo(() => {
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
-  const [brands, setBrands] = React.useState<number[]>([]);
-  const [groups, setGroups] = React.useState<number[]>([]);
-  const [indicator, setIndicator] = React.useState<'amount' | 'packages'>(
-    'amount'
-  );
-
-  React.useEffect(() => {
-    setBrands([...new Set(sales.map(s => s.brand_id))]);
-    setGroups([...new Set(sales.map(s => s.product_group_id))]);
-  }, [sales]);
 
   const usedFilterItems = React.useMemo(() => {
     return getUsedFilterItems([
@@ -59,10 +55,10 @@ export const Stocks: React.FC = React.memo(() => {
   }, [rowsCount]);
 
   const resetFilters = React.useCallback(() => {
-    setBrands([...new Set(sales.map(s => s.brand_id))]);
-    setGroups([...new Set(sales.map(s => s.product_group_id))]);
+    setBrands([]);
+    setGroups([]);
     setRowsCount('all');
-  }, [sales]);
+  }, []);
 
   const allColumns = useMemo(
     (): ColumnDef<StockRow>[] => [
@@ -217,32 +213,16 @@ export const Stocks: React.FC = React.memo(() => {
       'distributor_name',
     ]);
 
-    const grouped = new Map<string, StockRow>();
+    const grouped = createMonthsData(
+      searched,
+      row =>
+        `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}|${row.distributor_name.trim()}|${row.promotion_type_name.trim()}|${row.product_group_name.trim()}`,
+      row => row[indicator],
+      row => ({ ...row })
+    );
 
-    searched.forEach(row => {
-      const key = `${row.year}|${row.sku_name.trim()}|${row.brand_name.trim()}|${row.promotion_type_name.trim()}|${row.distributor_name.trim()}|${row.product_group_name.trim()}`;
-
-      if (!grouped.has(key)) {
-        grouped.set(key, {
-          ...row,
-          months: Array(12).fill(null),
-        });
-      }
-
-      const groupedRow = grouped.get(key)!;
-      const monthIndex = row.month - 1;
-
-      if (monthIndex >= 0 && monthIndex < 12) {
-        const currentValue = groupedRow.months[monthIndex];
-        const newValue = row[indicator];
-        groupedRow.months[monthIndex] =
-          currentValue !== null ? currentValue + newValue : newValue;
-      }
-    });
-
-    const result = Array.from(grouped.values());
-    return rowsCount === 'all' ? result : result.slice(0, rowsCount);
-  }, [search, sales, rowsCount, indicator]);
+    return grouped;
+  }, [search, sales, indicator]);
 
   const monthTotals = useMemo(() => {
     const totals = Array(12).fill(0);
@@ -334,40 +314,20 @@ export const Stocks: React.FC = React.memo(() => {
         filters={{
           usedFilterItems,
           resetFilters,
-          custom: [
+          custom: createCustomFilters(sales, { brands, groups }, [
             {
               id: 'brand_id',
-              value: {
-                colType: 'select',
-                header: 'Бренд',
-                selectValues: getUniqueItems(
-                  sales
-                    .filter(b => brands.includes(b.brand_id))
-                    .map(b => ({
-                      value: b.brand_id,
-                      label: b.brand_name,
-                    })),
-                  ['value']
-                ),
-              },
+              header: 'Бренд',
+              valueField: 'brand_id',
+              labelField: 'brand_name',
             },
             {
               id: 'product_group_id',
-              value: {
-                colType: 'select',
-                header: 'Группа',
-                selectValues: getUniqueItems(
-                  sales
-                    .filter(g => groups.includes(g.product_group_id))
-                    .map(g => ({
-                      value: g.product_group_id,
-                      label: g.product_group_name,
-                    })),
-                  ['value']
-                ),
-              },
+              header: 'Группа',
+              valueField: 'product_group_id',
+              labelField: 'product_group_name',
             },
-          ],
+          ]),
         }}
         columns={columnsForTable}
         data={filteredData}

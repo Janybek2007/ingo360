@@ -15,7 +15,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
   const { position: popupPosition, updatePosition } = useAnchorPosition();
 
   return (
-    <thead className={cn('sticky top-0 z-10 select-none')}>
+    <thead className={cn('sticky top-0 z-20 select-none')}>
       {table.getHeaderGroups().map((headerGroup, i) => (
         <tr
           key={`${headerGroup.id}|${headerGroup.depth}|${headerGroup.headers.length}|${i}`}

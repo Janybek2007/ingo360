@@ -14,7 +14,6 @@ const SecondarySalesPage: React.FC = () => {
       <LazySection>
         <SecondarySales />
       </LazySection>
-
       <LazySection>
         <DistributorDynamics />
       </LazySection>

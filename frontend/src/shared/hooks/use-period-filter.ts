@@ -33,10 +33,11 @@ export const usePeriodFilter = (
   }, []);
 
   const currentYear = new Date().getFullYear();
-  const years = useMemo(
-    () => Array.from({ length: 2 }, (_, i) => currentYear - i),
-    [currentYear]
-  );
+  const years = useMemo(() => {
+    let length = 2;
+    if (period === 'year') length = 5;
+    return Array.from({ length }, (_, i) => currentYear - i);
+  }, [currentYear, period]);
 
   const getYearItems = useCallback(
     (year: string) => {
