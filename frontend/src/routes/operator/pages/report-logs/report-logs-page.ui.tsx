@@ -5,11 +5,12 @@ import React, { useMemo } from 'react';
 import { type ReportLog, ReportLogsQueries } from '#/entities/report-logs';
 // import { tabsItems } from './constants';
 import { DeleteReportLogWrapper } from '#/features/report-log/delete';
+// import { findCurrentTab, Tabs } from '#/shared/components/ui/tabs';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-// import { findCurrentTab, Tabs } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
@@ -17,9 +18,11 @@ import { getUniqueItems } from '#/shared/utils/get-unique-items';
 const ReportLogsPage: React.FC = () => {
   // const [tab, setTab] = React.useState(tabsItems[0].value);
 
-  const { data: reportLogs = [], isLoading } = useQuery(
-    ReportLogsQueries.GetReportLogsQuery()
-  );
+  const {
+    data: reportLogs = [],
+    isLoading,
+    error,
+  } = useQuery(ReportLogsQueries.GetReportLogsQuery());
 
   const allColumns = useMemo(
     (): ColumnDef<ReportLog>[] => [
@@ -127,13 +130,14 @@ const ReportLogsPage: React.FC = () => {
           </div>
         }
       >
-        <Table
-          columns={columnsForTable}
-          data={reportLogs}
-          isLoading={isLoading}
-          maxHeight={500}
-          rounded="none"
-        />
+        <AsyncBoundary isLoading={isLoading} queryError={error}>
+          <Table
+            columns={columnsForTable}
+            data={reportLogs}
+            maxHeight={500}
+            rounded="none"
+          />
+        </AsyncBoundary>
       </PageSection>
     </main>
   );

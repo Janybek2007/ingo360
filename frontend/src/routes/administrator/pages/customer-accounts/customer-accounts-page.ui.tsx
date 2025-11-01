@@ -6,6 +6,7 @@ import { UserQueries } from '#/entities/user/user.queries';
 import type { IUserItem } from '#/entities/user/user.types';
 import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { LucidePlusIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
@@ -171,13 +172,17 @@ const CustomerAccountsPage: React.FC = () => {
           </div>
         }
       >
-        <Table
-          columns={allColumns}
-          data={filteredData}
+        <AsyncBoundary
           isLoading={customersQuery.isLoading}
-          maxHeight={500}
-          rounded="none"
-        />
+          queryError={customersQuery.error}
+        >
+          <Table
+            columns={allColumns}
+            data={filteredData}
+            maxHeight={500}
+            rounded="none"
+          />
+        </AsyncBoundary>
       </PageSection>
     </main>
   );

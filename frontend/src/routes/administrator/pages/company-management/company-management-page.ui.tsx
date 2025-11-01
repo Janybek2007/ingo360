@@ -6,6 +6,7 @@ import { CompanyQueries, type ICompanyItem } from '#/entities/company';
 import { AccessCompanyModal } from '#/features/company/access';
 import { AddCompanyModal } from '#/features/company/add';
 import { EditCompanyModal } from '#/features/company/edit';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { LucidePlusIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
@@ -170,13 +171,17 @@ const CompanyManagementPage: React.FC = () => {
           </div>
         }
       >
-        <Table
-          columns={allColumns}
-          data={filteredData}
+        <AsyncBoundary
           isLoading={queryData.isLoading}
-          maxHeight={500}
-          rounded="none"
-        />
+          queryError={queryData.error}
+        >
+          <Table
+            columns={allColumns}
+            data={filteredData}
+            maxHeight={500}
+            rounded="none"
+          />
+        </AsyncBoundary>
       </PageSection>
     </main>
   );
