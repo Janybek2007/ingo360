@@ -1,4 +1,4 @@
-import type { GetUserResponse } from '#/entities/user/user.types';
+import type { GetUserResponse, UserAccess } from '#/entities/user/user.types';
 
 export interface ISessionContext {
   user: GetUserResponse | null;
@@ -22,18 +22,5 @@ export type NotificationType =
 export type NotificationMessage = {
   type: NotificationType;
   message: string;
-  access_type?:
-    | 'primary'
-    | 'secondary'
-    | 'tertiary'
-    | 'visits'
-    | 'market-development';
-};
-
-export type UserAccess = {
-  can_primary_sales: boolean;
-  can_secondary_sales: boolean;
-  can_tertiary_sales: boolean;
-  can_visits: boolean;
-  can_market_analysis: boolean;
+  access_type?: 'primary' | 'secondary' | 'tertiary' | 'visits' | 'market';
 };

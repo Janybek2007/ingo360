@@ -6,20 +6,43 @@ import { Assets } from '#/shared/assets';
 import { LucideArrowIcon } from '#/shared/components/icons';
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { useActivePath } from '#/shared/hooks/use-active-path';
+import { routePaths } from '#/shared/router';
 import { useSession } from '#/shared/session/session.context';
 import { cn } from '#/shared/utils/cn';
 
 export const Sidebar: React.FC = React.memo(() => {
   const isActive = useActivePath();
-  const { user, isLoading } = useSession();
+  const { user, isLoading, userAccess } = useSession();
   const [isCollapsed, setIsCollapsed] = useLocalStorageState(
     'sidebar-collapsed',
     { defaultValue: false }
   );
 
-  const navigations = React.useMemo(() => {
+  // Базовые навигации по роли
+  const baseNavigations = React.useMemo(() => {
     return user ? roleNavigations[user.role] : [];
   }, [user]);
+
+  const navigations = React.useMemo(() => {
+    if (!user || user.role !== 'customer') return baseNavigations;
+
+    const accessMap: Record<string, boolean> = {
+      [routePaths.customer.primarySales]:
+        userAccess?.can_primary_sales ?? false,
+      [routePaths.customer.secondarySales]:
+        userAccess?.can_secondary_sales ?? false,
+      [routePaths.customer.tertiarySales]:
+        userAccess?.can_tertiary_sales ?? false,
+      [routePaths.customer.visitActivity]: userAccess?.can_visits ?? false,
+      [routePaths.customer.marketDevelopment]:
+        userAccess?.can_market_analysis ?? false,
+    };
+
+    return baseNavigations.filter(nav => {
+      // если нет accessMap — значит доступ всегда есть (например, "Главная")
+      return accessMap[nav.href] === undefined || accessMap[nav.href];
+    });
+  }, [user, userAccess, baseNavigations]);
 
   const toggleCollapse = React.useCallback(() => {
     setIsCollapsed(prev => !prev);

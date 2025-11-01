@@ -1,6 +1,14 @@
 import type { SessionRole } from '#/shared/types';
 
-interface UserCompany {
+export type UserAccess = {
+  can_primary_sales: boolean;
+  can_secondary_sales: boolean;
+  can_tertiary_sales: boolean;
+  can_visits: boolean;
+  can_market_analysis: boolean;
+};
+
+interface UserCompany extends UserAccess {
   id: number;
   name: string;
 }
