@@ -12,7 +12,7 @@ export class ReportLogsQueries {
   static GetReportLogsQuery() {
     return queryOptions({
       queryKey: this.queryKeys.getReportLogs,
-      queryFn: () => http.get('report_logs').json<IGetReportLogsResponse>(),
+      queryFn: () => http.get('import_logs').json<IGetReportLogsResponse>(),
     });
   }
 }
