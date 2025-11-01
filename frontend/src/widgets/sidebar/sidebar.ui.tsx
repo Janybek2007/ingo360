@@ -18,7 +18,6 @@ export const Sidebar: React.FC = React.memo(() => {
     { defaultValue: false }
   );
 
-  // Базовые навигации по роли
   const baseNavigations = React.useMemo(() => {
     return user ? roleNavigations[user.role] : [];
   }, [user]);
@@ -26,7 +25,12 @@ export const Sidebar: React.FC = React.memo(() => {
   const navigations = React.useMemo(() => {
     if (!user || user.role !== 'customer') return baseNavigations;
 
+    const hasHomeAccess =
+      userAccess?.can_primary_sales === true ||
+      userAccess?.can_market_analysis === true;
+
     const accessMap: Record<string, boolean | undefined> = {
+      [routePaths.customer.home]: hasHomeAccess,
       [routePaths.customer.primarySales]: userAccess?.can_primary_sales,
       [routePaths.customer.secondarySales]: userAccess?.can_secondary_sales,
       [routePaths.customer.tertiarySales]: userAccess?.can_tertiary_sales,
