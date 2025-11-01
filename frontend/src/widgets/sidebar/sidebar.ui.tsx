@@ -26,21 +26,18 @@ export const Sidebar: React.FC = React.memo(() => {
   const navigations = React.useMemo(() => {
     if (!user || user.role !== 'customer') return baseNavigations;
 
-    const accessMap: Record<string, boolean> = {
-      [routePaths.customer.primarySales]:
-        userAccess?.can_primary_sales ?? false,
-      [routePaths.customer.secondarySales]:
-        userAccess?.can_secondary_sales ?? false,
-      [routePaths.customer.tertiarySales]:
-        userAccess?.can_tertiary_sales ?? false,
-      [routePaths.customer.visitActivity]: userAccess?.can_visits ?? false,
-      [routePaths.customer.marketDevelopment]:
-        userAccess?.can_market_analysis ?? false,
+    const accessMap: Record<string, boolean | undefined> = {
+      [routePaths.customer.primarySales]: userAccess?.can_primary_sales,
+      [routePaths.customer.secondarySales]: userAccess?.can_secondary_sales,
+      [routePaths.customer.tertiarySales]: userAccess?.can_tertiary_sales,
+      [routePaths.customer.visitActivity]: userAccess?.can_visits,
+      [routePaths.customer.marketDevelopment]: userAccess?.can_market_analysis,
     };
 
     return baseNavigations.filter(nav => {
-      // если нет accessMap — значит доступ всегда есть (например, "Главная")
-      return accessMap[nav.href] === undefined || accessMap[nav.href];
+      const hasAccess = accessMap[nav.href];
+      // Если доступ не определён в accessMap, значит доступ разрешён по умолчанию
+      return hasAccess === undefined || hasAccess === true;
     });
   }, [user, userAccess, baseNavigations]);
 
