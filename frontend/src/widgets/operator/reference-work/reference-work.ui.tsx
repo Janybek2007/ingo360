@@ -7,6 +7,7 @@ import { DeleteReferenceWrapper } from '#/features/reference/delete';
 import { EditReferenceWrapper } from '#/features/reference/edit';
 import { ImportReferencButton } from '#/features/reference/import';
 import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
@@ -20,7 +21,7 @@ import { referencesColumnsWithType } from './constants';
 import type { IReferenceWorkProps } from './reference-work.types';
 
 const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
-  ({ currentData, current, isLoading, rowsCount, setRowsCount }) => {
+  ({ currentData, current, rowsCount, setRowsCount, ...props }) => {
     const allColumns = useMemo(
       (): ColumnDef<IReferenceItem>[] => [
         ...referencesColumnsWithType[current as ReferencesTypeWithMain](
@@ -86,28 +87,29 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
             </div>
           }
         >
-          <Table
-            columns={columnsForTable}
-            data={currentData}
-            filters={{
-              resetFilters: () => {
-                setRowsCount('all');
-              },
-              usedFilterItems: getUsedFilterItems([
-                rowsCount !== 'all' && {
-                  value: rowsCount,
-                  getLabelFromValue(value) {
-                    return 'Строки: '.concat(value.toString());
-                  },
-                  items: [],
-                  onDelete: () => setRowsCount('all'),
+          <AsyncBoundary {...props}>
+            <Table
+              columns={columnsForTable}
+              data={currentData}
+              filters={{
+                resetFilters: () => {
+                  setRowsCount('all');
                 },
-              ]),
-            }}
-            isLoading={isLoading}
-            maxHeight={530}
-            rounded="none"
-          />
+                usedFilterItems: getUsedFilterItems([
+                  rowsCount !== 'all' && {
+                    value: rowsCount,
+                    getLabelFromValue(value) {
+                      return 'Строки: '.concat(value.toString());
+                    },
+                    items: [],
+                    onDelete: () => setRowsCount('all'),
+                  },
+                ]),
+              }}
+              maxHeight={530}
+              rounded="none"
+            />
+          </AsyncBoundary>
         </PageSection>
       </>
     );

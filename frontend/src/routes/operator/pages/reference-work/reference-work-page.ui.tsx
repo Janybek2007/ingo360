@@ -27,12 +27,14 @@ const ReferenceWorkPage: React.FC = () => {
         defaultValue={current}
         items={tabsItems}
       ></Tabs>
+
       <ReferenceWork
         currentData={queryData.data ? queryData.data[0] : []}
         current={current as ReferencesType}
-        isLoading={queryData.isLoading}
         rowsCount={rowsCount}
         setRowsCount={setRowsCount}
+        isLoading={queryData.isLoading}
+        queryError={queryData.error}
       />
     </main>
   );

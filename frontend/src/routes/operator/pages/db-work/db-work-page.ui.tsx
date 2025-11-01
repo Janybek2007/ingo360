@@ -13,6 +13,7 @@ const DbWorkPage: React.FC = () => {
   const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
     defaultValue: 'sales/tertiary/reports/sales',
+    defaultServerValue: 'sales/tertiary/reports/sales',
   });
 
   const queryData = useQuery(
@@ -29,12 +30,14 @@ const DbWorkPage: React.FC = () => {
   return (
     <main>
       <Tabs items={tabsItems} defaultValue={current} saveCurrent={setCurrent} />
+
       <DbWork
         current={current.replace('_', '/') as DbType}
         currentData={currentData}
-        isLoading={queryData.isLoading}
         rowsCount={rowsCount}
         setRowsCount={setRowsCount}
+        isLoading={queryData.isLoading}
+        queryError={queryData.error}
       />
     </main>
   );

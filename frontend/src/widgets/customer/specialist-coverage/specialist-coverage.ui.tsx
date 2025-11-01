@@ -15,8 +15,9 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { filterBySearch } from '#/shared/utils/search';
 
 interface CoverageRow extends TDbItem {
-  count: number;
-  percentage: number;
+  coverage_percentage: number;
+  doctors_with_visits: number;
+  total_doctors: number;
 }
 
 export const SpecialistCoverage: React.FC = React.memo(() => {
@@ -87,26 +88,27 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         ),
       },
       {
-        id: 'percentage',
-        accessorKey: 'percentage',
-        accessorFn: row => `${row.percentage.toFixed(1)}%`,
+        id: 'coverage_percentage',
+        accessorKey: 'coverage_percentage',
+        accessorFn: row => `${row.coverage_percentage.toFixed(1)}%`,
         header: 'Процент охвата врачей',
         size: 230,
         enableColumnFilter: true,
         filterFn: numberFilter(),
         filterType: 'number',
       },
-      // {
-      //   accessorKey: 'generalCallOfDoctors',
-      //   header: 'Общая колл. врачей',
-      //   size: 230,
-      //   enableColumnFilter: true,
-      //   filterFn: numberFilter(),
-      //   filterType: 'number',
-      // },
       {
-        id: 'count',
-        accessorKey: 'count',
+        id: 'total_doctors',
+        accessorKey: 'total_doctors',
+        header: 'Общая колл. врачей',
+        size: 230,
+        enableColumnFilter: true,
+        filterFn: numberFilter(),
+        filterType: 'number',
+      },
+      {
+        id: 'doctors_with_visits',
+        accessorKey: 'doctors_with_visits',
         header: 'Количество врачей с визитами',
         size: 300,
         enableColumnFilter: true,

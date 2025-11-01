@@ -58,6 +58,7 @@ export const RetailSales: React.FC = React.memo(() => {
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
+  console.log(sales);
 
   const allColumns = useGenerateColumns<RetailSalesRow>({
     data: sales,

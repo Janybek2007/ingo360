@@ -1,5 +1,10 @@
 import type { SessionRole } from '#/shared/types';
 
+interface UserCompany {
+  id: number;
+  name: string;
+}
+
 export interface IUserItem {
   id: number;
   email: string;
@@ -15,10 +20,7 @@ export interface IUserItem {
   is_operator: boolean;
   is_admin: boolean;
   company_id: number;
-  company: {
-    id: number;
-    name: string;
-  };
+  company: UserCompany;
   role: SessionRole;
 }
 

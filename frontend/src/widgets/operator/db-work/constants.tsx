@@ -13,6 +13,7 @@ import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
 export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
   const columns: ColumnDef<IDbItem>[] = [];
+
   if (type === 'sales/primary') {
     columns.push({
       id: 'distributor',
@@ -35,7 +36,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'pharmacy',
       accessorKey: 'pharmacy.name',
       header: 'Аптека',
-      size: 130,
+      size: 350,
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
@@ -50,14 +51,33 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'city',
       accessorKey: 'city',
+      accessorFn: row => row.city || '-',
       header: 'Город',
       size: 130,
       filterType: 'string',
       filterFn: stringFilter(),
       enableColumnFilter: true,
     });
+  } else if (type === 'sales/tertiary') {
+    columns.push({
+      id: 'pharmacy',
+      accessorKey: 'pharmacy.name',
+      header: 'Аптека',
+      size: 350,
+      filterType: 'select',
+      filterFn: selectFilter(),
+      enableColumnFilter: true,
+      selectOptions: getUniqueItems(
+        data.map(v => ({
+          label: v.pharmacy?.name ?? 'Не указано',
+          value: v.pharmacy?.id ?? 0,
+        })),
+        ['value']
+      ),
+    });
   }
-  if (['sales/primary', 'sales/secondary'].includes(type)) {
+
+  if (['sales/primary', 'sales/secondary', 'sales/tertiary'].includes(type)) {
     columns.push({
       id: 'sku.brand',
       accessorKey: 'sku.brand.name',
@@ -74,6 +94,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
         ['value']
       ),
     });
+
     columns.push({
       id: 'sku',
       accessorKey: 'sku.name',
@@ -92,11 +113,11 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     });
 
     columns.push(...getYearMonthColumns(data));
-
     columns.push(...getSalesColumns(data));
   }
 
   if (type === 'visits') {
+    // (твой старый блок для visits остаётся без изменений)
     columns.push({
       id: 'pharmacy.id',
       accessorKey: 'pharmacy.name',
@@ -150,7 +171,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       accessorKey: 'medical_facility.name',
       cell: ({ row }) => row.original.medical_facility?.name || '-',
       header: 'Медицинское учреждение',
-      size: 140,
+      size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -263,7 +284,7 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
       accessorKey: 'month',
       header: 'Месяц',
       cell: ({ row }) => allMonths[row.original.month - 1],
-      size: 80,
+      size: 100,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -275,7 +296,7 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
     {
       accessorKey: 'year',
       header: 'Год',
-      size: 80,
+      size: 100,
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,

@@ -11,6 +11,7 @@ import {
   PublishUnpublishedButton,
 } from '#/features/db-work/publish';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
@@ -23,7 +24,7 @@ import { getDbWorkColumns } from './constants';
 import type { IDbWorkProps } from './db-work.types';
 
 export const DbWork: React.FC<IDbWorkProps> = React.memo(
-  ({ current, isLoading, currentData, rowsCount, setRowsCount }) => {
+  ({ current, currentData, rowsCount, setRowsCount, ...props }) => {
     const allColumns = useMemo((): ColumnDef<IDbItem>[] => {
       const columns = getDbWorkColumns(current, currentData);
 
@@ -96,30 +97,31 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
             </div>
           }
         >
-          <Table
-            columns={columnsForTable}
-            data={currentData}
-            filters={{
-              resetFilters: () => {
-                setRowsCount('all');
-              },
-              usedFilterItems: getUsedFilterItems([
-                rowsCount !== 'all' && {
-                  value: rowsCount,
-                  getLabelFromValue(value) {
-                    return value === 'all'
-                      ? 'Все'
-                      : 'Строки: '.concat(value.toString());
-                  },
-                  items: [],
-                  onDelete: () => setRowsCount('all'),
+          <AsyncBoundary {...props}>
+            <Table
+              columns={columnsForTable}
+              data={currentData}
+              filters={{
+                resetFilters: () => {
+                  setRowsCount('all');
                 },
-              ]),
-            }}
-            maxHeight={500}
-            isLoading={isLoading}
-            rounded="none"
-          />
+                usedFilterItems: getUsedFilterItems([
+                  rowsCount !== 'all' && {
+                    value: rowsCount,
+                    getLabelFromValue(value) {
+                      return value === 'all'
+                        ? 'Все'
+                        : 'Строки: '.concat(value.toString());
+                    },
+                    items: [],
+                    onDelete: () => setRowsCount('all'),
+                  },
+                ]),
+              }}
+              maxHeight={500}
+              rounded="none"
+            />
+          </AsyncBoundary>
         </PageSection>
       </>
     );

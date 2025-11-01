@@ -1,36 +1,40 @@
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 
-import { DbQueries, type TDbItem } from '#/entities/db';
-import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { LucideArrowIcon } from '#/shared/components/icons';
+import { Select } from '#/shared/components/ui/select';
+import { allMonths } from '#/shared/constants/months';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
-interface DoctorsCoverageRow extends TDbItem {
-  count: number;
-}
+import type { DoctorsCoverageRow } from '../doctors-coverage.ui';
 
-export const DoctorsCountVisits: React.FC = React.memo(() => {
-  const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>([
-      'visits/reports/doctors-by-specialty',
-    ])
-  );
-  const visits = React.useMemo(
-    () => (queryData.data ? queryData.data[0] : []),
-    [queryData]
-  );
-
-  return (
-    <div className="w-1/2 rounded-2xl p-5 bg-white">
-      <AsyncBoundary
-        isLoading={queryData.isLoading}
-        queryError={queryData.error}
-      >
+export const DoctorsCountVisits: React.FC<{ visits: DoctorsCoverageRow[] }> =
+  React.memo(({ visits }) => {
+    return (
+      <>
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
             Количество врачей
           </h4>
+          <Select<true, number>
+            triggerText={'Месяц'}
+            items={allMonths.map((m, i) => ({ value: i + 1, label: m }))}
+            value={[]}
+            checkbox
+            isMultiple
+            showToggleAll
+            setValue={() => {}}
+            rightIcon={
+              <LucideArrowIcon
+                type="chevron-down"
+                className="size-[1.125rem]"
+              />
+            }
+            classNames={{
+              trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
+              menu: 'w-[14rem] w-max right-0',
+            }}
+          />
         </div>
 
         <div className="relative min-h-[21.875rem] max-h-[21.875rem] w-full flex items-center justify-center my-3">
@@ -39,14 +43,14 @@ export const DoctorsCountVisits: React.FC = React.memo(() => {
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               data={visits}
-              dataKey="count"
+              dataKey="count_with_visits"
               nameKey="speciality_name"
               cx="50%"
               cy="50%"
               innerRadius={80}
               outerRadius={110}
               labelLine={false}
-              label={entry => String(entry.count)}
+              label={entry => String(entry.count_with_visits)}
               paddingAngle={0}
             >
               {visits.map((_, i) => (
@@ -74,9 +78,8 @@ export const DoctorsCountVisits: React.FC = React.memo(() => {
             </div>
           ))}
         </div>
-      </AsyncBoundary>
-    </div>
-  );
-});
+      </>
+    );
+  });
 
 DoctorsCountVisits.displayName = '_DoctorsCountVisits_';
