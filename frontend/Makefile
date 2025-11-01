@@ -7,4 +7,4 @@ build:
 	npm run build
 
 start:
-	npm run preview
+	npm run start
