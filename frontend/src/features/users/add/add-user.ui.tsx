@@ -48,6 +48,7 @@ export const AddUserModal: React.FC<{
       onClose={onClose}
       schema={AddUserContract}
       title="Добавить нового пользователя"
+      isPending={mutation.isPending}
       onSubmit={mutation.mutateAsync}
     />
   );

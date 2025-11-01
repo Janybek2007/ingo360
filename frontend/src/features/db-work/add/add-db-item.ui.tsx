@@ -36,7 +36,8 @@ const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
       <CreateEditModal
         portal
         title="Добавление записи"
-        isLoading={mutation.isPending}
+        isLoading={queryData.isLoading}
+        isPending={mutation.isPending}
         isSuccess={mutation.isSuccess}
         schema={dbItemContractWithType[type]}
         fields={fields}

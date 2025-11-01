@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
@@ -8,6 +8,115 @@ import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { LucideCheckIcon, LucidMinusIcon } from '../../icons';
 import { Checkbox } from '../checkbox';
 import type { ISelectItem, ISelectProps } from './select.types';
+
+const SelectItem = memo(
+  <VT,>({
+    item,
+    isSelected,
+    onSelect,
+    checkbox,
+    indeterminate,
+    className,
+  }: {
+    item: ISelectItem<VT>;
+    isSelected: boolean;
+    onSelect: () => void;
+    checkbox: boolean;
+    indeterminate: boolean;
+    className?: string;
+  }) => {
+    return (
+      <button
+        type="button"
+        className={cn(
+          'flex items-center gap-2 px-3 py-2 cursor-pointer text-left',
+          'w-full transition-colors',
+          'font-normal group justify-between',
+          indeterminate
+            ? 'hover:bg-blue-50'
+            : 'hover:bg-blue-50 hover:text-blue-600',
+          className
+        )}
+        onClick={onSelect}
+        title={item.label}
+      >
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          {checkbox && !indeterminate && (
+            <Checkbox checked={isSelected} onChecked={onSelect} />
+          )}
+          {indeterminate && (
+            <LucidMinusIcon className="size-4 text-gray-700 flex-shrink-0" />
+          )}
+          <span>{item.label}</span>
+        </div>
+        {!checkbox && isSelected && (
+          <LucideCheckIcon className="size-4 text-gray-700 flex-shrink-0" />
+        )}
+      </button>
+    );
+  }
+);
+
+SelectItem.displayName = 'SelectItem';
+
+// Мемоизированный компонент для поля поиска
+const SearchInput = memo(
+  ({
+    value,
+    onChange,
+  }: {
+    value: string;
+    onChange: (value: string) => void;
+  }) => {
+    return (
+      <div className="px-2 py-2 border-b sticky top-0 bg-white border-gray-200 z-10">
+        <input
+          type="text"
+          placeholder="Поиск..."
+          value={value}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+          onChange={e => onChange(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          onClick={e => e.stopPropagation()}
+        />
+      </div>
+    );
+  }
+);
+
+SearchInput.displayName = 'SearchInput';
+
+// Мемоизированный компонент кнопки "Выбрать все"
+const ToggleAllButton = memo(
+  ({
+    allSelected,
+    onToggle,
+    className,
+  }: {
+    allSelected: boolean;
+    onToggle: () => void;
+    className?: string;
+  }) => {
+    return (
+      <button
+        type="button"
+        className={cn(
+          'flex items-center gap-2 px-3 py-2 w-full text-left hover:bg-blue-50 hover:text-blue-600 transition-colors',
+          className
+        )}
+        onClick={onToggle}
+      >
+        <Checkbox checked={allSelected} onChecked={onToggle} />
+        <span className="overflow-hidden max-w-full whitespace-nowrap text-ellipsis">
+          {allSelected ? 'Снять все' : 'Выбрать все'}
+        </span>
+      </button>
+    );
+  }
+);
+
+ToggleAllButton.displayName = 'ToggleAllButton';
 
 export function Select<ISM extends boolean = false, VT = string>({
   items,
@@ -32,10 +141,12 @@ export function Select<ISM extends boolean = false, VT = string>({
     setSearchQuery('');
   });
 
+  // Мемоизация уникальных элементов
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
   }, [items]);
 
+  // Мемоизация отфильтрованных элементов
   const filteredItems = useMemo(() => {
     if (!search || !searchQuery.trim()) return uniqueItems;
 
@@ -43,6 +154,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     return uniqueItems.filter(item => item.label.toLowerCase().includes(query));
   }, [uniqueItems, searchQuery, search]);
 
+  // Мемоизация проверки выбранности элемента
   const isSelected = useCallback(
     (item: ISelectItem<VT>) => {
       if (isMultiple && Array.isArray(value)) return value.includes(item.value);
@@ -51,6 +163,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     [value, isMultiple]
   );
 
+  // Оптимизированный обработчик выбора элемента
   const handleSelect = useCallback(
     (item: ISelectItem<VT>) => {
       if (isMultiple && Array.isArray(value)) {
@@ -66,6 +179,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     [setValue, set, value, isMultiple]
   );
 
+  // Обработчик переключения всех элементов
   const handleToggleAll = useCallback(() => {
     if (!isMultiple || !Array.isArray(value)) return;
     const allSelected = filteredItems.every(item => value.includes(item.value));
@@ -73,6 +187,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     setValue(allSelected ? [] : (filteredItems.map(item => item.value) as any));
   }, [isMultiple, filteredItems, value, setValue]);
 
+  // Мемоизация текста для триггера
   const findItemLabel = useMemo(() => {
     if (changeTriggerText && Array.isArray(value)) {
       return uniqueItems
@@ -85,10 +200,30 @@ export function Select<ISM extends boolean = false, VT = string>({
     }
   }, [uniqueItems, value, changeTriggerText]);
 
+  // Проверка, выбраны ли все элементы
   const allSelected = useMemo(() => {
     if (!isMultiple || !Array.isArray(value)) return false;
-    return filteredItems.every(item => value.includes(item.value));
+    return (
+      filteredItems.length > 0 &&
+      filteredItems.every(item => value.includes(item.value))
+    );
   }, [filteredItems, value, isMultiple]);
+
+  // Обработчик изменения поискового запроса
+  const handleSearchChange = useCallback((newQuery: string) => {
+    setSearchQuery(newQuery);
+  }, []);
+
+  // Рендеринг иконок с мемоизацией
+  const renderedLeftIcon = useMemo(
+    () => (typeof leftIcon === 'function' ? leftIcon(open) : leftIcon),
+    [leftIcon, open]
+  );
+
+  const renderedRightIcon = useMemo(
+    () => (typeof rightIcon === 'function' ? rightIcon(open) : rightIcon),
+    [rightIcon, open]
+  );
 
   return (
     <div className={cn('relative', classNames?.root)} ref={contentRef}>
@@ -97,17 +232,20 @@ export function Select<ISM extends boolean = false, VT = string>({
           'border border-gray-300 rounded-lg gap-2 px-3 py-2',
           'text-left bg-white hover:border-gray-400',
           'flex items-center justify-center cursor-pointer transition-colors',
+          'w-full min-w-0',
           classNames?.trigger
         )}
         type="button"
         onClick={toggle}
         title={findItemLabel || triggerText}
       >
-        {typeof leftIcon === 'function' ? leftIcon(open) : leftIcon}
+        {renderedLeftIcon && (
+          <span className="flex-shrink-0">{renderedLeftIcon}</span>
+        )}
         {(triggerText || findItemLabel) && (
           <span
             className={cn(
-              'text-nowrap overflow-hidden text-ellipsis max-w-full leading-full',
+              'overflow-hidden text-ellipsis whitespace-nowrap flex-1 leading-full',
               classNames?.triggerText
             )}
           >
@@ -116,91 +254,54 @@ export function Select<ISM extends boolean = false, VT = string>({
               : triggerText}
           </span>
         )}
-        {typeof rightIcon === 'function' ? rightIcon(open) : rightIcon}
+        {renderedRightIcon && (
+          <span className="flex-shrink-0">{renderedRightIcon}</span>
+        )}
       </button>
 
       {open && (
         <div
           className={cn(
-            'absolute z-10 w-full bg-white rounded-xl max-h-72 overflow-auto',
-            'py-1  border border-gray-200 shadow-xs',
+            'absolute z-10 w-full bg-white rounded-xl overflow-hidden max-h-72',
+            'border border-gray-200 shadow-xs',
             'top-full mt-1',
-            search && 'py-0',
+            'flex flex-col',
             classNames?.menu
           )}
         >
           {search && (
-            <div className="px-2 py-2 border-b sticky top-0 bg-white border-gray-200">
-              <input
-                type="text"
-                placeholder="Поиск..."
-                value={searchQuery}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                onClick={e => e.stopPropagation()}
+            <SearchInput value={searchQuery} onChange={handleSearchChange} />
+          )}
+
+          {showToggleAll && (
+            <div className="flex-shrink-0">
+              <ToggleAllButton
+                allSelected={allSelected}
+                onToggle={handleToggleAll}
+                className={classNames?.menuItem}
               />
             </div>
           )}
 
-          {showToggleAll && (
-            <button
-              type="button"
-              className={cn(
-                'flex items-center gap-2 px-3 py-2 w-full text-left hover:bg-blue-50 hover:text-blue-600 transition-colors',
-                classNames?.menuItem
-              )}
-              onClick={handleToggleAll}
-            >
-              <Checkbox checked={allSelected} onChecked={handleToggleAll} />
-              <span className="overflow-hidden max-w-full">
-                {allSelected ? 'Снять все' : 'Выбрать все'}
-              </span>
-            </button>
-          )}
-
-          {filteredItems.length === 0 ? (
-            <div className="px-3 py-2 text-center text-gray-500">
-              Ничего не найдено
-            </div>
-          ) : (
-            filteredItems.map(item => (
-              <button
-                key={`${item.value}-${item.label}-key`}
-                type="button"
-                className={cn(
-                  'flex items-center gap-2 px-3 py-2 cursor-pointer text-left text-nowrap',
-                  'w-full transition-colors',
-                  'font-normal group justify-between',
-                  indeterminate
-                    ? 'hover:bg-blue-50 '
-                    : 'hover:bg-blue-50 hover:text-blue-600 ',
-                  classNames?.menuItem
-                )}
-                onClick={() => handleSelect(item)}
-                title={item.label}
-              >
-                <div className="flex items-center gap-2">
-                  {checkbox && !indeterminate && (
-                    <Checkbox
-                      checked={isSelected(item)}
-                      onChecked={() => handleSelect(item)}
-                    />
-                  )}
-                  {indeterminate && (
-                    <LucidMinusIcon className="size-4 text-gray-700" />
-                  )}
-                  <span className="overflow-hidden text-ellipsis max-w-full">
-                    {item.label}
-                  </span>
-                </div>
-                {!checkbox && isSelected(item) && (
-                  <LucideCheckIcon className="size-4 text-gray-700" />
-                )}
-              </button>
-            ))
-          )}
+          <div className="overflow-auto flex-1 py-1">
+            {filteredItems.length === 0 ? (
+              <div className="px-3 py-2 text-center text-gray-500">
+                Ничего не найдено
+              </div>
+            ) : (
+              filteredItems.map(item => (
+                <SelectItem
+                  key={`${item.value}-${item.label}`}
+                  item={item}
+                  isSelected={isSelected(item)}
+                  onSelect={() => handleSelect(item)}
+                  checkbox={checkbox}
+                  indeterminate={indeterminate}
+                  className={classNames?.menuItem}
+                />
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

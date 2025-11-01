@@ -82,7 +82,7 @@ export const EditUserModal: React.FC<{
       schema={EditUserContract}
       title="Редактировать пользователя"
       onSubmit={handleSubmit}
-      isLoading={mutation.isPending}
+      isPending={mutation.isPending}
     />
   );
 });

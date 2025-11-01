@@ -22,7 +22,6 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
       const selectedCompanyId = Number(data.company_id);
       const company = companies.find(c => c.id === selectedCompanyId);
 
-      // If company is found and limit is set (>0), enforce limit before submit
       if (company && company.active_users_limit > 0) {
         if (company.active_users >= company.active_users_limit) {
           toast.error(
@@ -37,6 +36,7 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
 
     return (
       <CreateEditModal
+        isLoading={queryData.isLoading}
         fields={[
           {
             label: 'Электронная почта',
@@ -77,7 +77,7 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
         ]}
         onClose={onClose}
         schema={AddCustomerContract}
-        isLoading={mutation.isPending}
+        isPending={mutation.isPending}
         isSuccess={mutation.isSuccess}
         title="Добавить новую учетную запись клиента"
         onSubmit={handleSubmit}

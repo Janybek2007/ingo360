@@ -121,6 +121,8 @@ const ReportLogsPage: React.FC = () => {
               items={columnItems}
               triggerText="Столбцы"
               checkbox
+              isMultiple
+              showToggleAll
               classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
             <ExportToExcelButton

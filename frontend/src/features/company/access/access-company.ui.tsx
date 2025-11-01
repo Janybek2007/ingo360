@@ -29,7 +29,7 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
     );
     return (
       <CreateEditModal
-        isLoading={accessMutation.isPending}
+        isPending={accessMutation.isPending}
         alwaysEnablePrimary
         fields={[
           [

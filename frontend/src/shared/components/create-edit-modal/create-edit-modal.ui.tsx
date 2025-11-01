@@ -35,13 +35,13 @@ export const CreateEditModal = React.memo(
     onClose,
     title,
     primaryText = 'Сохранить',
-    isLoading,
-    loadingPrimaryText = 'Сохранение...',
+    isPending,
     onSubmit,
     schema,
     portal = true,
     isSuccess,
     alwaysEnablePrimary,
+    isLoading = false,
   }: ICreateEditModalProps) => {
     type FormData = z.output<TSchema>;
     const {
@@ -65,8 +65,8 @@ export const CreateEditModal = React.memo(
     }, [reset, fields, isSuccess]);
 
     const isDisabled = React.useMemo(() => {
-      return isLoading || !isDirty;
-    }, [isLoading, isDirty]);
+      return isPending || !isDirty || isLoading;
+    }, [isPending, isDirty, isLoading]);
 
     const Content = (
       <Modal
@@ -77,106 +77,113 @@ export const CreateEditModal = React.memo(
         closeOnOverlayClick={false}
         onClose={onClose}
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-4">
-            {fields.map((f, i) => {
-              if (Array.isArray(f)) {
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <p className="text-gray-600 text-lg">Загрузка данных...</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex flex-col gap-4">
+              {fields.map((f, i) => {
+                if (Array.isArray(f)) {
+                  return (
+                    <div className="grid grid-cols-2 gap-4" key={`group-${i}`}>
+                      {f.map((ff, j) => (
+                        <FormField
+                          key={`${ff.label}-${j}`}
+                          select={{
+                            items: ff.selectItems || [],
+                            value: watch(ff.name),
+                            setValue: value =>
+                              setValue(ff.name, value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              }),
+                            search: true,
+                          }}
+                          type={ff.type}
+                          label={ff.label}
+                          name={ff.name}
+                          isPasswordToggleShow={ff.isPasswordToggleShow}
+                          error={
+                            errors[ff.name as FieldPath<FormData>]?.message as
+                              | string
+                              | undefined
+                          }
+                          register={register(ff.name as FieldPath<FormData>, {
+                            valueAsNumber: ff.type === 'number',
+                          })}
+                          placeholder={ff.placeholder}
+                          classNames={{
+                            input: 'placeholder:text-[#94A3B8]',
+                            root: 'w-full',
+                          }}
+                          disabled={isLoading}
+                        />
+                      ))}
+                    </div>
+                  );
+                }
+                const currentName = watch(f.name);
+
                 return (
-                  <div className="grid grid-cols-2 gap-4" key={`group-${i}`}>
-                    {f.map((ff, j) => (
-                      <FormField
-                        key={`${ff.label}-${j}`}
-                        select={{
-                          items: ff.selectItems || [],
-                          value: watch(ff.name),
-                          setValue: value =>
-                            setValue(ff.name, value, {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            }),
-                          search: true,
-                        }}
-                        type={ff.type}
-                        label={ff.label}
-                        name={ff.name}
-                        isPasswordToggleShow={ff.isPasswordToggleShow}
-                        error={
-                          errors[ff.name as FieldPath<FormData>]?.message as
-                            | string
-                            | undefined
-                        }
-                        register={register(ff.name as FieldPath<FormData>, {
-                          valueAsNumber: ff.type === 'number',
-                        })}
-                        placeholder={ff.placeholder}
-                        classNames={{
-                          input: 'placeholder:text-[#94A3B8]',
-                          root: 'w-full',
-                        }}
-                      />
-                    ))}
+                  <div key={`${f.label}-${i}-key`}>
+                    <FormField
+                      select={{
+                        items: f.selectItems || [],
+                        value: currentName,
+                        setValue: value =>
+                          setValue(f.name, value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          }),
+                        search: true,
+                      }}
+                      type={f.type}
+                      label={f.label}
+                      name={f.name}
+                      isPasswordToggleShow={f.isPasswordToggleShow}
+                      error={
+                        errors[f.name as FieldPath<FormData>]?.message as
+                          | string
+                          | undefined
+                      }
+                      register={register(f.name as FieldPath<FormData>, {
+                        valueAsNumber: f.type === 'number',
+                      })}
+                      placeholder={f.placeholder}
+                      classNames={{
+                        input: 'placeholder:text-[#94A3B8]',
+                      }}
+                      disabled={isLoading}
+                    />
                   </div>
                 );
-              }
-              const currentName = watch(f.name);
+              })}
+            </div>
 
-              return (
-                <div key={`${f.label}-${i}-key`}>
-                  <FormField
-                    select={{
-                      items: f.selectItems || [],
-                      value: currentName,
-                      setValue: value =>
-                        setValue(f.name, value, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        }),
-                      search: true,
-                    }}
-                    type={f.type}
-                    label={f.label}
-                    name={f.name}
-                    isPasswordToggleShow={f.isPasswordToggleShow}
-                    error={
-                      errors[f.name as FieldPath<FormData>]?.message as
-                        | string
-                        | undefined
-                    }
-                    register={register(f.name as FieldPath<FormData>, {
-                      valueAsNumber: f.type === 'number',
-                    })}
-                    placeholder={f.placeholder}
-                    classNames={{
-                      input: 'placeholder:text-[#94A3B8]',
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-2 justify-end mt-8">
-            <Button
-              type="button"
-              onClick={onClose}
-              className="py-4 px-8 rounded-full"
-              color="default"
-              disabled={isLoading}
-            >
-              Отменить
-            </Button>
-            <Button
-              type="submit"
-              className="py-4 px-8 rounded-full"
-              color="primary"
-              disabled={alwaysEnablePrimary ? !!isLoading : isDisabled}
-            >
-              {isLoading && loadingPrimaryText
-                ? loadingPrimaryText
-                : primaryText}
-            </Button>
-          </div>
-        </form>
+            <div className="flex items-center gap-2 justify-end mt-8">
+              <Button
+                type="button"
+                onClick={onClose}
+                className="py-4 px-8 rounded-full"
+                color="default"
+                disabled={isPending || isLoading}
+              >
+                Отменить
+              </Button>
+              <Button
+                type="submit"
+                className="py-4 px-8 rounded-full"
+                color="primary"
+                disabled={alwaysEnablePrimary ? !!isPending : isDisabled}
+              >
+                {isPending ? 'Сохранение...' : primaryText}
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
     );
     return portal ? createPortal(Content, document.body) : Content;

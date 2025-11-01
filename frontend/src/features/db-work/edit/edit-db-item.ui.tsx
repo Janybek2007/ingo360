@@ -41,7 +41,8 @@ const EditDbItemModal: React.FC<{
     <CreateEditModal
       portal
       title="Редактирование записи"
-      isLoading={mutation.isPending}
+      isLoading={queryData.isLoading}
+      isPending={mutation.isPending}
       isSuccess={mutation.isSuccess}
       schema={dbItemContractWithType[type].optional()}
       fields={fields}

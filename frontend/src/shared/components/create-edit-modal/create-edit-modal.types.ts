@@ -15,8 +15,8 @@ export interface ICreateEditModalProps {
   fields: (ICreateEditModalField | ICreateEditModalField[])[];
   title: string;
   primaryText?: string;
+  isPending?: boolean;
   isLoading?: boolean;
-  loadingPrimaryText?: string;
   schema: any;
   portal?: boolean;
   isSuccess?: boolean;

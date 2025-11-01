@@ -92,7 +92,7 @@ export const EditCompanyModal: React.FC<{
       schema={EditCompanyContract}
       title="Редактировать компанию"
       onSubmit={handleSubmit}
-      isLoading={mutation.isPending}
+      isPending={mutation.isPending}
     />
   );
 });

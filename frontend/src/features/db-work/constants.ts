@@ -20,8 +20,8 @@ const defaultFields: ICreateEditModalProps['fields'] = [
   [
     {
       name: 'indicator',
-      label: 'Показатель',
-      placeholder: 'Выберите показатель',
+      label: 'Индикатор',
+      placeholder: 'Выберите индикатор',
     },
     {
       name: 'month',

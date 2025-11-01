@@ -57,6 +57,7 @@ export const EditCustomerModal: React.FC<{
 
   return (
     <CreateEditModal
+      isLoading={companiesQuery.isLoading}
       portal={false}
       fields={[
         {
@@ -125,7 +126,7 @@ export const EditCustomerModal: React.FC<{
       schema={EditCustomerContract}
       title="Редактировать учетную запись клиента"
       onSubmit={handleSubmit}
-      isLoading={mutation.isPending}
+      isPending={mutation.isPending}
     />
   );
 });

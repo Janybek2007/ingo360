@@ -43,7 +43,8 @@ const AddReferenceModal: React.FC<{
   return (
     <CreateEditModal
       portal
-      isLoading={mutation.isPending}
+      isLoading={queryData.isLoading}
+      isPending={mutation.isPending}
       isSuccess={mutation.isSuccess}
       title={`Добавить запись`}
       fields={fields}
