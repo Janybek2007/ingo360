@@ -1,6 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
+import { DbQueries } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { DbFilters, useDbFilters } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
@@ -15,59 +18,40 @@ import {
   SKUS,
 } from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { selectFilter } from '#/shared/utils/filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { generateMocks, randomId, randomInt } from '#/shared/utils/mock';
 
 interface MarketRow {
-  id: string;
-  sku: string;
   brand: string;
+  company: string;
+  dosage: string;
+  dosage_form: string;
   segment: string;
-  group: string;
-  distributor: string;
-  YTD6M23: number;
-  YTD6M24: number;
-  YTD6M25: number;
+  [key: string]: number | string;
 }
 
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const [rowsCount, setRowsCount] = useState<'all' | number>('all');
-  const [moneyType, setMoneyType] = React.useState<'money' | 'packaging'>(
-    'money'
-  );
+  const filter = useDbFilters({
+    config: { brands: { enabled: false }, groups: { enabled: false } },
+  });
   const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
 
-  const resetFilters = React.useCallback(() => {
-    setRowsCount('all');
-    periodFilter.onReset();
-  }, [periodFilter]);
+  const queryData = useKeepQuery(
+    DbQueries.GetDbItemsQuery<[]>(['ims/reports/table'], {
+      periods: periodFilter.selectedValues,
+      type_period: periodFilter.period,
+      limit: filter.rowsCount === 'all' ? undefined : filter.rowsCount,
+      search,
+    })
+  );
 
-  const usedFilterItems = React.useMemo(() => {
-    return getUsedFilterItems([
-      rowsCount !== 'all' && {
-        value: rowsCount,
-        getLabelFromValue(value) {
-          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
-        },
-        items: [],
-        onDelete: () => setRowsCount('all'),
-      },
-      {
-        value: periodFilter.selectedValues,
-        getLabelFromValue: getPeriodLabel,
-        onDelete: value => {
-          const newValues = periodFilter.selectedValues.filter(
-            v => v !== value
-          );
-          periodFilter.onChange(newValues);
-        },
-      },
-    ]);
-  }, [rowsCount, periodFilter]);
+  const metricData = React.useMemo(() => {
+    return queryData.data ? queryData.data[0] : [];
+  }, [queryData.data]);
 
   const allColumns = useMemo(
     (): ColumnDef<MarketRow>[] => [
@@ -138,29 +122,6 @@ export const MarketInsights: React.FC = React.memo(() => {
       ignore: ['actions'],
     });
 
-  const data = useMemo(() => {
-    const allData = generateMocks(rowsCount == 'all' ? 50 : rowsCount, {
-      id: () => randomId('market'),
-      sku: SKUS,
-      brand: BRANDS,
-      segment: PROMOTION_TYPES,
-      group: GROUPS,
-      distributor: DISTRIBUTORS,
-      YTD6M23: () => randomInt(0, 1000),
-      YTD6M24: () => randomInt(0, 1000),
-      YTD6M25: () => randomInt(0, 1000),
-    });
-
-    return allData.filter(
-      row =>
-        row.sku.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.brand.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.segment.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.group.label.toLowerCase().includes(search.toLowerCase()) ||
-        row.distributor.label.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, rowsCount]);
-
   return (
     <PageSection
       title="Данные по рынкам"
@@ -168,28 +129,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
           <PeriodFilters {...periodFilter} />
-          <Select<false, typeof moneyType>
-            value={moneyType}
-            setValue={setMoneyType}
-            items={[
-              { value: 'money', label: 'Деньги' },
-              { value: 'packaging', label: 'Упаковка' },
-            ]}
-            changeTriggerText
-            labelTemplate="Индикатор: {label}"
-          />
-          <Select<false, typeof rowsCount>
-            value={rowsCount}
-            setValue={setRowsCount}
-            items={[
-              { value: 'all', label: 'Все' },
-              { value: 10, label: '10' },
-              { value: 50, label: '50' },
-              { value: 100, label: '100' },
-              { value: 200, label: '200' },
-            ]}
-            triggerText="Количество строк"
-          />
+          <DbFilters {...filter} />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -202,17 +142,42 @@ export const MarketInsights: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton data={data} fileName="market-insights.xlsx" />
+          <ExportToExcelButton
+            data={metricData}
+            fileName="market-insights.xlsx"
+          />
         </div>
       }
     >
-      <Table
-        filters={{ usedFilterItems, resetFilters }}
-        columns={columnsForTable}
-        data={data}
-        maxHeight={400}
-        rounded="none"
-      />
+      <AsyncBoundary
+        queryError={queryData.error}
+        isLoading={queryData.isLoading}
+      >
+        <Table
+          filters={{
+            usedFilterItems: [
+              ...filter.usedFilterItems,
+              ...getUsedFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: value => {
+                    const newValues = periodFilter.selectedValues.filter(
+                      v => v !== value
+                    );
+                    periodFilter.onChange(newValues);
+                  },
+                },
+              ]),
+            ],
+            resetFilters: filter.resetFilters,
+          }}
+          columns={columnsForTable}
+          data={metricData}
+          maxHeight={400}
+          isView={periodFilter.isView}
+        />
+      </AsyncBoundary>
     </PageSection>
   );
 });

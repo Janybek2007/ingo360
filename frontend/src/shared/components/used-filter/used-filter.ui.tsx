@@ -7,6 +7,7 @@ import type { IUsedFilterItem, IUsedFilterProps } from './used-filter.types';
 export const UsedFilter: React.FC<IUsedFilterProps> = ({
   usedFilterItems,
   resetFilters,
+  isView = true,
 }) => {
   const groupedItems = React.useMemo(() => {
     const yearsMap = new Map<string, IUsedFilterItem>();
@@ -54,10 +55,10 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     return result;
   }, [usedFilterItems]);
 
-  if (!groupedItems.length) return null;
+  if (!groupedItems.length || !isView) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap font-inter select-none relative z-[30]">
+    <div className="flex items-center gap-2 flex-wrap font-inter select-none relative z-30">
       {groupedItems.map(item => (
         <div
           key={item.value}

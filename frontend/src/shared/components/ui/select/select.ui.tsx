@@ -45,12 +45,12 @@ const SelectItem = memo(
             <Checkbox checked={isSelected} onChecked={onSelect} />
           )}
           {indeterminate && (
-            <LucidMinusIcon className="size-4 text-gray-700 flex-shrink-0" />
+            <LucidMinusIcon className="size-4 text-gray-700 shrink-0" />
           )}
           <span>{item.label}</span>
         </div>
         {!checkbox && isSelected && (
-          <LucideCheckIcon className="size-4 text-gray-700 flex-shrink-0" />
+          <LucideCheckIcon className="size-4 text-gray-700 shrink-0" />
         )}
       </button>
     );
@@ -240,7 +240,7 @@ export function Select<ISM extends boolean = false, VT = string>({
         title={findItemLabel || triggerText}
       >
         {renderedLeftIcon && (
-          <span className="flex-shrink-0">{renderedLeftIcon}</span>
+          <span className="shrink-0">{renderedLeftIcon}</span>
         )}
         {(triggerText || findItemLabel) && (
           <span
@@ -255,7 +255,7 @@ export function Select<ISM extends boolean = false, VT = string>({
           </span>
         )}
         {renderedRightIcon && (
-          <span className="flex-shrink-0">{renderedRightIcon}</span>
+          <span className="shrink-0">{renderedRightIcon}</span>
         )}
       </button>
 
@@ -274,7 +274,7 @@ export function Select<ISM extends boolean = false, VT = string>({
           )}
 
           {showToggleAll && (
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <ToggleAllButton
                 allSelected={allSelected}
                 onToggle={handleToggleAll}
@@ -283,7 +283,7 @@ export function Select<ISM extends boolean = false, VT = string>({
             </div>
           )}
 
-          <div className="overflow-auto flex-1 py-1">
+          <div className="overflow-auto noscrollbar flex-1 py-1">
             {filteredItems.length === 0 ? (
               <div className="px-3 py-2 text-center text-gray-500">
                 Ничего не найдено

@@ -232,6 +232,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
           <UsedFilter
             usedFilterItems={usedFilterItems}
             resetFilters={resetFilters}
+            isView={periodFilter.isView}
           />
 
           <div className="font-inter">

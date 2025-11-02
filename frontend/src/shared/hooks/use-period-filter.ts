@@ -13,8 +13,9 @@ export type UsePeriodFilterReturn = {
   period: UsePeriodType;
   isSelectValues?: boolean;
   selectedValues: string[];
-  items: IFilterPeriodSelectItem[];
   views: UsePeriodType[];
+  isView?: boolean;
+  items: IFilterPeriodSelectItem[];
   setPeriod: (period: UsePeriodType) => void;
   onChange: (value: string | string[]) => void;
   onReset: VoidFunction;
@@ -25,14 +26,66 @@ export const usePeriodFilter = (
   defaultPeriod: UsePeriodType = 'month'
 ): UsePeriodFilterReturn => {
   const [period, setPeriodState] = useState<UsePeriodType>(defaultPeriod);
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
-
-  const setPeriod = useCallback((newPeriod: UsePeriodType) => {
-    setPeriodState(newPeriod);
-    setSelectedValues([]);
-  }, []);
 
   const currentYear = new Date().getFullYear();
+
+  const buildAllItemValues = useCallback(
+    (periodArg: UsePeriodType, yearsArr: number[]) => {
+      const values: string[] = [];
+      yearsArr.forEach(year => {
+        if (periodArg === 'month') {
+          for (let i = 1; i <= 12; i++) values.push(`month-${year}-${i}`);
+        } else if (periodArg === 'quarter') {
+          for (let i = 1; i <= 4; i++) values.push(`quarter-${year}-${i}`);
+        } else if (periodArg === 'mat') {
+          for (let i = 1; i <= 12; i++) values.push(`mat-${year}-${i}`);
+        } else if (periodArg === 'ytd') {
+          for (let i = 1; i <= 12; i++) values.push(`ytd-${year}-${i}`);
+        } else {
+          values.push(`${year}`);
+        }
+      });
+      return values;
+    },
+    []
+  );
+
+  const initialYearsLength = defaultPeriod === 'year' ? 5 : 2;
+  const initialYears = Array.from(
+    { length: initialYearsLength },
+    (_, i) => currentYear - i
+  );
+
+  const [selectedValues, setSelectedValues] = useState<string[]>(() => {
+    const all = buildAllItemValues(defaultPeriod, initialYears);
+    if (defaultPeriod === 'year') return all;
+    return [...all, ...initialYears.map(y => `year-${y}`)];
+  });
+
+  const setPeriod = useCallback(
+    (newPeriod: UsePeriodType) => {
+      setPeriodState(newPeriod);
+
+      const initialYearsLength = newPeriod === 'year' ? 5 : 2;
+      const newYears = Array.from(
+        { length: initialYearsLength },
+        (_, i) => currentYear - i
+      );
+
+      const newSelectedValues = buildAllItemValues(newPeriod, newYears);
+
+      if (newPeriod !== 'year') {
+        setSelectedValues([
+          ...newSelectedValues,
+          ...newYears.map(y => `year-${y}`),
+        ]);
+      } else {
+        setSelectedValues(newSelectedValues);
+      }
+    },
+    [currentYear, buildAllItemValues]
+  );
+
   const years = useMemo(() => {
     let length = 2;
     if (period === 'year') length = 5;
@@ -71,6 +124,14 @@ export const usePeriodFilter = (
     });
     return values;
   }, [period, years]);
+
+  const getIsView = useCallback(() => {
+    const allValuesWithYears =
+      period === 'year'
+        ? allItemValues
+        : [...allItemValues, ...years.map(y => `year-${y}`)];
+    return selectedValues.length !== allValuesWithYears.length;
+  }, [selectedValues, allItemValues, years, period]);
 
   const items = useMemo(() => {
     const result: IFilterPeriodSelectItem[] = [];
@@ -187,14 +248,15 @@ export const usePeriodFilter = (
 
   return {
     period,
-    setPeriod,
     selectedValues,
-    items,
     views,
+    isView: getIsView(),
+    setPeriod,
+    items,
     onChange: handleValueChange,
     onReset: () => {
       setSelectedValues([]);
-      setPeriod('month');
+      setPeriod(defaultPeriod);
     },
   };
 };

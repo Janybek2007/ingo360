@@ -41,21 +41,23 @@ export interface ITableProps {
   highlightRow?: ITableBodyProps['highlightRow'];
   pinnedRow?: ITableBodyProps['pinnedRow'];
   enableColumnResizing?: boolean;
+  isVirtualized?: boolean;
+  isView?: boolean;
   filters?: IUsedFilterProps & {
     custom?: ColumnFiltersState;
   };
-  rowTotal?: ITableBodyProps['rowTotal'];
+  rowTotal?: {
+    firstColSpan: number;
+    monthTotals: number[];
+    grandTotal: number;
+  };
 }
 
 export interface ITableBodyProps {
   table: TableType<any>;
   highlightRow?: (row: any) => string;
   pinnedRow?: (row: any) => boolean;
-  rowTotal?: {
-    firstColSpan: number;
-    monthTotals?: number[];
-    grandTotal?: number;
-  };
+  rowTotal?: ITableProps['rowTotal'];
   rowVirtualizer?: Virtualizer<any, any>;
 }
 
@@ -95,4 +97,9 @@ export interface IFilterInputProps {
   setValue: (v: string | number) => void;
   value2: string | number;
   setValue2: (v: string | number) => void;
+}
+
+export interface ITableTotalRowProps {
+  table: TableType<any>;
+  rowTotal: ITableProps['rowTotal'];
 }

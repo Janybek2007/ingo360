@@ -4,6 +4,7 @@ import { cn } from '#/shared/utils/cn';
 
 import type { ITableBodyProps } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
+import { TableTotalRow } from './table-total-row.ui';
 
 export function TableBody({
   table,
@@ -60,12 +61,11 @@ export function TableBody({
                         'bg-white group-hover:bg-gray-50',
                       'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
                       isPinned &&
-                        'sticky top-[3.125rem] bottom-0 z-30 border-t',
+                        'sticky top-[3.125rem] bottom-0 z-[100] border-t',
                       'overflow-hidden text-ellipsis border-b',
                       highlightRow?.(row.original)
                     )}
                   >
-                    {}
                     {flexRender(columnDef.cell, cell.getContext())}
                   </td>
                 );
@@ -79,81 +79,7 @@ export function TableBody({
           <td style={{ height: `${paddingBottom}px` }} />
         </tr>
       )}
-      {rowTotal && (
-        <tr className="sticky bottom-0 right-0 z-[16]">
-          <td
-            colSpan={rowTotal.firstColSpan}
-            className="py-[0.875rem] sticky bottom-0 left-0 z-[18] border-t text-center border-r border-[#E4E4E4] bg-white"
-          >
-            Итого
-          </td>
-          {table
-            .getVisibleLeafColumns()
-            .slice(rowTotal.firstColSpan)
-            .map(column => {
-              const columnDef = column.columnDef;
-              const accessor = columnDef.accessorKey as string;
-              const columnId = column.id;
-
-              if (accessor === 'total' || columnId === 'total') {
-                const total = rowTotal.grandTotal ?? 0;
-                return (
-                  <td
-                    key={column.id}
-                    style={{
-                      ...getCommonPinningStyles(column),
-                    }}
-                    className={cn(
-                      'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white',
-                      'sticky bottom-0 z-[20]',
-                      column.getIsPinned() && 'border-l',
-                      total < 0 && 'text-red-600'
-                    )}
-                  >
-                    {total.toLocaleString('ru-RU', {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 2,
-                    })}
-                  </td>
-                );
-              }
-
-              const monthMatch = columnId.match(/month(\d+)/);
-              if (monthMatch && rowTotal.monthTotals) {
-                const monthIndex = parseInt(monthMatch[1]) - 1;
-                const total = rowTotal.monthTotals[monthIndex] ?? 0;
-
-                return (
-                  <td
-                    key={column.id}
-                    style={{
-                      maxWidth: column.columnDef.size,
-                      minWidth: column.columnDef.size,
-                    }}
-                    className={cn(
-                      'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white sticky bottom-0 z-[16]',
-                      total < 0 && 'text-red-600'
-                    )}
-                  >
-                    {total.toLocaleString('ru-RU', {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 2,
-                    })}
-                  </td>
-                );
-              }
-
-              return (
-                <td
-                  key={column.id}
-                  className="text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white  sticky bottom-0 z-[16]"
-                >
-                  -
-                </td>
-              );
-            })}
-        </tr>
-      )}
+      {rowTotal && <TableTotalRow table={table} rowTotal={rowTotal} />}
     </tbody>
   );
 }

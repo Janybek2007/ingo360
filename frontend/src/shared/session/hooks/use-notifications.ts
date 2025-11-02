@@ -8,7 +8,7 @@ import { queryClient } from '../../libs/react-query';
 import { useSocket } from '../../libs/socket';
 import type { NotificationMessage } from '../types';
 
-export const useNotifications = () => {
+export const useNotifications = (isWelcome = false) => {
   const [token, setToken] = useState(() => Cookies.get('access_token') || null);
 
   const { lastMessage, disconnect } = useSocket(
@@ -25,6 +25,7 @@ export const useNotifications = () => {
   }, [disconnect]);
 
   useEffect(() => {
+    if (isWelcome) return;
     const msg = lastMessage as NotificationMessage | null;
     if (
       msg &&
@@ -43,7 +44,7 @@ export const useNotifications = () => {
       Cookies.remove('access_token');
       Cookies.remove('token_type');
     }
-  }, [lastMessage]);
+  }, [lastMessage, isWelcome]);
 
   return {
     reconnect,

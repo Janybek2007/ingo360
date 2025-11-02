@@ -1,3 +1,4 @@
+import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import type { PaginationParams } from '#/shared/types/global';
 
 export interface IDbName {
@@ -90,4 +91,7 @@ export interface IGetDBItemsParams extends PaginationParams {
   promo_type_id?: number[];
   sku_ids?: number[];
   group_by_period?: 'month' | 'quarter' | 'year';
+  periods?: string[];
+  type_period?: UsePeriodType;
+  group_column?: 'company' | 'brand' | 'segment';
 }

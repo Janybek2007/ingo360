@@ -8,4 +8,5 @@ export interface IUsedFilterItem {
 export interface IUsedFilterProps {
   usedFilterItems: IUsedFilterItem[];
   resetFilters: VoidFunction;
+  isView?: boolean;
 }

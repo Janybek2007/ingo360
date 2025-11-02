@@ -29,7 +29,7 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
     }, [views]);
 
     return (
-      <div className="flex gap-4 relative z-[60]">
+      <div className="flex gap-4 relative z-60">
         <Select<false, UsePeriodType>
           triggerText={'Выберите период'}
           changeTriggerText

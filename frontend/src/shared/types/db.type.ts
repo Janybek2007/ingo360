@@ -18,4 +18,7 @@ export type ExtraDbType =
   | 'visits/reports/doctors-by-specialty'
   | 'visits/reports/doctors-with-visits-by-specialty'
   | 'visits/reports/visits-sum-for-period'
-  | 'visits/reports/visits-by-month';
+  | 'visits/reports/visits-by-month'
+  | 'ims/reports/top'
+  | 'ims/reports/metrics'
+  | 'ims/reports/table';

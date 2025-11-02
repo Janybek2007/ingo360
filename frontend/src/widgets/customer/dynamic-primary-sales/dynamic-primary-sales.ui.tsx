@@ -228,6 +228,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
             <UsedFilter
               usedFilterItems={usedFilterItems}
               resetFilters={resetFilters}
+              isView={periodFilter.isView}
             />
 
             {as == 'line' ? (

@@ -136,6 +136,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
         <UsedFilter
           usedFilterItems={usedFilterItems}
           resetFilters={resetFilters}
+          isView={periodFilter.isView}
         />
 
         <div className="fontp-inter">

@@ -310,6 +310,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
           <UsedFilter
             usedFilterItems={usedFilterItems}
             resetFilters={resetFilters}
+            isView={periodFilter.isView}
           />
           <div className="font-inter">
             {distributors.length === 0 ? (

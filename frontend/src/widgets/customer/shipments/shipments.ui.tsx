@@ -135,7 +135,7 @@ export const Shipments: React.FC = React.memo(() => {
       }
     >
       <AsyncBoundary
-        isLoading={queryData.isLoading || queryData.isRefetching}
+        isLoading={queryData.isLoading}
         queryError={queryData.error}
       >
         <Table

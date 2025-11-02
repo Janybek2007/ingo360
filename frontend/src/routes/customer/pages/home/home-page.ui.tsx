@@ -1,13 +1,16 @@
 import React from 'react';
 
 import { LazySection } from '#/shared/components/lazy-section';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
 import { DynamicPrimarySales } from '#/widgets/customer/dynamic-primary-sales';
 import { DynamicSales } from '#/widgets/customer/dynamic-sales';
-import { KPICards } from '#/widgets/customer/kpi-cards';
+import { IMSMetrics } from '#/widgets/customer/ims-metrics';
 import { LeaderBoard } from '#/widgets/customer/leader-board';
 
 const HomePage: React.FC = () => {
+  const periodFilter = usePeriodFilter(['mat', 'ytd', 'year', 'month'], 'mat');
+
   const { userAccess } = useSession();
   return (
     <main className="p-5 space-y-6">
@@ -19,10 +22,15 @@ const HomePage: React.FC = () => {
       {userAccess?.can_market_analysis && (
         <>
           <LazySection>
-            <LeaderBoard />
+            <LeaderBoard periodFilter={periodFilter} />
           </LazySection>
           <LazySection>
-            <KPICards />
+            <IMSMetrics
+              periodFilter={{
+                period: periodFilter.period,
+                selectedValues: periodFilter.selectedValues,
+              }}
+            />
           </LazySection>
         </>
       )}
