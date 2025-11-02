@@ -507,6 +507,16 @@ export const referencesColumnsWithType: Record<
       filterType: 'string',
     },
   ],
+  'clients/geo-indicators': () => [
+    {
+      accessorKey: 'name',
+      header: 'Название',
+      size: 200,
+      enableColumnFilter: true,
+      filterFn: stringFilter(),
+      filterType: 'string',
+    },
+  ],
   'clients/medical-facilities': data => [
     {
       accessorKey: 'name',
@@ -549,6 +559,22 @@ export const referencesColumnsWithType: Record<
         })),
         ['value']
       ),
+    },
+    {
+      id: 'geo_indicator',
+      accessorKey: 'geo_indicator',
+      header: 'Индикатор',
+      accessorFn: item => item.geo_indicator?.name ?? '-',
+      size: 200,
+      enableColumnFilter: true,
+      filterFn: stringFilter(),
+      filterType: 'string',
+      cell: ({ row }) =>
+        React.createElement(
+          'span',
+          { title: row.original.geo_indicator?.name || '-' },
+          row.original.geo_indicator?.name || '-'
+        ),
     },
     {
       id: 'district.id',
@@ -770,10 +796,10 @@ export const referencesColumnsWithType: Record<
       ),
     },
     {
-      id: 'indicator',
-      accessorKey: 'indicator',
+      id: 'geo_indicator',
+      accessorKey: 'geo_indicator',
       header: 'Индикатор',
-      accessorFn: item => item.indicator ?? '-',
+      accessorFn: item => item.geo_indicator?.name ?? '-',
       size: 200,
       enableColumnFilter: true,
       filterFn: stringFilter(),
@@ -781,8 +807,8 @@ export const referencesColumnsWithType: Record<
       cell: ({ row }) =>
         React.createElement(
           'span',
-          { title: row.original.indicator },
-          row.original.indicator
+          { title: row.original.geo_indicator?.name || '-' },
+          row.original.geo_indicator?.name || '-'
         ),
     },
     {

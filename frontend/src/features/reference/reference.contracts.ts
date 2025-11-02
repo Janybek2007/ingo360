@@ -57,6 +57,7 @@ export const referenceContractWithType: Record<
     district_id: RequiredNumber('Выберите район'),
   }),
   'clients/distributors': NameSchema,
+  'clients/geo-indicators': NameSchema,
   'clients/medical-facilities': NameSchema.extend({
     settlement_id: RequiredNumber('Выберите населённый пункт'),
     district_id: RequiredNumber('Выберите район'),

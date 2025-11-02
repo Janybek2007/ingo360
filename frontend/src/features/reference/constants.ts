@@ -222,6 +222,9 @@ export const referencesCEFields: Record<
   'clients/distributors': [
     { name: 'name', label: 'Название', placeholder: 'Введите название сети' },
   ],
+  'clients/geo-indicators': [
+    { name: 'name', label: 'Название', placeholder: 'Введите название сети' },
+  ],
   'clients/medical-facilities': [
     { name: 'name', label: 'Название', placeholder: 'Введите название ЛПУ' },
     {

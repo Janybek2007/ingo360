@@ -36,4 +36,5 @@ export const dbItemContractWithType: Record<DbType, z.ZodTypeAny> = {
     doctor_id: RequiredNumber('Выберите врача'),
     medical_facility_id: RequiredNumber('Выберите медицинское учреждение'),
   }),
+  ims: z.string({}),
 };

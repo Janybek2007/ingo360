@@ -5,5 +5,5 @@ export const tabsItems: ITabItem<string>[] = [
   { label: 'Вторичные продажи', value: 'sales_secondary' },
   { label: 'Третичные продажи', value: 'sales_tertiary' },
   { label: 'Визиты', value: 'visits' },
-  { label: 'Внешние рынки', value: 'foreign' },
+  { label: 'Внешние рынки', value: 'ims' },
 ];

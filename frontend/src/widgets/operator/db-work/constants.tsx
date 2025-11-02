@@ -117,7 +117,6 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
   }
 
   if (type === 'visits') {
-    // (твой старый блок для visits остаётся без изменений)
     columns.push({
       id: 'pharmacy.id',
       accessorKey: 'pharmacy.name',
@@ -217,6 +216,113 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       ),
     });
     columns.push(...getYearMonthColumns(data));
+  }
+  if (type === 'ims') {
+    columns.push({
+      id: 'company',
+      accessorKey: 'company',
+      header: 'Компания',
+      size: 200,
+      filterType: 'select',
+      filterFn: selectFilter(),
+      enableColumnFilter: true,
+      selectOptions: getUniqueItems(
+        data.map(v => ({ label: v.company, value: v.company })),
+        ['value']
+      ),
+    });
+
+    columns.push({
+      id: 'brand',
+      accessorKey: 'brand',
+      header: 'Бренд',
+      size: 200,
+      filterType: 'select',
+      filterFn: selectFilter(),
+      enableColumnFilter: true,
+      selectOptions: getUniqueItems(
+        data.map(v => ({ label: v.brand, value: v.brand })),
+        ['value']
+      ),
+    });
+
+    columns.push({
+      id: 'segment',
+      accessorKey: 'segment',
+      header: 'Сегмент',
+      size: 150,
+      filterType: 'select',
+      filterFn: selectFilter(),
+      enableColumnFilter: true,
+      selectOptions: getUniqueItems(
+        data.map(v => ({ label: v.segment, value: v.segment })),
+        ['value']
+      ),
+    });
+
+    columns.push({
+      id: 'molecule',
+      accessorKey: 'molecule',
+      header: 'Молекула',
+      size: 150,
+      filterType: 'string',
+      filterFn: stringFilter(),
+      enableColumnFilter: true,
+    });
+
+    columns.push({
+      id: 'dosage',
+      accessorKey: 'dosage',
+      header: 'Дозировка',
+      size: 120,
+      filterType: 'string',
+      filterFn: stringFilter(),
+      enableColumnFilter: true,
+    });
+
+    columns.push({
+      id: 'dosage_form',
+      accessorKey: 'dosage_form',
+      header: 'Форма',
+      size: 120,
+      filterType: 'string',
+      filterFn: stringFilter(),
+      enableColumnFilter: true,
+    });
+
+    columns.push({
+      id: 'period',
+      accessorKey: 'period',
+      header: 'Период',
+      size: 160,
+      filterType: 'select',
+      filterFn: selectFilter(),
+      enableColumnFilter: true,
+      selectOptions: getUniqueItems(
+        data.map(v => ({ label: v.period, value: v.period })),
+        ['value']
+      ),
+    });
+
+    columns.push({
+      id: 'amount',
+      accessorKey: 'amount',
+      header: 'Сумма',
+      size: 120,
+      filterType: 'number',
+      filterFn: numberFilter(),
+      enableColumnFilter: true,
+    });
+
+    columns.push({
+      id: 'packages',
+      accessorKey: 'packages',
+      header: 'Упаковки',
+      size: 120,
+      filterType: 'number',
+      filterFn: numberFilter(),
+      enableColumnFilter: true,
+    });
   }
 
   return columns;

@@ -83,15 +83,17 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 isMultiple
                 checkbox
                 classNames={{
-                  menu: 'min-w-[11.25rem] right-0',
+                  menu: 'min-w-[11.25rem]  w-max right-0',
                 }}
               />
               <ExportToExcelButton data={currentData} fileName="dbwork.xlsx" />
-              <PublishUnpublishedButton
-                type={current}
-                disabled={currentData.filter(v => !v.published).length === 0}
-                ids={currentData.filter(v => !v.published).map(v => v.id)}
-              />
+              {!['visits', 'ims'].includes(current) && (
+                <PublishUnpublishedButton
+                  type={current}
+                  disabled={currentData.filter(v => !v.published).length === 0}
+                  ids={currentData.filter(v => !v.published).map(v => v.id)}
+                />
+              )}
               <ImportDbItemButton type={current} />
               <AddDbItemWrapper type={current} />
             </div>

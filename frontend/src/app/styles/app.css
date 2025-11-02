@@ -98,11 +98,8 @@ button {
     padding: 1.5rem;
     width: 100%;
     max-height: calc(100vh - 4.875rem);
-    overflow-y: auto;
-
-    &::-webkit-scrollbar {
-      width: 0;
-    }
+    overflow-y: scroll;
+    @apply noscrollbar;
   }
 }
 

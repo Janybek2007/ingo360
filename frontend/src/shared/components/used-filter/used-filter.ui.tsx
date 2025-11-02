@@ -58,60 +58,58 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   if (!groupedItems.length || !isView) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap font-inter select-none relative z-30">
+    <div className="flex items-center gap-1.5 flex-wrap font-inter select-none relative z-30 text-[13px]">
       {groupedItems.map(item => (
         <div
           key={item.value}
-          className={`flex items-center gap-2 ${item.subItems?.length ? 'bg-gray-50/50 rounded-lg p-2 border border-gray-100' : ''}`}
+          className={`flex items-center gap-1.5 ${item.subItems?.length ? 'rounded-md border border-gray-200 px-1.5 py-1' : ''}`}
         >
-          <div className="group flex items-center gap-2 px-3 py-1.5 bg-white text-gray-600 rounded-md text-sm border border-gray-200/60 shadow-xs hover:border-gray-300/60 transition-colors">
-            <span className="font-medium">{item.label}</span>
+          <div className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
+            <span>{item.label}</span>
             <button
               type="button"
               onClick={item.onDelete}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600"
               aria-label={`Удалить фильтр ${item.label}`}
             >
-              <LucideXIcon className="size-4" />
+              <LucideXIcon className="size-3.5" />
             </button>
           </div>
 
           {item.subItems?.length ? (
-            <div className="relative">
-              <Select<true, string>
-                isMultiple
-                checkbox
-                triggerText={`Выбранные: ${[...new Set(item.subItems)].filter(sub => sub.onDelete).length}`}
-                items={item.subItems.map(sub => ({
-                  label: sub.label,
-                  value: sub.value as string,
-                }))}
-                value={item.subItems.map(sub => sub.value as string)}
-                indeterminate
-                setValue={values => {
-                  const currentValues =
-                    item.subItems?.map(sub => sub.value as string) || [];
-                  const removedValues = currentValues.filter(
-                    val => !values.includes(val)
-                  );
+            <Select<true, string>
+              isMultiple
+              checkbox
+              triggerText={`+${[...new Set(item.subItems)].filter(sub => sub.onDelete).length}`}
+              items={item.subItems.map(sub => ({
+                label: sub.label,
+                value: sub.value as string,
+              }))}
+              value={item.subItems.map(sub => sub.value as string)}
+              indeterminate
+              setValue={values => {
+                const currentValues =
+                  item.subItems?.map(sub => sub.value as string) || [];
+                const removedValues = currentValues.filter(
+                  val => !values.includes(val)
+                );
 
-                  removedValues.forEach(removedValue => {
-                    const removedItem = item.subItems?.find(
-                      sub => sub.value === removedValue
-                    );
-                    if (removedItem?.onDelete) {
-                      removedItem.onDelete();
-                    }
-                  });
-                }}
-                classNames={{
-                  trigger:
-                    'gap-2 px-2.5 py-1 text-base border-gray-200/50 hover:border-gray-300/50',
-                  triggerText: 'leading-[1]',
-                  menu: 'min-w-[8rem] w-max max-w-[30rem] left-0',
-                }}
-              />
-            </div>
+                removedValues.forEach(removedValue => {
+                  const removedItem = item.subItems?.find(
+                    sub => sub.value === removedValue
+                  );
+                  if (removedItem?.onDelete) {
+                    removedItem.onDelete();
+                  }
+                });
+              }}
+              classNames={{
+                trigger:
+                  'px-2 py-[2px] text-[13px] border border-gray-200 hover:border-gray-300 rounded bg-white',
+                triggerText: 'leading-[1]',
+                menu: 'min-w-[7rem] w-max max-w-[24rem] left-0',
+              }}
+            />
           ) : null}
         </div>
       ))}
@@ -119,9 +117,9 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
       <button
         type="button"
         onClick={resetFilters}
-        className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+        className="px-2 py-[2px] text-[13px] text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
       >
-        Сбросить всё
+        Сбросить
       </button>
     </div>
   );

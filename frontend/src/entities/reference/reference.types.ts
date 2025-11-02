@@ -24,6 +24,7 @@ export interface IReferenceItem extends IItem {
   speciality: IItem;
   client_category: IItem;
   pharmacy_network: IItem;
+  geo_indicator: IItem;
   distributor: IItem;
 }
 

@@ -11,6 +11,7 @@ import { tabsItems } from './constants';
 
 const DbWorkPage: React.FC = () => {
   const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
+
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
     defaultValue: 'sales/tertiary/reports/sales',
     defaultServerValue: 'sales/tertiary/reports/sales',

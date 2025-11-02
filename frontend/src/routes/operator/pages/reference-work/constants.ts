@@ -38,6 +38,7 @@ export const tabsItems: ITabItem<string>[] = [
     subItems: [
       { label: 'Дистрибьютор/сеть', value: 'distributors' },
       { label: 'ЛПУ', value: 'medical-facilities' },
+      { label: 'Гео индикаторы', value: 'geo-indicators' },
       { label: 'Специальность врачей', value: 'specialities' },
       { label: 'Категория клиента', value: 'client-categories' },
       { label: 'Врачи', value: 'doctors' },

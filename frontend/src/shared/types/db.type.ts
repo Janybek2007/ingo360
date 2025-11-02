@@ -2,7 +2,8 @@ export type DbType =
   | 'sales/primary'
   | 'sales/secondary'
   | 'sales/tertiary'
-  | 'visits';
+  | 'visits'
+  | 'ims';
 
 export type ExtraDbType =
   | DbType

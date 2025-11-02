@@ -10,18 +10,12 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import {
-  BRANDS,
-  DISTRIBUTORS,
-  GROUPS,
-  PROMOTION_TYPES,
-  SKUS,
-} from '#/shared/constants/test_constants';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { selectFilter } from '#/shared/utils/filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 interface MarketRow {
@@ -41,7 +35,7 @@ export const MarketInsights: React.FC = React.memo(() => {
   const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<[]>(['ims/reports/table'], {
+    DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {
       periods: periodFilter.selectedValues,
       type_period: periodFilter.period,
       limit: filter.rowsCount === 'all' ? undefined : filter.rowsCount,
@@ -56,49 +50,79 @@ export const MarketInsights: React.FC = React.memo(() => {
   const allColumns = useMemo(
     (): ColumnDef<MarketRow>[] => [
       {
-        id: 'sku',
-        accessorKey: 'sku.label',
+        id: 'company',
+        accessorKey: 'company',
         header: 'Компания',
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: SKUS,
+        selectOptions: getUniqueItems(
+          metricData.map(item => ({
+            label: item.company,
+            value: item.company,
+          })),
+          ['value']
+        ),
       },
       {
         id: 'brand',
-        accessorKey: 'brand.label',
+        accessorKey: 'brand',
         header: 'Бренд',
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: BRANDS,
+        selectOptions: getUniqueItems(
+          metricData.map(item => ({
+            label: item.brand,
+            value: item.brand,
+          })),
+          ['value']
+        ),
       },
       {
         id: 'segment',
-        accessorKey: 'segment.label',
+        accessorKey: 'segment',
         header: 'Сегмент',
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: PROMOTION_TYPES,
+        selectOptions: getUniqueItems(
+          metricData.map(item => ({
+            label: item.segment,
+            value: item.segment,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'group',
-        accessorKey: 'group.label',
+        id: 'dosage_form',
+        accessorKey: 'dosage_form',
         header: 'Форма выписка',
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: GROUPS,
+        selectOptions: getUniqueItems(
+          metricData.map(item => ({
+            label: item.dosage_form,
+            value: item.dosage_form,
+          })),
+          ['value']
+        ),
       },
       {
-        id: 'distributor',
-        accessorKey: 'distributor.label',
+        id: 'dosage',
+        accessorKey: 'dosage',
         header: 'Дозировка',
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: DISTRIBUTORS,
+        selectOptions: getUniqueItems(
+          metricData.map(item => ({
+            label: item.dosage,
+            value: item.dosage,
+          })),
+          ['value']
+        ),
       },
       {
         accessorKey: 'YTD6M23',
@@ -113,7 +137,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         header: 'YTD-6M-25',
       },
     ],
-    []
+    [metricData]
   );
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =

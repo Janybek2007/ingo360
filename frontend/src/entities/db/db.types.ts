@@ -24,6 +24,14 @@ export interface IDbItem {
   doctor: null | IDbName;
   client_type: string;
   medical_facility: null | IDbName;
+  //
+  company: string;
+  brand: 'string';
+  segment: string;
+  dosage: string;
+  dosage_form: string;
+  period: string;
+  molecule: string;
 }
 
 export type TDbItem = {

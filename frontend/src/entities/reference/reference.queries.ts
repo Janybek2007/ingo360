@@ -8,7 +8,11 @@ import type { IGetReferencesResponse } from './reference.types';
 
 export class ReferenceQueries {
   static queryKeys = {
-    getReferences: (urls: string[]) => ['get-references', urls],
+    getReferences: (urls: string[], options?: PaginationParams) => [
+      'get-references',
+      urls,
+      options,
+    ],
   };
 
   static GetReferencesQuery<T = IGetReferencesResponse>(
@@ -16,7 +20,7 @@ export class ReferenceQueries {
     options?: PaginationParams
   ) {
     return queryOptions({
-      queryKey: this.queryKeys.getReferences(urls),
+      queryKey: this.queryKeys.getReferences(urls, options),
       queryFn: () =>
         Promise.all(
           urls.map(url =>

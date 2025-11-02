@@ -195,6 +195,62 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
       },
     ],
   ],
+  ims: [
+    {
+      name: 'molecule',
+      label: 'Молекула',
+      placeholder: 'Введите молекулу',
+    },
+    {
+      name: 'period',
+      label: 'Период',
+      placeholder: 'Введите период',
+    },
+    [
+      {
+        name: 'company_id',
+        label: 'Компания',
+        placeholder: 'Выберите компанию',
+        type: 'select',
+      },
+      {
+        name: 'brand_id',
+        label: 'Бренд',
+        placeholder: 'Выберите бренд',
+        type: 'select',
+      },
+      {
+        name: 'dosage_id',
+        label: 'Дозировка',
+        placeholder: 'Выберите дозировку',
+        type: 'select',
+      },
+      {
+        name: 'dosage_form',
+        label: 'Форма дозировки',
+        placeholder: 'Выберите форму дозировки',
+        type: 'select',
+      },
+      {
+        name: 'amount',
+        label: 'Сумма',
+        placeholder: 'Введите сумму',
+        type: 'number',
+      },
+      {
+        name: 'packages',
+        label: 'Упаковка',
+        placeholder: 'Введите упаковку',
+        type: 'number',
+      },
+    ],
+    {
+      name: 'segment_id',
+      label: 'Сегмент',
+      placeholder: 'Выберите сегмент',
+      type: 'select',
+    },
+  ],
 };
 
 export const dbItemDependsUrls: Record<
@@ -223,5 +279,12 @@ export const dbItemDependsUrls: Record<
     { fieldName: 'client_category_id', url: 'clients/client-categories' },
     { fieldName: 'doctor_id', url: 'clients/doctors' },
     { fieldName: 'medical_facility_id', url: 'clients/medical-facilities' },
+  ],
+  ims: [
+    { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'brand_id', url: 'products/brands' },
+    { fieldName: 'segment_id', url: 'products/segments' },
+    { fieldName: 'dosage_id', url: 'products/dosages' },
+    { fieldName: 'dosage_form', url: 'products/dosage-forms' },
   ],
 };
