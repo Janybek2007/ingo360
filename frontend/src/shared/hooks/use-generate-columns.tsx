@@ -21,11 +21,11 @@ export interface CColumn<TData> {
 
 interface UseGenerateColumnsProps<TData> {
   data: TData[];
-  columns: (CColumn<TData> | string)[]; // Можно просто строку передать!
+  columns: (CColumn<TData> | string)[];
   months?: {
     year?: number;
     count?: number;
-    getValue: (row: TData, index: number) => number | null | undefined;
+    getValue: (row: TData, index: number) => number | string | null | undefined;
     asPercent?: boolean;
   };
   total?: {

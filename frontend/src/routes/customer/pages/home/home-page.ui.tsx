@@ -13,7 +13,7 @@ const HomePage: React.FC = () => {
 
   const { userAccess } = useSession();
   return (
-    <main className="p-5 space-y-6">
+    <main className="space-y-6">
       {userAccess?.can_primary_sales && (
         <LazySection>
           <DynamicPrimarySales />

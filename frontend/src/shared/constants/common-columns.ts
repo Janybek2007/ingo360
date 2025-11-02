@@ -119,7 +119,7 @@ export const commonColumns = {
 };
 
 export const monthsPreset = <TData>(
-  getValue: (row: TData, i: number) => number | null | undefined,
+  getValue: (row: TData, i: number) => number | string | null | undefined,
   options?: { year?: number; count?: number; asPercent?: boolean }
 ) => ({
   year: options?.year || 2025,

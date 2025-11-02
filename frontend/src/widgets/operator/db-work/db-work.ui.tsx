@@ -31,6 +31,8 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
       columns.push({
         id: 'actions',
         header: 'Действия',
+        enablePinning: true,
+        pinned: 'right',
         size: 160,
         cell: ({ row }) => (
           <div className="flex items-center gap-2 pr-10">

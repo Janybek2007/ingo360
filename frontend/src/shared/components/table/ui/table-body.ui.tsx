@@ -63,6 +63,7 @@ export function TableBody({
                       isPinned &&
                         'sticky top-[3.125rem] bottom-0 z-[100] border-t',
                       'overflow-hidden text-ellipsis border-b',
+                      columnDef.pinned == 'right' && 'border-l',
                       highlightRow?.(row.original)
                     )}
                   >

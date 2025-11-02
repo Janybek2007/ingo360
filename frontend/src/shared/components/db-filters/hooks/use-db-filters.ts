@@ -38,7 +38,8 @@ export const useDbFilters = ({
         { value: 10, label: '10' },
         { value: 50, label: '50' },
         { value: 100, label: '100' },
-        { value: 200, label: '200' },
+        { value: 300, label: '300' },
+        { value: 500, label: '500' },
       ],
     };
   }, [brandsOptions, groupsOptions, distributorsOptions, config]);
