@@ -129,19 +129,25 @@ export const Table: React.FC<ITableProps> = React.memo(
             zIndex: 1,
           }}
         >
-          <table
-            id="custom-table"
-            className="text-sm border-separate border-spacing-0 w-full min-w-max"
-          >
-            <TableHeader table={table} />
-            <TableBody
-              table={table}
-              highlightRow={highlightRow}
-              pinnedRow={pinnedRow}
-              rowTotal={rowTotal}
-              rowVirtualizer={isVirtualized ? rowVirtualizer : undefined}
-            />
-          </table>
+          {table.getRowModel().rows.length === 0 ? (
+            <div className="flex items-center justify-center py-10 text-gray-500 text-sm">
+              Нет данных
+            </div>
+          ) : (
+            <table
+              id="custom-table"
+              className="text-sm border-separate border-spacing-0 w-full min-w-max"
+            >
+              <TableHeader table={table} />
+              <TableBody
+                table={table}
+                highlightRow={highlightRow}
+                pinnedRow={pinnedRow}
+                rowTotal={rowTotal}
+                rowVirtualizer={isVirtualized ? rowVirtualizer : undefined}
+              />
+            </table>
+          )}
         </div>
       </div>
     );

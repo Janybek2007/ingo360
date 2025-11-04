@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -16,14 +16,6 @@ import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { createMonthsData } from '#/shared/utils/create-months-data';
-import { filterBySearch } from '#/shared/utils/search';
-
-interface DistributorShareRow extends TDbItem {
-  amount: number;
-  amount_share_percent: number;
-  months: (number | null)[];
-}
 
 export const DistributorShare: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
@@ -43,7 +35,7 @@ export const DistributorShare: React.FC = React.memo(() => {
   });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<DistributorShareRow[]>(
+    DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/distributor-shares'],
       {
         brand_ids: filters.values.brands,
@@ -63,7 +55,7 @@ export const DistributorShare: React.FC = React.memo(() => {
     [queryData.data]
   );
 
-  const allColumns = useGenerateColumns<DistributorShareRow>({
+  const allColumns = useGenerateColumns<TDbItem>({
     data: sales,
     columns: [
       commonColumns.sku(),
@@ -72,7 +64,7 @@ export const DistributorShare: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset((row, i) => row.months?.[i], {
+    months: monthsPreset(filters.indicator, sales, {
       asPercent: filters.indicator === 'amount_share_percent',
     }),
   });
@@ -82,25 +74,6 @@ export const DistributorShare: React.FC = React.memo(() => {
       allColumns,
       ignore: ['actions', 'total'],
     });
-
-  const filteredData = useMemo(() => {
-    const searched = filterBySearch(sales, search, [
-      'sku_name',
-      'brand_name',
-      'product_group_name',
-      'distributor_name',
-      'promotion_type_name',
-    ]);
-
-    const grouped = createMonthsData(
-      searched,
-      row => `${row.sku_id}`,
-      row => row[filters.indicator],
-      row => ({ ...row })
-    );
-
-    return grouped;
-  }, [search, sales, filters.indicator]);
 
   return (
     <PageSection
@@ -120,10 +93,7 @@ export const DistributorShare: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={filteredData}
-            fileName="distributor-share.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="distributor-share.xlsx" />
         </div>
       }
     >
@@ -132,12 +102,13 @@ export const DistributorShare: React.FC = React.memo(() => {
         queryError={queryData.error}
       >
         <Table
+          key={filters.indicator}
           filters={{
             usedFilterItems: filters.usedFilterItems,
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={filteredData}
+          data={sales}
           maxHeight={500}
           rounded="none"
         />

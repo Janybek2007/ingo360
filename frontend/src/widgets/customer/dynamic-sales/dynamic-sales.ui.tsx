@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import {
   CartesianGrid,
@@ -15,31 +14,26 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import {
-  calculateChartAxis,
-  formatCompactNumber,
-} from '#/shared/utils/format-number';
+import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
-
-export interface DynamicSalesData extends TDbItem {
-  total_packages_per_period: number;
-  total_amount_per_period: number;
-  months: (number | null)[];
-}
 
 export const DynamicSales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
   const periodFilter = usePeriodFilter();
 
-  const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<DynamicSalesData[]>([
-      'sales/primary/reports/sales',
-      'sales/secondary/reports/sales',
-    ])
+  const queryData = useKeepQuery(
+    DbQueries.GetDbItemsQuery<TDbItem[]>(
+      ['sales/primary/reports/sales', 'sales/secondary/reports/sales'],
+      {
+        type_period: periodFilter.period,
+        filterValues: periodFilter.selectedValues,
+      }
+    )
   );
 
   const primarySales = React.useMemo(
@@ -65,38 +59,52 @@ export const DynamicSales: React.FC = React.memo(() => {
     >();
 
     primarySales.forEach(item => {
-      const key = `${item.year}-${item.month}`;
-      const existing = dataMap.get(key);
-      const value = item.amount;
+      if (item.periods_data) {
+        Object.entries(item.periods_data).forEach(
+          ([periodKey, periodValue]) => {
+            const [year, month] = periodKey.split('-').map(Number);
+            const quarter = Math.ceil(month / 3);
+            const value = periodValue.amount || 0;
 
-      if (existing) {
-        existing.primaryValue += value;
-      } else {
-        dataMap.set(key, {
-          year: item.year,
-          month: item.month,
-          quarter: item.quarter,
-          primaryValue: value,
-          secondaryValue: 0,
-        });
+            const existing = dataMap.get(periodKey);
+            if (existing) {
+              existing.primaryValue += value;
+            } else {
+              dataMap.set(periodKey, {
+                year,
+                month,
+                quarter,
+                primaryValue: value,
+                secondaryValue: 0,
+              });
+            }
+          }
+        );
       }
     });
 
     secondarySales.forEach(item => {
-      const key = `${item.year}-${item.month}`;
-      const existing = dataMap.get(key);
-      const value = item.amount;
+      if (item.periods_data) {
+        Object.entries(item.periods_data).forEach(
+          ([periodKey, periodValue]) => {
+            const [year, month] = periodKey.split('-').map(Number);
+            const quarter = Math.ceil(month / 3);
+            const value = periodValue.amount || 0;
 
-      if (existing) {
-        existing.secondaryValue += value;
-      } else {
-        dataMap.set(key, {
-          year: item.year,
-          month: item.month,
-          quarter: item.quarter,
-          primaryValue: 0,
-          secondaryValue: value,
-        });
+            const existing = dataMap.get(periodKey);
+            if (existing) {
+              existing.secondaryValue += value;
+            } else {
+              dataMap.set(periodKey, {
+                year,
+                month,
+                quarter,
+                primaryValue: 0,
+                secondaryValue: value,
+              });
+            }
+          }
+        );
       }
     });
 
@@ -186,7 +194,7 @@ export const DynamicSales: React.FC = React.memo(() => {
                 hide
                 className="text-base font-normal text-[#474B4E] leading-full"
                 tickMargin={20}
-                tickFormatter={value => formatCompactNumber(value)}
+                tickFormatter={value => Number(value).toLocaleString('ru-RU')}
               />
               <Tooltip
                 labelFormatter={(label, payload) => {
@@ -217,7 +225,7 @@ export const DynamicSales: React.FC = React.memo(() => {
                   formatter={value => {
                     if (value === undefined || value === null || value === 0)
                       return '';
-                    return formatCompactNumber(value as number);
+                    return Number(value as number).toLocaleString('ru-RU');
                   }}
                 />
               </Line>
@@ -237,7 +245,7 @@ export const DynamicSales: React.FC = React.memo(() => {
                   formatter={value => {
                     if (value === undefined || value === null || value === 0)
                       return '';
-                    return formatCompactNumber(value as number);
+                    return Number(value as number).toLocaleString('ru-RU');
                   }}
                 />
               </Line>

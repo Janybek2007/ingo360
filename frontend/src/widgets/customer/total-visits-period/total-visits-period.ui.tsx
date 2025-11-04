@@ -20,7 +20,6 @@ import { filterBySearch } from '#/shared/utils/search';
 
 interface OverallVisitRow extends TDbItem {
   employee_visits: 2;
-  total_visits: 4334;
 }
 
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
@@ -67,8 +66,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       commonColumns.employee(),
       commonColumns.group('product_group'),
       {
-        id: 'total_visits',
-        key: 'total_visits',
+        id: 'employee_visits',
+        key: 'employee_visits',
         header: 'Визитов всего',
         type: 'number',
       },

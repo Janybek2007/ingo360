@@ -61,7 +61,7 @@ export function TableBody({
                         'bg-white group-hover:bg-gray-50',
                       'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
                       isPinned &&
-                        'sticky top-[3.125rem] bottom-0 z-[100] border-t',
+                        'sticky top-[3.125rem] -bottom-1 z-[100] border-t',
                       'overflow-hidden text-ellipsis border-b',
                       columnDef.pinned == 'right' && 'border-l',
                       highlightRow?.(row.original)

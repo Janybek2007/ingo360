@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -12,16 +12,10 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import { commonColumns } from '#/shared/constants/common-columns';
+import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { createMonthsData } from '#/shared/utils/create-months-data';
-import { filterBySearch } from '#/shared/utils/search';
-
-interface PharmacyBalanceRow extends TDbItem {
-  total_packages: number;
-}
 
 export const PharmacyBalance: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
@@ -34,7 +28,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<PharmacyBalanceRow[]>(
+    DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/tertiary/reports/low-stock-pharmacies'],
       {
         brand_ids: filters.values.brands,
@@ -54,21 +48,15 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     [queryData.data]
   );
 
-  const allColumns = useGenerateColumns<PharmacyBalanceRow>({
+  const allColumns = useGenerateColumns<TDbItem>({
     data: sales,
     columns: [
       commonColumns.sku(),
       commonColumns.brand(),
       commonColumns.group(),
       commonColumns.responsible_employee(),
-      {
-        id: 'total_packages',
-        key: 'total_packages',
-        header: 'Упаковок',
-        size: 120,
-        type: 'number',
-      },
     ],
+    months: monthsPreset('total_packages', sales),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -76,24 +64,6 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       allColumns,
       ignore: ['actions', 'total'],
     });
-
-  const filteredData = useMemo(() => {
-    const searched = filterBySearch(sales, search, [
-      'sku_name',
-      'brand_name',
-      'product_group_name',
-      'promotion_type_name',
-    ]);
-
-    const grouped = createMonthsData(
-      searched,
-      row => `${row.sku_id}`,
-      row => row.total_packages,
-      row => ({ ...row })
-    );
-
-    return grouped;
-  }, [search, sales]);
 
   return (
     <PageSection
@@ -115,10 +85,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={filteredData}
-            fileName="white-spots.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="white-spots.xlsx" />
         </div>
       }
     >
@@ -132,7 +99,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={filteredData}
+          data={sales}
           maxHeight={400}
           rounded="none"
         />

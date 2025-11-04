@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import {
   CartesianGrid,
@@ -12,6 +11,11 @@ import {
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import {
+  DbFilters,
+  useDbFilters,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
@@ -19,12 +23,10 @@ import {
   type IUsedFilterItem,
   UsedFilter,
 } from '#/shared/components/used-filter';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import {
-  calculateChartAxis,
-  formatCompactNumber,
-} from '#/shared/utils/format-number';
+import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -43,29 +45,39 @@ const DISTRIBUTOR_COLORS = [
   '#d62728',
 ];
 
-const formatMoney = (value: number) => formatCompactNumber(value);
-
-interface DistributorDynamicsData extends TDbItem {
-  total_amount: number;
-  total_packages: number;
-}
+const formatMoney = (value: number) => value.toLocaleString('ru-RU');
 
 export const DistributorDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const filterOptions = useFilterOptions();
+
+  const filters = useDbFilters({
+    brandsOptions: filterOptions.brands,
+    groupsOptions: filterOptions.groups,
+    distributorsOptions: filterOptions.distributors,
+    config: {
+      indicator: { enabled: false },
+      rowsCount: { enabled: false },
+    },
+  });
   const periodFilter = usePeriodFilter();
 
-  const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<DistributorDynamicsData[]>([
-      'sales/secondary/reports/sales-by-distributors',
-    ])
+  const queryData = useKeepQuery(
+    DbQueries.GetDbItemsQuery<TDbItem[]>(
+      ['sales/secondary/reports/sales-by-distributors'],
+      {
+        brand_ids: filters.values.brands,
+        product_group_ids: filters.values.groups,
+        type_period: periodFilter.period,
+        filterValues: periodFilter.selectedValues,
+      }
+    )
   );
   const sales = React.useMemo(
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
 
-  const [brands, setBrands] = React.useState<number[]>([]);
-  const [groups, setGroups] = React.useState<number[]>([]);
   const [distributors, setDistributors] = React.useState<number[]>([]);
 
   const distributorsData = React.useMemo(() => {
@@ -90,35 +102,8 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     }
   }, [distributorsData, distributors.length]);
 
-  const availableOptions = React.useMemo(() => {
-    const brands = sales.map(item => ({
-      value: item.brand_id,
-      label: item.brand_name,
-    }));
-
-    const groups = sales.map(item => ({
-      value: item.product_group_id,
-      label: item.product_group_name,
-    }));
-
-    return {
-      brands: getUniqueItems(brands, ['value']),
-      groups: getUniqueItems(groups, ['value']),
-    };
-  }, [sales]);
-
-  const rawData = React.useMemo(() => {
+  const chartData = useMemo(() => {
     let filtered = sales;
-
-    if (brands.length > 0) {
-      filtered = filtered.filter(item => brands.includes(item.brand_id));
-    }
-
-    if (groups.length > 0) {
-      filtered = filtered.filter(item =>
-        groups.includes(item.product_group_id)
-      );
-    }
 
     if (distributors.length > 0) {
       filtered = filtered.filter(item =>
@@ -136,29 +121,36 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     >();
 
     filtered.forEach(item => {
-      const key = `${item.year}-${item.month}`;
       const distributorName = item.distributor_name;
 
-      if (!dataMap.has(key)) {
-        dataMap.set(key, {
-          year: item.year,
-          month: item.month,
-          quarter: item.quarter,
-        });
-      }
+      if (item.periods_data) {
+        Object.entries(item.periods_data).forEach(
+          ([periodKey, periodValue]) => {
+            const [year, month] = periodKey.split('-').map(Number);
+            const quarter = Math.ceil(month / 3);
+            const amount = periodValue.total_amount || 0;
 
-      const existing = dataMap.get(key)!;
-      const currentValue = (existing[distributorName] as number) || 0;
-      existing[distributorName] = currentValue + item.total_amount;
+            if (!dataMap.has(periodKey)) {
+              dataMap.set(periodKey, {
+                year,
+                month,
+                quarter,
+              });
+            }
+
+            const existing = dataMap.get(periodKey)!;
+            const currentValue = (existing[distributorName] as number) || 0;
+            existing[distributorName] = currentValue + amount;
+          }
+        );
+      }
     });
 
-    return Array.from(dataMap.values()).sort((a, b) => {
+    const rawData = Array.from(dataMap.values()).sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
       return a.month - b.month;
     });
-  }, [brands, distributors, groups, sales]);
 
-  const chartData = useMemo(() => {
     const distributorNames = distributorsData
       .filter(d => distributors.includes(d.id))
       .map(d => d.name);
@@ -172,7 +164,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
   }, [
     periodFilter.period,
     periodFilter.selectedValues,
-    rawData,
+    sales,
     distributorsData,
     distributors,
   ]);
@@ -200,53 +192,15 @@ export const DistributorDynamics: React.FC = React.memo(() => {
             },
           },
       ]),
-      brands.length > 0 && {
-        label: 'Бренды: ',
-        value: 'brand-roots',
-        onDelete: () => setBrands([]),
-        subItems: brands.map(brandId => {
-          const brand = availableOptions.brands.find(b => b.value === brandId);
-          return {
-            label: brand?.label || '',
-            value: brandId,
-            onDelete: () => {
-              setBrands(prev => prev.filter(b => b !== brandId));
-            },
-          };
-        }),
-      },
-      groups.length > 0 && {
-        label: 'Группы: ',
-        value: 'group-roots',
-        onDelete: () => setGroups([]),
-        subItems: groups.map(groupId => {
-          const group = availableOptions.groups.find(g => g.value === groupId);
-          return {
-            label: group?.label || '',
-            value: groupId,
-            onDelete: () => {
-              setGroups(prev => prev.filter(g => g !== groupId));
-            },
-          };
-        }),
-      },
+      ...filters.usedFilterItems,
     ].filter(Boolean) as IUsedFilterItem[];
-  }, [
-    periodFilter,
-    distributors,
-    distributorsData,
-    brands,
-    groups,
-    availableOptions.brands,
-    availableOptions.groups,
-  ]);
+  }, [distributors, distributorsData, filters, periodFilter]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    setBrands([]);
-    setGroups([]);
-    setDistributors(distributorsData.map(d => d.id));
-  }, [periodFilter, distributorsData]);
+    filters.resetFilters();
+    setDistributors([]);
+  }, [periodFilter, filters]);
 
   const chartAxis = useMemo(
     () =>
@@ -265,26 +219,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       legends={distributorsData.map(d => ({ label: d.name, fill: d.color }))}
       headerEnd={
         <div className="flex items-center gap-4">
-          <Select<true, number>
-            value={brands}
-            setValue={setBrands}
-            showToggleAll
-            isMultiple
-            checkbox
-            items={availableOptions.brands}
-            triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem] w-max left-0' }}
-          />
-          <Select<true, number>
-            value={groups}
-            isMultiple
-            checkbox
-            showToggleAll
-            setValue={setGroups}
-            items={availableOptions.groups}
-            triggerText="Группа"
-            classNames={{ menu: 'w-[10rem] w-max left-0' }}
-          />
+          <DbFilters {...filters} />
           <Select<true, number>
             value={distributors}
             setValue={setDistributors}
@@ -401,7 +336,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                         className="font-inter text-xs hidden"
                         formatter={value => {
                           if (value === undefined || value === null) return '';
-                          return formatCompactNumber(value as number);
+                          return Number(value).toLocaleString('ru-RU');
                         }}
                       />
                     </Line>

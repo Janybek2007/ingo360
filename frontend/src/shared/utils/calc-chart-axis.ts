@@ -1,31 +1,7 @@
-export const formatCompactNumber = (value: number | undefined): string => {
-  if (value === undefined || value === null) return '0';
-
-  const absValue = Math.abs(value);
-
-  // Миллионы (1 000 000+)
-  if (absValue >= 1_000_000) {
-    const millions = value / 1_000_000;
-    return millions % 1 === 0
-      ? `${millions.toFixed(0)}M`
-      : `${millions.toFixed(1)}M`;
-  }
-
-  // Тысячи (1 000+)
-  if (absValue >= 1_000) {
-    const thousands = value / 1_000;
-    return thousands % 1 === 0
-      ? `${thousands.toFixed(0)}K`
-      : `${thousands.toFixed(1)}K`;
-  }
-
-  // Меньше 1000 - возвращаем как есть
-  return value.toString();
-};
-
 export const calculateChartAxis = <T extends Record<string, unknown>>(
   data: T[],
-  keys: (keyof T)[]
+  keys: (keyof T)[],
+  scale: number = 100000
 ): { domain: [number, number]; ticks: number[] } => {
   const allValues: number[] = [];
   data.forEach(item => {
@@ -44,7 +20,7 @@ export const calculateChartAxis = <T extends Record<string, unknown>>(
   const maxValue = Math.max(...allValues);
   const minValue = Math.min(...allValues, 0);
 
-  const roundedMax = Math.ceil(maxValue / 100000) * 100000;
+  const roundedMax = Math.ceil(maxValue / scale) * scale;
 
   const padding = roundedMax * 0.15;
   const maxWithPadding = roundedMax + padding;
@@ -53,7 +29,7 @@ export const calculateChartAxis = <T extends Record<string, unknown>>(
   const step = maxWithPadding / 7;
   const ticks: number[] = [];
   for (let i = 0; i <= 7; i++) {
-    ticks.push(Math.round((minValue + step * i) / 10000) * 10000);
+    ticks.push((Math.round((minValue + step * i) / scale / 10) * scale) / 10);
   }
 
   return {

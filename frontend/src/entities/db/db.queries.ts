@@ -36,17 +36,27 @@ export class DbQueries {
   }
   private static buildQueryString(params?: IGetDBItemsParams) {
     let p: Record<string, any> = params || {};
-    if (p.type_period && p.periods.length > 0) {
+    if (params?.type_period && Number(params?.periods?.length) > 0) {
       p = {
-        ...p,
-        type_period: this.buildTypePeriod(p.type_period),
+        ...params,
+        type_period: this.buildTypePeriod(params.type_period),
         periods: this.parsePeriods(
-          p.periods,
+          params?.periods || [],
           params!.type_period as UsePeriodType
         ),
       };
     }
+    if (params?.type_period && Number(params?.filterValues?.length) > 0) {
+      p = {
+        ...p,
+        ...this.parsePeriodFilters(
+          params.type_period,
+          params.filterValues || []
+        ),
+      };
+    }
 
+    delete p.filterValues;
     return qs.stringify(p, { arrayFormat: 'repeat' });
   }
   private static buildTypePeriod(type_period: UsePeriodType) {
@@ -61,6 +71,27 @@ export class DbQueries {
         return 'Quarter';
       case 'year':
         return 'Year';
+    }
+  }
+  private static parsePeriodFilters(type: UsePeriodType, values: string[]) {
+    if (type === 'year') {
+      // "2025" или "year-2025" → "25"
+      return {
+        periods: values.map(v => v.replace('year-', '').slice(-2)),
+      };
+    } else {
+      // "month-2025-1" → "1"
+      // "quarter-2025-3" → "3"
+      // "mat-2025-12" → "12"
+      // "ytd-2025-6" → "6"
+      return {
+        periods: values.map(v => {
+          const parts = v.split('-');
+          // ищем последнюю часть (номер месяца/периода)
+          const num = parts[parts.length - 1];
+          return String(Number(num)); // нормализуем, убрав ведущие нули
+        }),
+      };
     }
   }
 

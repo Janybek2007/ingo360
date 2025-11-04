@@ -26,9 +26,12 @@ export const useNotifications = (isWelcome = false) => {
 
   useEffect(() => {
     if (isWelcome) return;
+
     const msg = lastMessage as NotificationMessage | null;
+
+    if (!msg || !msg.type) return;
+
     if (
-      msg &&
       [
         'token_invalidated',
         'account_deactivated',

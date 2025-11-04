@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import {
   CartesianGrid,
@@ -12,16 +11,18 @@ import {
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import {
+  DbFilters,
+  useDbFilters,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
-import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import {
-  calculateChartAxis,
-  formatCompactNumber,
-} from '#/shared/utils/format-number';
+import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
@@ -29,23 +30,36 @@ import { processPeriodData } from '#/shared/utils/process-period-data';
 interface OverallVisitRow extends TDbItem {
   year: 2025;
   month: 1;
-  employee_visits: 2;
   total_visits: 4334;
 }
 
 export const OverallVisits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<OverallVisitRow[]>([
-      'visits/reports/visits-sum-for-period',
-    ])
+  const filterOptions = useFilterOptions({ brands: false });
+
+  const filters = useDbFilters({
+    groupsOptions: filterOptions.groups,
+    config: {
+      brands: { enabled: false },
+      rowsCount: { enabled: false },
+      indicator: { enabled: false },
+    },
+  });
+  const periodFilter = usePeriodFilter();
+  const queryData = useKeepQuery(
+    DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
+      ['visits/reports/visits-by-month'],
+      {
+        product_group_ids: filters.groups,
+        type_period: periodFilter.period,
+        filterValues: periodFilter.selectedValues,
+      }
+    )
   );
   const visits = React.useMemo(
     () => (queryData.data ? queryData.data[0] : []),
     [queryData]
   );
-  const [groups, setGroups] = React.useState<number[]>([]);
-  const periodFilter = usePeriodFilter();
 
   const usedFilterItems = React.useMemo(() => {
     return [
@@ -61,13 +75,14 @@ export const OverallVisits: React.FC = React.memo(() => {
           },
         },
       ]),
+      ...filters.usedFilterItems,
     ];
-  }, [periodFilter]);
+  }, [periodFilter, filters.usedFilterItems]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    setGroups([]);
-  }, [periodFilter]);
+    filters.resetFilters();
+  }, [periodFilter, filters]);
 
   const rawData = useMemo(() => {
     const dataMap = new Map<
@@ -76,12 +91,6 @@ export const OverallVisits: React.FC = React.memo(() => {
     >();
 
     let filteredVisits = visits;
-
-    if (groups.length > 0) {
-      filteredVisits = filteredVisits.filter(item =>
-        groups.includes(item.product_group_id)
-      );
-    }
 
     filteredVisits.forEach(item => {
       const month = item.month;
@@ -103,7 +112,7 @@ export const OverallVisits: React.FC = React.memo(() => {
       if (a.year !== b.year) return a.year - b.year;
       return a.month - b.month;
     });
-  }, [visits, groups]);
+  }, [visits]);
 
   const chartData = useMemo(() => {
     return processPeriodData({
@@ -115,7 +124,7 @@ export const OverallVisits: React.FC = React.memo(() => {
   }, [rawData, periodFilter.period, periodFilter.selectedValues]);
 
   const chartAxis = useMemo(
-    () => calculateChartAxis(chartData, ['value']),
+    () => calculateChartAxis(chartData, ['value'], 10000),
     [chartData]
   );
 
@@ -124,19 +133,7 @@ export const OverallVisits: React.FC = React.memo(() => {
       title="Визиты"
       headerEnd={
         <div className="flex items-center gap-4">
-          <Select<true, number>
-            value={groups}
-            setValue={setGroups}
-            isMultiple
-            checkbox
-            showToggleAll
-            items={visits.map(s => ({
-              value: s.product_group_id,
-              label: s.product_group,
-            }))}
-            triggerText="Группа"
-            classNames={{ menu: 'w-[10rem] w-max left-0' }}
-          />
+          <DbFilters {...filters} />
           <PeriodFilters {...periodFilter} />
         </div>
       }
@@ -177,7 +174,7 @@ export const OverallVisits: React.FC = React.memo(() => {
                 hide
                 className="text-base text-[#474B4E] leading-full font-normal"
                 tickMargin={20}
-                tickFormatter={value => formatCompactNumber(value)}
+                tickFormatter={value => Number(value).toLocaleString('ru-RU')}
               />
 
               <Tooltip
@@ -207,7 +204,7 @@ export const OverallVisits: React.FC = React.memo(() => {
                   className="font-inter text-xs"
                   formatter={value => {
                     if (value === undefined || value === null) return '';
-                    return formatCompactNumber(value as number);
+                    return Number(value as number).toLocaleString('ru-RU');
                   }}
                 />
               </Line>

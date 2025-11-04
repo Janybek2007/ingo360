@@ -84,12 +84,29 @@ export const useFilterPopup = ({
 
   const applyFilter = useCallback(() => {
     if (colType === 'select') {
+      if (!Array.isArray(value) || value.length === 0) {
+        column.setFilterValue(undefined);
+        onClose();
+        return;
+      }
       column.setFilterValue({
         selectValues: value,
         colType,
         header: column.columnDef.header,
       });
     } else if (colType === 'number' && filterType === 'between') {
+      if (
+        value === '' ||
+        value === null ||
+        value === undefined ||
+        value2 === '' ||
+        value2 === null ||
+        value2 === undefined
+      ) {
+        column.setFilterValue(undefined);
+        onClose();
+        return;
+      }
       column.setFilterValue({
         type: filterType,
         value: [value, value2],
@@ -97,6 +114,16 @@ export const useFilterPopup = ({
         header: column.columnDef.header,
       });
     } else {
+      if (
+        value === '' ||
+        value === null ||
+        value === undefined ||
+        (typeof value === 'string' && value.trim() === '')
+      ) {
+        column.setFilterValue(undefined);
+        onClose();
+        return;
+      }
       column.setFilterValue({
         type: filterType,
         value,

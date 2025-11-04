@@ -1,8 +1,6 @@
 import { colorVariants } from '../constants/color-variants';
 import type { TColors, TVariants } from '../types';
 
-// !Icon
-
 // !Color-Variants
 
 const setColorVariant = (color: TColors, variant: TVariants): string =>

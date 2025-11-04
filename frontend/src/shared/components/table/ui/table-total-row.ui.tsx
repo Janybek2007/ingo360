@@ -44,7 +44,7 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
             );
           }
 
-          const monthMatch = columnId.match(/month(\d+)/);
+          const monthMatch = columnId.match(/period_(\d+)/);
           if (monthMatch && rowTotal.monthTotals) {
             const monthIndex = parseInt(monthMatch[1]) - 1;
             const total = rowTotal.monthTotals[monthIndex] ?? 0;

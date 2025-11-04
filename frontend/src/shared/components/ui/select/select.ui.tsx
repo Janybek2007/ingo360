@@ -141,12 +141,10 @@ export function Select<ISM extends boolean = false, VT = string>({
     setSearchQuery('');
   });
 
-  // Мемоизация уникальных элементов
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
   }, [items]);
 
-  // Мемоизация отфильтрованных элементов
   const filteredItems = useMemo(() => {
     if (!search || !searchQuery.trim()) return uniqueItems;
 
@@ -154,7 +152,6 @@ export function Select<ISM extends boolean = false, VT = string>({
     return uniqueItems.filter(item => item.label.toLowerCase().includes(query));
   }, [uniqueItems, searchQuery, search]);
 
-  // Мемоизация проверки выбранности элемента
   const isSelected = useCallback(
     (item: ISelectItem<VT>) => {
       if (isMultiple && Array.isArray(value)) return value.includes(item.value);
@@ -163,7 +160,6 @@ export function Select<ISM extends boolean = false, VT = string>({
     [value, isMultiple]
   );
 
-  // Оптимизированный обработчик выбора элемента
   const handleSelect = useCallback(
     (item: ISelectItem<VT>) => {
       if (isMultiple && Array.isArray(value)) {
@@ -179,7 +175,6 @@ export function Select<ISM extends boolean = false, VT = string>({
     [setValue, set, value, isMultiple]
   );
 
-  // Обработчик переключения всех элементов
   const handleToggleAll = useCallback(() => {
     if (!isMultiple || !Array.isArray(value)) return;
     const allSelected = filteredItems.every(item => value.includes(item.value));
@@ -187,7 +182,6 @@ export function Select<ISM extends boolean = false, VT = string>({
     setValue(allSelected ? [] : (filteredItems.map(item => item.value) as any));
   }, [isMultiple, filteredItems, value, setValue]);
 
-  // Мемоизация текста для триггера
   const findItemLabel = useMemo(() => {
     if (changeTriggerText && Array.isArray(value)) {
       return uniqueItems
@@ -200,7 +194,6 @@ export function Select<ISM extends boolean = false, VT = string>({
     }
   }, [uniqueItems, value, changeTriggerText]);
 
-  // Проверка, выбраны ли все элементы
   const allSelected = useMemo(() => {
     if (!isMultiple || !Array.isArray(value)) return false;
     return (
@@ -209,12 +202,10 @@ export function Select<ISM extends boolean = false, VT = string>({
     );
   }, [filteredItems, value, isMultiple]);
 
-  // Обработчик изменения поискового запроса
   const handleSearchChange = useCallback((newQuery: string) => {
     setSearchQuery(newQuery);
   }, []);
 
-  // Рендеринг иконок с мемоизацией
   const renderedLeftIcon = useMemo(
     () => (typeof leftIcon === 'function' ? leftIcon(open) : leftIcon),
     [leftIcon, open]

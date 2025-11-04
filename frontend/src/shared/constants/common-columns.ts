@@ -55,11 +55,24 @@ export const commonColumns = {
     header: 'Дистр',
     size: 150,
     type: 'select',
+    custom: {
+      accessor: (row: any) => row['distributor_name'] || '-',
+    },
   }),
   indicator: (): CColumn<any> => ({
     id: 'indicator_id',
     key: 'indicator_name',
-    header: 'Индикатор',
+    header: 'Показатель',
+    size: 150,
+    type: 'select',
+    custom: {
+      accessor: (row: any) => row['indicator_name'] || '-',
+    },
+  }),
+  geo_indicator: (): CColumn<any> => ({
+    id: 'geo_indicator_id',
+    key: 'geo_indicator_name',
+    header: 'Показатель',
     size: 150,
     type: 'select',
     custom: {
@@ -118,20 +131,69 @@ export const commonColumns = {
   }),
 };
 
-export const monthsPreset = <TData>(
-  getValue: (row: TData, i: number) => number | string | null | undefined,
-  options?: { year?: number; count?: number; asPercent?: boolean }
-) => ({
-  year: options?.year || 2025,
-  count: options?.count || 12,
-  getValue,
-  asPercent: options?.asPercent,
-});
+export const monthsPreset = <
+  TData extends { periods_data?: Record<string, Record<string, number>> },
+>(
+  indicator: string,
+  data: TData[],
+  options?: { asPercent?: boolean }
+) => {
+  // Извлекаем все уникальные годы из данных
+  const years = new Set<number>();
+  data.forEach(row => {
+    if (row.periods_data) {
+      Object.keys(row.periods_data).forEach(period => {
+        const [year] = period.split('-').map(Number);
+        if (!isNaN(year)) {
+          years.add(year);
+        }
+      });
+    }
+  });
 
-export const totalPreset = <TData>(
-  getValue: (row: TData) => number | null | undefined,
+  // Если годов нет в данных, используем текущий год
+  if (years.size === 0) {
+    years.add(new Date().getFullYear());
+  }
+
+  // Генерируем все 12 месяцев для каждого года
+  const allPeriods: string[] = [];
+  Array.from(years)
+    .sort()
+    .forEach(year => {
+      for (let month = 1; month <= 12; month++) {
+        allPeriods.push(`${year}-${String(month).padStart(2, '0')}`);
+      }
+    });
+
+  return {
+    periods: allPeriods,
+    getValue: (row: TData, periodKey: string) => {
+      if (!row.periods_data || !row.periods_data[periodKey]) return null;
+      return row.periods_data[periodKey][indicator] ?? null;
+    },
+    asPercent: options?.asPercent,
+  };
+};
+
+export const totalPreset = <
+  TData extends { periods_data?: Record<string, Record<string, number>> },
+>(
+  indicator: string,
   asPercent?: boolean
 ) => ({
-  getValue,
+  getValue: (row: TData) => {
+    if (!row.periods_data) return null;
+
+    let total = 0;
+    Object.values(row.periods_data).forEach(periodValues => {
+      const value = periodValues[indicator];
+      if (value != null) {
+        total += value;
+      }
+    });
+
+    return total;
+  },
   asPercent,
 });

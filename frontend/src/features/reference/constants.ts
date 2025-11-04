@@ -232,6 +232,12 @@ export const referencesCEFields: Record<
       label: 'Тип учреждения',
       placeholder: 'Введите тип учреждения',
     },
+    {
+      name: 'indicator',
+      label: 'Показатель',
+      placeholder: 'Выберите показатель',
+      type: 'select',
+    },
     [
       {
         name: 'settlement_id',
@@ -299,11 +305,6 @@ export const referencesCEFields: Record<
   ],
   'clients/pharmacies': [
     { name: 'name', label: 'Название', placeholder: 'Введите название' },
-    {
-      name: 'indicator',
-      label: 'Индикатор',
-      placeholder: 'Введите индикатор',
-    },
     [
       {
         name: 'company_id',
@@ -345,6 +346,12 @@ export const referencesCEFields: Record<
         name: 'product_group_id',
         label: 'Группа',
         placeholder: 'Выберите группу',
+        type: 'select',
+      },
+      {
+        name: 'indicator',
+        label: 'Показатель',
+        placeholder: 'Выберите показатель',
         type: 'select',
       },
     ],
@@ -391,6 +398,7 @@ export const referencesDependsUrls: Record<
   'clients/medical-facilities': [
     { fieldName: 'settlement_id', url: 'geography/settlements' },
     { fieldName: 'district_id', url: 'geography/districts' },
+    { fieldName: 'indicator', url: 'clients/geo-indicators' },
   ],
   'clients/doctors': [
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
@@ -401,6 +409,7 @@ export const referencesDependsUrls: Record<
   ],
   'clients/pharmacies': [
     { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'indicator', url: 'clients/geo-indicators' },
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },

@@ -1,17 +1,13 @@
 import type { TDbItem } from '#/entities/db';
 import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
+import type { IndicatorType } from '#/shared/types/global';
 
-export interface DynamicPrimarySalesData extends TDbItem {
-  avg_coverage_months: number;
-  coverage_months: number;
-  total_packages_per_period: number;
-  total_amount_per_period: number;
-  months: (number | null)[];
-}
+export type DynamicPrimarySalesData = TDbItem;
 
 export interface DynamicPrimarySalesAsMixedProps {
   period: UsePeriodType;
   selectedValues: string[];
+  indicator: IndicatorType;
   sales: {
     sales: DynamicPrimarySalesData[];
     inventory: DynamicPrimarySalesData[];
@@ -22,4 +18,5 @@ export interface DynamicPrimarySalesAsMixedProps {
 export interface DynamicPrimarySalesAsLineProps {
   period: UsePeriodType;
   sales: DynamicPrimarySalesData[];
+  indicator: IndicatorType;
 }

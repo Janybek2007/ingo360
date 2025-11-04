@@ -41,7 +41,7 @@ export const DoctorsPercentageVisits: React.FC<{
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             data={visits}
-            dataKey="coverage_percentage"
+            dataKey="count_with_visits"
             nameKey="speciality_name"
             cx="50%"
             cy="50%"
@@ -49,7 +49,7 @@ export const DoctorsPercentageVisits: React.FC<{
             outerRadius={110}
             labelLine={false}
             label={entry =>
-              `${(entry.coverage_percentage as number)?.toFixed(1)}%`
+              `${(entry.count_with_visits as number)?.toFixed(1)} (${(entry.coverage_percentage as number)?.toFixed(1)}%)`
             }
             paddingAngle={0}
           >

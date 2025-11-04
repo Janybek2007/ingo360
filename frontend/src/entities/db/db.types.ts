@@ -1,5 +1,5 @@
 import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
-import type { PaginationParams } from '#/shared/types/global';
+import type { IndicatorType, PaginationParams } from '#/shared/types/global';
 
 export interface IDbName {
   id: number;
@@ -84,6 +84,7 @@ export type TDbItem = {
   packages: number;
   amount: number;
   amount_share_percent: number;
+  periods_data: Record<string, Record<IndicatorType | string, number>>;
 };
 
 export type IGetDBItemResponse = IDbItem[];
@@ -102,4 +103,5 @@ export interface IGetDBItemsParams extends PaginationParams {
   periods?: string[];
   type_period?: UsePeriodType;
   group_column?: 'company' | 'brand' | 'segment';
+  filterValues?: string[];
 }

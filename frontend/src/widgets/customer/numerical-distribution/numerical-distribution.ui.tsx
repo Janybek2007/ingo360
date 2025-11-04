@@ -20,15 +20,7 @@ import {
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { createMonthsData } from '#/shared/utils/create-months-data';
-import { filterBySearch } from '#/shared/utils/search';
-
-interface NumericalDistributionRow extends TDbItem {
-  pharmacies_with_sku: number;
-  total_pharmacies: number;
-  nd_percent: number;
-  months?: (number | null)[];
-}
+import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const NumericalDistribution: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
@@ -37,10 +29,13 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
+    config: {
+      indicator: { enabled: false },
+    },
   });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<NumericalDistributionRow[]>(
+    DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/tertiary/reports/numeric-distribution'],
       {
         brand_ids: filters.values.brands,
@@ -60,7 +55,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     [queryData.data]
   );
 
-  const allColumns = useGenerateColumns<NumericalDistributionRow>({
+  const allColumns = useGenerateColumns<TDbItem>({
     data: sales,
     columns: [
       commonColumns.sku(),
@@ -68,13 +63,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       commonColumns.segment(),
       commonColumns.group(),
     ],
-    months: monthsPreset((row, i) => row.months?.[i]),
-    total: totalPreset(row =>
-      row.months?.reduce(
-        (sum, val) => (val != null ? (sum ?? 0) + val : sum),
-        0
-      )
-    ),
+    months: monthsPreset('pharmacies_with_sku', sales),
+    total: totalPreset('pharmacies_with_sku'),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -83,40 +73,9 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       ignore: ['actions', 'total'],
     });
 
-  const filteredData = useMemo(() => {
-    const searched = filterBySearch(sales, search, [
-      'sku_name',
-      'brand_name',
-      'product_group_name',
-      'segment_name',
-    ]);
-
-    const grouped = createMonthsData(
-      searched,
-      row => `${row.sku_id}`,
-      row => row.nd_percent,
-      row => ({ ...row })
-    );
-
-    return grouped;
-  }, [search, sales]);
-
-  const monthTotals = useMemo(() => {
-    const totals = Array(12).fill(0);
-    filteredData.forEach(row => {
-      const rowData = row;
-      rowData.months?.forEach((value, index) => {
-        if (value !== null && value !== undefined) {
-          totals[index] += value;
-        }
-      });
-    });
-    return totals;
-  }, [filteredData]);
-
-  const grandTotal = useMemo(() => {
-    return monthTotals.reduce((sum, val) => sum + val, 0);
-  }, [monthTotals]);
+  const { monthTotals, grandTotal } = useMemo(() => {
+    return calcPeriodTotals(sales, 'pharmacies_with_sku');
+  }, [sales]);
 
   return (
     <PageSection
@@ -140,7 +99,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             }}
           />
           <ExportToExcelButton
-            data={filteredData}
+            data={sales}
             fileName="numerical-distribution.xlsx"
           />
         </div>
@@ -156,7 +115,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={filteredData}
+          data={sales}
           maxHeight={400}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

@@ -113,7 +113,11 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     });
 
     columns.push(...getYearMonthColumns(data));
-    columns.push(...getSalesColumns(data));
+    columns.push(
+      ...getSalesColumns(data).filter(
+        v => v.id === 'indicator' && type !== 'sales/primary'
+      )
+    );
   }
 
   if (type === 'visits') {
@@ -333,7 +337,7 @@ function getSalesColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
     {
       id: 'indicator',
       accessorKey: 'indicator',
-      header: 'Индикатор',
+      header: 'Показатель',
       size: 180,
       filterType: 'select',
       filterFn: selectFilter(),

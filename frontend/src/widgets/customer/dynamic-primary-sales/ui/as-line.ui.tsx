@@ -10,16 +10,13 @@ import {
 } from 'recharts';
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import {
-  calculateChartAxis,
-  formatCompactNumber,
-} from '#/shared/utils/format-number';
+import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
 import type { DynamicPrimarySalesAsLineProps } from '../dynamic-primary-sales.types';
 
 export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps> =
-  React.memo(({ sales, period }) => {
+  React.memo(({ sales, period, indicator }) => {
     const sectionStyle = useSectionStyle();
 
     const rawData = useMemo(() => {
@@ -34,32 +31,34 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
       >();
 
       sales.forEach(item => {
-        if (!item.months || !Array.isArray(item.months)) return;
+        if (item.periods_data) {
+          Object.entries(item.periods_data).forEach(
+            ([periodKey, periodValue]) => {
+              const [year, month] = periodKey.split('-').map(Number);
+              const quarter = Math.ceil(month / 3);
+              const value = periodValue[indicator] || 0;
 
-        item.months.forEach((value, index) => {
-          if (value !== null) {
-            const month = index + 1;
-            const year = item.year;
-            const quarter = Math.ceil(month / 3);
-            const key = `${year}-${month}`;
-
-            const existing = dataMap.get(key) || {
-              year,
-              month,
-              quarter,
-              value: 0,
-            };
-            existing.value += value;
-            dataMap.set(key, existing);
-          }
-        });
+              const existing = dataMap.get(periodKey);
+              if (existing) {
+                existing.value += value;
+              } else {
+                dataMap.set(periodKey, {
+                  year,
+                  month,
+                  quarter,
+                  value,
+                });
+              }
+            }
+          );
+        }
       });
 
       return Array.from(dataMap.values()).sort((a, b) => {
         if (a.year !== b.year) return a.year - b.year;
         return a.month - b.month;
       });
-    }, [sales]);
+    }, [sales, indicator]);
 
     const data = useMemo(() => {
       return processPeriodData({
@@ -101,7 +100,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
             hide
             className="text-base font-normal text-[#474B4E] leading-full"
             tickMargin={20}
-            tickFormatter={value => formatCompactNumber(value)}
+            tickFormatter={value => Number(value).toLocaleString('ru-RU')}
           />
 
           <Tooltip
@@ -132,7 +131,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
               className="font-inter text-xs"
               formatter={value => {
                 if (value === undefined || value === null) return '';
-                return formatCompactNumber(value as number);
+                return Number(value as number).toLocaleString('ru-RU');
               }}
             />
           </Line>

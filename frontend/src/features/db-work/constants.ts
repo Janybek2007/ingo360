@@ -20,8 +20,9 @@ const defaultFields: ICreateEditModalProps['fields'] = [
   [
     {
       name: 'indicator',
-      label: 'Индикатор',
-      placeholder: 'Выберите индикатор',
+      label: 'Показатель',
+      placeholder: 'Выберите показатель',
+      type: 'select',
     },
     {
       name: 'month',
@@ -266,12 +267,14 @@ export const dbItemDependsUrls: Record<
     { fieldName: 'pharmacy_id', url: 'clients/pharmacies' },
     { fieldName: 'city', url: 'geography/settlements' },
     { fieldName: 'district', url: 'geography/districts' },
+    { fieldName: 'indicator', url: 'clients/geo-indicators' },
   ],
   'sales/tertiary': [
     { fieldName: 'sku_id', url: 'products/skus' },
     { fieldName: 'pharmacy_id', url: 'clients/pharmacies' },
     { fieldName: 'city', url: 'geography/settlements' },
     { fieldName: 'district', url: 'geography/districts' },
+    { fieldName: 'indicator', url: 'clients/geo-indicators' },
   ],
   visits: [
     { fieldName: 'product_group_id', url: 'products/product-groups' },

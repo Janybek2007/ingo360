@@ -7,210 +7,209 @@ import { processPeriodData } from '#/shared/utils/process-period-data';
 import type { DynamicPrimarySalesAsMixedProps } from '../dynamic-primary-sales.types';
 
 export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProps> =
-  React.memo(({ period, selectedValues, sales: processedSalesData }) => {
-    const sectionStyle = useSectionStyle();
+  React.memo(
+    ({ period, selectedValues, sales: processedSalesData, indicator }) => {
+      const sectionStyle = useSectionStyle();
 
-    // Преобразуем данные с months в формат для графика
-    const rawData = useMemo(() => {
-      const dataMap = new Map<
-        string,
-        {
-          year: number;
-          month: number;
-          quarter: number;
-          primary: number;
-          remains: number;
-          trade_stock: number;
-        }
-      >();
+      // Преобразуем данные с periods_data в формат для графика
+      const rawData = useMemo(() => {
+        const dataMap = new Map<
+          string,
+          {
+            year: number;
+            month: number;
+            quarter: number;
+            primary: number;
+            remains: number;
+            trade_stock: number;
+          }
+        >();
 
-      // Обрабатываем первичные продажи
-      processedSalesData.sales.forEach(item => {
-        if (!item.months || !Array.isArray(item.months)) return;
+        // Обрабатываем первичные продажи
+        processedSalesData.sales.forEach(item => {
+          if (item.periods_data) {
+            Object.entries(item.periods_data).forEach(
+              ([periodKey, periodValue]) => {
+                const [year, month] = periodKey.split('-').map(Number);
+                const quarter = Math.ceil(month / 3);
+                const value = periodValue[indicator] || 0;
 
-        item.months.forEach((value, index) => {
-          if (value !== null) {
-            const month = index + 1;
-            const year = item.year;
-            const quarter = Math.ceil(month / 3);
-            const key = `${year}-${month}`;
-
-            const existing = dataMap.get(key) || {
-              year,
-              month,
-              quarter,
-              primary: 0,
-              remains: 0,
-              trade_stock: 0,
-            };
-            existing.primary += value;
-            dataMap.set(key, existing);
+                const existing = dataMap.get(periodKey) || {
+                  year,
+                  month,
+                  quarter,
+                  primary: 0,
+                  remains: 0,
+                  trade_stock: 0,
+                };
+                existing.primary += value;
+                dataMap.set(periodKey, existing);
+              }
+            );
           }
         });
-      });
 
-      // Обрабатываем остатки (inventory)
-      processedSalesData.inventory.forEach(item => {
-        if (!item.months || !Array.isArray(item.months)) return;
+        // Обрабатываем остатки (inventory) - используем coverage_months
+        processedSalesData.inventory.forEach(item => {
+          if (item.periods_data) {
+            Object.entries(item.periods_data).forEach(
+              ([periodKey, periodValue]) => {
+                const [year, month] = periodKey.split('-').map(Number);
+                const quarter = Math.ceil(month / 3);
+                const value = periodValue.coverage_months || 0;
 
-        item.months.forEach((value, index) => {
-          if (value !== null) {
-            const month = index + 1;
-            const year = item.year;
-            const quarter = Math.ceil(month / 3);
-            const key = `${year}-${month}`;
-
-            const existing = dataMap.get(key) || {
-              year,
-              month,
-              quarter,
-              primary: 0,
-              remains: 0,
-              trade_stock: 0,
-            };
-            existing.remains += value;
-            dataMap.set(key, existing);
+                const existing = dataMap.get(periodKey) || {
+                  year,
+                  month,
+                  quarter,
+                  primary: 0,
+                  remains: 0,
+                  trade_stock: 0,
+                };
+                existing.remains += value;
+                dataMap.set(periodKey, existing);
+              }
+            );
           }
         });
-      });
 
-      // Обрабатываем товарный запас (stocks)
-      processedSalesData.stocks.forEach(item => {
-        if (!item.months || !Array.isArray(item.months)) return;
+        // Обрабатываем товарный запас (stocks)
+        processedSalesData.stocks.forEach(item => {
+          if (item.periods_data) {
+            Object.entries(item.periods_data).forEach(
+              ([periodKey, periodValue]) => {
+                const [year, month] = periodKey.split('-').map(Number);
+                const quarter = Math.ceil(month / 3);
+                const value = periodValue[indicator] || 0;
 
-        item.months.forEach((value, index) => {
-          if (value !== null) {
-            const month = index + 1;
-            const year = item.year;
-            const quarter = Math.ceil(month / 3);
-            const key = `${year}-${month}`;
-
-            const existing = dataMap.get(key) || {
-              year,
-              month,
-              quarter,
-              primary: 0,
-              remains: 0,
-              trade_stock: 0,
-            };
-            existing.trade_stock += value;
-            dataMap.set(key, existing);
+                const existing = dataMap.get(periodKey) || {
+                  year,
+                  month,
+                  quarter,
+                  primary: 0,
+                  remains: 0,
+                  trade_stock: 0,
+                };
+                existing.trade_stock += value;
+                dataMap.set(periodKey, existing);
+              }
+            );
           }
         });
-      });
 
-      return Array.from(dataMap.values()).sort((a, b) => {
-        if (a.year !== b.year) return a.year - b.year;
-        return a.month - b.month;
-      });
-    }, [processedSalesData]);
+        return Array.from(dataMap.values()).sort((a, b) => {
+          if (a.year !== b.year) return a.year - b.year;
+          return a.month - b.month;
+        });
+      }, [processedSalesData, indicator]);
 
-    const data = useMemo(() => {
-      return processPeriodData({
-        rawData,
-        period,
-        selectedValues,
-        aggregateFields: ['remains', 'primary', 'trade_stock'],
-      });
-    }, [rawData, period, selectedValues]);
+      const data = useMemo(() => {
+        return processPeriodData({
+          rawData,
+          period,
+          selectedValues,
+          aggregateFields: ['remains', 'primary', 'trade_stock'],
+        });
+      }, [rawData, period, selectedValues]);
 
-    const processedData = useMemo(
-      () =>
-        data.map((d, idx) => ({
-          ...d,
-          xIndex: `${idx}`,
-        })),
-      [data]
-    );
+      const processedData = useMemo(
+        () =>
+          data.map((d, idx) => ({
+            ...d,
+            xIndex: `${idx}`,
+          })),
+        [data]
+      );
 
-    const CustomXAxisTick = (props: any) => {
-      const { x, y, payload } = props;
-      const index = payload.index;
-      const item = processedData[index];
+      const CustomXAxisTick = (props: any) => {
+        const { x, y, payload } = props;
+        const index = payload.index;
+        const item = processedData[index];
 
-      if (!item) return null;
+        if (!item) return null;
+
+        return (
+          <g>
+            <text
+              x={x}
+              y={y}
+              textAnchor="middle"
+              className="fill-black text-xs leading-full font-normal"
+            >
+              {item.label}
+            </text>
+          </g>
+        );
+      };
 
       return (
-        <g>
-          <text
-            x={x}
-            y={y}
-            textAnchor="middle"
-            className="fill-black text-xs leading-full font-normal"
+        <div className="font-inter">
+          <ComposedChart
+            width={sectionStyle.width - 24}
+            height={500}
+            margin={{ top: 20, right: 16, bottom: 20 }}
+            data={processedData}
+            barGap={0}
           >
-            {item.label}
-          </text>
-        </g>
+            <Tooltip
+              labelFormatter={label => {
+                const item = processedData.find(d => d.xIndex === label);
+                if (!item) return label;
+                return item.fullLabel;
+              }}
+              formatter={(value, name) => {
+                const label =
+                  name === 'remains'
+                    ? 'Остаток'
+                    : name === 'primary'
+                      ? 'Первичка'
+                      : 'Товарный запас';
+                return [value.toLocaleString('ru-RU'), label];
+              }}
+            />
+            <XAxis
+              dataKey="xIndex"
+              axisLine={false}
+              // eslint-disable-next-line react-hooks/static-components
+              tick={<CustomXAxisTick />}
+              tickMargin={10}
+              padding={{ left: 10, right: 10 }}
+            />
+
+            <YAxis
+              domain={[0, 100]}
+              axisLine={false}
+              tickLine={false}
+              hide
+              className="text-xs font-normal leading-full"
+              tick={{ fontSize: 12, fill: '#6b7280' }}
+              tickMargin={10}
+            />
+
+            <Bar
+              dataKey="remains"
+              fill={'#FFC000'}
+              maxBarSize={Infinity}
+              radius={[0, 0, 0, 0]}
+            />
+            <Bar
+              dataKey="primary"
+              fill={'#0B5A7C'}
+              maxBarSize={Infinity}
+              radius={[0, 0, 0, 0]}
+            />
+
+            <Line
+              type="linear"
+              dataKey="trade_stock"
+              stroke={'#888888'}
+              strokeWidth={3}
+              activeDot={{ r: 6 }}
+            />
+          </ComposedChart>
+        </div>
       );
-    };
-
-    return (
-      <div className="font-inter">
-        <ComposedChart
-          width={sectionStyle.width - 24}
-          height={500}
-          margin={{ top: 20, right: 16, bottom: 20 }}
-          data={processedData}
-          barGap={0}
-        >
-          <Tooltip
-            labelFormatter={label => {
-              const item = processedData.find(d => d.xIndex === label);
-              if (!item) return label;
-              return item.fullLabel;
-            }}
-            formatter={(value, name) => {
-              const label =
-                name === 'remains'
-                  ? 'Остаток'
-                  : name === 'primary'
-                    ? 'Первичка'
-                    : 'Товарный запас';
-              return [value.toLocaleString('ru-RU'), label];
-            }}
-          />
-          <XAxis
-            dataKey="xIndex"
-            axisLine={false}
-            // eslint-disable-next-line react-hooks/static-components
-            tick={<CustomXAxisTick />}
-            tickMargin={10}
-            padding={{ left: 10, right: 10 }}
-          />
-
-          <YAxis
-            domain={[0, 100]}
-            axisLine={false}
-            tickLine={false}
-            hide
-            className="text-xs font-normal leading-full"
-            tick={{ fontSize: 12, fill: '#6b7280' }}
-            tickMargin={10}
-          />
-
-          <Bar
-            dataKey="remains"
-            fill={'#FFC000'}
-            maxBarSize={Infinity}
-            radius={[0, 0, 0, 0]}
-          />
-          <Bar
-            dataKey="primary"
-            fill={'#0B5A7C'}
-            maxBarSize={Infinity}
-            radius={[0, 0, 0, 0]}
-          />
-
-          <Line
-            type="linear"
-            dataKey="trade_stock"
-            stroke={'#888888'}
-            strokeWidth={3}
-            activeDot={{ r: 6 }}
-          />
-        </ComposedChart>
-      </div>
-    );
-  });
+    }
+  );
 
 DynamicPrimarySalesAsMixed.displayName = '_DynamicPrimarySalesAsMixed_';

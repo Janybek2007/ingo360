@@ -20,13 +20,7 @@ import {
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { createMonthsData } from '#/shared/utils/create-months-data';
-
-interface ShipmentRow extends TDbItem {
-  total_packages_per_period: number;
-  total_amount_per_period: number;
-  months: (number | null)[];
-}
+import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const Shipments: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
@@ -38,7 +32,7 @@ export const Shipments: React.FC = React.memo(() => {
   });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<ShipmentRow[]>(['sales/primary/reports/sales'], {
+    DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/primary/reports/sales'], {
       brand_ids: filters.values.brands,
       product_group_ids: filters.values.groups,
       limit:
@@ -55,7 +49,7 @@ export const Shipments: React.FC = React.memo(() => {
     [queryData.data]
   );
 
-  const allColumns = useGenerateColumns<ShipmentRow>({
+  const allColumns = useGenerateColumns<TDbItem>({
     data: sales,
     columns: [
       commonColumns.sku(),
@@ -64,13 +58,8 @@ export const Shipments: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset((row, i) => row.months?.[i]),
-    total: totalPreset(row =>
-      row.months?.reduce(
-        (sum, val) => (val != null ? (sum ?? 0) + val : sum),
-        0
-      )
-    ),
+    months: monthsPreset(filters.indicator, sales),
+    total: totalPreset(filters.indicator),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -78,33 +67,9 @@ export const Shipments: React.FC = React.memo(() => {
       allColumns,
     });
 
-  const filteredData = useMemo(() => {
-    const grouped = createMonthsData(
-      sales,
-      row => `${row.sku_id}`,
-      row => row[filters.indicator],
-      row => ({ ...row })
-    );
-
-    return grouped;
+  const { monthTotals, grandTotal } = useMemo(() => {
+    return calcPeriodTotals(sales, filters.indicator);
   }, [sales, filters.indicator]);
-
-  const monthTotals = useMemo(() => {
-    const totals = Array(12).fill(0);
-    filteredData.forEach(row => {
-      const rowData = row;
-      rowData.months?.forEach((value, index) => {
-        if (value !== null && value !== undefined) {
-          totals[index] += value;
-        }
-      });
-    });
-    return totals;
-  }, [filteredData]);
-
-  const grandTotal = useMemo(() => {
-    return monthTotals.reduce((sum, val) => sum + val, 0);
-  }, [monthTotals]);
 
   return (
     <PageSection
@@ -112,7 +77,6 @@ export const Shipments: React.FC = React.memo(() => {
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
-
           <DbFilters {...filters} />
 
           <Select<true>
@@ -127,10 +91,7 @@ export const Shipments: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={filteredData}
-            fileName="первичные_продажи.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="первичные_продажи.xlsx" />
         </div>
       }
     >
@@ -144,7 +105,7 @@ export const Shipments: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={filteredData}
+          data={sales}
           maxHeight={500}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

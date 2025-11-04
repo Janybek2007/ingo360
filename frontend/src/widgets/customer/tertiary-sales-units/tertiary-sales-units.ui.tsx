@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import {
   CartesianGrid,
@@ -12,61 +11,51 @@ import {
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import {
+  DbFilters,
+  useDbFilters,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
-import { Select } from '#/shared/components/ui/select';
 import {
   type IUsedFilterItem,
   UsedFilter,
 } from '#/shared/components/used-filter';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import {
-  calculateChartAxis,
-  formatCompactNumber,
-} from '#/shared/utils/format-number';
+import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
-interface TertiarySalesUnitsRow extends TDbItem {
-  total_packages_per_period: number;
-  total_amount_per_period: number;
-  months?: (number | null)[];
-}
-
 export const TertiarySalesUnits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const [brands, setBrands] = React.useState<number[]>([]);
-  const [groups, setGroups] = React.useState<number[]>([]);
+  const filterOptions = useFilterOptions();
+
+  const filters = useDbFilters({
+    brandsOptions: filterOptions.brands,
+    groupsOptions: filterOptions.groups,
+    config: {
+      rowsCount: { enabled: false },
+      indicator: { enabled: false },
+    },
+  });
+
   const periodFilter = usePeriodFilter();
-  const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<TertiarySalesUnitsRow[]>([
-      'sales/tertiary/reports/sales',
-    ])
+  const queryData = useKeepQuery(
+    DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/tertiary/reports/sales'], {
+      brand_ids: filters.values.brands,
+      product_group_ids: filters.values.groups,
+      type_period: periodFilter.period,
+      filterValues: periodFilter.selectedValues,
+    })
   );
   const visits = React.useMemo(
     () => (queryData.data ? queryData.data[0] : []),
     [queryData]
   );
-
-  const availableOptions = React.useMemo(() => {
-    const brands = visits.map(item => ({
-      value: item.brand_id,
-      label: item.brand_name,
-    }));
-
-    const groups = visits.map(item => ({
-      value: item.product_group_id,
-      label: item.product_group_name,
-    }));
-
-    return {
-      brands: getUniqueItems(brands, ['value']),
-      groups: getUniqueItems(groups, ['value']),
-    };
-  }, [visits]);
 
   const usedFilterItems = React.useMemo((): IUsedFilterItem[] => {
     return [
@@ -82,142 +71,72 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
           },
         },
       ]),
-      brands.length > 0 && {
-        label: 'Бренды: ',
-        value: 'brand-roots',
-        onDelete: () => setBrands([]),
-        subItems: brands.map(brandId => {
-          const brand = availableOptions.brands.find(b => b.value === brandId);
-          return {
-            label: brand?.label || '',
-            value: brandId,
-            onDelete: () => {
-              setBrands(prev => prev.filter(b => b !== brandId));
-            },
-          };
-        }),
-      },
-      groups.length > 0 && {
-        label: 'Группы: ',
-        value: 'group-roots',
-        onDelete: () => setGroups([]),
-        subItems: groups.map(groupId => {
-          const group = availableOptions.groups.find(g => g.value === groupId);
-          return {
-            label: group?.label || '',
-            value: groupId,
-            onDelete: () => {
-              setGroups(prev => prev.filter(g => g !== groupId));
-            },
-          };
-        }),
-      },
+      ...filters.usedFilterItems,
     ].filter(Boolean) as IUsedFilterItem[];
-  }, [
-    availableOptions.brands,
-    availableOptions.groups,
-    brands,
-    groups,
-    periodFilter,
-  ]);
+  }, [periodFilter, filters]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    setBrands([]);
-    setGroups([]);
-  }, [periodFilter]);
+    filters.resetFilters();
+  }, [periodFilter, filters]);
 
   const rawData = useMemo(() => {
     const dataMap = new Map<
       string,
-      {
-        year: number;
-        month: number;
-        quarter: number;
-        value: number;
-      }
+      { year: number; month: number; quarter: number; value: number }
     >();
 
     let filteredVisits = visits;
 
-    if (brands.length > 0) {
-      filteredVisits = filteredVisits.filter(item =>
-        brands.includes(item.brand_id)
-      );
-    }
-
-    if (groups.length > 0) {
-      filteredVisits = filteredVisits.filter(item =>
-        groups.includes(item.product_group_id)
-      );
-    }
-
     filteredVisits.forEach(item => {
-      if (!item.months || !Array.isArray(item.months)) return;
+      if (!item.periods_data || typeof item.periods_data !== 'object') return;
 
-      item.months.forEach((value, index) => {
-        if (value !== null) {
-          const month = index + 1;
-          const year = item.year;
-          const quarter = Math.ceil(month / 3);
-          const key = `${year}-${month}`;
+      Object.entries(item.periods_data).forEach(
+        ([period, data]: [string, any]) => {
+          if (data && data.packages !== null && data.packages !== undefined) {
+            const [year, month] = period.split('-').map(Number);
+            const quarter = Math.ceil(month / 3);
+            const key = period;
 
-          const existing = dataMap.get(key) || {
-            year,
-            month,
-            quarter,
-            value: 0,
-          };
-          existing.value += value;
-          dataMap.set(key, existing);
+            const existing = dataMap.get(key) || {
+              year,
+              month,
+              quarter,
+              value: 0,
+            };
+            existing.value += data.packages;
+            dataMap.set(key, existing);
+          }
         }
-      });
+      );
     });
 
     return Array.from(dataMap.values()).sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
       return a.month - b.month;
     });
-  }, [visits, brands, groups]);
+  }, [visits]);
 
-  const proccessedData = useMemo(() => {
+  const chartData = useMemo(() => {
     return processPeriodData({
       rawData,
       period: periodFilter.period,
-      selectedValues: [],
+      selectedValues: periodFilter.selectedValues,
       aggregateFields: ['value'],
     });
-  }, [rawData, periodFilter.period]);
+  }, [rawData, periodFilter.period, periodFilter.selectedValues]);
 
   const chartAxis = useMemo(
-    () => calculateChartAxis(proccessedData, ['total_packages_per_period']),
-    [proccessedData]
+    () => calculateChartAxis(chartData, ['value'], 1000),
+    [chartData]
   );
+
   return (
     <PageSection
       title="Третичные продажи, уп."
       headerEnd={
         <div className="flex items-center gap-4">
-          <Select<true, number>
-            value={brands}
-            setValue={setBrands}
-            showToggleAll
-            isMultiple
-            checkbox
-            items={availableOptions.brands}
-            triggerText="Бренд"
-            classNames={{ menu: 'w-[10rem] w-max left-0' }}
-          />
-          <Select<true, number>
-            value={groups}
-            isMultiple
-            checkbox
-            showToggleAll
-            setValue={setGroups}
-            items={availableOptions.groups}
-            triggerText="Группа"
-            classNames={{ menu: 'w-[10rem] w-max left-0' }}
-          />
+          <DbFilters {...filters} />
           <PeriodFilters {...periodFilter} />
         </div>
       }
@@ -244,7 +163,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
               <LineChart
                 width={sectionStyle.width - 48}
                 height={500}
-                data={proccessedData}
+                data={chartData}
                 margin={{ top: 20, right: 16, bottom: 20 }}
               >
                 <CartesianGrid strokeDasharray="4 4" vertical={false} />
@@ -265,7 +184,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
                   hide
                   className="text-base font-normal text-[#474B4E] leading-full"
                   tickMargin={20}
-                  tickFormatter={value => formatCompactNumber(value)}
+                  tickFormatter={value => Number(value).toLocaleString('ru-RU')}
                 />
 
                 <Tooltip
@@ -298,7 +217,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
                     className="font-inter text-xs"
                     formatter={value => {
                       if (value === undefined || value === null) return '';
-                      return formatCompactNumber(value as number);
+                      return Number(value).toLocaleString('ru-RU');
                     }}
                   />
                 </Line>

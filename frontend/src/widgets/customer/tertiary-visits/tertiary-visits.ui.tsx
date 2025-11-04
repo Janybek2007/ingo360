@@ -20,14 +20,7 @@ import {
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { createMonthsData } from '#/shared/utils/create-months-data';
-import { filterBySearch } from '#/shared/utils/search';
-
-interface TertiaryVisitsRow extends TDbItem {
-  total_packages_per_period: number;
-  total_amount_per_period: number;
-  months?: (number | null)[];
-}
+import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const TertiaryVisits: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
@@ -39,19 +32,16 @@ export const TertiaryVisits: React.FC = React.memo(() => {
   });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<TertiaryVisitsRow[]>(
-      ['sales/tertiary/reports/sales'],
-      {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
-        limit:
-          filters.values.rowsCount === 'all'
-            ? undefined
-            : filters.values.rowsCount,
-        offset: 0,
-        search,
-      }
-    )
+    DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/tertiary/reports/sales'], {
+      brand_ids: filters.values.brands,
+      product_group_ids: filters.values.groups,
+      limit:
+        filters.values.rowsCount === 'all'
+          ? undefined
+          : filters.values.rowsCount,
+      offset: 0,
+      search,
+    })
   );
 
   const visits = React.useMemo(
@@ -59,7 +49,7 @@ export const TertiaryVisits: React.FC = React.memo(() => {
     [queryData.data]
   );
 
-  const allColumns = useGenerateColumns<TertiaryVisitsRow>({
+  const allColumns = useGenerateColumns<TDbItem>({
     data: visits,
     columns: [
       commonColumns.sku(),
@@ -67,15 +57,10 @@ export const TertiaryVisits: React.FC = React.memo(() => {
       commonColumns.promotion(),
       commonColumns.group(),
       commonColumns.distributor(),
-      commonColumns.indicator(),
+      commonColumns.geo_indicator(),
     ],
-    months: monthsPreset((row, i) => row.months?.[i]),
-    total: totalPreset(row =>
-      row.months?.reduce(
-        (sum, val) => (val != null ? (sum ?? 0) + val : sum),
-        0
-      )
-    ),
+    months: monthsPreset(filters.indicator, visits),
+    total: totalPreset(filters.indicator),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -84,41 +69,9 @@ export const TertiaryVisits: React.FC = React.memo(() => {
       ignore: ['actions', 'total'],
     });
 
-  const filteredData = useMemo(() => {
-    const searched = filterBySearch(visits, search, [
-      'sku_name',
-      'brand_name',
-      'product_group_name',
-      'distributor_name',
-      'promotion_type_name',
-    ]);
-
-    const grouped = createMonthsData(
-      searched,
-      row => `${row.sku_id}`,
-      row => row[filters.indicator],
-      row => ({ ...row })
-    );
-
-    return grouped;
-  }, [search, visits, filters.indicator]);
-
-  const monthTotals = useMemo(() => {
-    const totals = Array(12).fill(0);
-    filteredData.forEach(row => {
-      const rowData = row;
-      rowData.months?.forEach((value, index) => {
-        if (value !== null && value !== undefined) {
-          totals[index] += value;
-        }
-      });
-    });
-    return totals;
-  }, [filteredData]);
-
-  const grandTotal = useMemo(() => {
-    return monthTotals.reduce((sum, val) => sum + val, 0);
-  }, [monthTotals]);
+  const { monthTotals, grandTotal } = useMemo(() => {
+    return calcPeriodTotals(visits, filters.indicator);
+  }, [visits, filters.indicator]);
 
   return (
     <PageSection
@@ -150,10 +103,7 @@ export const TertiaryVisits: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={filteredData}
-            fileName="tertiary-visits.xlsx"
-          />
+          <ExportToExcelButton data={visits} fileName="tertiary-visits.xlsx" />
         </div>
       }
     >
@@ -162,12 +112,13 @@ export const TertiaryVisits: React.FC = React.memo(() => {
         queryError={queryData.error}
       >
         <Table
+          key={filters.indicator}
           filters={{
             usedFilterItems: filters.usedFilterItems,
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={filteredData}
+          data={visits}
           maxHeight={400}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

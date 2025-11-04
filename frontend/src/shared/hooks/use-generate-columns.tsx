@@ -23,9 +23,8 @@ interface UseGenerateColumnsProps<TData> {
   data: TData[];
   columns: (CColumn<TData> | string)[];
   months?: {
-    year?: number;
-    count?: number;
-    getValue: (row: TData, index: number) => number | string | null | undefined;
+    periods: string[];
+    getValue: (row: TData, periodKey: string) => number | null | undefined;
     asPercent?: boolean;
   };
   total?: {
@@ -135,15 +134,12 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
     });
 
     // Месяцы
-    if (months) {
-      const year = months.year || new Date().getFullYear();
-      const count = months.count || 12;
-
-      for (let i = 0; i < count; i++) {
+    if (months && months.periods.length > 0) {
+      months.periods.forEach((period, index) => {
         result.push({
-          id: `month${i + 1}`,
-          accessorFn: row => months.getValue(row, i),
-          header: `${year}/${i + 1}`,
+          id: `period_${index + 1}`,
+          accessorFn: row => months.getValue(row, period),
+          header: period,
           size: 140,
           enableColumnFilter: true,
           filterFn: numberFilter(),
@@ -155,7 +151,7 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
             />
           ),
         } as ColumnDef<TData>);
-      }
+      });
     }
 
     // Итого
