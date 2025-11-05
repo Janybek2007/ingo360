@@ -26,7 +26,6 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
     defaultValues: {
       first_name: user?.first_name,
       last_name: user?.last_name,
-      phone_number: user?.phone_number,
       email: user?.email,
     },
   });
@@ -47,7 +46,6 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
       reset({
         first_name: user.first_name,
         last_name: user.last_name,
-        phone_number: user.phone_number,
         email: user.email,
       });
     }
@@ -107,16 +105,6 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
             type="email"
             placeholder="example@email.com"
             error={errors.email?.message}
-          />
-        </div>
-        <div className="w-full">
-          <FormField
-            register={register('phone_number')}
-            name="phone_number"
-            label="Номер телефона"
-            type="tel"
-            placeholder="+996 555 55 555"
-            error={errors.phone_number?.message}
           />
         </div>
       </div>

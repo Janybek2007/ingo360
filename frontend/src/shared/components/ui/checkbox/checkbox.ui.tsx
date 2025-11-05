@@ -10,7 +10,7 @@ const Checkbox: React.FC<ICheckboxProps> = React.memo(
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
       <label
         className={cn(
-          'inline-flex items-center justify-center w-[1.115rem] h-[1.115rem] rounded-md border border-gray-300 cursor-pointer select-none',
+          'inline-flex items-center justify-center min-w-[1.115rem] max-w-[1.115rem] min-h-[1.115rem] max-h-[1.115rem] rounded-md border border-gray-300 cursor-pointer select-none',
           'transition-all duration-200',
           checked ? 'bg-blue-500 border-blue-500' : 'bg-white',
           classNames?.root
@@ -28,7 +28,7 @@ const Checkbox: React.FC<ICheckboxProps> = React.memo(
         />
         {checked && (
           <svg
-            className="w-[0.65rem] h-[0.65rem] text-white pointer-events-none"
+            className="min-w-[0.65rem] max-w-[0.65rem] min-h-[0.65rem] max-h-[0.65rem] text-white pointer-events-none"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

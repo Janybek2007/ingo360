@@ -58,6 +58,7 @@ export interface UseFilterOptionsConfig {
   brands?: boolean;
   groups?: boolean;
   distributors?: boolean;
+  medicalFacilities?: boolean;
 }
 
 //

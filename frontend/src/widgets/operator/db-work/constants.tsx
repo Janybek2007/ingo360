@@ -113,11 +113,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     });
 
     columns.push(...getYearMonthColumns(data));
-    columns.push(
-      ...getSalesColumns(data).filter(
-        v => v.id === 'indicator' && type !== 'sales/primary'
-      )
-    );
+    columns.push(...getSalesColumns(data, type));
   }
 
   if (type === 'visits') {
@@ -332,9 +328,9 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
   return columns;
 }
 
-function getSalesColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
+function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
   return [
-    {
+    type !== 'sales/primary' && {
       id: 'indicator',
       accessorKey: 'indicator',
       header: 'Показатель',
@@ -377,7 +373,7 @@ function getSalesColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
         { label: 'Опубликовано', value: 'true' },
         { label: 'Не опубликовано', value: 'false' },
       ],
-      cell: ({ row }) => (
+      cell: ({ row }: { row: { original: { published: boolean } } }) => (
         <span
           className={row.original.published ? 'text-green-500' : 'text-red-500'}
         >
@@ -385,7 +381,7 @@ function getSalesColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
         </span>
       ),
     },
-  ];
+  ].filter(Boolean) as ColumnDef<IDbItem>[];
 }
 
 function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {

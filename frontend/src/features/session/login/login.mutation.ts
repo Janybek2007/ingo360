@@ -26,7 +26,7 @@ export const useLoginMutation = () => {
   } = useForm({
     resolver: zodResolver(LoginContract),
   });
-  const { setIsWelcomeShown, reconnectSocket } = useSession();
+  const { setIsWelcomeShown } = useSession();
 
   const { mutateAsync, status } = useMutation({
     mutationKey: ['session-login'],
@@ -48,7 +48,6 @@ export const useLoginMutation = () => {
         Cookies.set('access_token', response.access_token);
         Cookies.set('token_type', response.token_type);
         setIsWelcomeShown(true);
-        reconnectSocket();
         await queryClient.refetchQueries({
           queryKey: UserQueries.queryKeys.getUser,
         });

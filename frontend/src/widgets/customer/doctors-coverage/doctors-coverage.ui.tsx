@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 
 import { DoctorsCountVisits } from './ui/count-visits.ui';
+import { DoctorFilters } from './ui/doctor-filters.ui';
 import { DoctorsPercentageVisits } from './ui/doctors-percentage-visits.ui';
 
 export interface DoctorsCoverageRow {
@@ -14,11 +15,28 @@ export interface DoctorsCoverageRow {
   count_with_visits: 91;
   coverage_percentage: 52.60115606936416;
 }
+
+export interface FiltersConfig {
+  months: number[];
+  years: number[];
+  medical_facility_ids: number[];
+}
+
 export const DoctorsCoverage: React.FC = React.memo(() => {
-  const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>([
-      'visits/reports/doctors-by-specialty',
-    ])
+  const [filters, setFilters] = React.useState<FiltersConfig>({
+    months: [],
+    years: [],
+    medical_facility_ids: [],
+  });
+  const queryData = useKeepQuery(
+    DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
+      ['visits/reports/doctors-by-specialty'],
+      {
+        months: filters.months,
+        years: filters.years,
+        medical_facility_ids: filters.medical_facility_ids,
+      }
+    )
   );
   const visits = React.useMemo(
     () => (queryData.data ? queryData.data[0] : []),
@@ -32,7 +50,12 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
             isLoading={queryData.isLoading}
             queryError={queryData.error}
           >
-            <DoctorsCountVisits visits={visits} />
+            <DoctorsCountVisits
+              visits={visits}
+              filters={
+                <DoctorFilters filters={filters} setFilters={setFilters} />
+              }
+            />
           </AsyncBoundary>
         </div>
         <div className="w-1/2 rounded-2xl p-5 bg-white">

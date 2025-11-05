@@ -69,10 +69,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 setValue={value => setRowsCount(value)}
                 items={[
                   { value: 'all', label: 'Все' },
-                  { value: 10, label: '10' },
-                  { value: 50, label: '50' },
-                  { value: 100, label: '100' },
-                  { value: 200, label: '200' },
+                  { value: 1000, label: '1000' },
+                  { value: 5000, label: '5000' },
+                  { value: 10000, label: '10000' },
                 ]}
                 triggerText="Количество строк"
               />
@@ -122,7 +121,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                   },
                 ]),
               }}
-              maxHeight={500}
+              maxHeight={550}
               rounded="none"
             />
           </AsyncBoundary>

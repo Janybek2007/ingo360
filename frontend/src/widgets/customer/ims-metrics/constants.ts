@@ -8,13 +8,13 @@ export const metrics: ICPICard[] = [
   {
     key: 'sales',
     fill: '#E6E5FF',
-    text: value => (value !== undefined ? `${value} m. USD` : '-'),
+    text: value => (value !== undefined ? `${value} USD` : '-'),
     subText: 'Продажи $',
   },
   {
     key: 'market_sales',
     fill: '#A6F7E2',
-    text: value => (value !== undefined ? `${value} m. USD` : '-'),
+    text: value => (value !== undefined ? `${value} USD` : '-'),
     subText: 'Рынок / Сегмент $',
   },
   {

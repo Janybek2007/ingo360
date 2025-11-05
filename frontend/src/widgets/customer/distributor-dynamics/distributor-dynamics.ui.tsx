@@ -27,6 +27,7 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
+import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -111,44 +112,9 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       );
     }
 
-    const dataMap = new Map<
-      string,
-      Record<string, number> & {
-        year: number;
-        month: number;
-        quarter: number;
-      }
-    >();
-
-    filtered.forEach(item => {
-      const distributorName = item.distributor_name;
-
-      if (item.periods_data) {
-        Object.entries(item.periods_data).forEach(
-          ([periodKey, periodValue]) => {
-            const [year, month] = periodKey.split('-').map(Number);
-            const quarter = Math.ceil(month / 3);
-            const amount = periodValue.total_amount || 0;
-
-            if (!dataMap.has(periodKey)) {
-              dataMap.set(periodKey, {
-                year,
-                month,
-                quarter,
-              });
-            }
-
-            const existing = dataMap.get(periodKey)!;
-            const currentValue = (existing[distributorName] as number) || 0;
-            existing[distributorName] = currentValue + amount;
-          }
-        );
-      }
-    });
-
-    const rawData = Array.from(dataMap.values()).sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
+    const rawData = generateChartRawData(filtered, {
+      valueField: 'total_amount',
+      groupBy: item => item.distributor_name,
     });
 
     const distributorNames = distributorsData

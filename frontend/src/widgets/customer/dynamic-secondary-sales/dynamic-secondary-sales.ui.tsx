@@ -26,6 +26,7 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
+import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
@@ -81,38 +82,9 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
   }, [periodFilter, filters]);
 
   const data = useMemo(() => {
-    const dataMap = new Map<
-      string,
-      { year: number; month: number; quarter: number; value: number }
-    >();
-
-    sales.forEach(item => {
-      if (item.periods_data) {
-        Object.entries(item.periods_data).forEach(
-          ([periodKey, periodValue]) => {
-            const [year, month] = periodKey.split('-').map(Number);
-            const value = periodValue[filters.indicator] || 0;
-            const quarter = Math.ceil(month / 3);
-
-            const existing = dataMap.get(periodKey);
-            if (existing) {
-              existing.value += value;
-            } else {
-              dataMap.set(periodKey, {
-                year,
-                month,
-                quarter,
-                value,
-              });
-            }
-          }
-        );
-      }
-    });
-
-    const rawData = Array.from(dataMap.values()).sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
+    const rawData = generateChartRawData(sales, {
+      valueField: filters.indicator,
+      outputField: 'value',
     });
 
     return processPeriodData({

@@ -99,6 +99,7 @@ export interface IGetDBItemsParams extends PaginationParams {
   search?: string;
   promo_type_id?: number[];
   sku_ids?: number[];
+  medical_facility_ids?: number[];
   group_by_period?: 'month' | 'quarter' | 'year';
   periods?: string[];
   type_period?: UsePeriodType;

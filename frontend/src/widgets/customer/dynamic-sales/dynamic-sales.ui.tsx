@@ -18,6 +18,7 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
+import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
@@ -47,6 +48,17 @@ export const DynamicSales: React.FC = React.memo(() => {
   );
 
   const rawData = React.useMemo(() => {
+    const primaryRawData = generateChartRawData(primarySales, {
+      valueField: 'amount',
+      outputField: 'primaryValue',
+    });
+
+    const secondaryRawData = generateChartRawData(secondarySales, {
+      valueField: 'amount',
+      outputField: 'secondaryValue',
+    });
+
+    // Объединяем оба набора данных
     const dataMap = new Map<
       string,
       {
@@ -58,53 +70,30 @@ export const DynamicSales: React.FC = React.memo(() => {
       }
     >();
 
-    primarySales.forEach(item => {
-      if (item.periods_data) {
-        Object.entries(item.periods_data).forEach(
-          ([periodKey, periodValue]) => {
-            const [year, month] = periodKey.split('-').map(Number);
-            const quarter = Math.ceil(month / 3);
-            const value = periodValue.amount || 0;
-
-            const existing = dataMap.get(periodKey);
-            if (existing) {
-              existing.primaryValue += value;
-            } else {
-              dataMap.set(periodKey, {
-                year,
-                month,
-                quarter,
-                primaryValue: value,
-                secondaryValue: 0,
-              });
-            }
-          }
-        );
-      }
+    primaryRawData.forEach(item => {
+      const key = `${item.year}-${item.month}`;
+      dataMap.set(key, {
+        year: item.year,
+        month: item.month,
+        quarter: item.quarter,
+        primaryValue: item.primaryValue || 0,
+        secondaryValue: 0,
+      });
     });
 
-    secondarySales.forEach(item => {
-      if (item.periods_data) {
-        Object.entries(item.periods_data).forEach(
-          ([periodKey, periodValue]) => {
-            const [year, month] = periodKey.split('-').map(Number);
-            const quarter = Math.ceil(month / 3);
-            const value = periodValue.amount || 0;
-
-            const existing = dataMap.get(periodKey);
-            if (existing) {
-              existing.secondaryValue += value;
-            } else {
-              dataMap.set(periodKey, {
-                year,
-                month,
-                quarter,
-                primaryValue: 0,
-                secondaryValue: value,
-              });
-            }
-          }
-        );
+    secondaryRawData.forEach(item => {
+      const key = `${item.year}-${item.month}`;
+      const existing = dataMap.get(key);
+      if (existing) {
+        existing.secondaryValue = item.secondaryValue || 0;
+      } else {
+        dataMap.set(key, {
+          year: item.year,
+          month: item.month,
+          quarter: item.quarter,
+          primaryValue: 0,
+          secondaryValue: item.secondaryValue || 0,
+        });
       }
     });
 

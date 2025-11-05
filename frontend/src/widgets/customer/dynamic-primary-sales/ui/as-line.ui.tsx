@@ -11,6 +11,7 @@ import {
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
+import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
 import type { DynamicPrimarySalesAsLineProps } from '../dynamic-primary-sales.types';
@@ -20,43 +21,9 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
     const sectionStyle = useSectionStyle();
 
     const rawData = useMemo(() => {
-      const dataMap = new Map<
-        string,
-        {
-          year: number;
-          month: number;
-          quarter: number;
-          value: number;
-        }
-      >();
-
-      sales.forEach(item => {
-        if (item.periods_data) {
-          Object.entries(item.periods_data).forEach(
-            ([periodKey, periodValue]) => {
-              const [year, month] = periodKey.split('-').map(Number);
-              const quarter = Math.ceil(month / 3);
-              const value = periodValue[indicator] || 0;
-
-              const existing = dataMap.get(periodKey);
-              if (existing) {
-                existing.value += value;
-              } else {
-                dataMap.set(periodKey, {
-                  year,
-                  month,
-                  quarter,
-                  value,
-                });
-              }
-            }
-          );
-        }
-      });
-
-      return Array.from(dataMap.values()).sort((a, b) => {
-        if (a.year !== b.year) return a.year - b.year;
-        return a.month - b.month;
+      return generateChartRawData(sales, {
+        valueField: indicator,
+        outputField: 'value',
       });
     }, [sales, indicator]);
 
@@ -110,9 +77,8 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
               }
               return label;
             }}
-            formatter={(value, name) => {
-              const label = name === 'primaryValue' ? 'Первичка' : 'Вторичка';
-              return [value.toLocaleString('ru-RU'), label];
+            formatter={value => {
+              return [value.toLocaleString('ru-RU'), 'Первичка'];
             }}
           />
 

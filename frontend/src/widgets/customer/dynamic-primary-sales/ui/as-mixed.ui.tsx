@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
 import type { DynamicPrimarySalesAsMixedProps } from '../dynamic-primary-sales.types';
@@ -11,8 +12,22 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
     ({ period, selectedValues, sales: processedSalesData, indicator }) => {
       const sectionStyle = useSectionStyle();
 
-      // Преобразуем данные с periods_data в формат для графика
       const rawData = useMemo(() => {
+        const primaryRawData = generateChartRawData(processedSalesData.sales, {
+          valueField: indicator,
+          outputField: 'primary',
+        });
+
+        const remainsRawData = generateChartRawData(
+          processedSalesData.inventory,
+          { valueField: 'coverage_months', outputField: 'remains' }
+        );
+
+        const stocksRawData = generateChartRawData(processedSalesData.stocks, {
+          valueField: indicator,
+          outputField: 'trade_stock',
+        });
+
         const dataMap = new Map<
           string,
           {
@@ -25,76 +40,26 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
           }
         >();
 
-        // Обрабатываем первичные продажи
-        processedSalesData.sales.forEach(item => {
-          if (item.periods_data) {
-            Object.entries(item.periods_data).forEach(
-              ([periodKey, periodValue]) => {
-                const [year, month] = periodKey.split('-').map(Number);
-                const quarter = Math.ceil(month / 3);
-                const value = periodValue[indicator] || 0;
+        [primaryRawData, remainsRawData, stocksRawData].forEach(dataset => {
+          dataset.forEach(item => {
+            const key = `${item.year}-${item.month}`;
+            const existing = dataMap.get(key);
 
-                const existing = dataMap.get(periodKey) || {
-                  year,
-                  month,
-                  quarter,
-                  primary: 0,
-                  remains: 0,
-                  trade_stock: 0,
-                };
-                existing.primary += value;
-                dataMap.set(periodKey, existing);
-              }
-            );
-          }
-        });
-
-        // Обрабатываем остатки (inventory) - используем coverage_months
-        processedSalesData.inventory.forEach(item => {
-          if (item.periods_data) {
-            Object.entries(item.periods_data).forEach(
-              ([periodKey, periodValue]) => {
-                const [year, month] = periodKey.split('-').map(Number);
-                const quarter = Math.ceil(month / 3);
-                const value = periodValue.coverage_months || 0;
-
-                const existing = dataMap.get(periodKey) || {
-                  year,
-                  month,
-                  quarter,
-                  primary: 0,
-                  remains: 0,
-                  trade_stock: 0,
-                };
-                existing.remains += value;
-                dataMap.set(periodKey, existing);
-              }
-            );
-          }
-        });
-
-        // Обрабатываем товарный запас (stocks)
-        processedSalesData.stocks.forEach(item => {
-          if (item.periods_data) {
-            Object.entries(item.periods_data).forEach(
-              ([periodKey, periodValue]) => {
-                const [year, month] = periodKey.split('-').map(Number);
-                const quarter = Math.ceil(month / 3);
-                const value = periodValue[indicator] || 0;
-
-                const existing = dataMap.get(periodKey) || {
-                  year,
-                  month,
-                  quarter,
-                  primary: 0,
-                  remains: 0,
-                  trade_stock: 0,
-                };
-                existing.trade_stock += value;
-                dataMap.set(periodKey, existing);
-              }
-            );
-          }
+            if (existing) {
+              existing.primary += item.primary || 0;
+              existing.remains += item.remains || 0;
+              existing.trade_stock += item.trade_stock || 0;
+            } else {
+              dataMap.set(key, {
+                year: item.year,
+                month: item.month,
+                quarter: item.quarter,
+                primary: item.primary || 0,
+                remains: item.remains || 0,
+                trade_stock: item.trade_stock || 0,
+              });
+            }
+          });
         });
 
         return Array.from(dataMap.values()).sort((a, b) => {

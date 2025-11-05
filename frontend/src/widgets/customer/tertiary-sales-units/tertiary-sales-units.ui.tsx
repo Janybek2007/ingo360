@@ -26,6 +26,7 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
+import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
@@ -42,8 +43,8 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
       indicator: { enabled: false },
     },
   });
-
   const periodFilter = usePeriodFilter();
+
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/tertiary/reports/sales'], {
       brand_ids: filters.values.brands,
@@ -81,39 +82,9 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
   }, [periodFilter, filters]);
 
   const rawData = useMemo(() => {
-    const dataMap = new Map<
-      string,
-      { year: number; month: number; quarter: number; value: number }
-    >();
-
-    let filteredVisits = visits;
-
-    filteredVisits.forEach(item => {
-      if (!item.periods_data || typeof item.periods_data !== 'object') return;
-
-      Object.entries(item.periods_data).forEach(
-        ([period, data]: [string, any]) => {
-          if (data && data.packages !== null && data.packages !== undefined) {
-            const [year, month] = period.split('-').map(Number);
-            const quarter = Math.ceil(month / 3);
-            const key = period;
-
-            const existing = dataMap.get(key) || {
-              year,
-              month,
-              quarter,
-              value: 0,
-            };
-            existing.value += data.packages;
-            dataMap.set(key, existing);
-          }
-        }
-      );
-    });
-
-    return Array.from(dataMap.values()).sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
+    return generateChartRawData(visits, {
+      valueField: 'packages',
+      outputField: 'value',
     });
   }, [visits]);
 

@@ -14,7 +14,6 @@ const DbWorkPage: React.FC = () => {
 
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
     defaultValue: 'sales/tertiary/reports/sales',
-    defaultServerValue: 'sales/tertiary/reports/sales',
   });
 
   const queryData = useQuery(

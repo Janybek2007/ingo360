@@ -35,11 +35,9 @@ export const useDbFilters = ({
       ],
       rowsCounts: config?.rowsCount?.options || [
         { value: 'all', label: 'Все' },
-        { value: 10, label: '10' },
-        { value: 50, label: '50' },
-        { value: 100, label: '100' },
-        { value: 300, label: '300' },
-        { value: 500, label: '500' },
+        { value: 1000, label: '1000' },
+        { value: 5000, label: '5000' },
+        { value: 10000, label: '10000' },
       ],
     };
   }, [brandsOptions, groupsOptions, distributorsOptions, config]);

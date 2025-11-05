@@ -1,9 +1,6 @@
 import React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 
-import { LucideArrowIcon } from '#/shared/components/icons';
-import { Select } from '#/shared/components/ui/select';
-import { allMonths } from '#/shared/constants/months';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 import type { DoctorsCoverageRow } from '../doctors-coverage.ui';
@@ -17,25 +14,9 @@ export const DoctorsPercentageVisits: React.FC<{
         <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
           Доля врачей с визитами (%)
         </h4>
-        <Select<true, number>
-          triggerText={'Месяц'}
-          items={allMonths.map((m, i) => ({ value: i + 1, label: m }))}
-          value={[]}
-          checkbox
-          isMultiple
-          showToggleAll
-          setValue={() => {}}
-          rightIcon={
-            <LucideArrowIcon type="chevron-down" className="size-[1.125rem]" />
-          }
-          classNames={{
-            trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
-            menu: 'w-[14rem] w-max right-0',
-          }}
-        />
       </div>
 
-      <div className="relative min-h-[21.875rem] max-h-[21.875rem] w-full flex items-center justify-center my-3">
+      <div className="relative min-h-[24rem] max-h-[24rem] w-full flex items-center justify-center my-3">
         <PieChart width={380} height={380}>
           <Pie
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -13,6 +13,7 @@ export const useFilterOptions = (config: UseFilterOptionsConfig = {}) => {
     brands: brandsEnabled = true,
     groups: groupsEnabled = true,
     distributors: distributorsEnabled = false,
+    medicalFacilities: medicalFacilitiesEnabled = false,
   } = config;
 
   // Brands query
@@ -43,6 +44,16 @@ export const useFilterOptions = (config: UseFilterOptionsConfig = {}) => {
     enabled: distributorsEnabled,
   });
 
+  // Medical facilities query
+  const medicalFacilitiesQuery = useQuery({
+    queryKey: ['filter-options', 'medical-facilities'],
+    queryFn: () =>
+      http
+        .get('clients/medical-facilities/filter-options')
+        .json<FilterOptionItem[]>(),
+    enabled: medicalFacilitiesEnabled,
+  });
+
   // Transform data to FilterOptions format
   const brands = useMemo((): FilterOptions[] => {
     if (!brandsQuery.data) return [];
@@ -68,20 +79,33 @@ export const useFilterOptions = (config: UseFilterOptionsConfig = {}) => {
     }));
   }, [distributorsQuery.data]);
 
+  const medicalFacilities = useMemo((): FilterOptions[] => {
+    if (!medicalFacilitiesQuery.data) return [];
+    return medicalFacilitiesQuery.data.map(item => ({
+      value: item.id,
+      label: item.name,
+    }));
+  }, [medicalFacilitiesQuery.data]);
+
   // Combined loading state
   const isLoading =
     (brandsEnabled && brandsQuery.isLoading) ||
     (groupsEnabled && groupsQuery.isLoading) ||
-    (distributorsEnabled && distributorsQuery.isLoading);
+    (distributorsEnabled && distributorsQuery.isLoading) ||
+    (medicalFacilitiesEnabled && medicalFacilitiesQuery.isLoading);
 
   // Combined error state
   const error =
-    brandsQuery.error || groupsQuery.error || distributorsQuery.error;
+    brandsQuery.error ||
+    groupsQuery.error ||
+    distributorsQuery.error ||
+    medicalFacilitiesQuery.error;
 
   return {
     brands,
     groups,
     distributors,
+    medicalFacilities,
     isLoading,
     error,
   };

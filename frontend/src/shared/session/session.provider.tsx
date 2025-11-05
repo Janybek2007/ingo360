@@ -15,7 +15,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
 }) => {
   const { data, isLoading } = useQuery(UserQueries.GetUserQuery());
   const [isWelcomeShown, setIsWelcomeShown] = useState(false);
-  const { reconnect, lastMessage } = useNotifications(isWelcomeShown);
+  const { lastMessage } = useNotifications(isWelcomeShown);
   const userAccess = useUserAccess(lastMessage, data);
 
   useViewportEffect();
@@ -25,7 +25,6 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
     isLoading,
     isWelcomeShown,
     setIsWelcomeShown,
-    reconnectSocket: reconnect,
     userAccess,
   };
 
