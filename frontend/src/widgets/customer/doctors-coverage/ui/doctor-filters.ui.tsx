@@ -31,6 +31,9 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
           search
           items={filterOptions.medicalFacilities}
           triggerText={'ЛПУ'}
+          rightIcon={
+            <LucideArrowIcon type="chevron-down" className="size-[1.125rem]" />
+          }
           classNames={{
             trigger: 'gap-4 rounded-full justify-between',
             menu: 'w-[20rem] left-0',

@@ -18,8 +18,8 @@ export const DoctorsCountVisits: React.FC<{
         {filters}
       </div>
 
-      <div className="relative min-h-[24rem] max-h-[24rem] w-full flex items-center justify-center my-3">
-        <PieChart width={380} height={380}>
+      <div className="relative min-h-[24rem] max-h-[24rem] py-2 w-full flex items-center justify-center my-3">
+        <PieChart width={360} height={360}>
           <Pie
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
