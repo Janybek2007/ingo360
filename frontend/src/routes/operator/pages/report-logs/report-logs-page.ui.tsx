@@ -32,7 +32,7 @@ const ReportLogsPage: React.FC = () => {
         size: 80,
       },
       {
-        id: 'user_full_name',
+        accessorKey: 'user_full_name',
         header: 'ФИО',
         size: 200,
         enableColumnFilter: true,
@@ -49,10 +49,6 @@ const ReportLogsPage: React.FC = () => {
           label: fullName,
           value: fullName,
         })),
-        cell: ({ row }) => {
-          const { user_first_name, user_last_name } = row.original;
-          return `${user_last_name} ${user_first_name}`;
-        },
       },
       {
         accessorKey: 'target_table',
@@ -108,6 +104,15 @@ const ReportLogsPage: React.FC = () => {
       ignore: ['actions'],
     });
 
+  const enrichedReportLogs = useMemo(
+    () =>
+      reportLogs.map(log => ({
+        ...log,
+        user_full_name: `${log.user_last_name} ${log.user_first_name}`,
+      })),
+    [reportLogs]
+  );
+
   return (
     <main>
       {/* <Tabs items={tabsItems} saveCurrent={setTab}></Tabs> */}
@@ -126,7 +131,7 @@ const ReportLogsPage: React.FC = () => {
               classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
             <ExportToExcelButton
-              data={reportLogs}
+              data={enrichedReportLogs}
               fileName="import_logs.xlsx"
             />
           </div>
@@ -135,7 +140,7 @@ const ReportLogsPage: React.FC = () => {
         <AsyncBoundary isLoading={isLoading} queryError={error}>
           <Table
             columns={columnsForTable}
-            data={reportLogs}
+            data={enrichedReportLogs}
             maxHeight={500}
             rounded="none"
           />
