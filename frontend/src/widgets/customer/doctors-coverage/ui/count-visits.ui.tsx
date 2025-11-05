@@ -24,14 +24,14 @@ export const DoctorsCountVisits: React.FC<{
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             data={visits}
-            dataKey="count_with_visits"
+            dataKey="total_count"
             nameKey="speciality_name"
             cx="50%"
             cy="50%"
             innerRadius={80}
             outerRadius={110}
             labelLine={false}
-            label={entry => String(entry.count_with_visits)}
+            label={entry => String(entry.total_count)}
             paddingAngle={0}
           >
             {visits.map((_, i) => (
