@@ -20,9 +20,10 @@ function buildDefaultValues<TSchema extends ZodType>(
   fields.forEach(f => {
     if (Array.isArray(f)) {
       f.forEach(ff => {
-        if (ff.defaultValue) acc[ff.name] = ff.defaultValue;
+        if (ff.defaultValue !== undefined && ff.defaultValue !== null)
+          acc[ff.name] = ff.defaultValue;
       });
-    } else if (f.defaultValue) {
+    } else if (f.defaultValue !== undefined && f.defaultValue !== null) {
       acc[f.name] = f.defaultValue;
     }
   });

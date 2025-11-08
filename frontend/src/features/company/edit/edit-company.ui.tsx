@@ -6,7 +6,7 @@ import { CreateEditModal } from '#/shared/components/create-edit-modal';
 
 import {
   EditCompanyContract,
-  type TAddCompanyContract,
+  type TEditCompanyContract,
 } from '../company.contract';
 import { useEditCompanyMutation } from './edit-company.mutation';
 
@@ -33,7 +33,7 @@ export const EditCompanyModal: React.FC<{
 
       await mutation.mutateAsync({
         id: companyData.id,
-        body: data as TAddCompanyContract,
+        body: data as TEditCompanyContract,
       });
     }
   };

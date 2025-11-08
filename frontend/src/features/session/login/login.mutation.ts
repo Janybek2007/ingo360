@@ -56,9 +56,15 @@ export const useLoginMutation = () => {
     onError: async (error: HTTPError) => {
       try {
         const data = await getResponseError(error.response);
+        const normalizedDetail = data.toLowerCase();
+        const isInactiveError =
+          error.response?.status === 403 ||
+          normalizedDetail.includes('inactive') ||
+          normalizedDetail.includes('неактив');
+
         setError('root', {
           type: 'manual',
-          message: data,
+          message: isInactiveError ? 'Ваш статус неактивен' : data,
         });
       } catch (e) {
         console.error('Ошибка разбора ответа', e);
