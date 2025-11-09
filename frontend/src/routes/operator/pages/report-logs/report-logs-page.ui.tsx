@@ -72,6 +72,7 @@ const ReportLogsPage: React.FC = () => {
         enableColumnFilter: true,
         filterFn: numberFilter(),
         filterType: 'number',
+        meta: { aggregate: 'sum' },
       },
       {
         accessorKey: 'created_at',
@@ -98,12 +99,6 @@ const ReportLogsPage: React.FC = () => {
     [reportLogs]
   );
 
-  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
-      allColumns,
-      ignore: ['actions'],
-    });
-
   const enrichedReportLogs = useMemo(
     () =>
       reportLogs.map(log => ({
@@ -112,6 +107,21 @@ const ReportLogsPage: React.FC = () => {
       })),
     [reportLogs]
   );
+
+  const {
+    visibleColumns,
+    setVisibleColumns,
+    resetVisibleColumns,
+    columnsForTable,
+    columnItems,
+    processedData,
+  } = useColumnVisibility({
+    allColumns,
+    ignore: ['actions'],
+    data: enrichedReportLogs,
+  });
+
+  const tableData: ReportLog[] = processedData ?? [];
 
   return (
     <main>
@@ -128,19 +138,18 @@ const ReportLogsPage: React.FC = () => {
               checkbox
               isMultiple
               showToggleAll
+              onReset={resetVisibleColumns}
+              resetLabel="Сбросить все"
               classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
-            <ExportToExcelButton
-              data={enrichedReportLogs}
-              fileName="import_logs.xlsx"
-            />
+            <ExportToExcelButton data={tableData} fileName="import_logs.xlsx" />
           </div>
         }
       >
         <AsyncBoundary isLoading={isLoading} queryError={error}>
           <Table
             columns={columnsForTable}
-            data={enrichedReportLogs}
+            data={tableData}
             maxHeight={500}
             rounded="none"
           />

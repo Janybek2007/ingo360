@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -33,6 +33,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       brands: { enabled: false },
     },
   });
+  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
@@ -46,6 +47,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             : filters.values.rowsCount,
         offset: 0,
         search,
+        group_by_dimensions: groupBy,
       }
     )
   );
@@ -70,15 +72,10 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         key: 'employee_visits',
         header: 'Визитов всего',
         type: 'number',
+        aggregate: 'sum',
       },
     ],
   });
-
-  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
-      allColumns,
-      ignore: ['actions'],
-    });
 
   const filteredData = useMemo(() => {
     const searched = filterBySearch(visits, search, [
@@ -91,6 +88,29 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
 
     return searched;
   }, [search, visits]);
+
+  const {
+    visibleColumns,
+    setVisibleColumns,
+    resetVisibleColumns,
+    columnsForTable,
+    columnItems,
+    processedData,
+    groupDimensions,
+  } = useColumnVisibility({
+    allColumns,
+    ignore: ['actions'],
+    data: filteredData,
+  });
+
+  useEffect(() => {
+    setGroupBy(prev =>
+      prev.length === groupDimensions.length &&
+      prev.every((value, index) => value === groupDimensions[index])
+        ? prev
+        : groupDimensions
+    );
+  }, [groupDimensions]);
 
   return (
     <PageSection
@@ -107,9 +127,11 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
+            onReset={resetVisibleColumns}
+            resetLabel="Сбросить все"
             classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
-          <ExportToExcelButton data={filteredData} fileName="visits.xlsx" />
+          <ExportToExcelButton data={processedData} fileName="visits.xlsx" />
         </div>
       }
     >
@@ -123,7 +145,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={filteredData}
+          data={processedData}
           maxHeight={400}
           rounded="none"
         />

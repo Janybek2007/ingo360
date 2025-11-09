@@ -23,8 +23,19 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { getDbWorkColumns } from './constants';
 import type { IDbWorkProps } from './db-work.types';
 
+const arraysEqual = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((value, index) => value === b[index]);
+
 export const DbWork: React.FC<IDbWorkProps> = React.memo(
-  ({ current, currentData, rowsCount, setRowsCount, ...props }) => {
+  ({
+    current,
+    currentData,
+    rowsCount,
+    setRowsCount,
+    groupBy,
+    onGroupChange,
+    ...props
+  }) => {
     const allColumns = useMemo((): ColumnDef<IDbItem>[] => {
       const columns = getDbWorkColumns(current, currentData);
 
@@ -50,11 +61,27 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
       return columns;
     }, [currentData, current]);
 
-    const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-      useColumnVisibility({
-        allColumns: allColumns.filter(Boolean) as ColumnDef<IDbItem>[],
-        ignore: ['actions'],
-      });
+    const {
+      visibleColumns,
+      setVisibleColumns,
+      resetVisibleColumns,
+      columnsForTable,
+      columnItems,
+      processedData,
+      groupDimensions,
+    } = useColumnVisibility({
+      allColumns: allColumns.filter(Boolean) as ColumnDef<IDbItem>[],
+      ignore: ['actions'],
+      data: currentData,
+    });
+
+    React.useEffect(() => {
+      if (!arraysEqual(groupBy, groupDimensions)) {
+        onGroupChange(groupDimensions);
+      }
+    }, [groupBy, groupDimensions, onGroupChange]);
+
+    const tableData: IDbItem[] = processedData ?? [];
 
     return (
       <>
@@ -83,11 +110,13 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 showToggleAll
                 isMultiple
                 checkbox
+                onReset={resetVisibleColumns}
+                resetLabel="Сбросить все"
                 classNames={{
                   menu: 'min-w-[11.25rem]  w-max right-0',
                 }}
               />
-              <ExportToExcelButton data={currentData} fileName="dbwork.xlsx" />
+              <ExportToExcelButton data={tableData} fileName="dbwork.xlsx" />
               {!['visits', 'ims'].includes(current) && (
                 <PublishUnpublishedButton
                   type={current}
@@ -103,7 +132,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           <AsyncBoundary {...props}>
             <Table
               columns={columnsForTable}
-              data={currentData}
+              data={tableData}
               filters={{
                 resetFilters: () => {
                   setRowsCount('all');

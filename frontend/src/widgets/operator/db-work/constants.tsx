@@ -23,6 +23,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
+      meta: { groupDimension: 'distributor' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.distributor.name,
@@ -40,6 +41,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
+      meta: { groupDimension: 'pharmacy' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.pharmacy?.name ?? 'Не указано',
@@ -47,16 +49,6 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
         })),
         ['value']
       ),
-    });
-    columns.push({
-      id: 'city',
-      accessorKey: 'city',
-      accessorFn: row => row.city || '-',
-      header: 'Город',
-      size: 130,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
     });
   } else if (type === 'sales/tertiary') {
     columns.push({
@@ -67,6 +59,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
+      meta: { groupDimension: 'pharmacy' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.pharmacy?.name ?? 'Не указано',
@@ -86,6 +79,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
+      meta: { groupDimension: 'brand' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.sku.brand.name,
@@ -103,6 +97,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
+      meta: { groupDimension: 'sku' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.sku.name,
@@ -125,6 +120,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
+      meta: { groupDimension: 'pharmacy' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.pharmacy?.name ?? 'Не указано',
@@ -141,6 +137,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
+      meta: { groupDimension: 'employee' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.employee.full_name,
@@ -157,6 +154,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
+      meta: { groupDimension: 'product_group' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.product_group.name,
@@ -174,6 +172,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
+      meta: { groupDimension: 'medical_facility' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.medical_facility?.name || 'Не указано',
@@ -191,6 +190,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
+      meta: { groupDimension: 'doctor' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.doctor?.name || 'Не указано',
@@ -207,6 +207,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
+      meta: { groupDimension: 'client_type' },
       selectOptions: getUniqueItems(
         data.map(v => ({
           label: v.client_type,
@@ -353,6 +354,7 @@ function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
       enableColumnFilter: true,
       filterFn: numberFilter(),
       filterType: 'number',
+      meta: { aggregate: 'sum' },
     },
     {
       accessorKey: 'amount',
@@ -361,6 +363,7 @@ function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
       enableColumnFilter: true,
       filterFn: numberFilter(),
       filterType: 'number',
+      meta: { aggregate: 'sum' },
     },
     {
       accessorKey: 'published',

@@ -2,6 +2,7 @@ export interface IItem {
   name: string;
   id: number;
   full_name?: string;
+  ims_name?: string;
 }
 export interface IReferenceItem extends IItem {
   indicator: string;

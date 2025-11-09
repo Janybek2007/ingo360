@@ -12,6 +12,9 @@ export interface CColumn<TData> {
   type?: ColumnDefBase<TData>['filterType'];
   size?: number;
   pinned?: boolean;
+  aggregate?: 'sum' | 'first';
+  skipGrouping?: boolean;
+  groupDimension?: string;
   custom?: {
     accessor?: (row: TData) => any;
     cell?: ColumnDef<TData>['cell'];
@@ -26,10 +29,12 @@ interface UseGenerateColumnsProps<TData> {
     periods: string[];
     getValue: (row: TData, periodKey: string) => number | null | undefined;
     asPercent?: boolean;
+    indicatorKey?: string;
   };
   total?: {
     getValue: (row: TData) => number | null | undefined;
     asPercent?: boolean;
+    indicatorKey?: string;
   };
 }
 
@@ -131,6 +136,16 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
       }
 
       result.push(column as ColumnDef<TData>);
+
+      if (!column.meta) {
+        column.meta = {};
+      }
+
+      column.meta.aggregate = col.aggregate ?? 'first';
+      column.meta.skipGrouping = col.skipGrouping ?? false;
+      if (col.groupDimension) {
+        column.meta.groupDimension = col.groupDimension;
+      }
     });
 
     // Месяцы
@@ -150,6 +165,25 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
               asPercent={months.asPercent}
             />
           ),
+          meta: {
+            aggregate: 'sum',
+            getGroupValue: row => months.getValue(row, period),
+            setValue: (row, value) => {
+              if (!row || typeof row !== 'object') return;
+              const target = row as unknown as {
+                periods_data?: Record<string, Record<string, number>>;
+              };
+              if (!target.periods_data) {
+                target.periods_data = {};
+              }
+              if (!target.periods_data[period]) {
+                target.periods_data[period] = {};
+              }
+              const indicatorKey = months.indicatorKey ?? 'value';
+              target.periods_data[period][indicatorKey] =
+                typeof value === 'number' ? value : Number(value) || 0;
+            },
+          },
         } as ColumnDef<TData>);
       });
     }
@@ -166,6 +200,18 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
             asPercent={total.asPercent}
           />
         ),
+        meta: {
+          aggregate: 'sum',
+          setValue: (row, value) => {
+            if (!row || typeof row !== 'object') return;
+            const target = row as unknown as {
+              __aggregatedTotal?: number;
+            };
+            target.__aggregatedTotal =
+              typeof value === 'number' ? value : Number(value) || 0;
+          },
+          getGroupValue: row => total.getValue(row),
+        },
       } as ColumnDef<TData>);
     }
 

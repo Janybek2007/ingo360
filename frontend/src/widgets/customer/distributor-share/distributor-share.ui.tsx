@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -20,6 +20,8 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 export const DistributorShare: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions();
+
+  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
@@ -46,6 +48,7 @@ export const DistributorShare: React.FC = React.memo(() => {
             : filters.values.rowsCount,
         offset: 0,
         search,
+        group_by_dimensions: groupBy,
       }
     )
   );
@@ -69,11 +72,28 @@ export const DistributorShare: React.FC = React.memo(() => {
     }),
   });
 
-  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
-      allColumns,
-      ignore: ['actions', 'total'],
-    });
+  const {
+    visibleColumns,
+    setVisibleColumns,
+    resetVisibleColumns,
+    columnsForTable,
+    columnItems,
+    processedData,
+    groupDimensions,
+  } = useColumnVisibility({
+    allColumns,
+    ignore: ['actions', 'total'],
+    data: sales,
+  });
+
+  useEffect(() => {
+    setGroupBy(prev =>
+      prev.length === groupDimensions.length &&
+      prev.every((value, index) => value === groupDimensions[index])
+        ? prev
+        : groupDimensions
+    );
+  }, [groupDimensions]);
 
   return (
     <PageSection
@@ -89,11 +109,16 @@ export const DistributorShare: React.FC = React.memo(() => {
             triggerText="Столбцы"
             checkbox
             isMultiple
+            onReset={resetVisibleColumns}
+            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton data={sales} fileName="distributor-share.xlsx" />
+          <ExportToExcelButton
+            data={processedData}
+            fileName="distributor-share.xlsx"
+          />
         </div>
       }
     >
@@ -108,7 +133,7 @@ export const DistributorShare: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={sales}
+          data={processedData}
           maxHeight={500}
           rounded="none"
         />

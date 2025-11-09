@@ -24,6 +24,14 @@ export interface DbFiltersProps {
     rowsCounts?: Array<{ value: 'all' | number; label: string }>;
   };
 
+  defaults?: {
+    brands?: number[];
+    groups?: number[];
+    distributors?: number[];
+    indicator?: IndicatorType;
+    rowsCount?: 'all' | number;
+  };
+
   // Enabled flags
   enabled?: {
     brands?: boolean;

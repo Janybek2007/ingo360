@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { UserQueries } from '#/entities/user/user.queries';
@@ -9,12 +9,10 @@ import { useSocket } from '../../libs/socket';
 import type { NotificationMessage } from '../types';
 
 export const useNotifications = (isWelcome = false) => {
-  const [token] = useState(() => Cookies.get('access_token') || null);
+  const token = Cookies.get('access_token') || null;
+  const endpoint = token ? `/ws/notifications?token=${token}` : null;
 
-  const { lastMessage } = useSocket(
-    `/ws/notifications?token=${token}`,
-    Boolean(token)
-  );
+  const { lastMessage } = useSocket(endpoint ?? '', Boolean(endpoint));
 
   useEffect(() => {
     if (isWelcome) return;

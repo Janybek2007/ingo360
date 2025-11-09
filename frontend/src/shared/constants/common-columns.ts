@@ -9,6 +9,7 @@ export const commonColumns = {
     size: 350,
     type: 'select',
     pinned,
+    groupDimension: 'sku',
   }),
   brand: (): CColumn<any> => ({
     id: 'brand_id',
@@ -16,6 +17,7 @@ export const commonColumns = {
     header: 'Бренд',
     size: 150,
     type: 'select',
+    groupDimension: 'brand',
   }),
   promotion: (): CColumn<any> => ({
     id: 'promotion_type_id',
@@ -23,6 +25,7 @@ export const commonColumns = {
     header: 'Тип промоции',
     size: 200,
     type: 'select',
+    groupDimension: 'promotion_type',
   }),
   group: (key = 'product_group_name'): CColumn<any> => ({
     id: 'product_group_id',
@@ -30,6 +33,7 @@ export const commonColumns = {
     header: 'Группа',
     size: 150,
     type: 'select',
+    groupDimension: 'product_group',
     custom: {
       accessor: row => row[key] || '-',
     },
@@ -40,6 +44,7 @@ export const commonColumns = {
     header: 'Группа',
     size: 150,
     type: 'select',
+    groupDimension: 'responsible_employee',
     custom: { accessor: row => row.responsible_employee_name || '-' },
   }),
   segment: (): CColumn<any> => ({
@@ -48,6 +53,7 @@ export const commonColumns = {
     header: 'Сегмент',
     size: 200,
     type: 'select',
+    groupDimension: 'segment',
   }),
   distributor: (): CColumn<any> => ({
     id: 'distributor_id',
@@ -55,6 +61,7 @@ export const commonColumns = {
     header: 'Дистр',
     size: 150,
     type: 'select',
+    groupDimension: 'distributor',
     custom: {
       accessor: (row: any) => row['distributor_name'] || '-',
     },
@@ -65,6 +72,7 @@ export const commonColumns = {
     header: 'Показатель',
     size: 150,
     type: 'select',
+    groupDimension: 'indicator',
     custom: {
       accessor: (row: any) => row['indicator_name'] || '-',
     },
@@ -75,6 +83,7 @@ export const commonColumns = {
     header: 'Показатель',
     size: 150,
     type: 'select',
+    groupDimension: 'indicator',
     custom: {
       accessor: (row: any) => row['indicator_name'] || '-',
     },
@@ -85,6 +94,7 @@ export const commonColumns = {
     header: 'Аптека',
     size: 300,
     type: 'select',
+    groupDimension: 'pharmacy',
     custom: {
       accessor: (row: any) => row['pharmacy'] || '-',
     },
@@ -95,6 +105,7 @@ export const commonColumns = {
     header: 'ЛПУ',
     size,
     type: 'select',
+    groupDimension: 'medical_facility',
     custom: {
       accessor: (row: any) => row['medical_facility'] || '-',
     },
@@ -104,6 +115,7 @@ export const commonColumns = {
     key: 'employee',
     header: 'Сотрудник',
     type: 'select',
+    groupDimension: 'employee',
     custom: {
       accessor: (row: any) => row['employee'] || '-',
     },
@@ -173,6 +185,7 @@ export const monthsPreset = <
       return row.periods_data[periodKey][indicator] ?? null;
     },
     asPercent: options?.asPercent,
+    indicatorKey: indicator,
   };
 };
 
@@ -196,4 +209,5 @@ export const totalPreset = <
     return total;
   },
   asPercent,
+  indicatorKey: indicator,
 });

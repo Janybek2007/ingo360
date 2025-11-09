@@ -18,15 +18,15 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
           outputField: 'primary',
         });
 
-        const remainsRawData = generateChartRawData(
-          processedSalesData.inventory,
-          { valueField: 'coverage_months', outputField: 'remains' }
-        );
-
-        const stocksRawData = generateChartRawData(processedSalesData.stocks, {
+        const remainsRawData = generateChartRawData(processedSalesData.stocks, {
           valueField: indicator,
-          outputField: 'trade_stock',
+          outputField: 'remains',
         });
+
+        const stocksRawData = generateChartRawData(
+          processedSalesData.inventory,
+          { valueField: 'coverage_months', outputField: 'trade_stock' }
+        );
 
         const dataMap = new Map<
           string,

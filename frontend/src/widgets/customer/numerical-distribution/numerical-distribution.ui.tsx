@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -25,6 +25,7 @@ import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 export const NumericalDistribution: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions();
+  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
@@ -46,6 +47,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             : filters.values.rowsCount,
         offset: 0,
         search,
+        group_by_dimensions: groupBy,
       }
     )
   );
@@ -67,15 +69,32 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     total: totalPreset('pharmacies_with_sku'),
   });
 
-  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
-      allColumns,
-      ignore: ['actions', 'total'],
-    });
+  const {
+    visibleColumns,
+    setVisibleColumns,
+    resetVisibleColumns,
+    columnsForTable,
+    columnItems,
+    processedData,
+    groupDimensions,
+  } = useColumnVisibility({
+    allColumns,
+    ignore: ['actions', 'total'],
+    data: sales,
+  });
+
+  useEffect(() => {
+    setGroupBy(prev =>
+      prev.length === groupDimensions.length &&
+      prev.every((value, index) => value === groupDimensions[index])
+        ? prev
+        : groupDimensions
+    );
+  }, [groupDimensions]);
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(sales, 'pharmacies_with_sku');
-  }, [sales]);
+    return calcPeriodTotals(processedData, 'pharmacies_with_sku');
+  }, [processedData]);
 
   return (
     <PageSection
@@ -94,12 +113,14 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
+            onReset={resetVisibleColumns}
+            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
           <ExportToExcelButton
-            data={sales}
+            data={processedData}
             fileName="numerical-distribution.xlsx"
           />
         </div>
@@ -115,7 +136,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={sales}
+          data={processedData}
           maxHeight={400}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

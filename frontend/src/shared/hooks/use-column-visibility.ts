@@ -1,86 +1,136 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
+const extractColumnId = <T>(column: ColumnDef<T>): string => {
+  if ('accessorKey' in column && column.accessorKey) {
+    return String(column.accessorKey);
+  }
+  if (column.id != null) {
+    return String(column.id);
+  }
+  return '';
+};
 
 export interface UsecolumnVisibilityOptions<T> {
   allColumns: ColumnDef<T>[];
   defaultVisible?: string[];
   ignore?: string[];
+  data?: T[];
+}
+
+interface UseColumnVisibilityResult<T> {
+  visibleColumns: string[];
+  setVisibleColumns: Dispatch<SetStateAction<string[]>>;
+  resetVisibleColumns: () => void;
+  columnsForTable: ColumnDef<T>[];
+  columnItems: Array<{
+    value: string;
+    label: string;
+    disabled: boolean;
+  }>;
+  processedData: T[];
+  groupDimensions: string[];
 }
 
 export function useColumnVisibility<T>({
   allColumns,
   defaultVisible,
   ignore = [],
-}: UsecolumnVisibilityOptions<T>) {
-  const getInitialVisible = () =>
-    defaultVisible ??
-    allColumns
-      .map(col => String('accessorKey' in col ? col.accessorKey : col.id))
-      .filter(id => !ignore.includes(id));
+  data,
+}: UsecolumnVisibilityOptions<T>): UseColumnVisibilityResult<T> {
+  const availableIds = useMemo(
+    () =>
+      allColumns.map(extractColumnId).filter(id => id && !ignore.includes(id)),
+    [allColumns, ignore]
+  );
 
-  const [visibleColumns, setVisibleColumns] =
-    useState<string[]>(getInitialVisible);
+  const defaultIds = useMemo(() => {
+    if (defaultVisible && defaultVisible.length > 0) {
+      return defaultVisible.filter(id => availableIds.includes(id));
+    }
+    return availableIds;
+  }, [availableIds, defaultVisible]);
 
-  const prevColumnIdsRef = useRef<string>('');
+  const defaultIdsRef = useRef<string[]>(defaultIds);
 
   useEffect(() => {
-    const currentIds = allColumns
-      .map(col => String('accessorKey' in col ? col.accessorKey : col.id))
-      .filter(id => !ignore.includes(id));
+    defaultIdsRef.current = defaultIds;
+  }, [defaultIds]);
 
-    const currentIdsString = currentIds.sort().join(',');
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(defaultIds);
 
-    if (prevColumnIdsRef.current === currentIdsString) return;
+  const visibleColumns = useMemo(() => {
+    const filtered = selectedColumns.filter(id => availableIds.includes(id));
 
-    prevColumnIdsRef.current = currentIdsString;
+    const merged = Array.from(new Set([...filtered, ...defaultIds]));
 
-    // добавляем новые колонки
-    const newColumns = currentIds.filter(id => !visibleColumns.includes(id));
-    if (newColumns.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVisibleColumns(prev => [...prev, ...newColumns]);
-    }
-
-    // удаляем несуществующие
-    const removedColumns = visibleColumns.filter(
-      id => !currentIds.includes(id)
-    );
-    if (removedColumns.length > 0) {
-      setVisibleColumns(prev => prev.filter(id => currentIds.includes(id)));
-    }
-  }, [allColumns, ignore, visibleColumns]);
+    return merged.length > 0 ? merged : defaultIds;
+  }, [selectedColumns, availableIds, defaultIds]);
 
   const columnsForTable = useMemo(
     () =>
       allColumns.filter(col => {
-        const id = 'accessorKey' in col ? col.accessorKey : col.id;
+        const id = extractColumnId(col);
         if (!id) return false;
-        if (ignore.includes(String(id))) return true;
-        return visibleColumns.includes(String(id));
+        if (ignore.includes(id)) return true;
+        return visibleColumns.includes(id);
       }),
     [allColumns, visibleColumns, ignore]
   );
 
   const columnItems = useMemo(() => {
     return allColumns
-      .filter(col => {
-        const id = 'accessorKey' in col ? col.accessorKey : col.id;
-        return id !== undefined && !ignore.includes(String(id));
-      })
-      .map(col => {
-        const id = 'accessorKey' in col ? col.accessorKey : col.id;
+      .map(column => {
+        const id = extractColumnId(column);
+        if (!id || ignore.includes(id)) return null;
         return {
-          value: String(id),
-          label: 'header' in col ? (col.header as string) : String(id),
+          value: id,
+          label: 'header' in column ? (column.header as string) : id,
           disabled: false,
         };
-      });
+      })
+      .filter(Boolean) as Array<{
+      value: string;
+      label: string;
+      disabled: boolean;
+    }>;
   }, [allColumns, ignore]);
+
+  const processedData = useMemo(() => (data ?? []) as T[], [data]);
+
+  const groupDimensions = useMemo(() => {
+    return allColumns.reduce<string[]>((acc, column) => {
+      const id = extractColumnId(column);
+      if (!id) return acc;
+      if (ignore.includes(id)) return acc;
+      if (!visibleColumns.includes(id)) return acc;
+      const dimension = column.meta?.groupDimension;
+      if (dimension && !acc.includes(dimension)) {
+        acc.push(dimension);
+      }
+      return acc;
+    }, []);
+  }, [allColumns, visibleColumns, ignore]);
+
+  const resetVisibleColumns = useCallback(() => {
+    setSelectedColumns(defaultIdsRef.current);
+  }, []);
 
   return {
     visibleColumns,
-    setVisibleColumns,
+    setVisibleColumns: setSelectedColumns,
+    resetVisibleColumns,
     columnsForTable,
     columnItems,
+    processedData,
+    groupDimensions,
   };
 }

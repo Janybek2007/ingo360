@@ -1,11 +1,39 @@
 import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
-import { type IReferenceItem, ReferenceQueries } from '#/entities/reference';
+import type { IReferenceItem } from '#/entities/reference';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import type { ReferencesType } from '#/shared/types/references.type';
 import { getResponseError } from '#/shared/utils/get-error';
+
+const updateReferencesCache = (
+  type: ReferencesType,
+  updater: (
+    data: IReferenceItem[][],
+    context: { urls: string[]; options?: Record<string, any> }
+  ) => IReferenceItem[][]
+) => {
+  queryClient
+    .getQueryCache()
+    .findAll({ queryKey: ['get-references'] })
+    .forEach(query => {
+      const [, urls, options] = query.queryKey as [
+        string,
+        string[],
+        Record<string, any> | undefined,
+      ];
+      if (!Array.isArray(urls) || !urls.includes(type)) return;
+
+      const existing = query.state.data as IReferenceItem[][] | undefined;
+      const normalized = urls.map((_, index) =>
+        existing && Array.isArray(existing[index]) ? [...existing[index]] : []
+      );
+
+      const next = updater(normalized, { urls, options });
+      queryClient.setQueryData(query.queryKey, next);
+    });
+};
 
 export const useEditReferenceMutation = (
   type: ReferencesType,
@@ -30,17 +58,21 @@ export const useEditReferenceMutation = (
     onSuccess: async updatedItem => {
       if (!updatedItem) return;
       const { toast } = await import('sonner');
-      queryClient.setQueryData(
-        ReferenceQueries.queryKeys.getReferences([type]),
-        (oldData: IReferenceItem[][]) => {
-          if (!oldData) return [[updatedItem]];
-          const updated = [...oldData];
-          updated[0] = (updated[0] || []).map(item =>
-            item.id === updatedItem.id ? updatedItem : item
-          );
-          return updated;
-        }
-      );
+
+      updateReferencesCache(type, (data, { urls }) => {
+        const targetIndex = urls.indexOf(type);
+        if (targetIndex === -1) return data;
+
+        data[targetIndex] = (data[targetIndex] || []).map(item =>
+          item.id === updatedItem.id ? updatedItem : item
+        );
+
+        return data;
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['get-references'],
+      });
       onClose();
       toast.success('Ресурс успешно отредактирован');
     },

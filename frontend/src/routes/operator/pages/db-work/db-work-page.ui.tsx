@@ -11,6 +11,7 @@ import { tabsItems } from './constants';
 
 const DbWorkPage: React.FC = () => {
   const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
+  const [groupBy, setGroupBy] = React.useState<string[]>([]);
 
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
     defaultValue: 'sales/tertiary/reports/sales',
@@ -19,6 +20,7 @@ const DbWorkPage: React.FC = () => {
   const queryData = useQuery(
     DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType], {
       limit: rowsCount === 'all' ? undefined : rowsCount,
+      group_by_dimensions: groupBy,
     })
   );
 
@@ -36,6 +38,8 @@ const DbWorkPage: React.FC = () => {
         currentData={currentData}
         rowsCount={rowsCount}
         setRowsCount={setRowsCount}
+        groupBy={groupBy}
+        onGroupChange={setGroupBy}
         isLoading={queryData.isLoading}
         queryError={queryData.error}
       />

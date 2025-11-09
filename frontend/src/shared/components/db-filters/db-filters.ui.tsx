@@ -18,6 +18,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
   options = {},
   enabled = {},
   labels = {},
+  defaults = {},
 }) => {
   const {
     brands: brandsEnabled = true,
@@ -35,6 +36,14 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
     rowsCount: rowsCountLabel = 'Количество строк',
   } = labels;
 
+  const defaultBrands = defaults.brands ?? [];
+  const defaultGroups = defaults.groups ?? [];
+  const defaultDistributors = defaults.distributors ?? [];
+  const defaultIndicator =
+    defaults.indicator ?? options.indicators?.[0]?.value ?? 'amount';
+  const defaultRowsCount =
+    defaults.rowsCount ?? options.rowsCounts?.[0]?.value ?? 'all';
+
   return (
     <>
       {brandsEnabled && setBrands && options.brands && (
@@ -47,6 +56,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           items={options.brands}
           triggerText={brandsLabel}
           classNames={{ menu: 'w-[10rem] w-max left-0' }}
+          onReset={() => setBrands(defaultBrands)}
         />
       )}
 
@@ -60,6 +70,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           items={options.groups}
           triggerText={groupsLabel}
           classNames={{ menu: 'w-[10rem] w-max left-0' }}
+          onReset={() => setGroups(defaultGroups)}
         />
       )}
 
@@ -73,6 +84,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           items={options.distributors}
           triggerText={distributorsLabel}
           classNames={{ menu: 'w-[10rem] w-max left-0' }}
+          onReset={() => setDistributors(defaultDistributors)}
         />
       )}
 
@@ -83,6 +95,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           items={options.indicators}
           changeTriggerText
           labelTemplate={indicatorLabel}
+          onReset={() => setIndicator(defaultIndicator)}
         />
       )}
 
@@ -92,6 +105,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           setValue={setRowsCount}
           items={options.rowsCounts}
           triggerText={rowsCountLabel}
+          onReset={() => setRowsCount(defaultRowsCount)}
         />
       )}
     </>

@@ -105,4 +105,5 @@ export interface IGetDBItemsParams extends PaginationParams {
   type_period?: UsePeriodType;
   group_column?: 'company' | 'brand' | 'segment';
   filterValues?: string[];
+  group_by_dimensions?: string[];
 }

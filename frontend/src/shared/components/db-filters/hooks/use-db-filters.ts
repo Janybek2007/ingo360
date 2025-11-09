@@ -12,16 +12,15 @@ export const useDbFilters = ({
   distributorsOptions = [],
   config,
 }: UseDbFiltersProps) => {
+  const indicatorDefault = config?.indicator?.defaultValue || 'amount';
+  const rowsCountDefault = config?.rowsCount?.defaultValue || 'all';
+
   // States
   const [brands, setBrands] = useState<number[]>([]);
   const [groups, setGroups] = useState<number[]>([]);
   const [distributors, setDistributors] = useState<number[]>([]);
-  const [indicator, setIndicator] = useState<IndicatorType>(
-    config?.indicator?.defaultValue || 'amount'
-  );
-  const [rowsCount, setRowsCount] = useState<'all' | number>(
-    config?.rowsCount?.defaultValue || 'all'
-  );
+  const [indicator, setIndicator] = useState<IndicatorType>(indicatorDefault);
+  const [rowsCount, setRowsCount] = useState<'all' | number>(rowsCountDefault);
 
   // Options
   const options = useMemo(() => {
@@ -112,8 +111,20 @@ export const useDbFilters = ({
     setBrands([]);
     setGroups([]);
     setDistributors([]);
-    setRowsCount('all');
-  }, []);
+    setIndicator(indicatorDefault);
+    setRowsCount(rowsCountDefault);
+  }, [indicatorDefault, rowsCountDefault]);
+
+  const defaults = useMemo(
+    () => ({
+      brands: [] as number[],
+      groups: [] as number[],
+      distributors: [] as number[],
+      indicator: indicatorDefault,
+      rowsCount: rowsCountDefault,
+    }),
+    [indicatorDefault, rowsCountDefault]
+  );
 
   // Values for API/filtering
   const values = useMemo(
@@ -151,6 +162,7 @@ export const useDbFilters = ({
     // For Table component
     usedFilterItems,
     resetFilters,
+    defaults,
 
     // Helper
     enabled: {

@@ -6,6 +6,8 @@ export interface IDbWorkProps {
   currentData: IGetDBItemResponse;
   rowsCount: 'all' | number;
   setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
+  groupBy: string[];
+  onGroupChange: (groupBy: string[]) => void;
   isLoading: boolean;
   queryError: Error | null;
 }

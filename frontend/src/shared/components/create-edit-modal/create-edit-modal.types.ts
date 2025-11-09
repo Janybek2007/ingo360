@@ -9,6 +9,8 @@ export interface ICreateEditModalField {
   placeholder?: string;
   selectItems?: ISelectProps<false, string | number | boolean>['items'];
   isPasswordToggleShow?: boolean;
+  selectValueKey?: string;
+  selectLabelKey?: string;
 }
 
 export interface ICreateEditModalProps {

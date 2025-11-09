@@ -133,6 +133,8 @@ export function Select<ISM extends boolean = false, VT = string>({
   labelTemplate = '{label}',
   showToggleAll = false,
   indeterminate = false,
+  onReset,
+  resetLabel = 'Сбросить все',
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const [searchQuery, setSearchQuery] = useState('');
@@ -274,7 +276,7 @@ export function Select<ISM extends boolean = false, VT = string>({
             </div>
           )}
 
-          <div className="overflow-auto noscrollbar flex-1 py-1">
+          <div className="overflow-auto flex-1 py-1">
             {filteredItems.length === 0 ? (
               <div className="px-3 py-2 text-center text-gray-500">
                 Ничего не найдено
@@ -293,6 +295,21 @@ export function Select<ISM extends boolean = false, VT = string>({
               ))
             )}
           </div>
+
+          {onReset && (
+            <div className="border-t border-gray-200">
+              <button
+                type="button"
+                className="w-full px-3 py-2 text-left text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-colors"
+                onClick={event => {
+                  event.stopPropagation();
+                  onReset();
+                }}
+              >
+                {resetLabel}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

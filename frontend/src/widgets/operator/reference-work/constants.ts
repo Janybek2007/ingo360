@@ -182,6 +182,14 @@ export const referencesColumnsWithType: Record<
       filterType: 'string',
     },
     {
+      accessorKey: 'ims_name',
+      header: 'Название в IMS',
+      size: 200,
+      enableColumnFilter: true,
+      filterFn: stringFilter(),
+      filterType: 'string',
+    },
+    {
       id: 'company.id',
       accessorKey: 'company.name',
       accessorFn: item => item.company?.name ?? '-',

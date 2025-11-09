@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -22,11 +22,17 @@ interface CoverageRow extends TDbItem {
 export const SpecialistCoverage: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
   const [rowsCount, setRowsCount] = useState<'all' | number>('all');
+  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<CoverageRow[]>(
       ['visits/reports/doctors-with-visits-by-specialty'],
-      { limit: rowsCount === 'all' ? undefined : rowsCount, offset: 0, search }
+      {
+        limit: rowsCount === 'all' ? undefined : rowsCount,
+        offset: 0,
+        search,
+        group_by_dimensions: groupBy,
+      }
     )
   );
   const visits = React.useMemo(
@@ -105,6 +111,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         enableColumnFilter: true,
         filterFn: numberFilter(),
         filterType: 'number',
+        meta: { aggregate: 'sum' },
       },
       {
         id: 'doctors_with_visits',
@@ -114,16 +121,34 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         enableColumnFilter: true,
         filterFn: numberFilter(),
         filterType: 'number',
+        meta: { aggregate: 'sum' },
       },
     ],
     [visits]
   );
 
-  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
-      allColumns,
-      ignore: ['actions'],
-    });
+  const {
+    visibleColumns,
+    setVisibleColumns,
+    resetVisibleColumns,
+    columnsForTable,
+    columnItems,
+    processedData,
+    groupDimensions,
+  } = useColumnVisibility({
+    allColumns,
+    ignore: ['actions'],
+    data: visits,
+  });
+
+  useEffect(() => {
+    setGroupBy(prev =>
+      prev.length === groupDimensions.length &&
+      prev.every((value, index) => value === groupDimensions[index])
+        ? prev
+        : groupDimensions
+    );
+  }, [groupDimensions]);
 
   return (
     <PageSection
@@ -150,10 +175,12 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
+            onReset={resetVisibleColumns}
+            resetLabel="Сбросить все"
             classNames={{ menu: 'min-w-[18.75rem] right-0' }}
           />
           <ExportToExcelButton
-            data={visits}
+            data={processedData}
             fileName="specialist-coverage.xlsx"
           />
         </div>
@@ -165,7 +192,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
           resetFilters,
         }}
         columns={columnsForTable}
-        data={visits}
+        data={processedData}
         maxHeight={400}
         rounded="none"
       />

@@ -10,7 +10,7 @@ export const useDeleteReportLogMutation = () => {
   return useMutation({
     mutationKey: ['delete-report-log'],
     mutationFn: async (reportLogId: number) => {
-      return http.delete(`report_logs/${reportLogId}`).json();
+      return http.delete(`import_logs/${reportLogId}`).json();
     },
     onSuccess: async () => {
       const { toast } = await import('sonner');

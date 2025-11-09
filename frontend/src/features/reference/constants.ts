@@ -90,6 +90,11 @@ export const referencesCEFields: Record<
       label: 'Название',
       placeholder: 'Введите название типа',
     },
+    {
+      name: 'ims_name',
+      label: 'Название в IMS',
+      placeholder: 'Введите название в IMS',
+    },
     [
       {
         name: 'company_id',
@@ -353,6 +358,8 @@ export const referencesCEFields: Record<
         label: 'Показатель',
         placeholder: 'Выберите показатель',
         type: 'select',
+        selectValueKey: 'name',
+        selectLabelKey: 'name',
       },
     ],
   ],

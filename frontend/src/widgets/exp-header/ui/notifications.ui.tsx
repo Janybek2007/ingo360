@@ -33,8 +33,10 @@ export const Notifications: React.FC = React.memo(() => {
   return (
     <div className="relative z-[110]" ref={contentRef}>
       <button
-        className="relative p-2 border border-[#E7EAE9] rounded-lg hover:bg-gray-50"
+        className="relative p-2 border border-[#E7EAE9] rounded-lg bg-gray-100 cursor-not-allowed"
         onClick={toggle}
+        disabled
+        title="Уведомления временно недоступны"
       >
         <FlowbiteBellOutlineIcon className="size-[1.25rem]" />
         {notifications.length > 0 && (

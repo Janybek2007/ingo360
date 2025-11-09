@@ -35,10 +35,22 @@ export const fieldsWithSelectItems = ({
     const urlIndex = dependsUrls?.findIndex(dep => dep.url === dependency.url);
 
     const selectItems =
-      data?.[urlIndex]?.map(d => ({
-        value: d.id,
-        label: String(d.full_name ?? d.name),
-      })) || [];
+      data?.[urlIndex]?.map(d => {
+        const valueKey = field.selectValueKey ?? 'id';
+        const labelKey = field.selectLabelKey;
+
+        const value =
+          (valueKey in d ? (d as any)[valueKey] : undefined) ?? d.id ?? d.name;
+        const label =
+          labelKey && labelKey in d
+            ? String((d as any)[labelKey])
+            : String(d.full_name ?? d.name ?? value);
+
+        return {
+          value,
+          label,
+        };
+      }) || [];
 
     return { ...field, selectItems, defaultValue };
   };

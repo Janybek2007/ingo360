@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -32,6 +32,7 @@ export const MarketInsights: React.FC = React.memo(() => {
   const filter = useDbFilters({
     config: { brands: { enabled: false }, groups: { enabled: false } },
   });
+  const [groupBy, setGroupBy] = useState<string[]>([]);
   const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
 
   const queryData = useKeepQuery(
@@ -40,6 +41,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       type_period: periodFilter.period,
       limit: filter.rowsCount === 'all' ? undefined : filter.rowsCount,
       search,
+      group_by_dimensions: groupBy,
     })
   );
 
@@ -127,24 +129,44 @@ export const MarketInsights: React.FC = React.memo(() => {
       {
         accessorKey: 'YTD6M23',
         header: 'YTD-6M-23',
+        meta: { aggregate: 'sum' },
       },
       {
         accessorKey: 'YTD6M24',
         header: 'YTD-6M-24',
+        meta: { aggregate: 'sum' },
       },
       {
         accessorKey: 'YTD6M25',
         header: 'YTD-6M-25',
+        meta: { aggregate: 'sum' },
       },
     ],
     [metricData]
   );
 
-  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
-      allColumns,
-      ignore: ['actions'],
-    });
+  const {
+    visibleColumns,
+    setVisibleColumns,
+    resetVisibleColumns,
+    columnsForTable,
+    columnItems,
+    processedData,
+    groupDimensions,
+  } = useColumnVisibility({
+    allColumns,
+    ignore: ['actions'],
+    data: metricData,
+  });
+
+  useEffect(() => {
+    setGroupBy(prev =>
+      prev.length === groupDimensions.length &&
+      prev.every((value, index) => value === groupDimensions[index])
+        ? prev
+        : groupDimensions
+    );
+  }, [groupDimensions]);
 
   return (
     <PageSection
@@ -162,12 +184,14 @@ export const MarketInsights: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
+            onReset={resetVisibleColumns}
+            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
           <ExportToExcelButton
-            data={metricData}
+            data={processedData}
             fileName="market-insights.xlsx"
           />
         </div>
@@ -197,7 +221,7 @@ export const MarketInsights: React.FC = React.memo(() => {
             resetFilters: filter.resetFilters,
           }}
           columns={columnsForTable}
-          data={metricData}
+          data={processedData}
           maxHeight={400}
           isView={periodFilter.isView}
         />
