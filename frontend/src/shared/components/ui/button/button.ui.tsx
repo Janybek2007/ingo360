@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
-import { uiSet } from '#/shared/utils/ui-set';
 
 import type { IButtonProps } from './button.types';
 
@@ -13,7 +12,6 @@ const Button: React.FC<IButtonProps> = React.memo(
     onClick,
     roundedFull,
     type,
-    variant = 'filled',
     wFull,
     className,
     ariaLabel,
@@ -22,7 +20,10 @@ const Button: React.FC<IButtonProps> = React.memo(
       { ['w-full']: wFull, ['rounded-full']: roundedFull },
       'transition-all',
       { ['cursor-not-allowed opacity-50']: disabled },
-      uiSet.colorVariant(color, variant),
+      {
+        'bg-default hover:bg-default/80 text-black': color == 'default',
+        'bg-primary hover:bg-primary/90 text-white': color == 'primary',
+      },
       className,
     ]);
 

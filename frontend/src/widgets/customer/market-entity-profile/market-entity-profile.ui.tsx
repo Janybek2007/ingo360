@@ -33,25 +33,6 @@ export const MarketEntityProfile: React.FC<{
 }> = React.memo(({ periodFilter }) => {
   const [activeTab, setActiveTab] = useState<ETabs>('company');
 
-  const usedFilterItems = React.useMemo(() => {
-    return getUsedFilterItems([
-      {
-        value: periodFilter.selectedValues,
-        getLabelFromValue: getPeriodLabel,
-        onDelete: value => {
-          const newValues = periodFilter.selectedValues.filter(
-            v => v !== value
-          );
-          periodFilter.onChange(newValues);
-        },
-      },
-    ]);
-  }, [periodFilter]);
-
-  const resetFilters = React.useCallback(() => {
-    periodFilter.onReset();
-  }, [periodFilter]);
-
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<LeaderBoardRow[]>(['ims/reports/top'], {
       periods: periodFilter.selectedValues,
@@ -93,16 +74,28 @@ export const MarketEntityProfile: React.FC<{
       }
       classNames={{ wrapper: 'gap-3' }}
       afterHeader={
-        <div>
+        <div className="mb-4">
           <Tabs
             saveCurrent={current => setActiveTab(current as ETabs)}
             classNames={{ tabs: 'p-0 rounded-none border-none' }}
             items={tabItems}
           />
           <UsedFilter
-            usedFilterItems={usedFilterItems}
-            isView={periodFilter.isView}
-            resetFilters={resetFilters}
+            usedPeriodFilters={getUsedFilterItems([
+              {
+                value: periodFilter.selectedValues,
+                getLabelFromValue: getPeriodLabel,
+                onDelete: value => {
+                  const newValues = periodFilter.selectedValues.filter(
+                    v => v !== value
+                  );
+                  periodFilter.onChange(newValues);
+                },
+              },
+            ])}
+            isViewPeriods={periodFilter.isView}
+            resetFilters={periodFilter.onReset}
+            periodViewMode="from"
           />
         </div>
       }
@@ -140,6 +133,7 @@ export const MarketEntityProfile: React.FC<{
             <AsyncBoundary
               isLoading={queryData.isLoading}
               queryError={queryData.error}
+              isEmpty={metricData.length === 0}
             >
               <Table
                 highlightRow={row =>

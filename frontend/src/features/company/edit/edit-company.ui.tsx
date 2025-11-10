@@ -18,7 +18,6 @@ export const EditCompanyModal: React.FC<{
 
   const handleSubmit = async (data: Record<string, unknown>) => {
     if (companyData?.id) {
-      // Prevent lowering limit below current active users (unless 0 = unlimited)
       const newLimit = Number(
         (data as { active_users_limit?: number }).active_users_limit
       );

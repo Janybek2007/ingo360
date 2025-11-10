@@ -18,10 +18,7 @@ import {
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
-import {
-  type IUsedFilterItem,
-  UsedFilter,
-} from '#/shared/components/used-filter';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
@@ -57,24 +54,6 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
-
-  const usedFilterItems = React.useMemo((): IUsedFilterItem[] => {
-    return [
-      ...getUsedFilterItems([
-        {
-          value: periodFilter.selectedValues,
-          getLabelFromValue: getPeriodLabel,
-          onDelete: value => {
-            const newValues = periodFilter.selectedValues.filter(
-              v => v !== value
-            );
-            periodFilter.onChange(newValues);
-          },
-        },
-      ]),
-      ...filters.usedFilterItems,
-    ].filter(Boolean) as IUsedFilterItem[];
-  }, [filters, periodFilter]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
@@ -112,17 +91,30 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
         </div>
       }
     >
+      <UsedFilter
+        usedFilterItems={filters.usedFilterItems}
+        usedPeriodFilters={getUsedFilterItems([
+          {
+            value: periodFilter.selectedValues,
+            getLabelFromValue: getPeriodLabel,
+            onDelete: value => {
+              const newValues = periodFilter.selectedValues.filter(
+                v => v !== value
+              );
+              periodFilter.onChange(newValues);
+            },
+          },
+        ])}
+        resetFilters={resetFilters}
+        isViewPeriods={periodFilter.isView}
+        isView={filters.usedFilterItems.length > 0}
+      />
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={data.length === 0}
       >
         <div className="space-y-4">
-          <UsedFilter
-            usedFilterItems={usedFilterItems}
-            resetFilters={resetFilters}
-            isView={periodFilter.isView}
-          />
-
           <div className="font-inter">
             <LineChart
               width={sectionStyle.width - 48}

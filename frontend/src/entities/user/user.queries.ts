@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query';
 
 import { http } from '#/shared/api';
 import type { SessionRole } from '#/shared/types';
+import { TokenUtils } from '#/shared/utils/token-utils';
 
 import type { GetUserResponse, GetUsersResponse } from './user.types';
 
@@ -16,12 +17,16 @@ export class UserQueries {
     return queryOptions<GetUserResponse>({
       queryKey: this.queryKeys.getUser,
       queryFn: async () => {
-        const response = await http.get('users/me').json<GetUserResponse>();
-        return {
-          ...response,
-          role: this.buildUserRole(response),
-          // role: "customer"
-        };
+        try {
+          const response = await http.get('users/me').json<GetUserResponse>();
+          return {
+            ...response,
+            role: this.buildUserRole(response),
+          };
+        } catch (err) {
+          TokenUtils.clearToken();
+          throw err;
+        }
       },
     });
   }

@@ -107,3 +107,38 @@ button {
   outline: none;
   border: none;
 }
+
+/* Общий стиль scrollbar */
+*::-webkit-scrollbar {
+  width: 8px;
+  /* ширина скроллбара */
+  height: 8px;
+  /* для горизонтального */
+}
+
+/* Ползунок */
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.5);
+  /* цвет ползунка */
+  border-radius: 4px;
+  /* скругление */
+  transition: background-color 0.3s;
+  /* плавное изменение цвета */
+}
+
+/* Hover эффект ползунка */
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 100, 0.8);
+}
+
+/* Фон скроллбара */
+*::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
+  /* легкий фон */
+  border-radius: 4px;
+}
+
+/* Для маленьких треков/ступеней */
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}

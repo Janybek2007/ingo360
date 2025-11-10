@@ -21,30 +21,11 @@ interface LeaderBoardRow {
 
 export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
   React.memo(({ periodFilter }) => {
-    const usedFilterItems = React.useMemo(() => {
-      return getUsedFilterItems([
-        {
-          value: periodFilter.selectedValues,
-          getLabelFromValue: getPeriodLabel,
-          onDelete: value => {
-            const newValues = periodFilter.selectedValues.filter(
-              v => v !== value
-            );
-            periodFilter.onChange(newValues);
-          },
-        },
-      ]);
-    }, [periodFilter]);
-
-    const resetFilters = React.useCallback(() => {
-      periodFilter.onReset();
-    }, [periodFilter]);
-
     const queryData = useKeepQuery(
       DbQueries.GetDbItemsQuery<LeaderBoardRow[]>(['ims/reports/top'], {
         periods: periodFilter.selectedValues,
         type_period: periodFilter.period,
-        limit: 300,
+        limit: 1000,
       })
     );
 
@@ -87,9 +68,21 @@ export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
                 <PeriodFilters {...periodFilter} />
               </div>
               <UsedFilter
-                usedFilterItems={usedFilterItems}
-                isView={periodFilter.isView}
-                resetFilters={resetFilters}
+                usedPeriodFilters={getUsedFilterItems([
+                  {
+                    value: periodFilter.selectedValues,
+                    getLabelFromValue: getPeriodLabel,
+                    onDelete: value => {
+                      const newValues = periodFilter.selectedValues.filter(
+                        v => v !== value
+                      );
+                      periodFilter.onChange(newValues);
+                    },
+                  },
+                ])}
+                isViewPeriods={periodFilter.isView}
+                periodViewMode="from"
+                resetFilters={periodFilter.onReset}
               />
             </div>
             <div>
@@ -113,7 +106,8 @@ export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
               </div>
             ) : (
               <AsyncBoundary
-                isLoading={queryData.isLoading}
+                isLoading={queryData.isLoading || queryData.isFetching}
+                isEmpty={metricData.length === 0}
                 queryError={queryData.error}
               >
                 <Table

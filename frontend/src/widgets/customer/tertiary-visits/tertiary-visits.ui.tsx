@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -65,32 +65,16 @@ export const TertiaryVisits: React.FC = React.memo(() => {
     total: totalPreset(filters.indicator),
   });
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions', 'total'],
-    data: visits,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      ignore: ['total'],
+      setGroupBy,
+    });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(processedData, filters.indicator);
-  }, [processedData, filters.indicator]);
+    return calcPeriodTotals(visits, filters.indicator);
+  }, [visits, filters.indicator]);
 
   return (
     <PageSection
@@ -118,22 +102,18 @@ export const TertiaryVisits: React.FC = React.memo(() => {
             checkbox
             isMultiple
             showToggleAll
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={processedData}
-            fileName="tertiary-visits.xlsx"
-          />
+          <ExportToExcelButton data={visits} fileName="tertiary-visits.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={visits.length === 0}
       >
         <Table
           key={filters.indicator}
@@ -142,7 +122,7 @@ export const TertiaryVisits: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={visits}
           maxHeight={400}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

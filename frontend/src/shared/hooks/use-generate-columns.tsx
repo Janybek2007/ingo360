@@ -71,9 +71,7 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
   return useMemo((): ColumnDef<TData>[] => {
     const result: ColumnDef<TData>[] = [];
 
-    // Обработка обычных колонок
     columns.forEach(col => {
-      // Если передана строка - создаем простую колонку
       if (typeof col === 'string') {
         result.push({
           id: col,

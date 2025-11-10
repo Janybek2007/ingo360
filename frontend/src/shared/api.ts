@@ -1,7 +1,7 @@
-import Cookies from 'js-cookie';
 import ky from 'ky';
 
 import { FULL_API_URL } from './constants/environment';
+import { TokenUtils } from './utils/token-utils';
 
 const http = ky.create({
   prefixUrl: FULL_API_URL,
@@ -17,7 +17,7 @@ const http = ky.create({
           request.headers.set('Content-Type', 'application/json');
         }
 
-        const token = Cookies.get('access_token');
+        const token = TokenUtils.getToken();
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`);
         }

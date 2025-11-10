@@ -61,24 +61,6 @@ export const OverallVisits: React.FC = React.memo(() => {
     [queryData]
   );
 
-  const usedFilterItems = React.useMemo(() => {
-    return [
-      ...getUsedFilterItems([
-        {
-          value: periodFilter.selectedValues,
-          getLabelFromValue: getPeriodLabel,
-          onDelete: value => {
-            const newValues = periodFilter.selectedValues.filter(
-              v => v !== value
-            );
-            periodFilter.onChange(newValues);
-          },
-        },
-      ]),
-      ...filters.usedFilterItems,
-    ];
-  }, [periodFilter, filters.usedFilterItems]);
-
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
     filters.resetFilters();
@@ -141,12 +123,26 @@ export const OverallVisits: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={chartData.length === 0}
       >
         <div className="space-y-4">
           <UsedFilter
-            usedFilterItems={usedFilterItems}
+            usedFilterItems={filters.usedFilterItems}
             resetFilters={resetFilters}
-            isView={periodFilter.isView}
+            isViewPeriods={periodFilter.isView}
+            isView={filters.usedFilterItems.length > 0}
+            usedPeriodFilters={getUsedFilterItems([
+              {
+                value: periodFilter.selectedValues,
+                getLabelFromValue: getPeriodLabel,
+                onDelete: value => {
+                  const newValues = periodFilter.selectedValues.filter(
+                    v => v !== value
+                  );
+                  periodFilter.onChange(newValues);
+                },
+              },
+            ])}
           />
 
           <div className="font-inter">

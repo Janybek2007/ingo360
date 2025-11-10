@@ -103,21 +103,6 @@ export const DynamicSales: React.FC = React.memo(() => {
     });
   }, [primarySales, secondarySales]);
 
-  const usedFilterItems = useMemo(() => {
-    return getUsedFilterItems([
-      {
-        value: periodFilter.selectedValues,
-        getLabelFromValue: getPeriodLabel,
-        onDelete: value => {
-          const newValues = periodFilter.selectedValues.filter(
-            v => v !== value
-          );
-          periodFilter.onChange(newValues);
-        },
-      },
-    ]);
-  }, [periodFilter]);
-
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
   }, [periodFilter]);
@@ -149,17 +134,28 @@ export const DynamicSales: React.FC = React.memo(() => {
         </div>
       }
     >
+      <UsedFilter
+        usedPeriodFilters={getUsedFilterItems([
+          {
+            value: periodFilter.selectedValues,
+            getLabelFromValue: getPeriodLabel,
+            onDelete: value => {
+              const newValues = periodFilter.selectedValues.filter(
+                v => v !== value
+              );
+              periodFilter.onChange(newValues);
+            },
+          },
+        ])}
+        resetFilters={resetFilters}
+        isViewPeriods={periodFilter.isView}
+      />
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={data?.length === 0}
       >
         <div className="space-y-4">
-          <UsedFilter
-            usedFilterItems={usedFilterItems}
-            resetFilters={resetFilters}
-            isView={periodFilter.isView}
-          />
-
           <div className="font-inter">
             <LineChart
               width={sectionStyle.width - 48}

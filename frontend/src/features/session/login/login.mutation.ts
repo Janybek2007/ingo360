@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import Cookies from 'js-cookie';
 import type { HTTPError } from 'ky';
 import qs from 'qs';
 import { useForm } from 'react-hook-form';
@@ -10,6 +9,7 @@ import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { useSession } from '#/shared/session';
 import { getResponseError } from '#/shared/utils/get-error';
+import { TokenUtils } from '#/shared/utils/token-utils';
 
 import {
   LoginContract,
@@ -45,8 +45,7 @@ export const useLoginMutation = () => {
         .json<TLoginResponse>();
 
       if (response.access_token && response.token_type) {
-        Cookies.set('access_token', response.access_token);
-        Cookies.set('token_type', response.token_type);
+        TokenUtils.setToken(response.access_token);
         setIsWelcomeShown(true);
         await queryClient.refetchQueries({
           queryKey: UserQueries.queryKeys.getUser,

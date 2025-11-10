@@ -5,41 +5,51 @@ import { LucideArrowIcon } from '#/shared/components/icons';
 import { Select } from '#/shared/components/ui/select';
 import { allMonths } from '#/shared/constants/months';
 
-import type { FiltersConfig } from '../doctors-coverage.ui';
+export interface FiltersConfig {
+  months: number[];
+  years: number[];
+  medical_facility_ids: number[];
+}
 
 interface DoctorFiltersProps {
-  filters: FiltersConfig;
-  setFilters: React.Dispatch<React.SetStateAction<FiltersConfig>>;
-  showMedicalFacility?: boolean;
-  showYears?: boolean;
-  showMonths?: boolean;
+  filters: Partial<FiltersConfig> | number[];
+  setFilters: React.Dispatch<
+    React.SetStateAction<Partial<FiltersConfig> | number[]>
+  >;
+  showConfigs?: Partial<
+    Record<'medical_facilities' | 'years' | 'months', boolean>
+  >;
 }
 
 export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
   ({
     filters,
     setFilters,
-    showMedicalFacility = true,
-    showYears = true,
-    showMonths = true,
+    showConfigs = {
+      medical_facilities: false,
+      years: false,
+      months: false,
+    },
   }) => {
     const filterOptions = useFilterOptions({
-      medicalFacilities: showMedicalFacility,
+      medicalFacilities: showConfigs.medical_facilities,
       brands: false,
       groups: false,
     });
-    const medicalFacilityItems = showMedicalFacility
+    const medicalFacilityItems = showConfigs.medical_facilities
       ? filterOptions.medicalFacilities
       : [];
 
     return (
       <div className="flex items-center gap-4">
-        {showMedicalFacility && (
+        {showConfigs.medical_facilities && (
           <Select<true, number>
-            value={filters.medical_facility_ids}
-            setValue={value =>
-              setFilters(prev => ({ ...prev, medical_facility_ids: value }))
+            value={
+              Array.isArray(filters)
+                ? filters
+                : (filters.medical_facility_ids ?? [])
             }
+            setValue={value => setFilters(value)}
             isMultiple
             checkbox
             search
@@ -57,7 +67,7 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
             }}
           />
         )}
-        {showYears && (
+        {showConfigs.years && !Array.isArray(filters) && filters.years && (
           <Select<true, number>
             triggerText="Год"
             items={[2020, 2021, 2022, 2023, 2024, 2025].map(year => ({
@@ -81,7 +91,7 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
             }}
           />
         )}
-        {showMonths && (
+        {showConfigs.months && !Array.isArray(filters) && filters.months && (
           <Select<true, number>
             triggerText="Месяц"
             items={allMonths.map((month, index) => ({

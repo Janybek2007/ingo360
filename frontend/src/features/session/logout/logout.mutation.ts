@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import Cookies from 'js-cookie';
 
 import { UserQueries } from '#/entities/user/user.queries';
 import { http } from '#/shared/api';
 import { useRouter } from '#/shared/hooks/use-router';
 import { queryClient } from '#/shared/libs/react-query';
 import { routePaths } from '#/shared/router';
+import { TokenUtils } from '#/shared/utils/token-utils';
 
 export const useLogoutMutation = () => {
   const { navigate } = useRouter();
@@ -15,8 +15,7 @@ export const useLogoutMutation = () => {
       const response = await http.post('auth/logout', {});
 
       if (response.status === 204) {
-        Cookies.remove('access_token');
-        Cookies.remove('token_type');
+        TokenUtils.clearToken();
 
         setTimeout(() => {
           queryClient.setQueryData(UserQueries.queryKeys.getUser, null);

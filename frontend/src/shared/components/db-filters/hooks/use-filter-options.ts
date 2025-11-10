@@ -14,6 +14,7 @@ export const useFilterOptions = (config: UseFilterOptionsConfig = {}) => {
     groups: groupsEnabled = true,
     distributors: distributorsEnabled = false,
     medicalFacilities: medicalFacilitiesEnabled = false,
+    geoIndicators: geoIndicatorsEnabled = false,
   } = config;
 
   // Brands query
@@ -54,6 +55,16 @@ export const useFilterOptions = (config: UseFilterOptionsConfig = {}) => {
     enabled: medicalFacilitiesEnabled,
   });
 
+  // Geo indicators query
+  const geoIndicatorsQuery = useQuery({
+    queryKey: ['filter-options', 'geo-indicators'],
+    queryFn: () =>
+      http
+        .get('clients/geo-indicators/filter-options')
+        .json<FilterOptionItem[]>(),
+    enabled: geoIndicatorsEnabled,
+  });
+
   // Transform data to FilterOptions format
   const brands = useMemo((): FilterOptions[] => {
     if (!brandsQuery.data) return [];
@@ -87,25 +98,36 @@ export const useFilterOptions = (config: UseFilterOptionsConfig = {}) => {
     }));
   }, [medicalFacilitiesQuery.data]);
 
+  const geoIndicators = useMemo((): FilterOptions[] => {
+    if (!geoIndicatorsQuery.data) return [];
+    return geoIndicatorsQuery.data.map(item => ({
+      value: item.id,
+      label: item.name,
+    }));
+  }, [geoIndicatorsQuery.data]);
+
   // Combined loading state
   const isLoading =
     (brandsEnabled && brandsQuery.isLoading) ||
     (groupsEnabled && groupsQuery.isLoading) ||
     (distributorsEnabled && distributorsQuery.isLoading) ||
-    (medicalFacilitiesEnabled && medicalFacilitiesQuery.isLoading);
+    (medicalFacilitiesEnabled && medicalFacilitiesQuery.isLoading) ||
+    (geoIndicatorsEnabled && geoIndicatorsQuery.isLoading);
 
   // Combined error state
   const error =
     brandsQuery.error ||
     groupsQuery.error ||
     distributorsQuery.error ||
-    medicalFacilitiesQuery.error;
+    medicalFacilitiesQuery.error ||
+    geoIndicatorsQuery.error;
 
   return {
     brands,
     groups,
     distributors,
     medicalFacilities,
+    geoIndicators,
     isLoading,
     error,
   };

@@ -25,9 +25,8 @@ const DbWorkPage: React.FC = () => {
   );
 
   const currentData = React.useMemo(() => {
-    const data = queryData.data ? queryData.data[0] : [];
-    return data.slice(0, rowsCount === 'all' ? data.length : rowsCount);
-  }, [queryData, rowsCount]);
+    return queryData.data ? queryData.data[0] : [];
+  }, [queryData]);
 
   return (
     <main>
@@ -42,6 +41,7 @@ const DbWorkPage: React.FC = () => {
         onGroupChange={setGroupBy}
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={currentData.length === 0}
       />
     </main>
   );

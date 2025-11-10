@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
 import { UserQueries } from '#/entities/user/user.queries';
@@ -14,9 +13,9 @@ import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import { STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
+import { commonColumns } from '#/shared/constants/common-columns';
+import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { selectFilter, stringFilter } from '#/shared/utils/filter';
 import { filterBySearch } from '#/shared/utils/search';
 
 interface CustomerRow extends IUserItem {
@@ -33,104 +32,18 @@ const CustomerAccountsPage: React.FC = () => {
 
   const customersQuery = useQuery(UserQueries.GetCustomersQuery());
 
-  const allData = useMemo((): CustomerRow[] => {
+  const filteredData = useMemo((): CustomerRow[] => {
     if (!customersQuery.data) return [];
 
-    return customersQuery.data.map((customer: IUserItem) => {
-      return {
-        ...customer,
-        fullName:
-          `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
-        position: (customer as { position?: string }).position || 'Не указана',
-        companyName: customer.company?.name || 'Не указана',
-        statusDisplay: customer.is_active ? 'active' : 'inactive',
-      } as CustomerRow;
-    });
-  }, [customersQuery.data]);
+    const normalized = customersQuery.data.map((customer: IUserItem) => ({
+      ...customer,
+      fullName:
+        `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
+      position: (customer as { position?: string }).position || 'Не указана',
+      companyName: customer.company?.name || 'Не указана',
+    })) as CustomerRow[];
 
-  const allColumns = useMemo(
-    (): ColumnDef<CustomerRow>[] => [
-      {
-        accessorKey: 'fullName',
-        header: 'ФИО',
-        size: 290,
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        filterType: 'string',
-      },
-      {
-        accessorKey: 'position',
-        header: 'Должность',
-        size: 200,
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        filterType: 'string',
-      },
-      {
-        accessorKey: 'companyName',
-        header: 'Компания',
-        size: 290,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: Array.from(
-          new Set(allData.map(item => item.companyName))
-        ).map(company => ({
-          label: company,
-          value: company,
-        })),
-      },
-      {
-        accessorKey: 'email',
-        header: 'Электронная почта',
-        size: 290,
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        filterType: 'string',
-      },
-      {
-        accessorKey: 'statusDisplay',
-        header: 'Статус',
-        size: 150,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: [
-          { label: 'Активный', value: 'active' },
-          { label: 'Неактивный', value: 'inactive' },
-        ],
-        cell(props) {
-          return STATUSES_OBJECT[props.getValue() as 'active'];
-        },
-      },
-      {
-        id: 'actions',
-        header: '',
-        size: 120,
-        cell(props) {
-          return (
-            <RowActions
-              items={[
-                {
-                  type: 'edit',
-                  onSelect: () => {
-                    setEditData(props.row.original);
-                    setTimeout(() => set('edit'), 0);
-                  },
-                },
-              ]}
-            />
-          );
-        },
-      },
-    ],
-    [set, allData]
-  );
-
-  const filteredData = useMemo(() => {
-    if (!allData) return [];
-
-    return filterBySearch<CustomerRow>(allData, search, [
+    return filterBySearch<CustomerRow>(normalized, search, [
       'first_name',
       'last_name',
       'patronymic',
@@ -138,7 +51,40 @@ const CustomerAccountsPage: React.FC = () => {
       'email',
       'role',
     ]);
-  }, [search, allData]);
+  }, [customersQuery.data, search]);
+
+  const allColumns = useGenerateColumns<CustomerRow>({
+    data: filteredData,
+    columns: [
+      commonColumns.userFullName(),
+      commonColumns.customerPosition(),
+      commonColumns.customerCompany(290, customersQuery.data || []),
+      commonColumns.userEmail(),
+      commonColumns.status(150, 'statusDisplay'),
+      {
+        id: 'actions',
+        header: '',
+        size: 120,
+        custom: {
+          cell(props) {
+            return (
+              <RowActions
+                items={[
+                  {
+                    type: 'edit',
+                    onSelect: () => {
+                      setEditData(props.row.original);
+                      setTimeout(() => set('edit'), 0);
+                    },
+                  },
+                ]}
+              />
+            );
+          },
+        },
+      },
+    ],
+  });
 
   return (
     <main>
@@ -175,6 +121,7 @@ const CustomerAccountsPage: React.FC = () => {
         <AsyncBoundary
           isLoading={customersQuery.isLoading}
           queryError={customersQuery.error}
+          isEmpty={filteredData.length === 0}
         >
           <Table
             columns={allColumns}

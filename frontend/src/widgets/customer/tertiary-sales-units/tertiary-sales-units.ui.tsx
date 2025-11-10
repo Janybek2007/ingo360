@@ -18,10 +18,7 @@ import {
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
-import {
-  type IUsedFilterItem,
-  UsedFilter,
-} from '#/shared/components/used-filter';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
@@ -57,24 +54,6 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
     () => (queryData.data ? queryData.data[0] : []),
     [queryData]
   );
-
-  const usedFilterItems = React.useMemo((): IUsedFilterItem[] => {
-    return [
-      ...getUsedFilterItems([
-        {
-          value: periodFilter.selectedValues,
-          getLabelFromValue: getPeriodLabel,
-          onDelete: value => {
-            const newValues = periodFilter.selectedValues.filter(
-              v => v !== value
-            );
-            periodFilter.onChange(newValues);
-          },
-        },
-      ]),
-      ...filters.usedFilterItems,
-    ].filter(Boolean) as IUsedFilterItem[];
-  }, [periodFilter, filters]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
@@ -115,6 +94,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={visits.length === 0}
       >
         {visits.length <= 10 ? (
           <div>
@@ -125,9 +105,22 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
         ) : (
           <div className="space-y-4">
             <UsedFilter
-              usedFilterItems={usedFilterItems}
+              usedFilterItems={filters.usedFilterItems}
               resetFilters={resetFilters}
-              isView={periodFilter.isView}
+              isViewPeriods={periodFilter.isView}
+              isView={filters.usedFilterItems.length > 0}
+              usedPeriodFilters={getUsedFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: value => {
+                    const newValues = periodFilter.selectedValues.filter(
+                      v => v !== value
+                    );
+                    periodFilter.onChange(newValues);
+                  },
+                },
+              ])}
             />
 
             <div className="font-inter">
@@ -168,7 +161,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
                   formatter={value => {
                     return [
                       (value as number).toLocaleString('ru-RU'),
-                      'Третичные продажи',
+                      'Упаковок',
                     ];
                   }}
                 />

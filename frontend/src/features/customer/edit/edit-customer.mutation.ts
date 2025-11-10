@@ -24,7 +24,6 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
     }) => {
       const parsedBody = EditCustomerContract.parse(body);
 
-      // Build request body with all fields
       const requestBody: Record<string, unknown> = {
         email: parsedBody.email,
         first_name: parsedBody.first_name,
@@ -38,7 +37,6 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
         company_id: parsedBody.company_id,
       };
 
-      // Only include password if provided and non-empty
       if (parsedBody.password && parsedBody.password.trim().length > 0) {
         requestBody.password = parsedBody.password;
       }

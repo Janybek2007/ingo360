@@ -1,14 +1,17 @@
 export const stringToColor = (str: string): string => {
   let hash = 0;
+
   for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    hash = hash & hash; // Convert to 32bit integer
+    const charCode = str.charCodeAt(i);
+    hash = charCode + ((hash << 5) - hash) + i * 3;
+    hash = hash & 0xffffffff;
   }
 
-  // Генерируем насыщенные цвета (избегаем слишком темных и светлых)
   const h = Math.abs(hash % 360);
-  const s = 65 + (Math.abs(hash) % 20); // 65-85% saturation
-  const l = 45 + (Math.abs(hash >> 8) % 15); // 45-60% lightness
+
+  const s = 40 + (Math.abs(hash) % 20);
+
+  const l = 50 + (Math.abs(hash >> 8) % 15);
 
   return `hsl(${h}, ${s}%, ${l}%)`;
 };

@@ -1,5 +1,4 @@
-import type { ColumnDef } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -10,12 +9,12 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { commonColumns } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
-import { selectFilter } from '#/shared/utils/filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 interface MarketRow {
@@ -29,7 +28,7 @@ interface MarketRow {
 
 export const MarketInsights: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const filter = useDbFilters({
+  const filters = useDbFilters({
     config: { brands: { enabled: false }, groups: { enabled: false } },
   });
   const [groupBy, setGroupBy] = useState<string[]>([]);
@@ -39,7 +38,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {
       periods: periodFilter.selectedValues,
       type_period: periodFilter.period,
-      limit: filter.rowsCount === 'all' ? undefined : filter.rowsCount,
+      limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
       search,
       group_by_dimensions: groupBy,
     })
@@ -49,124 +48,41 @@ export const MarketInsights: React.FC = React.memo(() => {
     return queryData.data ? queryData.data[0] : [];
   }, [queryData.data]);
 
-  const allColumns = useMemo(
-    (): ColumnDef<MarketRow>[] => [
+  const allColumns = useGenerateColumns({
+    data: metricData,
+    columns: [
+      commonColumns.marketInsightsCompany(),
+      commonColumns.marketInsightsBrand(),
+      commonColumns.marketInsightsSegment(),
+      commonColumns.marketInsightsDosageForm(),
+      commonColumns.marketInsightsDosage(),
       {
-        id: 'company',
-        accessorKey: 'company',
-        header: 'Компания',
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: getUniqueItems(
-          metricData.map(item => ({
-            label: item.company,
-            value: item.company,
-          })),
-          ['value']
-        ),
-      },
-      {
-        id: 'brand',
-        accessorKey: 'brand',
-        header: 'Бренд',
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: getUniqueItems(
-          metricData.map(item => ({
-            label: item.brand,
-            value: item.brand,
-          })),
-          ['value']
-        ),
-      },
-      {
-        id: 'segment',
-        accessorKey: 'segment',
-        header: 'Сегмент',
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: getUniqueItems(
-          metricData.map(item => ({
-            label: item.segment,
-            value: item.segment,
-          })),
-          ['value']
-        ),
-      },
-      {
-        id: 'dosage_form',
-        accessorKey: 'dosage_form',
-        header: 'Форма выписка',
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: getUniqueItems(
-          metricData.map(item => ({
-            label: item.dosage_form,
-            value: item.dosage_form,
-          })),
-          ['value']
-        ),
-      },
-      {
-        id: 'dosage',
-        accessorKey: 'dosage',
-        header: 'Дозировка',
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: getUniqueItems(
-          metricData.map(item => ({
-            label: item.dosage,
-            value: item.dosage,
-          })),
-          ['value']
-        ),
-      },
-      {
-        accessorKey: 'YTD6M23',
+        id: 'YTD6M23',
+        key: 'YTD6M23',
         header: 'YTD-6M-23',
-        meta: { aggregate: 'sum' },
+        aggregate: 'sum',
       },
       {
-        accessorKey: 'YTD6M24',
+        id: 'YTD6M24',
+        key: 'YTD6M24',
         header: 'YTD-6M-24',
-        meta: { aggregate: 'sum' },
+        aggregate: 'sum',
       },
       {
-        accessorKey: 'YTD6M25',
+        id: 'YTD6M25',
+        key: 'YTD6M25',
         header: 'YTD-6M-25',
-        meta: { aggregate: 'sum' },
+        aggregate: 'sum',
       },
     ],
-    [metricData]
-  );
-
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions'],
-    data: metricData,
   });
 
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions'],
+      setGroupBy,
+    });
 
   return (
     <PageSection
@@ -175,7 +91,7 @@ export const MarketInsights: React.FC = React.memo(() => {
         <div className="flex items-center gap-4 relative z-100">
           <SearchInput saveValue={setSearch} />
           <PeriodFilters {...periodFilter} />
-          <DbFilters {...filter} />
+          <DbFilters {...filters} />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -184,14 +100,12 @@ export const MarketInsights: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{
-              menu: 'min-w-[11.25rem] right-0',
+              menu: 'w-max right-0',
             }}
           />
           <ExportToExcelButton
-            data={processedData}
+            data={metricData}
             fileName="market-insights.xlsx"
           />
         </div>
@@ -199,12 +113,13 @@ export const MarketInsights: React.FC = React.memo(() => {
     >
       <AsyncBoundary
         queryError={queryData.error}
+        isEmpty={metricData.length === 0}
         isLoading={queryData.isLoading}
       >
         <Table
           filters={{
             usedFilterItems: [
-              ...filter.usedFilterItems,
+              ...filters.usedFilterItems,
               ...getUsedFilterItems([
                 {
                   value: periodFilter.selectedValues,
@@ -218,12 +133,12 @@ export const MarketInsights: React.FC = React.memo(() => {
                 },
               ]),
             ],
-            resetFilters: filter.resetFilters,
+            resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={metricData}
           maxHeight={400}
-          isView={periodFilter.isView}
+          isView={periodFilter.isView || filters.usedFilterItems.length > 0}
         />
       </AsyncBoundary>
     </PageSection>

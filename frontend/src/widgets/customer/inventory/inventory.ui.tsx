@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -67,31 +67,15 @@ export const Inventory: React.FC = React.memo(() => {
     total: totalPreset('coverage_months'),
   });
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    data: sales,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      setGroupBy,
+    });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(processedData, 'coverage_months');
-  }, [processedData]);
+    return calcPeriodTotals(sales, 'coverage_months');
+  }, [sales]);
 
   return (
     <PageSection
@@ -106,25 +90,22 @@ export const Inventory: React.FC = React.memo(() => {
             setValue={setVisibleColumns}
             items={columnItems}
             triggerText="Столбцы"
+            showToggleAll
             isMultiple
             checkbox
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
           />
 
-          <ExportToExcelButton
-            data={processedData}
-            fileName="Товарный_запас.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="Товарный_запас.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={sales.length === 0}
       >
         <Table
           filters={{
@@ -132,7 +113,7 @@ export const Inventory: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={sales}
           maxHeight={500}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

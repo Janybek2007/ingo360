@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -64,31 +64,16 @@ export const Shipments: React.FC = React.memo(() => {
     total: totalPreset(filters.indicator),
   });
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    data: sales,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      ignore: ['total'],
+      setGroupBy,
+    });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(processedData, filters.indicator);
-  }, [processedData, filters.indicator]);
+    return calcPeriodTotals(sales, filters.indicator);
+  }, [sales, filters.indicator]);
 
   return (
     <PageSection
@@ -106,30 +91,27 @@ export const Shipments: React.FC = React.memo(() => {
             showToggleAll
             isMultiple
             checkbox
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={processedData}
-            fileName="первичные_продажи.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="первичные_продажи.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={sales.length === 0}
       >
         <Table
+          key={filters.indicator}
           filters={{
             usedFilterItems: filters.usedFilterItems,
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={sales}
           maxHeight={500}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

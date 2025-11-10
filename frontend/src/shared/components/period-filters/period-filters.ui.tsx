@@ -15,7 +15,7 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
     selectedValues,
     onChange,
     isSelectValues = true,
-    views,
+    views = ['mat', 'ytd', 'year', 'month', 'quarter'],
   }) => {
     const periodTypeItems = React.useMemo(() => {
       const allTypes = [
@@ -44,16 +44,21 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
         />
 
         {isSelectValues && (
-          <Select<true, string>
-            isMultiple
-            checkbox
-            triggerText={'Выберите значения'}
+          <Select<boolean, string>
+            isMultiple={!['mat', 'ytd'].includes(period)}
+            showToggleAll={!['mat', 'ytd'].includes(period)}
+            checkbox={!['mat', 'ytd'].includes(period)}
+            triggerText={
+              ['mat', 'ytd'].includes(period)
+                ? 'Выберите значение (от)'
+                : 'Выберите значения'
+            }
             items={items}
             value={selectedValues}
-            setValue={onChange}
+            setValue={value => onChange(value as string[])}
             classNames={{
               trigger: 'gap-4 rounded-full justify-between',
-              menu: 'min-w-[10rem] right-0',
+              menu: 'w-max min-w-[13rem] left-0',
             }}
           />
         )}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -72,28 +72,12 @@ export const DistributorShare: React.FC = React.memo(() => {
     }),
   });
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions', 'total'],
-    data: sales,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      ignore: ['total'],
+      setGroupBy,
+    });
 
   return (
     <PageSection
@@ -107,24 +91,21 @@ export const DistributorShare: React.FC = React.memo(() => {
             setValue={setVisibleColumns}
             items={columnItems}
             triggerText="Столбцы"
+            showToggleAll
             checkbox
             isMultiple
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={processedData}
-            fileName="distributor-share.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="distributor-share.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={sales.length === 0}
       >
         <Table
           key={filters.indicator}
@@ -133,7 +114,7 @@ export const DistributorShare: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={sales}
           maxHeight={500}
           rounded="none"
         />

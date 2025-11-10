@@ -1,8 +1,5 @@
-import type { TColors, TVariants } from '#/shared/types';
-
 export interface IButtonProps extends React.PropsWithChildren {
-  variant?: TVariants;
-  color?: TColors;
+  color?: 'default' | 'primary';
   roundedFull?: boolean;
   wFull?: boolean;
   disabled?: boolean;

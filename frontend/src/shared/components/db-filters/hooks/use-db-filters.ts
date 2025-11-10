@@ -10,6 +10,7 @@ export const useDbFilters = ({
   brandsOptions = [],
   groupsOptions = [],
   distributorsOptions = [],
+  geoIndicatorsOptions = [],
   config,
 }: UseDbFiltersProps) => {
   const indicatorDefault = config?.indicator?.defaultValue || 'amount';
@@ -19,6 +20,7 @@ export const useDbFilters = ({
   const [brands, setBrands] = useState<number[]>([]);
   const [groups, setGroups] = useState<number[]>([]);
   const [distributors, setDistributors] = useState<number[]>([]);
+  const [geoIndicators, setGeoIndicators] = useState<number[]>([]);
   const [indicator, setIndicator] = useState<IndicatorType>(indicatorDefault);
   const [rowsCount, setRowsCount] = useState<'all' | number>(rowsCountDefault);
 
@@ -28,35 +30,41 @@ export const useDbFilters = ({
       brands: brandsOptions,
       groups: groupsOptions,
       distributors: distributorsOptions,
+      geoIndicators: geoIndicatorsOptions,
       indicators: config?.indicator?.options || [
         { value: 'amount', label: 'Деньги' },
         { value: 'packages', label: 'Упаковка' },
       ],
       rowsCounts: config?.rowsCount?.options || [
         { value: 'all', label: 'Все' },
+        { value: 100, label: '100' },
         { value: 1000, label: '1000' },
         { value: 5000, label: '5000' },
         { value: 10000, label: '10000' },
       ],
     };
-  }, [brandsOptions, groupsOptions, distributorsOptions, config]);
+  }, [
+    brandsOptions,
+    groupsOptions,
+    distributorsOptions,
+    geoIndicatorsOptions,
+    config,
+  ]);
 
   // Used filter items
   const usedFilterItems = useMemo((): IUsedFilterItem[] => {
-    return [
-      ...getUsedFilterItems([
-        rowsCount !== 'all' && {
-          value: rowsCount,
-          getLabelFromValue(value) {
-            return value === 'all'
-              ? 'Все'
-              : 'Строки: '.concat(value.toString());
-          },
-          items: [],
-          onDelete: () => setRowsCount('all'),
+    let usedFilterItems = getUsedFilterItems([
+      rowsCount !== 'all' && {
+        value: rowsCount,
+        getLabelFromValue(value) {
+          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
         },
-      ]),
-      brands.length > 0 && {
+        items: [],
+        onDelete: () => setRowsCount('all'),
+      },
+    ]);
+    if (brands.length > 0) {
+      usedFilterItems.push({
         label: 'Бренды: ',
         value: 'brand-roots',
         onDelete: () => setBrands([]),
@@ -70,8 +78,10 @@ export const useDbFilters = ({
             },
           };
         }),
-      },
-      groups.length > 0 && {
+      });
+    }
+    if (groups.length > 0) {
+      usedFilterItems.push({
         label: 'Группы: ',
         value: 'group-roots',
         onDelete: () => setGroups([]),
@@ -85,8 +95,10 @@ export const useDbFilters = ({
             },
           };
         }),
-      },
-      distributors.length > 0 && {
+      });
+    }
+    if (distributors.length > 0) {
+      usedFilterItems.push({
         label: 'Дистрибьюторы: ',
         value: 'distributor-roots',
         onDelete: () => setDistributors([]),
@@ -102,29 +114,54 @@ export const useDbFilters = ({
             },
           };
         }),
-      },
-    ].filter(Boolean) as IUsedFilterItem[];
-  }, [brands, groups, distributors, rowsCount, options]);
+      });
+    }
+
+    if (geoIndicators.length > 0) {
+      usedFilterItems.push({
+        label: 'Геоиндикаторы: ',
+        value: 'geo-indicator-roots',
+        onDelete: () => setGeoIndicators([]),
+        subItems: geoIndicators.map(geoIndicatorId => {
+          const geoIndicator = options.geoIndicators.find(
+            g => g.value === geoIndicatorId
+          );
+          return {
+            label: geoIndicator?.label || '',
+            value: geoIndicatorId,
+            onDelete: () => {
+              setGeoIndicators(prev => prev.filter(g => g !== geoIndicatorId));
+            },
+          };
+        }),
+      });
+    }
+
+    return usedFilterItems;
+  }, [brands, groups, distributors, rowsCount, geoIndicators, options]);
 
   // Reset
-  const resetFilters = useCallback(() => {
-    setBrands([]);
-    setGroups([]);
-    setDistributors([]);
-    setIndicator(indicatorDefault);
-    setRowsCount(rowsCountDefault);
-  }, [indicatorDefault, rowsCountDefault]);
 
   const defaults = useMemo(
     () => ({
       brands: [] as number[],
       groups: [] as number[],
       distributors: [] as number[],
+      geoIndicators: [] as number[],
       indicator: indicatorDefault,
       rowsCount: rowsCountDefault,
     }),
     [indicatorDefault, rowsCountDefault]
   );
+
+  const resetFilters = useCallback(() => {
+    setBrands(defaults.brands);
+    setGroups(defaults.groups);
+    setGeoIndicators(defaults.geoIndicators);
+    setDistributors(defaults.distributors);
+    setIndicator(defaults.indicator);
+    setRowsCount(defaults.rowsCount);
+  }, [defaults]);
 
   // Values for API/filtering
   const values = useMemo(
@@ -134,8 +171,9 @@ export const useDbFilters = ({
       distributors,
       indicator,
       rowsCount,
+      geoIndicators,
     }),
-    [brands, groups, distributors, indicator, rowsCount]
+    [brands, groups, distributors, indicator, rowsCount, geoIndicators]
   );
 
   return {
@@ -145,6 +183,7 @@ export const useDbFilters = ({
     // Individual states
     brands,
     groups,
+    geoIndicators,
     distributors,
     indicator,
     rowsCount,
@@ -152,6 +191,7 @@ export const useDbFilters = ({
     // Setters
     setBrands,
     setGroups,
+    setGeoIndicators,
     setDistributors,
     setIndicator,
     setRowsCount,
@@ -162,12 +202,12 @@ export const useDbFilters = ({
     // For Table component
     usedFilterItems,
     resetFilters,
-    defaults,
 
     // Helper
     enabled: {
       brands: config?.brands?.enabled !== false,
       groups: config?.groups?.enabled !== false,
+      geoIndicators: config?.geoIndicators?.enabled === true,
       distributors: config?.distributors?.enabled === true,
       indicator: config?.indicator?.enabled !== false,
       rowsCount: config?.rowsCount?.enabled !== false,

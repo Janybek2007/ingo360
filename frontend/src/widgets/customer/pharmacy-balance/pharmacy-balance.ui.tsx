@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -61,28 +61,11 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     months: monthsPreset('total_packages', sales),
   });
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions', 'total'],
-    data: sales,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      setGroupBy,
+    });
 
   return (
     <PageSection
@@ -100,22 +83,18 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             isMultiple
             checkbox
             showToggleAll
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={processedData}
-            fileName="white-spots.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="white-spots.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={sales.length === 0}
       >
         <Table
           filters={{
@@ -123,7 +102,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={sales}
           maxHeight={560}
           rounded="none"
         />

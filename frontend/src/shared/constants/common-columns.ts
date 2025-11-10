@@ -141,7 +141,252 @@ export const commonColumns = {
       })),
     },
   }),
+  status: (size = 280, key = 'is_active'): CColumn<any> => ({
+    id: 'is_active',
+    key,
+    header: 'Статус',
+    size,
+    type: 'select',
+    custom: {
+      options: [
+        { label: 'Активен', value: 'true' },
+        { label: 'Неактивен', value: 'false' },
+      ],
+      cell: ({ getValue }) => {
+        const isActive = getValue() == 'true' || getValue() === true;
+        return isActive ? 'Активен' : 'Неактивен';
+      },
+    },
+  }),
+  companyName: (size = 200): CColumn<any> => ({
+    id: 'name',
+    key: 'name',
+    header: 'Компания',
+    size,
+  }),
+  companyActiveUsersLimit: (size = 227): CColumn<any> => ({
+    id: 'active_users_limit',
+    key: 'active_users_limit',
+    header: 'Лимит учетных записей',
+    size,
+    type: 'number',
+  }),
+  companyActiveUsers: (size = 220): CColumn<any> => ({
+    id: 'active_users',
+    key: 'active_users',
+    header: 'Активные пользователи',
+    size,
+  }),
+  companyContractNumber: (size = 213): CColumn<any> => ({
+    id: 'contract_number',
+    key: 'contract_number',
+    header: '№ Договора',
+    size,
+  }),
+  companyContractEndDate: (size = 273): CColumn<any> => ({
+    id: 'contract_end_date',
+    key: 'contract_end_date',
+    header: 'Срок окончания договора',
+    size,
+  }),
+  userFullName: (size = 280): CColumn<any> => ({
+    id: 'fullName',
+    header: 'ФИО',
+    size,
+    type: 'string',
+    custom: {
+      accessor: (row: any) =>
+        `${row.last_name} ${row.first_name} ${row.patronymic || ''}`.trim() ||
+        'Не указано',
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          `${user.last_name} ${user.first_name} ${user.patronymic || ''}`.trim() ||
+          'Не указано'
+        );
+      },
+    },
+  }),
+  userRole: (size = 280, roles?: any[], rolesObject?: any): CColumn<any> => ({
+    id: 'role',
+    key: 'role',
+    header: 'Роль',
+    size,
+    type: 'select',
+    custom: {
+      accessor: (row: any) => (rolesObject ? rolesObject[row.role] : row.role),
+      options: roles
+        ? roles.map(role => ({
+            label: rolesObject ? rolesObject[role] : role,
+            value: role,
+          }))
+        : undefined,
+    },
+  }),
+  userEmail: (size = 280): CColumn<any> => ({
+    id: 'email',
+    key: 'email',
+    header: 'Электронная почта',
+    size,
+    type: 'string',
+  }),
+  customerPosition: (size = 200): CColumn<any> => ({
+    id: 'position',
+    header: 'Должность',
+    size,
+    type: 'string',
+    custom: {
+      accessor: (row: any) =>
+        (row as { position?: string }).position || 'Не указана',
+    },
+  }),
+  customerCompany: (size = 290, data?: any[]): CColumn<any> => ({
+    id: 'companyName',
+    header: 'Компания',
+    size,
+    type: 'select',
+    custom: {
+      accessor: (row: any) => row.company?.name || 'Не указана',
+      options: data
+        ? Array.from(
+            new Set(data.map(item => item.company?.name || 'Не указана'))
+          ).map(company => ({
+            label: company,
+            value: company,
+          }))
+        : undefined,
+    },
+  }),
+  // Report Logs columns
+  reportLogId: (): CColumn<any> => ({
+    id: 'id',
+    key: 'id',
+    header: 'ID',
+    size: 80,
+  }),
+  reportLogUserFullName: (): CColumn<any> => ({
+    id: 'user_full_name',
+    header: 'ФИО',
+    size: 200,
+    type: 'select',
+    custom: {
+      accessor: (row: any) =>
+        `${row.user_last_name} ${row.user_first_name}`.trim() || 'Не указано',
+    },
+  }),
+  reportLogTargetTable: (): CColumn<any> => ({
+    id: 'target_table',
+    key: 'target_table',
+    header: 'Целевая таблица',
+    size: 180,
+    type: 'select',
+  }),
+  reportLogRecordsCount: (): CColumn<any> => ({
+    id: 'records_count',
+    key: 'records_count',
+    header: 'Количество записей',
+    size: 150,
+    type: 'number',
+    aggregate: 'sum',
+  }),
+  reportLogCreatedAt: (): CColumn<any> => ({
+    id: 'created_at',
+    key: 'created_at',
+    header: 'Дата создания',
+    size: 180,
+    custom: {
+      cell: ({ row }) => {
+        const date = new Date(row.original.created_at);
+        return new Intl.DateTimeFormat('ru-RU', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(date);
+      },
+    },
+  }),
+  // Specialist Coverage columns
+  specialistCoverageMedicalFacility: (): CColumn<any> => ({
+    id: 'medical_facility_id',
+    key: 'medical_facility_name',
+    header: 'ЛПУ',
+    size: 224,
+    type: 'select',
+    custom: {
+      accessor: (row: any) => row.medical_facility_name || 'Не указано',
+    },
+  }),
+  specialistCoverageSpeciality: (): CColumn<any> => ({
+    id: 'speciality_id',
+    key: 'speciality_name',
+    header: 'Специальность',
+    size: 230,
+    type: 'select',
+    custom: {
+      accessor: (row: any) => row.speciality_name || 'Не указано',
+    },
+  }),
+  specialistCoveragePercentage: (): CColumn<any> => ({
+    id: 'coverage_percentage',
+    key: 'coverage_percentage',
+    header: 'Процент охвата врачей',
+    size: 230,
+    type: 'number',
+    custom: {
+      accessor: (row: any) => `${row.coverage_percentage.toFixed(1)}%`,
+    },
+  }),
+  specialistCoverageTotalDoctors: (): CColumn<any> => ({
+    id: 'total_doctors',
+    key: 'total_doctors',
+    header: 'Общая колл. врачей',
+    size: 230,
+    type: 'number',
+    aggregate: 'sum',
+  }),
+  specialistCoverageDoctorsWithVisits: (): CColumn<any> => ({
+    id: 'doctors_with_visits',
+    key: 'doctors_with_visits',
+    header: 'Количество врачей с визитами',
+    size: 300,
+    type: 'number',
+    aggregate: 'sum',
+  }),
+  // Market Insights columns
+  marketInsightsCompany: (): CColumn<any> => ({
+    id: 'company',
+    key: 'company',
+    header: 'Компания',
+    type: 'select',
+  }),
+  marketInsightsBrand: (): CColumn<any> => ({
+    id: 'brand',
+    key: 'brand',
+    header: 'Бренд',
+    type: 'select',
+  }),
+  marketInsightsSegment: (): CColumn<any> => ({
+    id: 'segment',
+    key: 'segment',
+    header: 'Сегмент',
+    type: 'select',
+  }),
+  marketInsightsDosageForm: (): CColumn<any> => ({
+    id: 'dosage_form',
+    key: 'dosage_form',
+    header: 'Форма выписка',
+    type: 'select',
+  }),
+  marketInsightsDosage: (): CColumn<any> => ({
+    id: 'dosage',
+    key: 'dosage',
+    header: 'Дозировка',
+    type: 'select',
+  }),
 };
+//
 
 export const monthsPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
@@ -150,7 +395,6 @@ export const monthsPreset = <
   data: TData[],
   options?: { asPercent?: boolean }
 ) => {
-  // Извлекаем все уникальные годы из данных
   const years = new Set<number>();
   data.forEach(row => {
     if (row.periods_data) {
@@ -163,12 +407,10 @@ export const monthsPreset = <
     }
   });
 
-  // Если годов нет в данных, используем текущий год
   if (years.size === 0) {
     years.add(new Date().getFullYear());
   }
 
-  // Генерируем все 12 месяцев для каждого года
   const allPeriods: string[] = [];
   Array.from(years)
     .sort()

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
 import { UserQueries } from '#/entities/user/user.queries';
@@ -13,17 +12,10 @@ import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import {
-  ROLES,
-  ROLES_OBJECT,
-  STATUSES_OBJECT,
-} from '#/shared/constants/roles_statuses';
+import { commonColumns } from '#/shared/constants/common-columns';
+import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
+import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import {
-  booleanFilter,
-  selectFilter,
-  stringFilter,
-} from '#/shared/utils/filter';
 import { filterBySearch } from '#/shared/utils/search';
 
 const IngoAccountsPage: React.FC = () => {
@@ -44,91 +36,37 @@ const IngoAccountsPage: React.FC = () => {
     ]);
   }, [search, queryData.data]);
 
-  const allColumns = useMemo(
-    (): ColumnDef<IUserItem>[] => [
-      {
-        id: 'fullName',
-        accessorFn: (row: IUserItem) => {
-          return (
-            `${row.last_name} ${row.first_name} ${row.patronymic || ''}`.trim() ||
-            'Не указано'
-          );
-        },
-        header: 'ФИО',
-        size: 280,
-        cell: ({ row }) => {
-          const user = row.original;
-          return (
-            `${user.last_name} ${user.first_name} ${user.patronymic || ''}`.trim() ||
-            'Не указано'
-          );
-        },
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        filterType: 'string',
-      },
-      {
-        id: 'role',
-        accessorKey: 'role',
-        accessorFn: row => ROLES_OBJECT[row.role],
-        header: 'Роль',
-        size: 280,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: ROLES.slice(0, 2).map(role => ({
-          label: ROLES_OBJECT[role],
-          value: role,
-        })),
-      },
-      {
-        id: 'email',
-        accessorKey: 'email',
-        header: 'Электронная почта',
-        size: 280,
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        filterType: 'string',
-      },
-      {
-        id: 'is_active',
-        accessorKey: 'is_active',
-        header: 'Статус',
-        enableColumnFilter: true,
-        filterFn: booleanFilter(),
-        filterType: 'select',
-        selectOptions: [
-          { label: 'Активен', value: 'true' },
-          { label: 'Неактивен', value: 'false' },
-        ],
-        size: 280,
-        cell(props) {
-          return STATUSES_OBJECT[props.getValue() ? 'active' : 'inactive'];
-        },
-      },
+  const allColumns = useGenerateColumns<IUserItem>({
+    data: filteredData,
+    columns: [
+      commonColumns.userFullName(),
+      commonColumns.userRole(280, ROLES.slice(0, 2), ROLES_OBJECT),
+      commonColumns.userEmail(),
+      commonColumns.status(),
       {
         id: 'actions',
         header: '',
         size: 120,
-        cell(props) {
-          return (
-            <RowActions
-              items={[
-                {
-                  type: 'edit',
-                  onSelect: () => {
-                    setEditData(props.row.original);
-                    setTimeout(() => set('edit'), 0);
+        custom: {
+          cell(props) {
+            return (
+              <RowActions
+                items={[
+                  {
+                    type: 'edit',
+                    onSelect: () => {
+                      setEditData(props.row.original);
+                      setTimeout(() => set('edit'), 0);
+                    },
                   },
-                },
-              ]}
-            />
-          );
+                ]}
+              />
+            );
+          },
         },
       },
     ],
-    [set]
-  );
+  });
 
   return (
     <main>

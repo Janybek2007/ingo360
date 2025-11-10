@@ -1,136 +1,138 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import {
-  type Dispatch,
-  type SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-
-const extractColumnId = <T>(column: ColumnDef<T>): string => {
-  if ('accessorKey' in column && column.accessorKey) {
-    return String(column.accessorKey);
-  }
-  if (column.id != null) {
-    return String(column.id);
-  }
-  return '';
-};
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface UsecolumnVisibilityOptions<T> {
   allColumns: ColumnDef<T>[];
   defaultVisible?: string[];
   ignore?: string[];
-  data?: T[];
-}
-
-interface UseColumnVisibilityResult<T> {
-  visibleColumns: string[];
-  setVisibleColumns: Dispatch<SetStateAction<string[]>>;
-  resetVisibleColumns: () => void;
-  columnsForTable: ColumnDef<T>[];
-  columnItems: Array<{
-    value: string;
-    label: string;
-    disabled: boolean;
-  }>;
-  processedData: T[];
-  groupDimensions: string[];
+  setGroupBy?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export function useColumnVisibility<T>({
   allColumns,
   defaultVisible,
   ignore = [],
-  data,
-}: UsecolumnVisibilityOptions<T>): UseColumnVisibilityResult<T> {
-  const availableIds = useMemo(
-    () =>
-      allColumns.map(extractColumnId).filter(id => id && !ignore.includes(id)),
-    [allColumns, ignore]
-  );
+  setGroupBy,
+}: UsecolumnVisibilityOptions<T>) {
+  const getInitialVisible = () =>
+    defaultVisible ??
+    allColumns
+      .map(col => String('accessorKey' in col ? col.accessorKey : col.id))
+      .filter(id => !ignore.includes(id));
 
-  const defaultIds = useMemo(() => {
-    if (defaultVisible && defaultVisible.length > 0) {
-      return defaultVisible.filter(id => availableIds.includes(id));
-    }
-    return availableIds;
-  }, [availableIds, defaultVisible]);
+  const [visibleColumns, setVisibleColumns] =
+    useState<string[]>(getInitialVisible);
 
-  const defaultIdsRef = useRef<string[]>(defaultIds);
+  const prevColumnIdsRef = useRef<string>('');
 
   useEffect(() => {
-    defaultIdsRef.current = defaultIds;
-  }, [defaultIds]);
+    const currentIds = allColumns
+      .map(col => String('accessorKey' in col ? col.accessorKey : col.id))
+      .filter(id => !ignore.includes(id));
 
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(defaultIds);
+    const currentIdsString = currentIds.sort().join(',');
 
-  const visibleColumns = useMemo(() => {
-    const filtered = selectedColumns.filter(id => availableIds.includes(id));
+    if (prevColumnIdsRef.current === currentIdsString) return;
 
-    const merged = Array.from(new Set([...filtered, ...defaultIds]));
+    prevColumnIdsRef.current = currentIdsString;
 
-    return merged.length > 0 ? merged : defaultIds;
-  }, [selectedColumns, availableIds, defaultIds]);
+    // добавляем новые колонки
+    const newColumns = currentIds.filter(id => !visibleColumns.includes(id));
+    if (newColumns.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVisibleColumns(prev => [...prev, ...newColumns]);
+    }
+
+    // удаляем несуществующие
+    const removedColumns = visibleColumns.filter(
+      id => !currentIds.includes(id)
+    );
+    if (removedColumns.length > 0) {
+      setVisibleColumns(prev => prev.filter(id => currentIds.includes(id)));
+    }
+  }, [allColumns, ignore, visibleColumns]);
 
   const columnsForTable = useMemo(
     () =>
       allColumns.filter(col => {
-        const id = extractColumnId(col);
+        const id = 'accessorKey' in col ? col.accessorKey : col.id;
         if (!id) return false;
-        if (ignore.includes(id)) return true;
-        return visibleColumns.includes(id);
+        if (ignore.includes(String(id))) return true;
+        return visibleColumns.includes(String(id));
       }),
     [allColumns, visibleColumns, ignore]
   );
 
   const columnItems = useMemo(() => {
     return allColumns
-      .map(column => {
-        const id = extractColumnId(column);
-        if (!id || ignore.includes(id)) return null;
+      .filter(col => {
+        const id = 'accessorKey' in col ? col.accessorKey : col.id;
+        return id !== undefined && !ignore.includes(String(id));
+      })
+      .map(col => {
+        const id = 'accessorKey' in col ? col.accessorKey : col.id;
         return {
-          value: id,
-          label: 'header' in column ? (column.header as string) : id,
+          value: String(id),
+          label: 'header' in col ? (col.header as string) : String(id),
           disabled: false,
         };
-      })
-      .filter(Boolean) as Array<{
-      value: string;
-      label: string;
-      disabled: boolean;
-    }>;
+      });
   }, [allColumns, ignore]);
 
-  const processedData = useMemo(() => (data ?? []) as T[], [data]);
+  const load = useCallback(() => {
+    if (setGroupBy == null) return;
+    const groupDimensions = getGroupDimensions(
+      allColumns,
+      visibleColumns,
+      ignore
+    );
+    setGroupBy(prev =>
+      prev.length === groupDimensions.length &&
+      prev.every((value, index) => value === groupDimensions[index])
+        ? prev
+        : groupDimensions
+    );
+  }, [allColumns, ignore, setGroupBy, visibleColumns]);
 
-  const groupDimensions = useMemo(() => {
-    return allColumns.reduce<string[]>((acc, column) => {
-      const id = extractColumnId(column);
-      if (!id) return acc;
-      if (ignore.includes(id)) return acc;
-      if (!visibleColumns.includes(id)) return acc;
-      const dimension = column.meta?.groupDimension;
-      if (dimension && !acc.includes(dimension)) {
-        acc.push(dimension);
-      }
-      return acc;
-    }, []);
-  }, [allColumns, visibleColumns, ignore]);
-
-  const resetVisibleColumns = useCallback(() => {
-    setSelectedColumns(defaultIdsRef.current);
-  }, []);
+  const setColumns = useCallback(
+    (value: React.SetStateAction<string[]>) => {
+      load();
+      setVisibleColumns(value);
+    },
+    [load]
+  );
 
   return {
     visibleColumns,
-    setVisibleColumns: setSelectedColumns,
-    resetVisibleColumns,
+    setVisibleColumns: setColumns,
     columnsForTable,
     columnItems,
-    processedData,
-    groupDimensions,
   };
+}
+
+function getGroupDimensions(
+  columns: ColumnDef<any>[],
+  visibleColumnIds: string[],
+  ignore: string[] = []
+): string[] {
+  return columns.reduce<string[]>((acc, column) => {
+    const id =
+      'accessorKey' in column && column.accessorKey
+        ? String(column.accessorKey)
+        : column.id != null
+          ? String(column.id)
+          : '';
+
+    if (!id || ignore.includes(id)) return acc;
+    if (!visibleColumnIds.includes(id)) return acc;
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const dimension = column.meta?.groupDimension;
+    if (dimension && !acc.includes(dimension)) {
+      acc.push(dimension);
+    }
+
+    return acc;
+  }, []);
 }

@@ -14,10 +14,14 @@ export const AsyncBoundary: React.FC<IAsyncBoundaryProps> = ({
   boundary,
   isLoading = false,
   queryError,
+  isEmpty = false,
   onRetry,
 }) => {
   if (isLoading) {
     return <>{fallback}</>;
+  }
+  if (isEmpty) {
+    return <DefaultEmpty />;
   }
 
   if (queryError) {
@@ -31,35 +35,57 @@ export const AsyncBoundary: React.FC<IAsyncBoundaryProps> = ({
 
 AsyncBoundary.displayName = 'AsyncBoundary';
 
-const DefaultFallback = () => (
-  <div className="flex flex-col items-center justify-center w-full py-20 text-gray-500 animate-pulse">
+const DefaultFallback = React.memo(() => (
+  <div className="flex flex-col items-center justify-center w-full my-40 text-gray-500 animate-pulse">
     <LoadingIcon className="animate-spin size-[32px]" />
     <p className="text-sm font-medium">Загрузка данных...</p>
   </div>
+));
+
+const DefaultError = React.memo(
+  ({
+    queryError,
+    onRetry,
+  }: {
+    queryError?: unknown;
+    onRetry?: VoidFunction;
+  }) => (
+    <div className="flex flex-col items-center justify-center my-10 px-4 text-center text-red-600 space-y-3">
+      <LucideAlertCircleIcon className="text-red-500 size-[40px]" />
+      <p className="font-semibold text-lg">Произошла ошибка</p>
+      <p className="text-sm text-red-500 max-w-sm">
+        {(queryError as Error)?.message ?? 'Неизвестная ошибка'}
+      </p>
+
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="mt-2 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 shadow-sm"
+        >
+          <LucideRefreshCcwIcon className="size-[18px] transition-transform duration-200 group-hover:rotate-180" />
+          Повторить
+        </button>
+      )}
+    </div>
+  )
 );
 
-const DefaultError = ({
-  queryError,
-  onRetry,
-}: {
-  queryError?: unknown;
-  onRetry?: VoidFunction;
-}) => (
-  <div className="flex flex-col items-center justify-center py-10 px-4 text-center text-red-600 space-y-3">
-    <LucideAlertCircleIcon className="text-red-500 size-[40px]" />
-    <p className="font-semibold text-lg">Произошла ошибка</p>
-    <p className="text-sm text-red-500 max-w-sm">
-      {(queryError as Error)?.message ?? 'Неизвестная ошибка'}
-    </p>
-
-    {onRetry && (
-      <button
-        onClick={onRetry}
-        className="mt-2 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 shadow-sm"
-      >
-        <LucideRefreshCcwIcon className="size-[18px] transition-transform duration-200 group-hover:rotate-180" />
-        Повторить
-      </button>
-    )}
-  </div>
+const DefaultEmpty = React.memo(
+  ({
+    title = 'Нет данных для отображения',
+    description = 'Попробуйте изменить фильтры.',
+  }: {
+    title?: string;
+    description?: string;
+  }) => (
+    <div className="flex flex-col items-center justify-center my-40 px-4 text-center text-gray-500 space-y-3">
+      <LucideAlertCircleIcon className="text-gray-400 size-[36px]" />
+      <p className="font-medium text-base">{title}</p>
+      <p className="text-sm text-gray-400 max-w-sm">{description}</p>
+    </div>
+  )
 );
+
+DefaultFallback.displayName = 'DefaultFallback';
+DefaultError.displayName = 'DefaultError';
+DefaultEmpty.displayName = 'DefaultEmpty';

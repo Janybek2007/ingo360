@@ -19,10 +19,7 @@ import {
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Select } from '#/shared/components/ui/select';
-import {
-  type IUsedFilterItem,
-  UsedFilter,
-} from '#/shared/components/used-filter';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
@@ -32,19 +29,7 @@ import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
-
-const DISTRIBUTOR_COLORS = [
-  '#1f77b4',
-  '#ff7f0e',
-  '#2ca02c',
-  '#17becf',
-  '#9467bd',
-  '#8c564b',
-  '#e377c2',
-  '#7f7f7f',
-  '#bcbd22',
-  '#d62728',
-];
+import { stringToColor } from '#/shared/utils/string-to-color';
 
 const formatMoney = (value: number) => value.toLocaleString('ru-RU');
 
@@ -90,10 +75,10 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       ['value']
     );
 
-    return uniqueDistributors.map((dist, index) => ({
+    return uniqueDistributors.map(dist => ({
       id: dist.value,
       name: dist.label,
-      color: DISTRIBUTOR_COLORS[index % DISTRIBUTOR_COLORS.length],
+      color: stringToColor(dist.label),
     }));
   }, [sales]);
 
@@ -134,33 +119,6 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     distributorsData,
     distributors,
   ]);
-
-  const usedFilterItems = useMemo((): IUsedFilterItem[] => {
-    return [
-      ...getUsedFilterItems([
-        {
-          value: periodFilter.selectedValues,
-          getLabelFromValue: getPeriodLabel,
-          onDelete: v =>
-            periodFilter.onChange(
-              periodFilter.selectedValues.filter(x => x !== v)
-            ),
-        },
-        distributors.length > 0 &&
-          distributors.length !== distributorsData.length && {
-            value: distributors,
-            onDelete: () => setDistributors(distributorsData.map(d => d.id)),
-            items: distributorsData.map(d => ({ label: d.name, value: d.id })),
-            main: {
-              onDelete: value =>
-                setDistributors(distributors.filter(x => x !== value)),
-              label: 'Дистрибьюторы: ',
-            },
-          },
-      ]),
-      ...filters.usedFilterItems,
-    ].filter(Boolean) as IUsedFilterItem[];
-  }, [distributors, distributorsData, filters, periodFilter]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
@@ -206,12 +164,39 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={chartData.length === 0}
       >
         <div className="space-y-4 relative">
           <UsedFilter
-            usedFilterItems={usedFilterItems}
+            usedFilterItems={filters.usedFilterItems}
             resetFilters={resetFilters}
-            isView={periodFilter.isView}
+            usedPeriodFilters={getUsedFilterItems([
+              {
+                value: periodFilter.selectedValues,
+                getLabelFromValue: getPeriodLabel,
+                onDelete: v =>
+                  periodFilter.onChange(
+                    periodFilter.selectedValues.filter(x => x !== v)
+                  ),
+              },
+              distributors.length > 0 &&
+                distributors.length !== distributorsData.length && {
+                  value: distributors,
+                  onDelete: () =>
+                    setDistributors(distributorsData.map(d => d.id)),
+                  items: distributorsData.map(d => ({
+                    label: d.name,
+                    value: d.id,
+                  })),
+                  main: {
+                    onDelete: value =>
+                      setDistributors(distributors.filter(x => x !== value)),
+                    label: 'Дистрибьюторы: ',
+                  },
+                },
+            ])}
+            isViewPeriods={periodFilter.isView}
+            isView={filters.usedFilterItems.length > 0}
           />
           <div className="font-inter">
             {distributors.length === 0 ? (

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -12,19 +12,16 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import {
-  commonColumns,
-  monthsPreset,
-  totalPreset,
-} from '#/shared/constants/common-columns';
+import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const NumericalDistribution: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const filterOptions = useFilterOptions();
+  const filterOptions = useFilterOptions({
+    geoIndicators: true,
+  });
   const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const filters = useDbFilters({
@@ -32,6 +29,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     groupsOptions: filterOptions.groups,
     config: {
       indicator: { enabled: false },
+      rowsCount: { enabled: true },
+      geoIndicators: { enabled: true },
     },
   });
 
@@ -65,36 +64,15 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       commonColumns.segment(),
       commonColumns.group(),
     ],
-    months: monthsPreset('pharmacies_with_sku', sales),
-    total: totalPreset('pharmacies_with_sku'),
+    months: monthsPreset('nd_percent', sales, { asPercent: true }),
   });
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions', 'total'],
-    data: sales,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
-
-  const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(processedData, 'pharmacies_with_sku');
-  }, [processedData]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      ignore: ['total'],
+      setGroupBy,
+    });
 
   return (
     <PageSection
@@ -113,14 +91,12 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
           <ExportToExcelButton
-            data={processedData}
+            data={sales}
             fileName="numerical-distribution.xlsx"
           />
         </div>
@@ -129,6 +105,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={sales.length === 0}
       >
         <Table
           filters={{
@@ -136,9 +113,8 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={sales}
           maxHeight={560}
-          rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"
         />
       </AsyncBoundary>

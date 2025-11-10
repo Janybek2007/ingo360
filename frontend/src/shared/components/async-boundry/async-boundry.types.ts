@@ -4,6 +4,7 @@ export interface IAsyncBoundaryProps {
   error?: React.ReactNode;
   boundary?: React.ReactNode;
   isLoading?: boolean;
+  isEmpty?: boolean;
   queryError?: unknown;
   onRetry?: () => void;
 }

@@ -23,16 +23,12 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { getDbWorkColumns } from './constants';
 import type { IDbWorkProps } from './db-work.types';
 
-const arraysEqual = (a: string[], b: string[]) =>
-  a.length === b.length && a.every((value, index) => value === b[index]);
-
 export const DbWork: React.FC<IDbWorkProps> = React.memo(
   ({
     current,
     currentData,
     rowsCount,
     setRowsCount,
-    groupBy,
     onGroupChange,
     ...props
   }) => {
@@ -61,27 +57,14 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
       return columns;
     }, [currentData, current]);
 
-    const {
-      visibleColumns,
-      setVisibleColumns,
-      resetVisibleColumns,
-      columnsForTable,
-      columnItems,
-      processedData,
-      groupDimensions,
-    } = useColumnVisibility({
-      allColumns: allColumns.filter(Boolean) as ColumnDef<IDbItem>[],
-      ignore: ['actions'],
-      data: currentData,
-    });
+    const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+      useColumnVisibility({
+        allColumns: allColumns.filter(Boolean) as ColumnDef<IDbItem>[],
+        ignore: ['actions'],
+        setGroupBy: onGroupChange,
+      });
 
-    React.useEffect(() => {
-      if (!arraysEqual(groupBy, groupDimensions)) {
-        onGroupChange(groupDimensions);
-      }
-    }, [groupBy, groupDimensions, onGroupChange]);
-
-    const tableData: IDbItem[] = processedData ?? [];
+    const tableData: IDbItem[] = currentData ?? [];
 
     return (
       <>
@@ -110,8 +93,6 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 showToggleAll
                 isMultiple
                 checkbox
-                onReset={resetVisibleColumns}
-                resetLabel="Сбросить все"
                 classNames={{
                   menu: 'min-w-[11.25rem]  w-max right-0',
                 }}

@@ -86,6 +86,7 @@ export class DbQueries {
       // "ytd-2025-6" → "6"
       return {
         periods: values.map(v => {
+          if (typeof v !== 'string') return '';
           const parts = v.split('-');
           // ищем последнюю часть (номер месяца/периода)
           const num = parts[parts.length - 1];

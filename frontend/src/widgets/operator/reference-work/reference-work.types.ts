@@ -8,4 +8,5 @@ export interface IReferenceWorkProps {
   setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
   isLoading: boolean;
   queryError: Error | null;
+  isEmpty: boolean;
 }

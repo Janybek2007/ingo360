@@ -2,8 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
 import { CompanyQueries } from '#/entities/company';
-import { UserQueries } from '#/entities/user/user.queries';
-import type { IUserItem } from '#/entities/user/user.types';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { getResponseError } from '#/shared/utils/get-error';
@@ -44,64 +42,12 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
 
       return response.json<TAddCompanyResponse>();
     },
-    async onSuccess(data, variables) {
+    async onSuccess() {
       const { toast } = await import('sonner');
 
-      const companyId = variables.id;
-      const payloadStatus = variables.body.is_active;
-      const responseStatus = (data as unknown as { is_active?: boolean })
-        ?.is_active;
-      const companyIsActive =
-        typeof payloadStatus === 'boolean'
-          ? payloadStatus
-          : typeof responseStatus === 'boolean'
-            ? responseStatus
-            : undefined;
-
-      if (typeof companyIsActive === 'boolean') {
-        queryClient.setQueryData<IUserItem[] | undefined>(
-          UserQueries.queryKeys.getCustomers,
-          prev =>
-            prev?.map(user =>
-              user.company_id === companyId
-                ? { ...user, is_active: companyIsActive }
-                : user
-            )
-        );
-
-        queryClient.setQueryData<IUserItem[] | undefined>(
-          UserQueries.queryKeys.getUsers,
-          prev =>
-            prev?.map(user =>
-              user.company_id === companyId
-                ? { ...user, is_active: companyIsActive }
-                : user
-            )
-        );
-
-        queryClient.setQueryData<IUserItem | null | undefined>(
-          UserQueries.queryKeys.getUser,
-          prev =>
-            prev && prev.company_id === companyId
-              ? { ...prev, is_active: companyIsActive }
-              : prev
-        );
-      }
-
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: CompanyQueries.queryKeys.getCompanies,
-        }),
-        queryClient.refetchQueries({
-          queryKey: UserQueries.queryKeys.getCustomers,
-        }),
-        queryClient.refetchQueries({
-          queryKey: UserQueries.queryKeys.getUsers,
-        }),
-        queryClient.refetchQueries({
-          queryKey: UserQueries.queryKeys.getUser,
-        }),
-      ]);
+      queryClient.refetchQueries({
+        queryKey: CompanyQueries.queryKeys.getCompanies,
+      });
 
       onClose();
       toast.success('Компания успешно обновлена');

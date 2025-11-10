@@ -20,6 +20,10 @@ const ReferenceWorkPage: React.FC = () => {
     })
   );
 
+  const currentData = React.useMemo(() => {
+    return queryData.data ? queryData.data[0] : [];
+  }, [queryData]);
+
   return (
     <main>
       <Tabs
@@ -29,12 +33,13 @@ const ReferenceWorkPage: React.FC = () => {
       ></Tabs>
 
       <ReferenceWork
-        currentData={queryData.data ? queryData.data[0] : []}
+        currentData={currentData}
         current={current as ReferencesType}
         rowsCount={rowsCount}
         setRowsCount={setRowsCount}
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={currentData.length === 0}
       />
     </main>
   );

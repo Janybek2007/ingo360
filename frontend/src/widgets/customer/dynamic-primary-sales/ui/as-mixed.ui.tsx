@@ -86,6 +86,10 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
         [data]
       );
 
+      const tradeStockMax = useMemo(() => {
+        return Math.max(...processedData.map(d => (d as any).trade_stock)) + 50;
+      }, [processedData]);
+
       const CustomXAxisTick = (props: any) => {
         const { x, y, payload } = props;
         const index = payload.index;
@@ -141,8 +145,9 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
               padding={{ left: 10, right: 10 }}
             />
 
+            <YAxis yAxisId="lineAxis" domain={[0, tradeStockMax]} hide />
+
             <YAxis
-              domain={[0, 100]}
               axisLine={false}
               tickLine={false}
               hide
@@ -163,10 +168,10 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
               maxBarSize={Infinity}
               radius={[0, 0, 0, 0]}
             />
-
             <Line
               type="linear"
               dataKey="trade_stock"
+              yAxisId="lineAxis"
               stroke={'#888888'}
               strokeWidth={3}
               activeDot={{ r: 6 }}

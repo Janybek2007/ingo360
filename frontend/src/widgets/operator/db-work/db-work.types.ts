@@ -7,7 +7,8 @@ export interface IDbWorkProps {
   rowsCount: 'all' | number;
   setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
   groupBy: string[];
-  onGroupChange: (groupBy: string[]) => void;
+  onGroupChange: React.Dispatch<React.SetStateAction<string[]>>;
   isLoading: boolean;
   queryError: Error | null;
+  isEmpty: boolean;
 }

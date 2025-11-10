@@ -44,17 +44,10 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
       [current, currentData]
     );
 
-    const {
-      visibleColumns,
-      setVisibleColumns,
-      resetVisibleColumns,
-      columnsForTable,
-      columnItems,
-      processedData,
-    } = useColumnVisibility({
-      allColumns,
-      data: currentData,
-    });
+    const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+      useColumnVisibility({
+        allColumns,
+      });
 
     return (
       <>
@@ -81,15 +74,13 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 showToggleAll
                 isMultiple
                 checkbox
-                onReset={resetVisibleColumns}
-                resetLabel="Сбросить все"
                 classNames={{
                   menu: 'w-max right-0',
                   menuItem: 'pr-10',
                 }}
               />
               <ExportToExcelButton
-                data={processedData}
+                data={currentData}
                 fileName="reference.xlsx"
               />
               <ImportReferencButton type={current} />
@@ -100,7 +91,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
           <AsyncBoundary {...props}>
             <Table
               columns={columnsForTable}
-              data={processedData}
+              data={currentData}
               filters={{
                 resetFilters: () => {
                   setRowsCount('all');

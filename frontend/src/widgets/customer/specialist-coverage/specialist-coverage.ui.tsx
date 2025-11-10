@@ -1,5 +1,4 @@
-import type { ColumnDef } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -7,10 +6,10 @@ import { PageSection } from '#/shared/components/page-section';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { commonColumns } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { numberFilter, selectFilter } from '#/shared/utils/filter';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 interface CoverageRow extends TDbItem {
@@ -57,98 +56,22 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     setRowsCount('all');
   }, []);
 
-  const allColumns = useMemo(
-    (): ColumnDef<CoverageRow>[] => [
-      {
-        id: 'medical_facility_id',
-        accessorKey: 'medical_facility_name',
-        accessorFn: row => row.medical_facility_name || 'Не указано',
-        header: 'ЛПУ',
-        size: 224,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: getUniqueItems(
-          visits.map(v => ({
-            value: v.medical_facility_id ?? 0,
-            label: v.medical_facility_name ?? 'Не указано',
-          })),
-          ['value']
-        ),
-      },
-      {
-        id: 'speciality_id',
-        accessorKey: 'speciality_name',
-        accessorFn: row => row.speciality_name || 'Не указано',
-        header: 'Специальность',
-        size: 230,
-        enableColumnFilter: true,
-        filterFn: selectFilter(),
-        filterType: 'select',
-        selectOptions: getUniqueItems(
-          visits.map(v => ({
-            value: v.speciality_id ?? 0,
-            label: v.speciality_name ?? 'Не указано',
-          })),
-          ['value']
-        ),
-      },
-      {
-        id: 'coverage_percentage',
-        accessorKey: 'coverage_percentage',
-        accessorFn: row => `${row.coverage_percentage.toFixed(1)}%`,
-        header: 'Процент охвата врачей',
-        size: 230,
-        enableColumnFilter: true,
-        filterFn: numberFilter(),
-        filterType: 'number',
-      },
-      {
-        id: 'total_doctors',
-        accessorKey: 'total_doctors',
-        header: 'Общая колл. врачей',
-        size: 230,
-        enableColumnFilter: true,
-        filterFn: numberFilter(),
-        filterType: 'number',
-        meta: { aggregate: 'sum' },
-      },
-      {
-        id: 'doctors_with_visits',
-        accessorKey: 'doctors_with_visits',
-        header: 'Количество врачей с визитами',
-        size: 300,
-        enableColumnFilter: true,
-        filterFn: numberFilter(),
-        filterType: 'number',
-        meta: { aggregate: 'sum' },
-      },
-    ],
-    [visits]
-  );
-
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions'],
+  const allColumns = useGenerateColumns({
     data: visits,
+    columns: [
+      commonColumns.specialistCoverageMedicalFacility(),
+      commonColumns.specialistCoverageSpeciality(),
+      commonColumns.specialistCoveragePercentage(),
+      commonColumns.specialistCoverageTotalDoctors(),
+      commonColumns.specialistCoverageDoctorsWithVisits(),
+    ],
   });
 
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      setGroupBy,
+    });
 
   return (
     <PageSection
@@ -175,12 +98,10 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{ menu: 'min-w-[18.75rem] right-0' }}
           />
           <ExportToExcelButton
-            data={processedData}
+            data={visits}
             fileName="specialist-coverage.xlsx"
           />
         </div>
@@ -192,7 +113,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
           resetFilters,
         }}
         columns={columnsForTable}
-        data={processedData}
+        data={visits}
         maxHeight={400}
         rounded="none"
       />

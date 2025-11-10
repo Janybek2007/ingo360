@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
-import { uiSet } from '#/shared/utils/ui-set';
 
 import {
   LucideAlertCircleIcon,
@@ -20,8 +19,6 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
     placeholder = '',
     type = 'text',
     classNames,
-    color = 'default',
-    variant = 'outlined',
     error,
     select,
     disabled = false,
@@ -47,7 +44,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
         <div
           className={cn(
             'mt-2 flex items-center relative rounded-xl transition-all',
-            uiSet.colorVariant(color, variant),
+            'bg-default hover:bg-default/80 text-black',
             disabled && 'opacity-60 cursor-not-allowed',
             classNames?.wrapper
           )}

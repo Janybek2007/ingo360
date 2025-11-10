@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -24,12 +24,17 @@ import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const RetailSales: React.FC = React.memo(() => {
   const [search, setSearch] = useState('');
-  const filterOptions = useFilterOptions();
+  const filterOptions = useFilterOptions({
+    geoIndicators: true,
+  });
   const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
+    config: {
+      geoIndicators: { enabled: true },
+    },
   });
 
   const queryData = useKeepQuery(
@@ -64,32 +69,16 @@ export const RetailSales: React.FC = React.memo(() => {
     total: totalPreset(filters.indicator),
   });
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions', 'total'],
-    data: sales,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      ignore: ['actions', 'total'],
+      setGroupBy,
+    });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(processedData, filters.indicator);
-  }, [processedData, filters.indicator]);
+    return calcPeriodTotals(sales, filters.indicator);
+  }, [sales, filters.indicator]);
 
   return (
     <PageSection
@@ -98,10 +87,6 @@ export const RetailSales: React.FC = React.memo(() => {
           <h4 className="font-semibold text-xl leading-[120%] text-black mb-2">
             Третичные продажи
           </h4>
-          {/* <p className="font-normal text-sm leading-[150%] text-[#727272]">
-            Бренды помесячно — в упаковках и $ + динамика отгрузок брендов, SKU.
-            Остатки товара на складах, товарный запас в днях
-          </p> */}
         </div>
       }
       headerEnd={
@@ -117,22 +102,18 @@ export const RetailSales: React.FC = React.memo(() => {
             checkbox
             isMultiple
             showToggleAll
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            data={processedData}
-            fileName="retail-sales.xlsx"
-          />
+          <ExportToExcelButton data={sales} fileName="retail-sales.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={sales.length === 0}
       >
         <Table
           key={filters.indicator}
@@ -141,7 +122,7 @@ export const RetailSales: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={sales}
           maxHeight={560}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"

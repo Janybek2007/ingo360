@@ -1,7 +1,5 @@
 import { type UseFormRegisterReturn } from 'react-hook-form';
 
-import type { TColors, TVariants } from '#/shared/types';
-
 import type { ISelectProps } from '../select';
 
 export interface IFormFieldProps {
@@ -17,8 +15,6 @@ export interface IFormFieldProps {
     input: string;
     root: string;
   }>;
-  color?: TColors;
-  variant?: TVariants;
   error?: string;
   select?: Pick<
     ISelectProps<false, string | number | boolean>,

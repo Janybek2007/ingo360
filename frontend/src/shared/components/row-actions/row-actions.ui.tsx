@@ -16,7 +16,7 @@ export const RowActions: React.FC<IRowActionsProps> = React.memo(
               key={`${item.type}-${index}`}
               onClick={item.onSelect}
               className={cn(
-                'border border-[#E7EAE9] rounded-full p-2',
+                'border border-[#E7EAE9] rounded-full p-2 group',
                 'bg-white hover:bg-gray-50 transition-colors',
                 'flex items-center justify-center cursor-pointer',
                 'hover:border-gray-300'

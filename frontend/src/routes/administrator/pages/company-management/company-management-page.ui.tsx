@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo, useState } from 'react';
 
 import { CompanyQueries, type ICompanyItem } from '#/entities/company';
@@ -14,9 +13,10 @@ import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
-import { STATUSES_OBJECT } from '#/shared/constants/roles_statuses';
+import { commonColumns } from '#/shared/constants/common-columns';
+import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { booleanFilter, numberFilter } from '#/shared/utils/filter';
+import { filterBySearch } from '#/shared/utils/search';
 
 const CompanyManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -28,107 +28,60 @@ const CompanyManagementPage: React.FC = () => {
   const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
 
   const filteredData = useMemo(() => {
-    if (!search.trim()) return queryData.data || [];
+    const data = queryData.data || [];
+    if (!search.trim()) return data;
 
-    // Нормализация для корректной работы с кириллицей
-    const normalizeText = (text: string) =>
-      text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-
-    const normalizedSearch = normalizeText(search);
-
-    return (queryData.data || []).filter(
-      (row: ICompanyItem) =>
-        normalizeText(row.name || '').includes(normalizedSearch) ||
-        normalizeText(row.ims_name || '').includes(normalizedSearch) ||
-        normalizeText(row.contract_number || '').includes(normalizedSearch) ||
-        normalizeText(String(row.active_users_limit || '')).includes(
-          normalizedSearch
-        ) ||
-        normalizeText(String(row.active_users || '')).includes(
-          normalizedSearch
-        ) ||
-        normalizeText(row.contract_end_date || '').includes(normalizedSearch) ||
-        normalizeText(row.is_active ? 'активный' : 'неактивный').includes(
-          normalizedSearch
-        )
-    );
+    return filterBySearch<ICompanyItem>(data, search, [
+      'name',
+      'ims_name',
+      'contract_number',
+      'active_users_limit',
+      'active_users',
+      'contract_end_date',
+      'is_active',
+    ]);
   }, [search, queryData.data]);
 
-  const allColumns = useMemo(
-    (): ColumnDef<ICompanyItem>[] => [
-      {
-        accessorKey: 'name',
-        header: 'Компания',
-        size: 177,
-      },
-      {
-        accessorKey: 'active_users_limit',
-        header: 'Лимит учетных записей',
-        size: 227,
-        enableColumnFilter: true,
-        filterFn: numberFilter(),
-        filterType: 'number',
-      },
-      {
-        accessorKey: 'active_users',
-        header: 'Активные пользователи',
-        size: 220,
-      },
-      { accessorKey: 'contract_number', header: '№ Договора', size: 213 },
-      {
-        accessorKey: 'contract_end_date',
-        header: 'Срок окончания договора',
-        size: 273,
-      },
-      {
-        id: 'is_active',
-        accessorKey: 'is_active',
-        header: 'Статус',
-        enableColumnFilter: true,
-        filterFn: booleanFilter(),
-        filterType: 'select',
-        selectOptions: [
-          { label: 'Активен', value: 'true' },
-          { label: 'Неактивен', value: 'false' },
-        ],
-        size: 280,
-        cell(props) {
-          return STATUSES_OBJECT[props.getValue() ? 'active' : 'inactive'];
-        },
-      },
+  const allColumns = useGenerateColumns<ICompanyItem>({
+    data: filteredData,
+    columns: [
+      commonColumns.companyName(),
+      commonColumns.companyActiveUsersLimit(),
+      commonColumns.companyActiveUsers(),
+      commonColumns.companyContractNumber(),
+      commonColumns.companyContractEndDate(),
+      commonColumns.status(),
       {
         id: 'actions',
-        header: '',
+        header: 'Действия',
         size: 120,
-        cell(props) {
-          return (
-            <RowActions
-              items={[
-                {
-                  type: 'edit',
-                  onSelect: () => {
-                    setEditData(props.row.original);
-                    setTimeout(() => set('edit'), 0);
+        custom: {
+          cell(props) {
+            return (
+              <RowActions
+                items={[
+                  {
+                    type: 'edit',
+                    onSelect: () => {
+                      setEditData(props.row.original);
+                      setTimeout(() => set('edit'), 0);
+                    },
                   },
-                },
-                {
-                  type: 'access_settings',
-                  onSelect: () => {
-                    setAccessData(props.row.original);
-                    setOpenAccess(true);
+                  {
+                    type: 'access_settings',
+                    onSelect: () => {
+                      setAccessData(props.row.original);
+                      setOpenAccess(true);
+                    },
                   },
-                },
-              ]}
-            />
-          );
+                ]}
+              />
+            );
+          },
         },
       },
     ],
-    [set]
-  );
+  });
 
   return (
     <main>
@@ -174,6 +127,7 @@ const CompanyManagementPage: React.FC = () => {
         <AsyncBoundary
           isLoading={queryData.isLoading}
           queryError={queryData.error}
+          isEmpty={filteredData.length === 0}
         >
           <Table
             columns={allColumns}

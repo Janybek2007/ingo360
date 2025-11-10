@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -89,28 +89,11 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     return searched;
   }, [search, visits]);
 
-  const {
-    visibleColumns,
-    setVisibleColumns,
-    resetVisibleColumns,
-    columnsForTable,
-    columnItems,
-    processedData,
-    groupDimensions,
-  } = useColumnVisibility({
-    allColumns,
-    ignore: ['actions'],
-    data: filteredData,
-  });
-
-  useEffect(() => {
-    setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
-    );
-  }, [groupDimensions]);
+  const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
+    useColumnVisibility({
+      allColumns,
+      setGroupBy,
+    });
 
   return (
     <PageSection
@@ -127,17 +110,16 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             checkbox
             showToggleAll
             isMultiple
-            onReset={resetVisibleColumns}
-            resetLabel="Сбросить все"
             classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
-          <ExportToExcelButton data={processedData} fileName="visits.xlsx" />
+          <ExportToExcelButton data={filteredData} fileName="visits.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
+        isEmpty={filteredData.length === 0}
       >
         <Table
           filters={{
@@ -145,7 +127,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={processedData}
+          data={filteredData}
           maxHeight={400}
           rounded="none"
         />

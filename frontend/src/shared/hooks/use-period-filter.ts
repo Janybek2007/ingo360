@@ -17,7 +17,7 @@ export type UsePeriodFilterReturn = {
   isView?: boolean;
   items: IFilterPeriodSelectItem[];
   setPeriod: (period: UsePeriodType) => void;
-  onChange: (value: string | string[]) => void;
+  onChange: (value: string[]) => void;
   onReset: VoidFunction;
 };
 
@@ -50,40 +50,30 @@ export const usePeriodFilter = (
     []
   );
 
-  const initialYearsLength = defaultPeriod === 'year' ? 5 : 2;
-  const initialYears = Array.from(
-    { length: initialYearsLength },
-    (_, i) => currentYear - i
-  );
-
   const [selectedValues, setSelectedValues] = useState<string[]>(() => {
-    const all = buildAllItemValues(defaultPeriod, initialYears);
-    if (defaultPeriod === 'year') return all;
-    return [...all, ...initialYears.map(y => `year-${y}`)];
+    const allCurrentYearItems = buildAllItemValues(defaultPeriod, [
+      currentYear,
+    ]);
+    const currentYearKey = `year-${currentYear}`;
+    if (['mat', 'ytd'].includes(period)) return allCurrentYearItems.slice(0, 1);
+    return [...allCurrentYearItems, currentYearKey];
   });
 
   const setPeriod = useCallback(
     (newPeriod: UsePeriodType) => {
       setPeriodState(newPeriod);
 
-      const initialYearsLength = newPeriod === 'year' ? 5 : 2;
-      const newYears = Array.from(
-        { length: initialYearsLength },
-        (_, i) => currentYear - i
-      );
-
-      const newSelectedValues = buildAllItemValues(newPeriod, newYears);
-
-      if (newPeriod !== 'year') {
-        setSelectedValues([
-          ...newSelectedValues,
-          ...newYears.map(y => `year-${y}`),
+      setSelectedValues(() => {
+        const allCurrentYearItems = buildAllItemValues(newPeriod, [
+          currentYear,
         ]);
-      } else {
-        setSelectedValues(newSelectedValues);
-      }
+        const currentYearKey = `year-${currentYear}`;
+        if (['mat', 'ytd'].includes(newPeriod))
+          return allCurrentYearItems.slice(0, 1);
+        return [...allCurrentYearItems, currentYearKey];
+      });
     },
-    [currentYear, buildAllItemValues]
+    [buildAllItemValues, currentYear]
   );
 
   const years = useMemo(() => {
@@ -135,14 +125,6 @@ export const usePeriodFilter = (
 
   const items = useMemo(() => {
     const result: IFilterPeriodSelectItem[] = [];
-    const toggleLabel = allItemValues.every(v => selectedValues.includes(v))
-      ? 'Отменить все'
-      : 'Выбрать все';
-    const toggleItem: IFilterPeriodSelectItem = {
-      label: toggleLabel,
-      value: 'toggle-all',
-    };
-    result.push(toggleItem);
 
     years.forEach(year => {
       const yearKey = `year-${year}`;
@@ -165,7 +147,6 @@ export const usePeriodFilter = (
           });
         }
       } else if (period === 'mat') {
-        result.push({ label: `${year}`, value: yearKey });
         Object.values(MonthFull).forEach((monthName, idx) => {
           result.push({
             label: `${monthName} ${year}`,
@@ -173,7 +154,6 @@ export const usePeriodFilter = (
           });
         });
       } else if (period === 'ytd') {
-        result.push({ label: `${year}`, value: yearKey });
         Object.values(MonthFull).forEach((monthName, idx) => {
           result.push({
             label: `${monthName} ${year}`,
@@ -184,21 +164,41 @@ export const usePeriodFilter = (
     });
 
     return result;
-  }, [period, years, selectedValues, allItemValues]);
+  }, [period, years]);
 
   const handleValueChange = useCallback(
-    (value: string | string[]) => {
-      const valueArray = Array.isArray(value) ? value : [value];
+    (value: string[] | string) => {
+      let valueArray = Array.isArray(value) ? value : [value];
+      const allValues = items.map(i => i.value);
 
-      if (valueArray.includes('toggle-all')) {
-        const allValuesWithYears =
-          period === 'year'
-            ? allItemValues
-            : [...allItemValues, ...years.map(y => `year-${y}`)];
-        const isAllSelected = allValuesWithYears.every(v =>
-          selectedValues.includes(v)
+      if (valueArray.length === 0) return setSelectedValues([]);
+      if (valueArray.length === allValues.length)
+        return setSelectedValues(allValues);
+
+      if (period === 'mat' || period === 'ytd') {
+        const newMatYtdValues = valueArray.filter(v =>
+          v.startsWith(`${period}-`)
         );
-        setSelectedValues(isAllSelected ? [] : allValuesWithYears);
+        const oldMatYtdValues = selectedValues.filter(v =>
+          v.startsWith(`${period}-`)
+        );
+
+        if (newMatYtdValues.length > oldMatYtdValues.length) {
+          const addedValue = newMatYtdValues.find(
+            v => !oldMatYtdValues.includes(v)
+          );
+          if (addedValue) {
+            setSelectedValues([addedValue]);
+            return;
+          }
+        }
+
+        if (newMatYtdValues.length === 0) {
+          setSelectedValues([]);
+          return;
+        }
+
+        setSelectedValues(newMatYtdValues);
         return;
       }
 
@@ -214,15 +214,12 @@ export const usePeriodFilter = (
         return;
       }
 
-      // Проверяем, был ли явно удален какой-то год
       const removedYear = selectedValues.find(
         v => v.startsWith('year-') && !valueArray.includes(v)
       );
-
       if (removedYear) {
         const year = removedYear.split('-')[1];
         const yearItems = getYearItems(year);
-        // Удаляем год и все его месяцы/кварталы
         const newSelected = selectedValues.filter(
           v => ![...yearItems, removedYear].includes(v)
         );
@@ -230,10 +227,8 @@ export const usePeriodFilter = (
         return;
       }
 
-      // Фильтруем значения без year-ключей
       let updatedValues = valueArray.filter(v => !v.startsWith('year-'));
 
-      // Автоматически добавляем year-ключи для годов, у которых есть выбранные месяцы/кварталы
       years.forEach(year => {
         const yearKey = `year-${year}`;
         const yearItems = getYearItems(`${year}`);
@@ -243,7 +238,7 @@ export const usePeriodFilter = (
 
       setSelectedValues(Array.from(new Set(updatedValues)));
     },
-    [period, selectedValues, years, getYearItems, allItemValues]
+    [selectedValues, years, getYearItems, items, period]
   );
 
   return {

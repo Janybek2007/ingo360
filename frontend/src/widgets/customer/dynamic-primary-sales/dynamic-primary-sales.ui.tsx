@@ -9,15 +9,10 @@ import {
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
-import {
-  type IUsedFilterItem,
-  UsedFilter,
-} from '#/shared/components/used-filter';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import type { ExtraDbType } from '#/shared/types/db.type';
-import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import type { DynamicPrimarySalesData } from './dynamic-primary-sales.types';
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
@@ -63,24 +58,6 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       })
     );
 
-    const usedFilterItems = React.useMemo((): IUsedFilterItem[] => {
-      return [
-        ...getUsedFilterItems([
-          {
-            value: periodFilter.selectedValues,
-            getLabelFromValue: getPeriodLabel,
-            onDelete: value => {
-              const newValues = periodFilter.selectedValues.filter(
-                v => v !== value
-              );
-              periodFilter.onChange(newValues);
-            },
-          },
-        ]),
-        ...filters.usedFilterItems,
-      ].filter(Boolean) as IUsedFilterItem[];
-    }, [periodFilter, filters]);
-
     const resetFilters = React.useCallback(() => {
       periodFilter.onReset();
       filters.resetFilters();
@@ -99,13 +76,14 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       >
         <AsyncBoundary
           isLoading={queryData.isLoading}
+          isEmpty={queryData.data?.length === 0}
           queryError={queryData.error}
         >
           <div className="space-y-4">
             <UsedFilter
-              usedFilterItems={usedFilterItems}
+              usedFilterItems={filters.usedFilterItems}
               resetFilters={resetFilters}
-              isView={periodFilter.isView}
+              isView={filters.usedFilterItems.length > 0}
             />
 
             {as == 'line' ? (

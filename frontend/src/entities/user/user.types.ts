@@ -1,12 +1,7 @@
+import type { TCompanyAccessContract } from '#/features/company/company.contract';
 import type { SessionRole } from '#/shared/types';
 
-export type UserAccess = {
-  can_primary_sales: boolean;
-  can_secondary_sales: boolean;
-  can_tertiary_sales: boolean;
-  can_visits: boolean;
-  can_market_analysis: boolean;
-};
+export type UserAccess = TCompanyAccessContract;
 
 interface UserCompany extends UserAccess {
   id: number;
