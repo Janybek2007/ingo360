@@ -111,7 +111,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   return (
     <PageSection
       legends={legends}
-      title="Динамика долей дистрибьюторов в первичке"
+      title="Динамика долей дистрибьюторов в первичных продажах"
       headerEnd={
         <div className="flex items-center gap-4">
           <Select<false, string>

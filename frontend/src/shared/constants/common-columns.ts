@@ -80,12 +80,12 @@ export const commonColumns = {
   geo_indicator: (): CColumn<any> => ({
     id: 'geo_indicator_id',
     key: 'geo_indicator_name',
-    header: 'Показатель',
+    header: 'Гео показатель',
     size: 150,
     type: 'select',
-    groupDimension: 'indicator',
+    groupDimension: 'geo_indicator',
     custom: {
-      accessor: (row: any) => row['indicator_name'] || '-',
+      accessor: (row: any) => row['geo_indicator_name'] || '-',
     },
   }),
   pharmacy: (): CColumn<any> => ({
