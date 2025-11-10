@@ -142,7 +142,7 @@ export const RetailSales: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={processedData}
-          maxHeight={400}
+          maxHeight={560}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"
         />

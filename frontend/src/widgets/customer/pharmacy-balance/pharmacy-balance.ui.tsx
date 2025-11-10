@@ -124,7 +124,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={processedData}
-          maxHeight={400}
+          maxHeight={560}
           rounded="none"
         />
       </AsyncBoundary>
