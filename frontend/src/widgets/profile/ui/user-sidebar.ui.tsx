@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { LogoutButton } from '#/features/session/logout';
-import { Assets } from '#/shared/assets';
 import { Icon } from '#/shared/components/ui/icon';
 import { useSession } from '#/shared/session';
 import { cn } from '#/shared/utils/cn';
@@ -16,20 +15,14 @@ interface IUserSidebarProps {
 export const UserSideBar: React.FC<IUserSidebarProps> = React.memo(
   ({ activeTab, setActiveTab }) => {
     const { user } = useSession();
+
     return (
       <aside className="min-w-[16.625rem] max-w-[16.625rem] max bg-white p-6 rounded-2xl">
-        <div className="flex flex-col gap-7 mt-1">
-          <img
-            className="w-[4rem] h-[4rem] rounded-[6.25rem]"
-            src={Assets.DefaultAvatar}
-            alt=""
-          />
-          <div className="mt-[-1.0625rem]">
-            <h1 className="text-gray-950 font-bold">
-              {user?.first_name} {user?.last_name}
-            </h1>
-            <p className="text-[0.8125rem]">{user?.email}</p>
-          </div>
+        <div className="flex flex-col gap-1 mt-1">
+          <h1 className="text-gray-950 font-bold">
+            {user?.first_name} {user?.last_name}
+          </h1>
+          <p className="text-[0.8125rem]">{user?.email}</p>
         </div>
         <div className="flex flex-col items-start gap-2 mt-9">
           {[

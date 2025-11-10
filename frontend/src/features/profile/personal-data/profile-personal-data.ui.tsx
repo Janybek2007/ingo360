@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Assets } from '#/shared/assets';
 import { FormField } from '#/shared/components/ui/form-field';
 import { useSession } from '#/shared/session';
 
@@ -53,24 +52,11 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex items-center gap-7">
-        <img
-          className="w-[7.75rem] h-[7.75rem] rounded-[6.25rem]"
-          src={Assets.DefaultAvatar}
-          alt={`User Avatar | ${user?.first_name}`}
-        />
-        <div>
-          <p>
-            Your profile photo will appear on your profile and directory
-            listing. <br /> PNG or JPG no bigger than 1000px wide and tall.
-          </p>
-          <button
-            type="button"
-            className="py-1.5 px-5 border-2 border-gray-300 rounded-lg mt-4"
-          >
-            Изменить фото
-          </button>
-        </div>
+      <div className="space-y-1">
+        <p className="text-lg font-semibold text-[#333D4C]">
+          {user?.first_name} {user?.last_name}
+        </p>
+        <p className="text-sm text-[#6B7280]">{user?.email}</p>
       </div>
 
       <div className="flex gap-5 mt-8">

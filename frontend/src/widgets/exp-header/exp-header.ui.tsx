@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 
-import { Assets } from '#/shared/assets';
+import { Icon } from '#/shared/components/ui/icon';
 import { routePaths } from '#/shared/router';
 
 import { Notifications } from './ui/notifications.ui';
 
 export const ExpHeader: React.FC = React.memo(() => {
   const navigate = useNavigate();
+
   return (
     <header
       id="exp-header"
@@ -19,13 +20,13 @@ export const ExpHeader: React.FC = React.memo(() => {
         <div className="group">
           <button
             onClick={() => navigate(routePaths.profile)}
-            className="w-[2.375rem] h-[2.375rem] cursor-pointer overflow-hidden rounded-full"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#333D4C] transition-colors hover:bg-[#EEF1F6]"
           >
-            <img
-              src={Assets.DefaultAvatar}
-              alt="Logo Avatar"
-              className="w-full h-full object-cover"
+            <Icon
+              name="solar:user-linear"
+              className="size-[1.25rem] text-[#333D4C]"
             />
+            <span>Профиль</span>
           </button>
         </div>
       </div>
