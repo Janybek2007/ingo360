@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cell, Pie, PieChart } from 'recharts';
+import { Cell, Pie, PieChart, Tooltip, type TooltipProps } from 'recharts';
 
 import { stringToColor } from '#/shared/utils/string-to-color';
 
@@ -41,6 +41,7 @@ export const DoctorsCountVisits: React.FC<{
               />
             ))}
           </Pie>
+          <Tooltip content={<CountTooltip />} />
         </PieChart>
       </div>
 
@@ -64,3 +65,39 @@ export const DoctorsCountVisits: React.FC<{
 });
 
 DoctorsCountVisits.displayName = '_DoctorsCountVisits_';
+
+const CountTooltip: React.FC<TooltipProps<number, string>> = ({
+  active,
+  payload,
+}) => {
+  if (!active || !payload || payload.length === 0) return null;
+
+  const data = payload[0]?.payload as DoctorsCoverageRow | undefined;
+  if (!data) return null;
+
+  const color =
+    payload[0]?.color ||
+    (data ? stringToColor(data.speciality_name) : undefined) ||
+    '#1D170F';
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-md text-sm">
+      <div className="flex items-center gap-2 font-medium text-[#1D170F]">
+        <span
+          className="inline-block rounded-full"
+          style={{
+            backgroundColor: color,
+            width: '10px',
+            height: '10px',
+            minWidth: '10px',
+            minHeight: '10px',
+          }}
+        />
+        <span>{data.speciality_name}</span>
+      </div>
+      <p className="text-xs text-gray-600 mt-1">
+        Количество врачей: {data.total_count.toLocaleString('ru-RU')}
+      </p>
+    </div>
+  );
+};

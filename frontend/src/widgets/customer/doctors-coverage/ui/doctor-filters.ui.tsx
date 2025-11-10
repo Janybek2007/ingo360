@@ -10,73 +10,101 @@ import type { FiltersConfig } from '../doctors-coverage.ui';
 interface DoctorFiltersProps {
   filters: FiltersConfig;
   setFilters: React.Dispatch<React.SetStateAction<FiltersConfig>>;
+  showMedicalFacility?: boolean;
+  showYears?: boolean;
+  showMonths?: boolean;
 }
 
 export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
-  ({ filters, setFilters }) => {
+  ({
+    filters,
+    setFilters,
+    showMedicalFacility = true,
+    showYears = true,
+    showMonths = true,
+  }) => {
     const filterOptions = useFilterOptions({
-      medicalFacilities: true,
+      medicalFacilities: showMedicalFacility,
       brands: false,
       groups: false,
     });
+    const medicalFacilityItems = showMedicalFacility
+      ? filterOptions.medicalFacilities
+      : [];
+
     return (
       <div className="flex items-center gap-4">
-        <Select<true, number>
-          value={filters.medical_facility_ids}
-          setValue={v =>
-            setFilters(prev => ({ ...prev, medical_facility_ids: v }))
-          }
-          isMultiple
-          checkbox
-          search
-          items={filterOptions.medicalFacilities}
-          triggerText={'ЛПУ'}
-          rightIcon={
-            <LucideArrowIcon type="chevron-down" className="size-[1.125rem]" />
-          }
-          classNames={{
-            trigger: 'gap-4 rounded-full justify-between',
-            menu: 'w-[20rem] left-0',
-          }}
-        />
-        <Select<true, number>
-          triggerText={'Год'}
-          items={[2020, 2021, 2022, 2023, 2024, 2025].map(year => ({
-            value: year,
-            label: year.toString(),
-          }))}
-          value={filters.years}
-          checkbox
-          isMultiple
-          showToggleAll
-          setValue={v => setFilters(prev => ({ ...prev, years: v }))}
-          rightIcon={
-            <LucideArrowIcon type="chevron-down" className="size-[1.125rem]" />
-          }
-          classNames={{
-            trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
-            menu: 'w-[14rem] w-max right-0',
-          }}
-        />
-        <Select<true, number>
-          triggerText={'Месяц'}
-          items={allMonths.map((m, i) => ({
-            value: i + 1,
-            label: m,
-          }))}
-          value={filters.months}
-          checkbox
-          isMultiple
-          showToggleAll
-          setValue={v => setFilters(prev => ({ ...prev, months: v }))}
-          rightIcon={
-            <LucideArrowIcon type="chevron-down" className="size-[1.125rem]" />
-          }
-          classNames={{
-            trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
-            menu: 'w-[14rem] w-max right-0',
-          }}
-        />
+        {showMedicalFacility && (
+          <Select<true, number>
+            value={filters.medical_facility_ids}
+            setValue={value =>
+              setFilters(prev => ({ ...prev, medical_facility_ids: value }))
+            }
+            isMultiple
+            checkbox
+            search
+            items={medicalFacilityItems}
+            triggerText="ЛПУ"
+            rightIcon={
+              <LucideArrowIcon
+                type="chevron-down"
+                className="size-[1.125rem]"
+              />
+            }
+            classNames={{
+              trigger: 'gap-4 rounded-full justify-between',
+              menu: 'w-[20rem] left-0',
+            }}
+          />
+        )}
+        {showYears && (
+          <Select<true, number>
+            triggerText="Год"
+            items={[2020, 2021, 2022, 2023, 2024, 2025].map(year => ({
+              value: year,
+              label: year.toString(),
+            }))}
+            value={filters.years}
+            checkbox
+            isMultiple
+            showToggleAll
+            setValue={value => setFilters(prev => ({ ...prev, years: value }))}
+            rightIcon={
+              <LucideArrowIcon
+                type="chevron-down"
+                className="size-[1.125rem]"
+              />
+            }
+            classNames={{
+              trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
+              menu: 'w-[14rem] w-max right-0',
+            }}
+          />
+        )}
+        {showMonths && (
+          <Select<true, number>
+            triggerText="Месяц"
+            items={allMonths.map((month, index) => ({
+              value: index + 1,
+              label: month,
+            }))}
+            value={filters.months}
+            checkbox
+            isMultiple
+            showToggleAll
+            setValue={value => setFilters(prev => ({ ...prev, months: value }))}
+            rightIcon={
+              <LucideArrowIcon
+                type="chevron-down"
+                className="size-[1.125rem]"
+              />
+            }
+            classNames={{
+              trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
+              menu: 'w-[14rem] w-max right-0',
+            }}
+          />
+        )}
       </div>
     );
   }

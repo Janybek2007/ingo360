@@ -28,7 +28,16 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
     years: [],
     medical_facility_ids: [],
   });
-  const queryData = useKeepQuery(
+
+  const countQuery = useKeepQuery(
+    DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
+      ['visits/reports/doctors-by-specialty'],
+      {
+        medical_facility_ids: filters.medical_facility_ids,
+      }
+    )
+  );
+  const percentageQuery = useKeepQuery(
     DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
       ['visits/reports/doctors-by-specialty'],
       {
@@ -38,32 +47,50 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
       }
     )
   );
-  const visits = React.useMemo(
-    () => (queryData.data ? queryData.data[0] : []),
-    [queryData]
+  const countVisits = React.useMemo(
+    () => (countQuery.data ? countQuery.data[0] : []),
+    [countQuery.data]
+  );
+  const percentageVisits = React.useMemo(
+    () => (percentageQuery.data ? percentageQuery.data[0] : []),
+    [percentageQuery.data]
   );
   return (
     <section>
       <div className="flex items-start gap-6 w-full">
         <div className="w-1/2 rounded-2xl p-5 bg-white">
           <AsyncBoundary
-            isLoading={queryData.isLoading}
-            queryError={queryData.error}
+            isLoading={countQuery.isLoading}
+            queryError={countQuery.error}
           >
             <DoctorsCountVisits
-              visits={visits}
+              visits={countVisits}
               filters={
-                <DoctorFilters filters={filters} setFilters={setFilters} />
+                <DoctorFilters
+                  filters={filters}
+                  setFilters={setFilters}
+                  showYears={false}
+                  showMonths={false}
+                />
               }
             />
           </AsyncBoundary>
         </div>
         <div className="w-1/2 rounded-2xl p-5 bg-white">
           <AsyncBoundary
-            isLoading={queryData.isLoading}
-            queryError={queryData.error}
+            isLoading={percentageQuery.isLoading}
+            queryError={percentageQuery.error}
           >
-            <DoctorsPercentageVisits visits={visits} />
+            <DoctorsPercentageVisits
+              visits={percentageVisits}
+              filters={
+                <DoctorFilters
+                  filters={filters}
+                  setFilters={setFilters}
+                  showMedicalFacility={false}
+                />
+              }
+            />
           </AsyncBoundary>
         </div>
       </div>
