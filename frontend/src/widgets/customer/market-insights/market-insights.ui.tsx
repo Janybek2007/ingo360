@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -6,7 +6,6 @@ import { DbFilters, useDbFilters } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
-import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { commonColumns } from '#/shared/constants/common-columns';
@@ -27,11 +26,9 @@ interface MarketRow {
 }
 
 export const MarketInsights: React.FC = React.memo(() => {
-  const [search, setSearch] = useState('');
   const filters = useDbFilters({
     config: { brands: { enabled: false }, groups: { enabled: false } },
   });
-  const [groupBy, setGroupBy] = useState<string[]>([]);
   const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
 
   const queryData = useKeepQuery(
@@ -39,8 +36,8 @@ export const MarketInsights: React.FC = React.memo(() => {
       periods: periodFilter.selectedValues,
       type_period: periodFilter.period,
       limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
-      search,
-      group_by_dimensions: groupBy,
+      search: filters.search,
+      group_by_dimensions: filters.groupBy,
     })
   );
 
@@ -81,7 +78,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['actions'],
-      setGroupBy,
+      setGroupBy: filters.setGroupBy,
     });
 
   return (
@@ -89,9 +86,9 @@ export const MarketInsights: React.FC = React.memo(() => {
       title="Данные по рынкам"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <SearchInput saveValue={setSearch} />
-          <PeriodFilters {...periodFilter} />
-          <DbFilters {...filters} />
+          <DbFilters {...filters}>
+            <PeriodFilters {...periodFilter} />
+          </DbFilters>
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -118,27 +115,29 @@ export const MarketInsights: React.FC = React.memo(() => {
       >
         <Table
           filters={{
-            usedFilterItems: [
-              ...filters.usedFilterItems,
-              ...getUsedFilterItems([
-                {
-                  value: periodFilter.selectedValues,
-                  getLabelFromValue: getPeriodLabel,
-                  onDelete: value => {
-                    const newValues = periodFilter.selectedValues.filter(
-                      v => v !== value
-                    );
-                    periodFilter.onChange(newValues);
-                  },
+            usedFilterItems: filters.usedFilterItems,
+            resetFilters: () => {
+              filters.resetFilters();
+              periodFilter.onReset();
+            },
+            isViewPeriods: periodFilter.isView,
+            usedPeriodFilters: getUsedFilterItems([
+              {
+                value: periodFilter.selectedValues,
+                getLabelFromValue: getPeriodLabel,
+                onDelete: value => {
+                  const newValues = periodFilter.selectedValues.filter(
+                    v => v !== value
+                  );
+                  periodFilter.onChange(newValues);
                 },
-              ]),
-            ],
-            resetFilters: filters.resetFilters,
+              },
+            ]),
+            isView: filters.usedFilterItems.length > 0,
           }}
           columns={columnsForTable}
           data={metricData}
           maxHeight={400}
-          isView={periodFilter.isView || filters.usedFilterItems.length > 0}
         />
       </AsyncBoundary>
     </PageSection>

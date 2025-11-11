@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -9,7 +9,6 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
-import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
@@ -18,10 +17,7 @@ import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 
 export const DistributorShare: React.FC = React.memo(() => {
-  const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions();
-
-  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
@@ -40,15 +36,11 @@ export const DistributorShare: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/distributor-shares'],
       {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
-        limit:
-          filters.values.rowsCount === 'all'
-            ? undefined
-            : filters.values.rowsCount,
-        offset: 0,
-        search,
-        group_by_dimensions: groupBy,
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
+        limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
+        search: filters.search,
+        group_by_dimensions: filters.groupBy,
       }
     )
   );
@@ -76,7 +68,7 @@ export const DistributorShare: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['total'],
-      setGroupBy,
+      setGroupBy: filters.setGroupBy,
     });
 
   return (
@@ -84,7 +76,6 @@ export const DistributorShare: React.FC = React.memo(() => {
       title="Доли дистрибьюторов в деньгах/процентах"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <SearchInput saveValue={setSearch} />
           <DbFilters {...filters} />
           <Select<true>
             value={visibleColumns}
@@ -94,9 +85,7 @@ export const DistributorShare: React.FC = React.memo(() => {
             showToggleAll
             checkbox
             isMultiple
-            classNames={{
-              menu: 'min-w-[11.25rem] right-0',
-            }}
+            classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
           <ExportToExcelButton data={sales} fileName="distributor-share.xlsx" />
         </div>

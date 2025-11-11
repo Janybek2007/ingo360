@@ -42,7 +42,6 @@ export interface ITableProps {
   pinnedRow?: ITableBodyProps['pinnedRow'];
   enableColumnResizing?: boolean;
   isVirtualized?: boolean;
-  isView?: boolean;
   filters?: IUsedFilterProps & {
     custom?: ColumnFiltersState;
   };

@@ -39,7 +39,6 @@ const ReferenceWorkPage: React.FC = () => {
         setRowsCount={setRowsCount}
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={currentData.length === 0}
       />
     </main>
   );

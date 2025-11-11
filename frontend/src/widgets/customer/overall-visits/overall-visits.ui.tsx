@@ -43,6 +43,7 @@ export const OverallVisits: React.FC = React.memo(() => {
       brands: { enabled: false },
       rowsCount: { enabled: false },
       indicator: { enabled: false },
+      search: { enabled: false },
     },
   });
   const periodFilter = usePeriodFilter();
@@ -123,7 +124,6 @@ export const OverallVisits: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={chartData.length === 0}
       >
         <div className="space-y-4">
           <UsedFilter

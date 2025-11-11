@@ -153,7 +153,6 @@ export const DynamicSales: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={data?.length === 0}
       >
         <div className="space-y-4">
           <div className="font-inter">

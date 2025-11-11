@@ -1,5 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
+import { cn } from '#/shared/utils/cn';
+
 import { LucideXIcon } from '../icons';
 import { Select } from '../ui/select';
 import type { IUsedFilterItem, IUsedFilterProps } from './used-filter.types';
@@ -12,6 +14,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   isView = true,
   isViewPeriods = true,
   periodViewMode = 'default',
+  className,
 }) => {
   const groupedItems = useMemo(() => usedFilterItems, [usedFilterItems]);
 
@@ -106,7 +109,12 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   );
 
   return (
-    <div className="flex items-center gap-1.5 flex-wrap font-inter select-none relative z-30 text-[13px]">
+    <div
+      className={cn(
+        'flex items-center gap-1.5 flex-wrap font-inter select-none relative z-30 text-[13px]',
+        className
+      )}
+    >
       {isView && groupedItems.map(renderDefaultItem)}
       {isViewPeriods &&
         (isFromMode

@@ -38,14 +38,15 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
     config: {
       rowsCount: { enabled: false },
       indicator: { enabled: false },
+      search: { enabled: false },
     },
   });
   const periodFilter = usePeriodFilter();
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/tertiary/reports/sales'], {
-      brand_ids: filters.values.brands,
-      product_group_ids: filters.values.groups,
+      brand_ids: filters.brands,
+      product_group_ids: filters.groups,
       type_period: periodFilter.period,
       filterValues: periodFilter.selectedValues,
     })
@@ -94,7 +95,6 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={visits.length === 0}
       >
         {visits.length <= 10 ? (
           <div>

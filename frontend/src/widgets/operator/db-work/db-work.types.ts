@@ -10,5 +10,4 @@ export interface IDbWorkProps {
   onGroupChange: React.Dispatch<React.SetStateAction<string[]>>;
   isLoading: boolean;
   queryError: Error | null;
-  isEmpty: boolean;
 }

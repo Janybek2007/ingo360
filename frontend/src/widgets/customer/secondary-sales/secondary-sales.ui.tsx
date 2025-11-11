@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -9,7 +9,6 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
-import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import {
@@ -23,16 +22,14 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const SecondarySales: React.FC = React.memo(() => {
-  const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions({
     geoIndicators: true,
   });
 
-  const [groupBy, setGroupBy] = useState<string[]>([]);
-
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
+    geoIndicatorsOptions: filterOptions.geoIndicators,
     config: {
       geoIndicators: { enabled: true },
     },
@@ -40,15 +37,12 @@ export const SecondarySales: React.FC = React.memo(() => {
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/secondary/reports/sales'], {
-      brand_ids: filters.values.brands,
-      product_group_ids: filters.values.groups,
-      limit:
-        filters.values.rowsCount === 'all'
-          ? undefined
-          : filters.values.rowsCount,
-      offset: 0,
-      search,
-      group_by_dimensions: groupBy,
+      brand_ids: filters.brands,
+      product_group_ids: filters.groups,
+      limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
+      geo_indicators_ids: filters.geoIndicators,
+      search: filters.search,
+      group_by_dimensions: filters.groupBy,
     })
   );
 
@@ -73,7 +67,7 @@ export const SecondarySales: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy,
+      setGroupBy: filters.setGroupBy,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
@@ -85,7 +79,6 @@ export const SecondarySales: React.FC = React.memo(() => {
       title="Вторичные продажи"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <SearchInput saveValue={setSearch} />
           <DbFilters {...filters} />
           <Select<true>
             value={visibleColumns}
@@ -109,6 +102,7 @@ export const SecondarySales: React.FC = React.memo(() => {
         isEmpty={sales.length === 0}
       >
         <Table
+          key={filters.indicator}
           filters={{
             usedFilterItems: filters.usedFilterItems,
             resetFilters: filters.resetFilters,

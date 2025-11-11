@@ -9,7 +9,6 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
-import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import {
@@ -23,7 +22,6 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const Inventory: React.FC = React.memo(() => {
-  const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions();
   const [groupBy, setGroupBy] = useState<string[]>([]);
 
@@ -36,14 +34,10 @@ export const Inventory: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/stock-coverages'],
       {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
-        limit:
-          filters.values.rowsCount === 'all'
-            ? undefined
-            : filters.values.rowsCount,
-        offset: 0,
-        search,
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
+        limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
+        search: filters.search,
         group_by_dimensions: groupBy,
       }
     )
@@ -82,7 +76,6 @@ export const Inventory: React.FC = React.memo(() => {
       title="Товарный запас"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <SearchInput saveValue={setSearch} />
           <DbFilters {...filters} />
 
           <Select<true>
@@ -108,6 +101,7 @@ export const Inventory: React.FC = React.memo(() => {
         isEmpty={sales.length === 0}
       >
         <Table
+          key={filters.indicator}
           filters={{
             usedFilterItems: filters.usedFilterItems,
             resetFilters: filters.resetFilters,

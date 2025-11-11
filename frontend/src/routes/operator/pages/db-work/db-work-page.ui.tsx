@@ -41,7 +41,6 @@ const DbWorkPage: React.FC = () => {
         onGroupChange={setGroupBy}
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={currentData.length === 0}
       />
     </main>
   );

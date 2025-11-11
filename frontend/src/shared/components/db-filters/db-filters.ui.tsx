@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Select } from '#/shared/components/ui/select';
 
+import { SearchInput } from '../search-input';
 import type { DbFiltersProps } from './db-filters.types';
 
 export const DbFilters: React.FC<DbFiltersProps> = ({
@@ -17,9 +18,10 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
   setDistributors,
   setIndicator,
   setRowsCount,
-  options = {},
-  enabled = {},
-  labels = {},
+  options,
+  enabled,
+  setSearch,
+  children,
 }) => {
   const {
     brands: brandsEnabled = true,
@@ -28,19 +30,13 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
     distributors: distributorsEnabled = false,
     indicator: indicatorEnabled = true,
     rowsCount: rowsCountEnabled = true,
+    search: searchEnabled = true,
   } = enabled;
-
-  const {
-    brands: brandsLabel = 'Бренд',
-    groups: groupsLabel = 'Группа',
-    distributors: distributorsLabel = 'Дистрибьютор',
-    indicator: indicatorLabel = 'Показатель: {label}',
-    rowsCount: rowsCountLabel = 'Количество строк',
-    geoIndicators: geoIndicatorsLabel = 'Индикаторы',
-  } = labels;
 
   return (
     <>
+      {searchEnabled && setSearch && <SearchInput saveValue={setSearch} />}
+      {children}
       {brandsEnabled && setBrands && options.brands && (
         <Select<true, number>
           value={brands}
@@ -49,7 +45,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           isMultiple
           checkbox
           items={options.brands}
-          triggerText={brandsLabel}
+          triggerText={'Бренд'}
           classNames={{ menu: 'w-[10rem] w-max left-0' }}
         />
       )}
@@ -62,7 +58,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           checkbox
           showToggleAll
           items={options.groups}
-          triggerText={groupsLabel}
+          triggerText={'Группа'}
           classNames={{ menu: 'w-[10rem] w-max left-0' }}
         />
       )}
@@ -75,7 +71,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           checkbox
           showToggleAll
           items={options.geoIndicators}
-          triggerText={geoIndicatorsLabel}
+          triggerText={'Индикаторы'}
           classNames={{ menu: 'w-[10rem] w-max left-0' }}
         />
       )}
@@ -88,7 +84,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           checkbox
           showToggleAll
           items={options.distributors}
-          triggerText={distributorsLabel}
+          triggerText={'Дистрибьютор'}
           classNames={{ menu: 'w-[10rem] w-max left-0' }}
         />
       )}
@@ -99,7 +95,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           setValue={setIndicator}
           items={options.indicators}
           changeTriggerText
-          labelTemplate={indicatorLabel}
+          labelTemplate={'Показатель: {label}'}
         />
       )}
 
@@ -108,7 +104,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           value={rowsCount}
           setValue={setRowsCount}
           items={options.rowsCounts}
-          triggerText={rowsCountLabel}
+          triggerText={'Количество строк'}
         />
       )}
     </>

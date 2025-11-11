@@ -1,53 +1,55 @@
 import type { IndicatorType } from '#/shared/types/global';
 
-export interface DbFiltersProps {
-  // Values
-  brands?: number[];
-  groups?: number[];
-  geoIndicators?: number[];
-  distributors?: number[];
-  indicator?: IndicatorType;
-  rowsCount?: 'all' | number;
+import type { IUsedFilterItem } from '../used-filter';
+
+export interface UseDbFiltersReturn {
+  // Individual states
+  brands: number[];
+  groups: number[];
+  geoIndicators: number[];
+  distributors: number[];
+  indicator: IndicatorType;
+  rowsCount: 'all' | number;
+  groupBy: string[];
+  search: string;
 
   // Setters
-  setBrands?: React.Dispatch<React.SetStateAction<number[]>>;
-  setGroups?: React.Dispatch<React.SetStateAction<number[]>>;
-  setGeoIndicators?: React.Dispatch<React.SetStateAction<number[]>>;
-  setDistributors?: React.Dispatch<React.SetStateAction<number[]>>;
-  setIndicator?: (value: IndicatorType) => void;
-  setRowsCount?: (value: 'all' | number) => void;
+  setBrands: React.Dispatch<React.SetStateAction<number[]>>;
+  setGroups: React.Dispatch<React.SetStateAction<number[]>>;
+  setGeoIndicators: React.Dispatch<React.SetStateAction<number[]>>;
+  setDistributors: React.Dispatch<React.SetStateAction<number[]>>;
+  setIndicator: React.Dispatch<React.SetStateAction<IndicatorType>>;
+  setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
+  setGroupBy: React.Dispatch<React.SetStateAction<string[]>>;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
 
   // Options
-  options?: {
-    brands?: Array<{ value: number; label: string }>;
-    groups?: Array<{ value: number; label: string }>;
-    geoIndicators?: Array<{ value: number; label: string }>;
-    distributors?: Array<{ value: number; label: string }>;
-    indicators?: Array<{ value: IndicatorType; label: string }>;
-    rowsCounts?: Array<{ value: 'all' | number; label: string }>;
+  options: {
+    brands: Array<{ value: number; label: string }>;
+    groups: Array<{ value: number; label: string }>;
+    distributors: Array<{ value: number; label: string }>;
+    geoIndicators: Array<{ value: number; label: string }>;
+    indicators: Array<{ value: IndicatorType; label: string }>;
+    rowsCounts: Array<{ value: 'all' | number; label: string }>;
   };
 
-  // Enabled flags
-  enabled?: {
-    brands?: boolean;
-    groups?: boolean;
-    distributors?: boolean;
-    geoIndicators?: boolean;
-    indicator?: boolean;
-    rowsCount?: boolean;
-  };
+  // For Table component
+  usedFilterItems: IUsedFilterItem[];
+  resetFilters: () => void;
 
-  // Custom labels
-  labels?: {
-    brands?: string;
-    groups?: string;
-    distributors?: string;
-    geoIndicators?: string;
-    indicator?: string;
-    rowsCount?: string;
+  // Helper
+  enabled: {
+    brands: boolean;
+    groups: boolean;
+    geoIndicators: boolean;
+    distributors: boolean;
+    indicator: boolean;
+    rowsCount: boolean;
+    search: boolean;
   };
 }
-//
+
+export type DbFiltersProps = UseDbFiltersReturn & React.PropsWithChildren;
 
 export interface FilterOptionItem {
   id: number;
@@ -78,6 +80,7 @@ export interface UseDbFiltersProps {
     groups?: { enabled?: boolean };
     distributors?: { enabled?: boolean };
     geoIndicators?: { enabled?: boolean };
+    search?: { enabled?: boolean };
     indicator?: {
       enabled?: boolean;
       options?: Array<{ value: IndicatorType; label: string }>;
@@ -89,13 +92,4 @@ export interface UseDbFiltersProps {
       defaultValue?: 'all' | number;
     };
   };
-}
-
-export interface DbFilters {
-  brands: number[];
-  groups: number[];
-  distributors: number[];
-  geoIndicators: number[];
-  indicator: IndicatorType;
-  rowsCount: 'all' | number;
 }

@@ -23,8 +23,7 @@ const CompanyManagementPage: React.FC = () => {
 
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [openAccess, setOpenAccess] = useState(false);
-  const [editData, setEditData] = useState<ICompanyItem | null>(null);
-  const [accessData, setAccessData] = useState<ICompanyItem | null>(null);
+  const [selectData, setSelectData] = useState<ICompanyItem | null>(null);
   const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
 
   const filteredData = useMemo(() => {
@@ -63,14 +62,14 @@ const CompanyManagementPage: React.FC = () => {
                   {
                     type: 'edit',
                     onSelect: () => {
-                      setEditData(props.row.original);
+                      setSelectData(props.row.original);
                       setTimeout(() => set('edit'), 0);
                     },
                   },
                   {
                     type: 'access_settings',
                     onSelect: () => {
-                      setAccessData(props.row.original);
+                      setSelectData(props.row.original);
                       setOpenAccess(true);
                     },
                   },
@@ -85,17 +84,17 @@ const CompanyManagementPage: React.FC = () => {
 
   return (
     <main>
-      {open === 'edit' && editData && (
-        <EditCompanyModal onClose={clear} companyData={editData} />
+      {open === 'edit' && selectData && (
+        <EditCompanyModal onClose={clear} companyData={selectData} />
       )}
       {open === 'create' && <AddCompanyModal onClose={clear} />}
-      {openAccess && accessData && (
+      {openAccess && selectData && (
         <AccessCompanyModal
           onClose={() => {
             setOpenAccess(false);
-            setAccessData(null);
+            setSelectData(null);
           }}
-          companyData={accessData}
+          companyData={selectData}
         />
       )}
       <PageSection

@@ -32,7 +32,6 @@ export const Table: React.FC<ITableProps> = React.memo(
     rowTotal,
     enableColumnResizing = true,
     isVirtualized = true,
-    isView,
   }) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -107,9 +106,10 @@ export const Table: React.FC<ITableProps> = React.memo(
       <div className={cn('relative', className)}>
         {(filters || columnFilters.length > 0 || sorting.length > 0) && (
           <UsedFilter
+            {...filters}
             usedFilterItems={allUsedFilters}
             resetFilters={handleResetFilters}
-            isView={isView}
+            className="mb-3"
           />
         )}
         <div

@@ -4,7 +4,10 @@ import type { IUsedFilterItem } from '#/shared/components/used-filter';
 import type { IndicatorType } from '#/shared/types/global';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
-import type { DbFilters, UseDbFiltersProps } from '../db-filters.types';
+import type {
+  UseDbFiltersProps,
+  UseDbFiltersReturn,
+} from '../db-filters.types';
 
 export const useDbFilters = ({
   brandsOptions = [],
@@ -12,7 +15,7 @@ export const useDbFilters = ({
   distributorsOptions = [],
   geoIndicatorsOptions = [],
   config,
-}: UseDbFiltersProps) => {
+}: UseDbFiltersProps): UseDbFiltersReturn => {
   const indicatorDefault = config?.indicator?.defaultValue || 'amount';
   const rowsCountDefault = config?.rowsCount?.defaultValue || 'all';
 
@@ -23,6 +26,8 @@ export const useDbFilters = ({
   const [geoIndicators, setGeoIndicators] = useState<number[]>([]);
   const [indicator, setIndicator] = useState<IndicatorType>(indicatorDefault);
   const [rowsCount, setRowsCount] = useState<'all' | number>(rowsCountDefault);
+  const [groupBy, setGroupBy] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
 
   // Options
   const options = useMemo(() => {
@@ -136,9 +141,27 @@ export const useDbFilters = ({
         }),
       });
     }
+    if (search.trim().length > 0) {
+      usedFilterItems.push({
+        label: `Поиск: "${search.trim()}"`,
+        value: 'search',
+        onDelete: () => setSearch(''),
+      });
+    }
 
     return usedFilterItems;
-  }, [brands, groups, distributors, rowsCount, geoIndicators, options]);
+  }, [
+    rowsCount,
+    brands,
+    groups,
+    distributors,
+    geoIndicators,
+    search,
+    options.brands,
+    options.groups,
+    options.distributors,
+    options.geoIndicators,
+  ]);
 
   // Reset
 
@@ -150,6 +173,7 @@ export const useDbFilters = ({
       geoIndicators: [] as number[],
       indicator: indicatorDefault,
       rowsCount: rowsCountDefault,
+      search: '',
     }),
     [indicatorDefault, rowsCountDefault]
   );
@@ -161,25 +185,10 @@ export const useDbFilters = ({
     setDistributors(defaults.distributors);
     setIndicator(defaults.indicator);
     setRowsCount(defaults.rowsCount);
+    setSearch(defaults.search);
   }, [defaults]);
 
-  // Values for API/filtering
-  const values = useMemo(
-    (): DbFilters => ({
-      brands,
-      groups,
-      distributors,
-      indicator,
-      rowsCount,
-      geoIndicators,
-    }),
-    [brands, groups, distributors, indicator, rowsCount, geoIndicators]
-  );
-
   return {
-    // Values
-    values,
-
     // Individual states
     brands,
     groups,
@@ -187,6 +196,8 @@ export const useDbFilters = ({
     distributors,
     indicator,
     rowsCount,
+    groupBy,
+    search,
 
     // Setters
     setBrands,
@@ -195,6 +206,8 @@ export const useDbFilters = ({
     setDistributors,
     setIndicator,
     setRowsCount,
+    setGroupBy,
+    setSearch,
 
     // Options
     options,
@@ -211,6 +224,7 @@ export const useDbFilters = ({
       distributors: config?.distributors?.enabled === true,
       indicator: config?.indicator?.enabled !== false,
       rowsCount: config?.rowsCount?.enabled !== false,
+      search: config?.search?.enabled !== false,
     },
   };
 };

@@ -42,6 +42,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
     config: {
       indicator: { enabled: false },
       rowsCount: { enabled: false },
+      search: { enabled: false },
     },
   });
   const periodFilter = usePeriodFilter();
@@ -50,8 +51,8 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<DistributorData[]>(
       ['sales/primary/reports/distributor-shares'],
       {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
       }
     )
   );
@@ -222,7 +223,6 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={chartData.length === 0}
       >
         <div className="space-y-4">
           <UsedFilter

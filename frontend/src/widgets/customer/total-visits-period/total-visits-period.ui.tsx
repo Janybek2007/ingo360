@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -9,21 +9,18 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
-import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { commonColumns } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { filterBySearch } from '#/shared/utils/search';
 
 interface OverallVisitRow extends TDbItem {
   employee_visits: 2;
 }
 
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
-  const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions({ brands: false });
 
   const filters = useDbFilters({
@@ -33,21 +30,16 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       brands: { enabled: false },
     },
   });
-  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-sum-for-period'],
       {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
-        limit:
-          filters.values.rowsCount === 'all'
-            ? undefined
-            : filters.values.rowsCount,
-        offset: 0,
-        search,
-        group_by_dimensions: groupBy,
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
+        limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
+        search: filters.search,
+        group_by_dimensions: filters.groupBy,
       }
     )
   );
@@ -77,22 +69,10 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     ],
   });
 
-  const filteredData = useMemo(() => {
-    const searched = filterBySearch(visits, search, [
-      'sku_name',
-      'brand_name',
-      'product_group_name',
-      'distributor_name',
-      'promotion_type_name',
-    ]);
-
-    return searched;
-  }, [search, visits]);
-
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy,
+      setGroupBy: filters.setGroupBy,
     });
 
   return (
@@ -100,7 +80,6 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       title="Количество визитов за выбранный период"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <SearchInput saveValue={setSearch} />
           <DbFilters {...filters} />
           <Select<true>
             value={visibleColumns}
@@ -112,14 +91,13 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             isMultiple
             classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
-          <ExportToExcelButton data={filteredData} fileName="visits.xlsx" />
+          <ExportToExcelButton data={visits} fileName="visits.xlsx" />
         </div>
       }
     >
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={filteredData.length === 0}
       >
         <Table
           filters={{
@@ -127,7 +105,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             resetFilters: filters.resetFilters,
           }}
           columns={columnsForTable}
-          data={filteredData}
+          data={visits}
           maxHeight={400}
           rounded="none"
         />

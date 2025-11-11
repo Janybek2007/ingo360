@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -9,7 +9,6 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
-import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
@@ -18,15 +17,14 @@ import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 
 export const NumericalDistribution: React.FC = React.memo(() => {
-  const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions({
     geoIndicators: true,
   });
-  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
+    geoIndicatorsOptions: filterOptions.geoIndicators,
     config: {
       indicator: { enabled: false },
       rowsCount: { enabled: true },
@@ -38,15 +36,12 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/tertiary/reports/numeric-distribution'],
       {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
-        limit:
-          filters.values.rowsCount === 'all'
-            ? undefined
-            : filters.values.rowsCount,
-        offset: 0,
-        search,
-        group_by_dimensions: groupBy,
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
+        limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
+        geo_indicators_ids: filters.geoIndicators,
+        search: filters.search,
+        group_by_dimensions: filters.groupBy,
       }
     )
   );
@@ -71,7 +66,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['total'],
-      setGroupBy,
+      setGroupBy: filters.setGroupBy,
     });
 
   return (
@@ -79,8 +74,6 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       title="Показатель нумерической дистрибьюции по аптекам"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <SearchInput saveValue={setSearch} />
-
           <DbFilters {...filters} />
 
           <Select<true>

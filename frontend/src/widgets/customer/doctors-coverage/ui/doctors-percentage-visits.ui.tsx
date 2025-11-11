@@ -34,7 +34,6 @@ export const DoctorsPercentageVisits: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={percentageQuery.isLoading}
         queryError={percentageQuery.error}
-        isEmpty={percentageVisits.length === 0}
       >
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-inter font-medium text-xl leading-[120%] text-black">

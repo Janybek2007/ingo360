@@ -45,7 +45,6 @@ export const IMSMetrics: React.FC<{
         <AsyncBoundary
           queryError={queryData.error}
           isLoading={queryData.isLoading}
-          isEmpty={Object.keys(metricData).length === 0}
         >
           {metrics.map((card, i) => (
             <div

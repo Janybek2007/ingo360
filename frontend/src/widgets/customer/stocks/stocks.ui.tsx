@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -9,7 +9,6 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
-import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import {
@@ -23,9 +22,7 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
 
 export const Stocks: React.FC = React.memo(() => {
-  const [search, setSearch] = useState('');
   const filterOptions = useFilterOptions();
-  const [groupBy, setGroupBy] = useState<string[]>([]);
 
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
@@ -36,15 +33,11 @@ export const Stocks: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/stock-levels'],
       {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
-        limit:
-          filters.values.rowsCount === 'all'
-            ? undefined
-            : filters.values.rowsCount,
-        offset: 0,
-        search,
-        group_by_dimensions: groupBy,
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
+        limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
+        search: filters.search,
+        group_by_dimensions: filters.groupBy,
       }
     )
   );
@@ -71,7 +64,7 @@ export const Stocks: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['total'],
-      setGroupBy,
+      setGroupBy: filters.setGroupBy,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
@@ -83,7 +76,6 @@ export const Stocks: React.FC = React.memo(() => {
       title="Остатки"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <SearchInput saveValue={setSearch} />
           <DbFilters {...filters} />
 
           <Select<true>
@@ -108,6 +100,7 @@ export const Stocks: React.FC = React.memo(() => {
         isEmpty={sales.length === 0}
       >
         <Table
+          key={filters.indicator}
           filters={{
             usedFilterItems: filters.usedFilterItems,
             resetFilters: filters.resetFilters,

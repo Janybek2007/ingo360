@@ -32,7 +32,6 @@ export const DoctorsCountVisits: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={countQuery.isLoading}
         queryError={countQuery.error}
-        isEmpty={visits.length === 0}
       >
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-inter font-medium text-xl leading-[120%] text-black">

@@ -5,6 +5,7 @@ import { UserQueries } from '#/entities/user/user.queries';
 import type { IUserItem } from '#/entities/user/user.types';
 import { AddUserModal } from '#/features/users/add';
 import { EditUserModal } from '#/features/users/edit';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { LucidePlusIcon } from '#/shared/components/icons';
 import { PageSection } from '#/shared/components/page-section';
@@ -99,12 +100,18 @@ const IngoAccountsPage: React.FC = () => {
           </div>
         }
       >
-        <Table
-          columns={allColumns}
-          data={filteredData}
-          maxHeight={500}
-          rounded="none"
-        />
+        <AsyncBoundary
+          isLoading={queryData.isLoading}
+          queryError={queryData.error}
+          isEmpty={filteredData.length === 0}
+        >
+          <Table
+            columns={allColumns}
+            data={filteredData}
+            maxHeight={500}
+            rounded="none"
+          />
+        </AsyncBoundary>
       </PageSection>
     </main>
   );

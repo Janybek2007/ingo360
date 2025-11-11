@@ -46,6 +46,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       config: {
         rowsCount: { enabled: false },
         indicator: { enabled: as == 'mixed' },
+        search: { enabled: false },
       },
     });
 
@@ -53,8 +54,8 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
 
     const queryData = useKeepQuery(
       DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(asUrls[as], {
-        brand_ids: filters.values.brands,
-        product_group_ids: filters.values.groups,
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
       })
     );
 
@@ -76,7 +77,6 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       >
         <AsyncBoundary
           isLoading={queryData.isLoading}
-          isEmpty={queryData.data?.length === 0}
           queryError={queryData.error}
         >
           <div className="space-y-4">
