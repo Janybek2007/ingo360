@@ -6,6 +6,7 @@ export interface UsecolumnVisibilityOptions<T> {
   defaultVisible?: string[];
   ignore?: string[];
   setGroupBy?: React.Dispatch<React.SetStateAction<string[]>>;
+  allowedGroupDimensions?: string[];
 }
 
 export function useColumnVisibility<T>({
@@ -13,6 +14,7 @@ export function useColumnVisibility<T>({
   defaultVisible,
   ignore = [],
   setGroupBy,
+  allowedGroupDimensions,
 }: UsecolumnVisibilityOptions<T>) {
   const getInitialVisible = () =>
     defaultVisible ??
@@ -79,28 +81,27 @@ export function useColumnVisibility<T>({
       });
   }, [allColumns, ignore]);
 
-  const load = useCallback(() => {
+  useEffect(() => {
     if (setGroupBy == null) return;
     const groupDimensions = getGroupDimensions(
       allColumns,
       visibleColumns,
       ignore
     );
+    const filteredDimensions =
+      allowedGroupDimensions && allowedGroupDimensions.length > 0
+        ? groupDimensions.filter(dimension =>
+            allowedGroupDimensions.includes(dimension)
+          )
+        : groupDimensions;
     setGroupBy(prev =>
-      prev.length === groupDimensions.length &&
-      prev.every((value, index) => value === groupDimensions[index])
-        ? prev
-        : groupDimensions
+      arraysAreEqual(prev, filteredDimensions) ? prev : filteredDimensions
     );
-  }, [allColumns, ignore, setGroupBy, visibleColumns]);
+  }, [allColumns, ignore, setGroupBy, visibleColumns, allowedGroupDimensions]);
 
-  const setColumns = useCallback(
-    (value: React.SetStateAction<string[]>) => {
-      load();
-      setVisibleColumns(value);
-    },
-    [load]
-  );
+  const setColumns = useCallback((value: React.SetStateAction<string[]>) => {
+    setVisibleColumns(value);
+  }, []);
 
   return {
     visibleColumns,
@@ -135,4 +136,10 @@ function getGroupDimensions(
 
     return acc;
   }, []);
+}
+
+function arraysAreEqual<T>(a: T[], b: T[]) {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  return a.every((value, index) => value === b[index]);
 }

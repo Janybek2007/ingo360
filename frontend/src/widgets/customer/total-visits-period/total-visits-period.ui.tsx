@@ -73,6 +73,17 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       setGroupBy: filters.setGroupBy,
+      allowedGroupDimensions: [
+        'pharmacy',
+        'medical_facility',
+        'year',
+        'month',
+        'employee',
+        'product_group',
+        'geo_indicator',
+        'speciality',
+        'doctor',
+      ],
     });
 
   return (

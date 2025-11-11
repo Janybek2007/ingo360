@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -24,8 +24,6 @@ import { calcPeriodTotals } from '#/shared/utils/calculate';
 
 export const Inventory: React.FC = React.memo(() => {
   const filterOptions = useFilterOptions();
-  const [groupBy, setGroupBy] = useState<string[]>([]);
-
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
@@ -42,7 +40,7 @@ export const Inventory: React.FC = React.memo(() => {
         product_group_ids: filters.groups,
         limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
         search: filters.search,
-        group_by_dimensions: groupBy,
+        group_by_dimensions: filters.groupBy,
       }
     )
   );
@@ -68,7 +66,7 @@ export const Inventory: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy,
+      setGroupBy: filters.setGroupBy,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
