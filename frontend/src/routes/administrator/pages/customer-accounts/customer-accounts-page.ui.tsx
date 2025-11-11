@@ -17,6 +17,7 @@ import { commonColumns } from '#/shared/constants/common-columns';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { filterBySearch } from '#/shared/utils/search';
+import { transformHeaderKeys } from '#/shared/utils/transform';
 
 interface CustomerRow extends IUserItem {
   fullName: string;
@@ -63,7 +64,7 @@ const CustomerAccountsPage: React.FC = () => {
       commonColumns.status(150, 'statusDisplay'),
       {
         id: 'actions',
-        header: '',
+        header: 'Действия',
         size: 120,
         custom: {
           cell(props) {
@@ -98,14 +99,9 @@ const CustomerAccountsPage: React.FC = () => {
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton
-              data={filteredData.map(item => ({
-                ФИО: item.fullName,
-                Должность: item.position,
-                Компания: item.companyName,
-                'Электронная почта': item.email,
-                Статус:
-                  item.statusDisplay === 'active' ? 'Активный' : 'Неактивный',
-              }))}
+              formatHeader={transformHeaderKeys(allColumns)}
+              selectKeys={Object.keys(transformHeaderKeys(allColumns))}
+              data={filteredData}
               fileName="customers.xlsx"
             />
             <Button

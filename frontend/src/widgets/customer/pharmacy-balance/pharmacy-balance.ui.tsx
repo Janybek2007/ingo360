@@ -11,6 +11,7 @@ import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
@@ -79,7 +80,23 @@ export const PharmacyBalance: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton data={sales} fileName="white-spots.xlsx" />
+          <ExportToExcelButton
+            formatHeader={{
+              sku_name: columnHeaderNames.sku,
+              brand_name: columnHeaderNames.brand,
+              distributor_name: columnHeaderNames.distributor,
+              product_group_name: columnHeaderNames.productGroup,
+            }}
+            selectKeys={[
+              'sku_name',
+              'brand_name',
+              'distributor_name',
+              'product_group_name',
+            ]}
+            periodKey={filters.indicator}
+            data={sales}
+            fileName="white-spots.xlsx"
+          />
         </div>
       }
     >

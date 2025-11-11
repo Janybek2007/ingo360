@@ -7,7 +7,7 @@ import { MdiPencilIcon } from '#/shared/components/icons';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
-import { transformData } from '#/shared/utils/transform-data';
+import { transformData } from '#/shared/utils/transform';
 
 import { dbItemCEFields, dbItemDependsUrls } from '../constants';
 import { dbItemContractWithType } from '../db-item.contracts';

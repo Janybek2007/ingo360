@@ -1,11 +1,12 @@
 import type { CColumn } from '../hooks/use-generate-columns';
+import { columnHeaderNames } from './column-header-names';
 import { allMonths } from './months';
 
 export const commonColumns = {
   sku: (pinned = true): CColumn<any> => ({
     id: 'sku_id',
     key: 'sku_name',
-    header: 'SKU',
+    header: columnHeaderNames.sku,
     size: 350,
     type: 'select',
     pinned,
@@ -14,7 +15,7 @@ export const commonColumns = {
   brand: (): CColumn<any> => ({
     id: 'brand_id',
     key: 'brand_name',
-    header: 'Бренд',
+    header: columnHeaderNames.brand,
     size: 150,
     type: 'select',
     groupDimension: 'brand',
@@ -22,7 +23,7 @@ export const commonColumns = {
   promotion: (): CColumn<any> => ({
     id: 'promotion_type_id',
     key: 'promotion_type_name',
-    header: 'Тип промоции',
+    header: columnHeaderNames.promotion,
     size: 200,
     type: 'select',
     groupDimension: 'promotion_type',
@@ -30,7 +31,7 @@ export const commonColumns = {
   group: (key = 'product_group_name'): CColumn<any> => ({
     id: 'product_group_id',
     key,
-    header: 'Группа',
+    header: columnHeaderNames.group,
     size: 150,
     type: 'select',
     groupDimension: 'product_group',
@@ -41,7 +42,7 @@ export const commonColumns = {
   responsible_employee: (): CColumn<any> => ({
     id: 'responsible_employee_id',
     key: 'responsible_employee_name',
-    header: 'Группа',
+    header: columnHeaderNames.responsible_employee,
     size: 150,
     type: 'select',
     groupDimension: 'responsible_employee',
@@ -50,7 +51,7 @@ export const commonColumns = {
   segment: (): CColumn<any> => ({
     id: 'segment_id',
     key: 'segment_name',
-    header: 'Сегмент',
+    header: columnHeaderNames.segment,
     size: 200,
     type: 'select',
     groupDimension: 'segment',
@@ -58,7 +59,7 @@ export const commonColumns = {
   distributor: (): CColumn<any> => ({
     id: 'distributor_id',
     key: 'distributor_name',
-    header: 'Дистр',
+    header: columnHeaderNames.distributor,
     size: 150,
     type: 'select',
     groupDimension: 'distributor',
@@ -69,7 +70,7 @@ export const commonColumns = {
   indicator: (): CColumn<any> => ({
     id: 'indicator_id',
     key: 'indicator_name',
-    header: 'Показатель',
+    header: columnHeaderNames.indicator,
     size: 150,
     type: 'select',
     groupDimension: 'indicator',
@@ -80,7 +81,7 @@ export const commonColumns = {
   geo_indicator: (): CColumn<any> => ({
     id: 'geo_indicator_id',
     key: 'geo_indicator_name',
-    header: 'Гео показатель',
+    header: columnHeaderNames.geo_indicator,
     size: 150,
     type: 'select',
     groupDimension: 'geo_indicator',
@@ -91,7 +92,7 @@ export const commonColumns = {
   pharmacy: (): CColumn<any> => ({
     id: 'pharmacy_id',
     key: 'pharmacy',
-    header: 'Аптека',
+    header: columnHeaderNames.pharmacy,
     size: 300,
     type: 'select',
     groupDimension: 'pharmacy',
@@ -102,7 +103,7 @@ export const commonColumns = {
   medical_facility: (size = 150): CColumn<any> => ({
     id: 'medical_facility_id',
     key: 'medical_facility',
-    header: 'ЛПУ',
+    header: columnHeaderNames.medicalFacility,
     size,
     type: 'select',
     groupDimension: 'medical_facility',
@@ -113,7 +114,7 @@ export const commonColumns = {
   employee: (): CColumn<any> => ({
     id: 'employee_id',
     key: 'employee',
-    header: 'Сотрудник',
+    header: columnHeaderNames.employee,
     type: 'select',
     groupDimension: 'employee',
     custom: {
@@ -123,14 +124,14 @@ export const commonColumns = {
   year: (): CColumn<any> => ({
     id: 'year',
     key: 'year',
-    header: 'Год',
+    header: columnHeaderNames.year,
     size: 140,
     type: 'number',
   }),
   month: (): CColumn<any> => ({
     id: 'month',
     key: 'month',
-    header: 'Месяц',
+    header: columnHeaderNames.month,
     size: 140,
     type: 'select',
     custom: {
@@ -144,7 +145,7 @@ export const commonColumns = {
   status: (size = 280, key = 'is_active'): CColumn<any> => ({
     id: 'is_active',
     key,
-    header: 'Статус',
+    header: columnHeaderNames.status,
     size,
     type: 'select',
     custom: {
@@ -161,37 +162,37 @@ export const commonColumns = {
   companyName: (size = 200): CColumn<any> => ({
     id: 'name',
     key: 'name',
-    header: 'Компания',
+    header: columnHeaderNames.companyName,
     size,
   }),
   companyActiveUsersLimit: (size = 227): CColumn<any> => ({
     id: 'active_users_limit',
     key: 'active_users_limit',
-    header: 'Лимит учетных записей',
+    header: columnHeaderNames.companyActiveUsersLimit,
     size,
     type: 'number',
   }),
   companyActiveUsers: (size = 220): CColumn<any> => ({
     id: 'active_users',
     key: 'active_users',
-    header: 'Активные пользователи',
+    header: columnHeaderNames.companyActiveUsers,
     size,
   }),
   companyContractNumber: (size = 213): CColumn<any> => ({
     id: 'contract_number',
     key: 'contract_number',
-    header: '№ Договора',
+    header: columnHeaderNames.companyContractNumber,
     size,
   }),
   companyContractEndDate: (size = 273): CColumn<any> => ({
     id: 'contract_end_date',
     key: 'contract_end_date',
-    header: 'Срок окончания договора',
+    header: columnHeaderNames.companyContractEndDate,
     size,
   }),
   userFullName: (size = 280): CColumn<any> => ({
     id: 'fullName',
-    header: 'ФИО',
+    header: columnHeaderNames.fullName,
     size,
     type: 'string',
     custom: {
@@ -210,7 +211,7 @@ export const commonColumns = {
   userRole: (size = 280, roles?: any[], rolesObject?: any): CColumn<any> => ({
     id: 'role',
     key: 'role',
-    header: 'Роль',
+    header: columnHeaderNames.role,
     size,
     type: 'select',
     custom: {
@@ -226,13 +227,13 @@ export const commonColumns = {
   userEmail: (size = 280): CColumn<any> => ({
     id: 'email',
     key: 'email',
-    header: 'Электронная почта',
+    header: columnHeaderNames.email,
     size,
     type: 'string',
   }),
   customerPosition: (size = 200): CColumn<any> => ({
     id: 'position',
-    header: 'Должность',
+    header: columnHeaderNames.customerPosition,
     size,
     type: 'string',
     custom: {
@@ -242,7 +243,7 @@ export const commonColumns = {
   }),
   customerCompany: (size = 290, data?: any[]): CColumn<any> => ({
     id: 'companyName',
-    header: 'Компания',
+    header: columnHeaderNames.companyName,
     size,
     type: 'select',
     custom: {
@@ -261,12 +262,12 @@ export const commonColumns = {
   reportLogId: (): CColumn<any> => ({
     id: 'id',
     key: 'id',
-    header: 'ID',
+    header: columnHeaderNames.logId,
     size: 80,
   }),
   reportLogUserFullName: (): CColumn<any> => ({
     id: 'user_full_name',
-    header: 'ФИО',
+    header: columnHeaderNames.fullName,
     size: 200,
     type: 'select',
     custom: {
@@ -277,14 +278,14 @@ export const commonColumns = {
   reportLogTargetTable: (): CColumn<any> => ({
     id: 'target_table',
     key: 'target_table',
-    header: 'Целевая таблица',
+    header: columnHeaderNames.targetTable,
     size: 180,
     type: 'select',
   }),
   reportLogRecordsCount: (): CColumn<any> => ({
     id: 'records_count',
     key: 'records_count',
-    header: 'Количество записей',
+    header: columnHeaderNames.recordsCount,
     size: 150,
     type: 'number',
     aggregate: 'sum',
@@ -292,7 +293,7 @@ export const commonColumns = {
   reportLogCreatedAt: (): CColumn<any> => ({
     id: 'created_at',
     key: 'created_at',
-    header: 'Дата создания',
+    header: columnHeaderNames.createdAt,
     size: 180,
     custom: {
       cell: ({ row }) => {
@@ -311,7 +312,7 @@ export const commonColumns = {
   specialistCoverageMedicalFacility: (): CColumn<any> => ({
     id: 'medical_facility_id',
     key: 'medical_facility_name',
-    header: 'ЛПУ',
+    header: columnHeaderNames.medicalFacility,
     size: 224,
     type: 'select',
     custom: {
@@ -321,7 +322,7 @@ export const commonColumns = {
   specialistCoverageSpeciality: (): CColumn<any> => ({
     id: 'speciality_id',
     key: 'speciality_name',
-    header: 'Специальность',
+    header: columnHeaderNames.speciality,
     size: 230,
     type: 'select',
     custom: {
@@ -331,7 +332,7 @@ export const commonColumns = {
   specialistCoveragePercentage: (): CColumn<any> => ({
     id: 'coverage_percentage',
     key: 'coverage_percentage',
-    header: 'Процент охвата врачей',
+    header: columnHeaderNames.coveragePercentage,
     size: 230,
     type: 'number',
     custom: {
@@ -341,7 +342,7 @@ export const commonColumns = {
   specialistCoverageTotalDoctors: (): CColumn<any> => ({
     id: 'total_doctors',
     key: 'total_doctors',
-    header: 'Общая колл. врачей',
+    header: columnHeaderNames.coverageTotalDoctors,
     size: 230,
     type: 'number',
     aggregate: 'sum',
@@ -349,7 +350,7 @@ export const commonColumns = {
   specialistCoverageDoctorsWithVisits: (): CColumn<any> => ({
     id: 'doctors_with_visits',
     key: 'doctors_with_visits',
-    header: 'Количество врачей с визитами',
+    header: columnHeaderNames.coverageDoctorsWithVisits,
     size: 300,
     type: 'number',
     aggregate: 'sum',
@@ -358,31 +359,31 @@ export const commonColumns = {
   marketInsightsCompany: (): CColumn<any> => ({
     id: 'company',
     key: 'company',
-    header: 'Компания',
+    header: columnHeaderNames.companyName,
     type: 'select',
   }),
   marketInsightsBrand: (): CColumn<any> => ({
     id: 'brand',
     key: 'brand',
-    header: 'Бренд',
+    header: columnHeaderNames.brand,
     type: 'select',
   }),
   marketInsightsSegment: (): CColumn<any> => ({
     id: 'segment',
     key: 'segment',
-    header: 'Сегмент',
+    header: columnHeaderNames.segment,
     type: 'select',
   }),
   marketInsightsDosageForm: (): CColumn<any> => ({
     id: 'dosage_form',
     key: 'dosage_form',
-    header: 'Форма выписка',
+    header: columnHeaderNames.dosageForm,
     type: 'select',
   }),
   marketInsightsDosage: (): CColumn<any> => ({
     id: 'dosage',
     key: 'dosage',
-    header: 'Дозировка',
+    header: columnHeaderNames.dosage,
     type: 'select',
   }),
 };

@@ -49,11 +49,17 @@ const getColumnValue = <TData>(
     return column.meta.getGroupValue(row);
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (column.accessorFn) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return column.accessorFn(row, rowIndex);
   }
 
   if (column.accessorKey) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return (row as Record<string, unknown>)[column.accessorKey];
   }
 
@@ -85,6 +91,8 @@ const setColumnValue = <TData>(
   }
 
   if (column.accessorKey) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     (row as Record<string, unknown>)[column.accessorKey] = value;
     return;
   }

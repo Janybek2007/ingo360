@@ -17,7 +17,7 @@ import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
+import { calculateChartAxis } from '#/shared/utils/calculate';
 import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';

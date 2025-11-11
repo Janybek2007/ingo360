@@ -7,7 +7,7 @@ export interface IDbName {
 }
 export interface IDbItem {
   id: number;
-  month: number;
+  month: number | string;
   quarter: number;
   year: number;
   indicator: string;
@@ -77,6 +77,9 @@ export type TDbItem = {
   speciality_id: number;
   speciality: string;
   speciality_name: string;
+  //
+  geo_indicator_name: string;
+  geo_indicator_id: number;
   //
   year: number;
   quarter: number;

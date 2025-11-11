@@ -44,7 +44,7 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
         <div
           className={cn(
             'mt-2 flex items-center relative rounded-xl transition-all',
-            'bg-default hover:bg-default/80 text-black',
+            'border border-c3__1',
             disabled && 'opacity-60 cursor-not-allowed',
             classNames?.wrapper
           )}

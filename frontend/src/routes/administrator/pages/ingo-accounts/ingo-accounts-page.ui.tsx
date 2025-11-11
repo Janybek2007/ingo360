@@ -18,6 +18,7 @@ import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { filterBySearch } from '#/shared/utils/search';
+import { transformHeaderKeys } from '#/shared/utils/transform';
 
 const IngoAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -46,7 +47,7 @@ const IngoAccountsPage: React.FC = () => {
       commonColumns.status(),
       {
         id: 'actions',
-        header: '',
+        header: 'Действия',
         size: 120,
         custom: {
           cell(props) {
@@ -81,13 +82,9 @@ const IngoAccountsPage: React.FC = () => {
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton
-              data={filteredData.map(item => ({
-                email: item.email,
-                first_name: item.first_name,
-                last_name: item.last_name,
-                role:
-                  item.role === 'administrator' ? 'Администратор' : 'Оператор',
-              }))}
+              formatHeader={transformHeaderKeys(allColumns)}
+              selectKeys={Object.keys(transformHeaderKeys(allColumns))}
+              data={filteredData}
               fileName="users.xlsx"
             />
             <Button

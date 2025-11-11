@@ -167,7 +167,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'medical_facility.id',
       accessorKey: 'medical_facility.name',
       cell: ({ row }) => row.original.medical_facility?.name || '-',
-      header: 'Медицинское учреждение',
+      header: 'ЛПУ',
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
@@ -392,7 +392,7 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
     {
       accessorKey: 'month',
       header: 'Месяц',
-      cell: ({ row }) => allMonths[row.original.month - 1],
+      cell: ({ row }) => allMonths[Number(row.original.month) - 1],
       size: 100,
       enableColumnFilter: true,
       filterFn: selectFilter(),

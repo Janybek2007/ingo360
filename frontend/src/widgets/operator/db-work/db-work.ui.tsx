@@ -17,8 +17,10 @@ import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
+import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { transformHeaderKeys } from '#/shared/utils/transform';
 
 import { getDbWorkColumns } from './constants';
 import type { IDbWorkProps } from './db-work.types';
@@ -97,7 +99,20 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                   menu: 'min-w-[11.25rem]  w-max right-0',
                 }}
               />
-              <ExportToExcelButton data={tableData} fileName="dbwork.xlsx" />
+              <ExportToExcelButton
+                formatHeader={transformHeaderKeys(columnsForTable, [
+                  'published',
+                ])}
+                selectKeys={Object.keys(
+                  transformHeaderKeys(columnsForTable, ['published'])
+                )}
+                transform={(row: IDbItem) => ({
+                  ...row,
+                  month: allMonths[Number(row.month) - 1],
+                })}
+                data={tableData}
+                fileName="dbwork.xlsx"
+              />
               {!['visits', 'ims'].includes(current) && (
                 <PublishUnpublishedButton
                   type={current}
@@ -122,9 +137,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                   rowsCount !== 'all' && {
                     value: rowsCount,
                     getLabelFromValue(value) {
-                      return value === 'all'
-                        ? 'Все'
-                        : 'Строки: '.concat(value.toString());
+                      return 'Строки: '.concat(value.toString());
                     },
                     items: [],
                     onDelete: () => setRowsCount('all'),

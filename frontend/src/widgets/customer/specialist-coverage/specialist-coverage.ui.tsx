@@ -7,6 +7,7 @@ import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
@@ -77,6 +78,20 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
           />
           <ExportToExcelButton
             data={visits}
+            formatHeader={{
+              medical_facility_name: columnHeaderNames.medicalFacility,
+              speciality_name: columnHeaderNames.speciality,
+              coverage_percentage: columnHeaderNames.coveragePercentage,
+              total_doctors: columnHeaderNames.coverageTotalDoctors,
+              doctors_with_visits: columnHeaderNames.coverageDoctorsWithVisits,
+            }}
+            selectKeys={[
+              'medical_facility_name',
+              'speciality_name',
+              'coverage_percentage',
+              'total_doctors',
+              'doctors_with_visits',
+            ]}
             fileName="specialist-coverage.xlsx"
           />
         </div>

@@ -11,6 +11,7 @@ import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
@@ -89,6 +90,20 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             }}
           />
           <ExportToExcelButton
+            formatHeader={{
+              sku_name: columnHeaderNames.sku,
+              brand_name: columnHeaderNames.brand,
+              segment_name: columnHeaderNames.segment,
+              product_group_name: columnHeaderNames.productGroup,
+            }}
+            selectKeys={[
+              'sku_name',
+              'brand_name',
+              'segment_name',
+              'product_group_name',
+            ]}
+            periodAsPercent
+            periodKey={'nd_percent'}
             data={sales}
             fileName="numerical-distribution.xlsx"
           />

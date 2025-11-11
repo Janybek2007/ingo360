@@ -1,4 +1,21 @@
-export interface ExportToExcelProps<T extends object> {
+type NestedKeys<T> = T extends object
+  ? {
+      [K in keyof T]: T[K] extends object
+        ? `${K & string}` | `${K & string}.${NestedKeys<T[K]>}`
+        : `${K & string}`;
+    }[keyof T]
+  : never;
+
+export type ExportFormat<T> = {
+  [K in NestedKeys<T>]?: string;
+};
+
+export type ExportToExcelProps<T extends object> = {
   data: T[];
   fileName?: string;
-}
+  formatHeader?: ExportFormat<T>;
+  selectKeys?: NestedKeys<T>[] | string[];
+  periodKey?: string;
+  periodAsPercent?: boolean;
+  transform?: (item: T) => T;
+};

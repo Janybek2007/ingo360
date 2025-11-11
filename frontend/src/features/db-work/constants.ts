@@ -171,8 +171,8 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
       },
       {
         name: 'medical_facility_id',
-        label: 'Медицинское учреждение',
-        placeholder: 'Выберите медицинское учреждение',
+        label: 'ЛПУ',
+        placeholder: 'Выберите ЛПУ',
         type: 'select',
       },
     ],

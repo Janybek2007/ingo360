@@ -17,6 +17,7 @@ import { commonColumns } from '#/shared/constants/common-columns';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
 import { filterBySearch } from '#/shared/utils/search';
+import { transformHeaderKeys } from '#/shared/utils/transform';
 
 const CompanyManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -103,14 +104,9 @@ const CompanyManagementPage: React.FC = () => {
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton
-              data={filteredData.map(item => ({
-                Компания: item.name,
-                'Лимит учетных записей': item.active_users_limit,
-                'Активные пользователи': item.active_users,
-                '№ Договора': item.contract_number,
-                'Срок окончания договора': item.contract_end_date,
-                Статус: item.is_active ? 'Активен' : 'Неактивен',
-              }))}
+              formatHeader={transformHeaderKeys(allColumns)}
+              selectKeys={Object.keys(transformHeaderKeys(allColumns))}
+              data={filteredData}
               fileName="companies.xlsx"
             />
             <Button

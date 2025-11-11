@@ -11,6 +11,7 @@ import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import {
   commonColumns,
   monthsPreset,
@@ -19,7 +20,7 @@ import {
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { calcPeriodTotals } from '#/shared/utils/calc-month-totals';
+import { calcPeriodTotals } from '#/shared/utils/calculate';
 
 export const RetailSales: React.FC = React.memo(() => {
   const filterOptions = useFilterOptions({
@@ -100,7 +101,19 @@ export const RetailSales: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton data={sales} fileName="retail-sales.xlsx" />
+          <ExportToExcelButton
+            formatHeader={{
+              sku_name: columnHeaderNames.sku,
+              brand_name: columnHeaderNames.brand,
+              promotion_type_name: columnHeaderNames.promotion,
+              distributor_name: columnHeaderNames.distributor,
+              product_group_name: columnHeaderNames.productGroup,
+            }}
+            selectKeys={visibleColumns as (keyof TDbItem)[]}
+            periodKey={filters.indicator}
+            data={sales}
+            fileName="retail-sales.xlsx"
+          />
         </div>
       }
     >

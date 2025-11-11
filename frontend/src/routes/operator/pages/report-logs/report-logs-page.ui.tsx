@@ -11,6 +11,7 @@ import { Select } from '#/shared/components/ui/select';
 import { commonColumns } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
+import { transformHeaderKeys } from '#/shared/utils/transform';
 
 const ReportLogsPage: React.FC = () => {
   const {
@@ -29,7 +30,7 @@ const ReportLogsPage: React.FC = () => {
       commonColumns.reportLogCreatedAt(),
       {
         id: 'actions',
-        header: '',
+        header: 'Действия',
         size: 60,
         custom: {
           cell: ({ row }: any) => <DeleteReportLogWrapper log={row.original} />,
@@ -61,7 +62,14 @@ const ReportLogsPage: React.FC = () => {
               showToggleAll
               classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
-            <ExportToExcelButton data={tableData} fileName="import_logs.xlsx" />
+            <ExportToExcelButton
+              formatHeader={transformHeaderKeys(columnsForTable, ['published'])}
+              selectKeys={Object.keys(
+                transformHeaderKeys(columnsForTable, ['published'])
+              )}
+              data={tableData}
+              fileName="import_logs.xlsx"
+            />
           </div>
         }
       >

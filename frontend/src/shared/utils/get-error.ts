@@ -14,7 +14,6 @@ export async function getResponseError(error: Response): Promise<string> {
   try {
     const data = (await error.json()) as PydanticErrorResponse;
 
-    // 🧩 Вариант 1: detail — массив pydantic-ошибок
     if (Array.isArray(data.detail)) {
       return data.detail
         .map(err => {
@@ -24,12 +23,10 @@ export async function getResponseError(error: Response): Promise<string> {
         .join('; ');
     }
 
-    // 🧩 Вариант 2: detail — строка (код ошибки)
     if (typeof data.detail === 'string') {
       return ERROR_MESSAGES[data.detail] || data.detail;
     }
 
-    // 🧩 fallback
     return 'Неизвестная ошибка';
   } catch {
     return 'Ошибка разбора ответа сервера';

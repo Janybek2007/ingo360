@@ -16,6 +16,7 @@ import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { transformHeaderKeys } from '#/shared/utils/transform';
 
 import { referencesColumnsWithType } from './constants';
 import type { IReferenceWorkProps } from './reference-work.types';
@@ -80,6 +81,8 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 }}
               />
               <ExportToExcelButton
+                formatHeader={transformHeaderKeys(columnsForTable)}
+                selectKeys={Object.keys(transformHeaderKeys(columnsForTable))}
                 data={currentData}
                 fileName="reference.xlsx"
               />

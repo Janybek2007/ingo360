@@ -62,7 +62,7 @@ export const useDbFilters = ({
       rowsCount !== 'all' && {
         value: rowsCount,
         getLabelFromValue(value) {
-          return value === 'all' ? 'Все' : 'Строки: '.concat(value.toString());
+          return 'Строки: '.concat(value.toString());
         },
         items: [],
         onDelete: () => setRowsCount('all'),

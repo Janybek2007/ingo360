@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import { calculateChartAxis } from '#/shared/utils/calc-chart-axis';
+import { calculateChartAxis } from '#/shared/utils/calculate';
 import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 

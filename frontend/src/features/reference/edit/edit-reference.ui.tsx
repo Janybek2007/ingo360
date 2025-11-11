@@ -11,7 +11,7 @@ import type {
   ReferencesTypeWithMain,
 } from '#/shared/types/references.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
-import { transformData } from '#/shared/utils/transform-data';
+import { transformData } from '#/shared/utils/transform';
 
 import { referencesCEFields, referencesDependsUrls } from '../constants';
 import { referenceContractWithType } from '../reference.contracts';

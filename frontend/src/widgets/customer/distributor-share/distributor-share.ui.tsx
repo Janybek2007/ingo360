@@ -11,6 +11,7 @@ import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
@@ -26,7 +27,7 @@ export const DistributorShare: React.FC = React.memo(() => {
       indicator: {
         options: [
           { value: 'amount', label: 'Деньги' },
-          { value: 'amount_share_percent', label: 'Проценты' },
+          { value: 'share_percent', label: 'Проценты' },
         ],
       },
     },
@@ -60,7 +61,7 @@ export const DistributorShare: React.FC = React.memo(() => {
       commonColumns.distributor(),
     ],
     months: monthsPreset(filters.indicator, sales, {
-      asPercent: filters.indicator === 'amount_share_percent',
+      asPercent: filters.indicator === 'share_percent',
     }),
   });
 
@@ -87,7 +88,25 @@ export const DistributorShare: React.FC = React.memo(() => {
             isMultiple
             classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
-          <ExportToExcelButton data={sales} fileName="distributor-share.xlsx" />
+          <ExportToExcelButton
+            formatHeader={{
+              sku_name: columnHeaderNames.sku,
+              brand_name: columnHeaderNames.brand,
+              promotion_type_name: columnHeaderNames.promotion,
+              distributor_name: columnHeaderNames.distributor,
+              product_group_name: columnHeaderNames.productGroup,
+            }}
+            selectKeys={[
+              'sku_name',
+              'brand_name',
+              'promotion_type_name',
+              'distributor_name',
+              'product_group_name',
+            ]}
+            periodKey={filters.indicator}
+            data={sales}
+            fileName="distributor-share.xlsx"
+          />
         </div>
       }
     >
