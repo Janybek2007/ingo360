@@ -3,7 +3,10 @@ import { Link } from 'react-router';
 import useLocalStorageState from 'use-local-storage-state';
 
 import { Assets } from '#/shared/assets';
-import { LucideArrowIcon } from '#/shared/components/icons';
+import {
+  LucideArrowIcon,
+  SidebarNavigationsIcons,
+} from '#/shared/components/icons';
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { useActivePath } from '#/shared/hooks/use-active-path';
 import { routePaths } from '#/shared/router';
@@ -40,7 +43,6 @@ export const Sidebar: React.FC = React.memo(() => {
 
     return baseNavigations.filter(nav => {
       const hasAccess = accessMap[nav.href];
-      // Если доступ не определён в accessMap, значит доступ разрешён по умолчанию
       return hasAccess === undefined || hasAccess === true;
     });
   }, [user, userAccess, baseNavigations]);
@@ -115,7 +117,10 @@ export const Sidebar: React.FC = React.memo(() => {
                     isActive(item.href) ? 'text-white' : 'text-[#94A3B8]'
                   )}
                 >
-                  {item.icon}
+                  <SidebarNavigationsIcons
+                    className="size-[1.25rem]"
+                    path={item.href}
+                  />
                 </span>
                 {!isCollapsed && (
                   <span className="ls-base font-normal text-base leading-[1.375rem]">

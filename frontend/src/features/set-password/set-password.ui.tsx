@@ -38,7 +38,6 @@ export const SetPasswordForm: React.FC<{ token: string | null }> = React.memo(
         )}
         <div className="flex justify-end">
           <Button
-            variant="filled"
             color="primary"
             wFull
             type="submit"

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
 import type { DynamicPrimarySalesAsMixedProps } from '../dynamic-primary-sales.types';
@@ -13,58 +12,24 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
       const sectionStyle = useSectionStyle();
 
       const rawData = useMemo(() => {
-        const primaryRawData = generateChartRawData(processedSalesData.sales, {
-          valueField: indicator,
-          outputField: 'primary',
-        });
+        return processedSalesData.map(item => {
+          const [year, month] = item.period.split('-').map(Number);
+          const quarter = Math.ceil(month / 3);
 
-        const remainsRawData = generateChartRawData(processedSalesData.stocks, {
-          valueField: indicator,
-          outputField: 'remains',
-        });
-
-        const stocksRawData = generateChartRawData(
-          processedSalesData.inventory,
-          { valueField: 'coverage_months', outputField: 'trade_stock' }
-        );
-
-        const dataMap = new Map<
-          string,
-          {
-            year: number;
-            month: number;
-            quarter: number;
-            primary: number;
-            remains: number;
-            trade_stock: number;
-          }
-        >();
-
-        [primaryRawData, remainsRawData, stocksRawData].forEach(dataset => {
-          dataset.forEach(item => {
-            const key = `${item.year}-${item.month}`;
-            const existing = dataMap.get(key);
-
-            if (existing) {
-              existing.primary += item.primary || 0;
-              existing.remains += item.remains || 0;
-              existing.trade_stock += item.trade_stock || 0;
-            } else {
-              dataMap.set(key, {
-                year: item.year,
-                month: item.month,
-                quarter: item.quarter,
-                primary: item.primary || 0,
-                remains: item.remains || 0,
-                trade_stock: item.trade_stock || 0,
-              });
-            }
-          });
-        });
-
-        return Array.from(dataMap.values()).sort((a, b) => {
-          if (a.year !== b.year) return a.year - b.year;
-          return a.month - b.month;
+          return {
+            year,
+            month,
+            quarter,
+            primary:
+              indicator === 'packages'
+                ? item.sales_packages
+                : item.sales_amount,
+            remains:
+              indicator === 'packages'
+                ? item.stock_packages
+                : item.stock_amount,
+            trade_stock: item.coverage_months,
+          };
         });
       }, [processedSalesData, indicator]);
 
@@ -87,7 +52,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
       );
 
       const tradeStockMax = useMemo(() => {
-        return Math.max(...processedData.map(d => (d as any).trade_stock)) + 50;
+        return Math.max(...processedData.map(d => (d as any).trade_stock)) + 10;
       }, [processedData]);
 
       const CustomXAxisTick = (props: any) => {

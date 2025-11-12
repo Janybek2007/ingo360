@@ -17,4 +17,6 @@ export { MdiPencilIcon } from './all/mdi-pencil.ui';
 export { MdiPublishIcon } from './all/mdi-publish.ui';
 export { MslAdminPanelSettingsRounded } from './all/msl-admin-panel-settings-rounded.ui';
 export { MyNauiLogoutIcon } from './all/mynaui-logout.ui';
+export { SidebarNavigationsIcons } from './all/sidebar-navigations.ui';
+export { SolarUserLinearIcon } from './all/solar-user-linear.ui';
 export type { IStaticIconProps } from './types';

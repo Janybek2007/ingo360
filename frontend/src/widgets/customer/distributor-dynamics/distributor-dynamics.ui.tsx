@@ -35,7 +35,9 @@ const formatMoney = (value: number) => value.toLocaleString('ru-RU');
 
 export const DistributorDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const filterOptions = useFilterOptions();
+  const filterOptions = useFilterOptions({
+    distributors: true,
+  });
 
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
@@ -51,10 +53,11 @@ export const DistributorDynamics: React.FC = React.memo(() => {
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(
-      ['sales/secondary/reports/sales-by-distributors'],
+      ['sales/secondary/reports/sales-by-distributors/chart'],
       {
         brand_ids: filters.brands,
         product_group_ids: filters.groups,
+        distributor_ids: filters.distributors,
         type_period: periodFilter.period,
         filterValues: periodFilter.selectedValues,
       }
@@ -74,7 +77,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
         label: item.distributor_name,
       })),
       ['value']
-    );
+    ).filter(v => Boolean(v.value));
 
     return uniqueDistributors.map(dist => ({
       id: dist.value,
@@ -222,6 +225,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                   domain={chartAxis.domain}
                   ticks={chartAxis.ticks}
                   axisLine={false}
+                  hide
                   tickLine={false}
                   className="text-[#474B4E] font-normal text-base leading-full"
                   tickMargin={10}

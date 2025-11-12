@@ -9,7 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { DbQueries, type TDbItem } from '#/entities/db';
+import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
@@ -23,10 +23,17 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
-import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
+
+interface TertiarySalesUnitsRaw {
+  period: string;
+  stock_packages: number;
+  stock_amount: number;
+  sales_packages: number;
+  sales_amount: number;
+}
 
 export const TertiarySalesUnits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
@@ -44,38 +51,40 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
   const periodFilter = usePeriodFilter();
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/tertiary/reports/sales'], {
-      brand_ids: filters.brands,
-      product_group_ids: filters.groups,
-      type_period: periodFilter.period,
-      filterValues: periodFilter.selectedValues,
-    })
+    DbQueries.GetDbItemsQuery<TertiarySalesUnitsRaw[]>(
+      ['sales/tertiary/reports/chart'],
+      { brand_ids: filters.brands, product_group_ids: filters.groups }
+    )
   );
-  const visits = React.useMemo(
-    () => (queryData.data ? queryData.data[0] : []),
-    [queryData]
-  );
+  const visits = React.useMemo(() => {
+    const data = queryData.data ? queryData.data[0] : [];
+
+    return data.map(item => {
+      const [year, month] = item.period.split('-').map(Number);
+      const quarter = Math.ceil(month / 3);
+
+      return {
+        year,
+        month,
+        quarter,
+        value: item.sales_packages,
+      };
+    });
+  }, [queryData]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
     filters.resetFilters();
   }, [periodFilter, filters]);
 
-  const rawData = useMemo(() => {
-    return generateChartRawData(visits, {
-      valueField: 'packages',
-      outputField: 'value',
-    });
-  }, [visits]);
-
   const chartData = useMemo(() => {
     return processPeriodData({
-      rawData,
+      rawData: visits,
       period: periodFilter.period,
       selectedValues: periodFilter.selectedValues,
       aggregateFields: ['value'],
     });
-  }, [rawData, periodFilter.period, periodFilter.selectedValues]);
+  }, [visits, periodFilter.period, periodFilter.selectedValues]);
 
   const chartAxis = useMemo(
     () => calculateChartAxis(chartData, ['value'], 1000),

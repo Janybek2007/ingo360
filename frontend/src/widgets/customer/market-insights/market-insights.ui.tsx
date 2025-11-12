@@ -53,24 +53,9 @@ export const MarketInsights: React.FC = React.memo(() => {
       commonColumns.marketInsightsSegment(),
       commonColumns.marketInsightsDosageForm(),
       commonColumns.marketInsightsDosage(),
-      {
-        id: 'YTD6M23',
-        key: 'YTD6M23',
-        header: 'YTD-6M-23',
-        aggregate: 'sum',
-      },
-      {
-        id: 'YTD6M24',
-        key: 'YTD6M24',
-        header: 'YTD-6M-24',
-        aggregate: 'sum',
-      },
-      {
-        id: 'YTD6M25',
-        key: 'YTD6M25',
-        header: 'YTD-6M-25',
-        aggregate: 'sum',
-      },
+      { id: 'YTD6M23', key: 'YTD6M23', header: 'YTD-6M-23', aggregate: 'sum' },
+      { id: 'YTD6M24', key: 'YTD6M24', header: 'YTD-6M-24', aggregate: 'sum' },
+      { id: 'YTD6M25', key: 'YTD6M25', header: 'YTD-6M-25', aggregate: 'sum' },
     ],
   });
 

@@ -9,7 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { DbQueries, type TDbItem } from '#/entities/db';
+import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
@@ -18,23 +18,25 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
-import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { processPeriodData } from '#/shared/utils/process-period-data';
+
+export type DynamicPrimarySalesData = {
+  period: string;
+  sales_amount: number;
+  sales: number;
+};
 
 export const DynamicSales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
   const periodFilter = usePeriodFilter();
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<TDbItem[]>(
-      ['sales/primary/reports/sales', 'sales/secondary/reports/sales'],
-      {
-        type_period: periodFilter.period,
-        filterValues: periodFilter.selectedValues,
-      }
-    )
+    DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>([
+      'sales/primary/reports/chart',
+      'sales/secondary/reports/chart',
+    ])
   );
 
   const primarySales = React.useMemo(
@@ -48,17 +50,6 @@ export const DynamicSales: React.FC = React.memo(() => {
   );
 
   const rawData = React.useMemo(() => {
-    const primaryRawData = generateChartRawData(primarySales, {
-      valueField: 'amount',
-      outputField: 'primaryValue',
-    });
-
-    const secondaryRawData = generateChartRawData(secondarySales, {
-      valueField: 'amount',
-      outputField: 'secondaryValue',
-    });
-
-    // Объединяем оба набора данных
     const dataMap = new Map<
       string,
       {
@@ -70,29 +61,35 @@ export const DynamicSales: React.FC = React.memo(() => {
       }
     >();
 
-    primaryRawData.forEach(item => {
-      const key = `${item.year}-${item.month}`;
+    primarySales.forEach(item => {
+      const [year, month] = item.period.split('-').map(Number);
+      const quarter = Math.ceil(month / 3);
+      const key = `${year}-${month}`;
+
       dataMap.set(key, {
-        year: item.year,
-        month: item.month,
-        quarter: item.quarter,
-        primaryValue: item.primaryValue || 0,
+        year,
+        month,
+        quarter,
+        primaryValue: item.sales_amount,
         secondaryValue: 0,
       });
     });
 
-    secondaryRawData.forEach(item => {
-      const key = `${item.year}-${item.month}`;
+    secondarySales.forEach(item => {
+      const [year, month] = item.period.split('-').map(Number);
+      const quarter = Math.ceil(month / 3);
+      const key = `${year}-${month}`;
       const existing = dataMap.get(key);
+
       if (existing) {
-        existing.secondaryValue = item.secondaryValue || 0;
+        existing.secondaryValue = item.sales;
       } else {
         dataMap.set(key, {
-          year: item.year,
-          month: item.month,
-          quarter: item.quarter,
+          year,
+          month,
+          quarter,
           primaryValue: 0,
-          secondaryValue: item.secondaryValue || 0,
+          secondaryValue: item.sales,
         });
       }
     });

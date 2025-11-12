@@ -51,24 +51,6 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
                         )}
                       </h4>
                     )}
-                    {legends && legends.length > 0 && (
-                      <ul className="flex items-center gap-4 mt-4">
-                        {legends.map((l, i) => (
-                          <li
-                            key={`${l.label}-${i}`}
-                            className="flex items-center gap-1.5"
-                          >
-                            <span
-                              className="inline-block size-[0.938rem] rounded-full"
-                              style={{ backgroundColor: l.fill }}
-                            ></span>
-                            <span className="text-[#888888] font-normal text-sm leading-full -tracking-[0.2px]">
-                              {l.label}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </div>
                   {headerEnd && <>{headerEnd}</>}
                 </div>
@@ -76,6 +58,26 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
               </div>
             )}
           {children}
+          <div className="mx-auto">
+            {legends && legends.length > 0 && (
+              <ul className="flex items-center gap-4 mt-4">
+                {legends.map((l, i) => (
+                  <li
+                    key={`${l.label}-${i}`}
+                    className="flex items-center gap-1.5"
+                  >
+                    <span
+                      className="inline-block size-[0.938rem] rounded-full"
+                      style={{ backgroundColor: l.fill }}
+                    ></span>
+                    <span className="text-[#888888] font-normal text-sm leading-full -tracking-[0.2px]">
+                      {l.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </section>
     );

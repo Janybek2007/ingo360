@@ -9,11 +9,17 @@ export type ExtraDbType =
   | DbType
   | 'sales/primary/reports/stock-levels'
   | 'sales/primary/reports/sales'
+  | 'sales/primary/reports/chart'
   | 'sales/primary/reports/stock-coverages'
+  | 'sales/primary/reports/stock-coverages/chart'
   | 'sales/primary/reports/distributor-shares'
+  | 'sales/primary/reports/distributor-shares/chart'
   | 'sales/secondary/reports/sales'
+  | 'sales/secondary/reports/chart'
   | 'sales/secondary/reports/sales-by-distributors'
+  | 'sales/secondary/reports/sales-by-distributors/chart'
   | 'sales/tertiary/reports/sales'
+  | 'sales/tertiary/reports/chart'
   | 'sales/tertiary/reports/numeric-distribution'
   | 'sales/tertiary/reports/low-stock-pharmacies'
   | 'visits/reports/doctors-by-specialty'
@@ -21,5 +27,4 @@ export type ExtraDbType =
   | 'visits/reports/visits-sum-for-period'
   | 'visits/reports/visits-by-month'
   | 'ims/reports/top'
-  | 'ims/reports/metrics'
   | 'ims/reports/table';

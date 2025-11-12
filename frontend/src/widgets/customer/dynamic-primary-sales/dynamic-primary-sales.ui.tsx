@@ -12,7 +12,6 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
-import type { ExtraDbType } from '#/shared/types/db.type';
 
 import type { DynamicPrimarySalesData } from './dynamic-primary-sales.types';
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
@@ -24,15 +23,6 @@ const AsLegends = {
     { label: 'Первичка', fill: '#0B5A7C' },
     { label: 'Остаток', fill: '#FFC000' },
     { label: 'Товарный запас', fill: '#888888' },
-  ],
-};
-
-const asUrls: Record<'line' | 'mixed', ExtraDbType[]> = {
-  line: ['sales/primary/reports/sales'],
-  mixed: [
-    'sales/primary/reports/sales', // primary
-    'sales/primary/reports/stock-coverages', // inventory
-    'sales/primary/reports/stock-levels', // stocks
   ],
 };
 
@@ -53,10 +43,13 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
     const periodFilter = usePeriodFilter();
 
     const queryData = useKeepQuery(
-      DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(asUrls[as], {
-        brand_ids: filters.brands,
-        product_group_ids: filters.groups,
-      })
+      DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(
+        ['sales/primary/reports/chart'],
+        {
+          brand_ids: filters.brands,
+          product_group_ids: filters.groups,
+        }
+      )
     );
 
     const resetFilters = React.useCallback(() => {
@@ -95,11 +88,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
             ) : (
               <DynamicPrimarySalesAsMixed
                 period={periodFilter.period}
-                sales={{
-                  sales: queryData.data?.[0] || [],
-                  inventory: queryData.data?.[1] || [],
-                  stocks: queryData.data?.[2] || [],
-                }}
+                sales={queryData.data?.[0] || []}
                 selectedValues={periodFilter.selectedValues}
                 indicator={filters.indicator}
               />

@@ -41,10 +41,10 @@ export interface ITableProps {
   highlightRow?: ITableBodyProps['highlightRow'];
   pinnedRow?: ITableBodyProps['pinnedRow'];
   enableColumnResizing?: boolean;
-  isVirtualized?: boolean;
   filters?: IUsedFilterProps & {
     custom?: ColumnFiltersState;
   };
+  isViewFilter?: boolean;
   rowTotal?: {
     firstColSpan: number;
     monthTotals: number[];
@@ -57,7 +57,7 @@ export interface ITableBodyProps {
   highlightRow?: (row: any) => string;
   pinnedRow?: (row: any) => boolean;
   rowTotal?: ITableProps['rowTotal'];
-  rowVirtualizer?: Virtualizer<any, any>;
+  rowVirtualizer: Virtualizer<any, any>;
 }
 
 export interface ITableHeaderProps {

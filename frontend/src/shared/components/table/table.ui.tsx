@@ -31,27 +31,26 @@ export const Table: React.FC<ITableProps> = React.memo(
     filters,
     rowTotal,
     enableColumnResizing = true,
-    isVirtualized = true,
+    isViewFilter = true,
   }) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
       filters?.custom || []
     );
-    const [columnPinning, setColumnPinning] = useState<ColumnPinningState>(
-      () => {
-        const leftPinnedColumns = columns
-          .filter(
-            col =>
-              col.enablePinning &&
-              (col.pinned === 'left' || col.pinned === undefined)
-          )
-          .map(col => col.id || String(col.accessorKey) || '');
-        const rightPinnedColumns = columns
-          .filter(col => col.enablePinning && col.pinned === 'right')
-          .map(col => col.id || String(col.accessorKey) || '');
-        return { left: leftPinnedColumns, right: rightPinnedColumns };
-      }
-    );
+
+    const columnPinning = React.useMemo<ColumnPinningState>(() => {
+      const leftPinnedColumns = columns
+        .filter(
+          col =>
+            col.enablePinning &&
+            (col.pinned === 'left' || col.pinned === undefined)
+        )
+        .map(col => col.id || String(col.accessorKey) || '');
+      const rightPinnedColumns = columns
+        .filter(col => col.enablePinning && col.pinned === 'right')
+        .map(col => col.id || String(col.accessorKey) || '');
+      return { left: leftPinnedColumns, right: rightPinnedColumns };
+    }, [columns]);
 
     useEffect(() => {
       setSorting([]);
@@ -65,7 +64,6 @@ export const Table: React.FC<ITableProps> = React.memo(
       state: { sorting, columnFilters, columnPinning },
       onSortingChange: setSorting,
       onColumnFiltersChange: setColumnFilters,
-      onColumnPinningChange: setColumnPinning,
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
@@ -80,20 +78,27 @@ export const Table: React.FC<ITableProps> = React.memo(
       count: table.getRowModel().rows.length,
       getScrollElement: () => tableContainerRef.current,
       estimateSize: () => 50,
-      overscan: 5,
+      overscan: data.length > 1000 ? 10 : 5,
+      measureElement:
+        typeof window !== 'undefined' &&
+        navigator.userAgent.indexOf('Firefox') === -1
+          ? element => element?.getBoundingClientRect().height
+          : undefined,
     });
 
     const allUsedFilters = React.useMemo(
       () =>
-        formatUsedFilterItems({
-          columnFilters,
-          sorting,
-          columns,
-          externalUsedFilters: filters?.usedFilterItems,
-          setColumnFilters,
-          setSorting,
-        }),
-      [filters?.usedFilterItems, columnFilters, sorting, columns]
+        isViewFilter
+          ? formatUsedFilterItems({
+              columnFilters,
+              sorting,
+              columns,
+              externalUsedFilters: filters?.usedFilterItems,
+              setColumnFilters,
+              setSorting,
+            })
+          : [],
+      [isViewFilter, columnFilters, sorting, columns, filters?.usedFilterItems]
     );
 
     const handleResetFilters = React.useCallback(() => {
@@ -102,16 +107,27 @@ export const Table: React.FC<ITableProps> = React.memo(
       filters?.resetFilters();
     }, [filters]);
 
+    const containerStyle = React.useMemo(
+      () => ({
+        maxHeight,
+        minHeight,
+        position: 'relative' as const,
+        zIndex: 1,
+      }),
+      [maxHeight, minHeight]
+    );
+
     return (
       <div className={cn('relative', className)}>
-        {(filters || columnFilters.length > 0 || sorting.length > 0) && (
-          <UsedFilter
-            {...filters}
-            usedFilterItems={allUsedFilters}
-            resetFilters={handleResetFilters}
-            className="mb-3"
-          />
-        )}
+        {(filters || columnFilters.length > 0 || sorting.length > 0) &&
+          isViewFilter && (
+            <UsedFilter
+              {...filters}
+              usedFilterItems={allUsedFilters}
+              resetFilters={handleResetFilters}
+              className="mb-3"
+            />
+          )}
         <div
           ref={tableContainerRef}
           className={cn(
@@ -122,12 +138,7 @@ export const Table: React.FC<ITableProps> = React.memo(
             rounded == 'lg' && 'rounded-lg',
             allUsedFilters.length > 0 && 'mt-5'
           )}
-          style={{
-            maxHeight,
-            minHeight,
-            position: 'relative',
-            zIndex: 1,
-          }}
+          style={containerStyle}
         >
           {table.getRowModel().rows.length === 0 ? (
             <div className="flex items-center justify-center py-10 text-gray-500 text-sm">
@@ -144,7 +155,7 @@ export const Table: React.FC<ITableProps> = React.memo(
                 highlightRow={highlightRow}
                 pinnedRow={pinnedRow}
                 rowTotal={rowTotal}
-                rowVirtualizer={isVirtualized ? rowVirtualizer : undefined}
+                rowVirtualizer={rowVirtualizer}
               />
             </table>
           )}

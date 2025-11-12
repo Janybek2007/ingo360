@@ -25,7 +25,6 @@ export const ForgotPasswordForm: React.FC = React.memo(() => {
       )}
       <div className="flex justify-end">
         <Button
-          variant="filled"
           color="primary"
           wFull
           type="submit"

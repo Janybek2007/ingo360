@@ -44,7 +44,6 @@ export const LoginForm: React.FC = React.memo(() => {
         <div className="text-red-500 mb-5">{errors.root.message}</div>
       )}
       <Button
-        variant="filled"
         color="primary"
         wFull
         type="submit"

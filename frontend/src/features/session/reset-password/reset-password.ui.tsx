@@ -38,7 +38,6 @@ export const ResetPasswordForm: React.FC<{ token: string | null }> = React.memo(
         )}
         <div className="flex justify-end mt-8">
           <Button
-            variant="filled"
             color="primary"
             wFull
             type="submit"

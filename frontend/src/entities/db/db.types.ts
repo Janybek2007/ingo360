@@ -1,5 +1,6 @@
 import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import type { IndicatorType, PaginationParams } from '#/shared/types/global';
+import type { ISMGroupColumn } from '#/shared/types/ims';
 
 export interface IDbName {
   id: number;
@@ -107,7 +108,8 @@ export interface IGetDBItemsParams extends PaginationParams {
   group_by_period?: 'month' | 'quarter' | 'year';
   periods?: string[];
   type_period?: UsePeriodType;
-  group_column?: 'company' | 'brand' | 'segment';
+  group_column?: ISMGroupColumn;
   filterValues?: string[];
   group_by_dimensions?: string[];
+  indicator?: string;
 }

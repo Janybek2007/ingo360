@@ -59,6 +59,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       commonColumns.brand(),
       commonColumns.segment(),
       commonColumns.group(),
+      commonColumns.geo_indicator(),
     ],
     months: monthsPreset('nd_percent', sales, { asPercent: true }),
   });

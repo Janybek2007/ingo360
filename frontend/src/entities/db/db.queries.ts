@@ -9,10 +9,10 @@ import type { IGetDBItemResponse, IGetDBItemsParams } from './db.types';
 
 export class DbQueries {
   static queryKeys = {
-    getDbItems: (urls: ExtraDbType[], options?: IGetDBItemsParams) => [
+    getDbItems: (urls: ExtraDbType[], query?: string) => [
       'get-db-items',
-      urls,
-      options,
+      ...urls,
+      query,
     ],
   };
 
@@ -21,7 +21,7 @@ export class DbQueries {
     options?: IGetDBItemsParams
   ) {
     return queryOptions({
-      queryKey: this.queryKeys.getDbItems(urls, options),
+      queryKey: this.queryKeys.getDbItems(urls, this.buildQueryString(options)),
       queryFn: () =>
         Promise.all(
           urls.map(url =>
@@ -55,6 +55,9 @@ export class DbQueries {
         ),
       };
     }
+    if (params && params?.search?.trim() !== '') {
+      p.search = params.search?.trim();
+    } else p.search = undefined;
 
     delete p.filterValues;
     return qs.stringify(p, { arrayFormat: 'repeat' });

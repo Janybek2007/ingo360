@@ -1,41 +1,22 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
-import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { UsedFilter } from '#/shared/components/used-filter';
-import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { type UsePeriodFilterReturn } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import type { EntityRow } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
-interface LeaderBoardRow {
-  rank: number;
-  entity: string;
-  sales: number;
-  is_user_company: boolean;
-}
+import type { LeaderboardProps } from './leader-board.types';
 
-export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
-  React.memo(({ periodFilter }) => {
-    const queryData = useKeepQuery(
-      DbQueries.GetDbItemsQuery<LeaderBoardRow[]>(['ims/reports/top'], {
-        periods: periodFilter.selectedValues,
-        type_period: periodFilter.period,
-        limit: 1000,
-      })
-    );
-
-    const metricData = React.useMemo(() => {
-      return queryData.data ? queryData.data[0] : [];
-    }, [queryData.data]);
-
+export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
+  ({ periodFilter, entities, isLoading, queryError }) => {
     const sectionStyle = useSectionStyle();
 
-    const columns = useMemo<ColumnDef<LeaderBoardRow>[]>(
+    const columns = useMemo<ColumnDef<EntityRow>[]>(
       () => [
         { accessorKey: 'rank', header: 'Место', size: 130 },
         { accessorKey: 'entity', header: 'Компания', size: 300 },
@@ -85,10 +66,10 @@ export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
                 resetFilters={periodFilter.onReset}
               />
             </div>
-            <div>
+            <div className="my-20">
               <div className="flex flex-col items-center w-full gap-4.5">
                 <span className="font-medium text-5xl leading-full -tracking-[0.0125rem]">
-                  {metricData.find(row => row.is_user_company)?.rank ?? '-'}
+                  {entities.find(row => row.is_user_company)?.rank ?? '-'}
                 </span>
                 <p className="font-normal text-base leading-full -tracking-[0.0125rem]">
                   Ваше место в рейтинге
@@ -106,9 +87,9 @@ export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
               </div>
             ) : (
               <AsyncBoundary
-                isLoading={queryData.isLoading || queryData.isFetching}
-                isEmpty={metricData.length === 0}
-                queryError={queryData.error}
+                isLoading={isLoading}
+                isEmpty={entities.length === 0}
+                queryError={queryError}
               >
                 <Table
                   highlightRow={row =>
@@ -116,9 +97,8 @@ export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
                   }
                   pinnedRow={row => row.is_user_company}
                   columns={columns}
-                  data={metricData}
+                  data={entities}
                   enableColumnResizing={false}
-                  isVirtualized={false}
                 />
               </AsyncBoundary>
             )}
@@ -126,6 +106,7 @@ export const LeaderBoard: React.FC<{ periodFilter: UsePeriodFilterReturn }> =
         </div>
       </section>
     );
-  });
+  }
+);
 
 LeaderBoard.displayName = '_LeaderBoard_';

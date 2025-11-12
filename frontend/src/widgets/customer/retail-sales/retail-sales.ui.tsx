@@ -60,6 +60,7 @@ export const RetailSales: React.FC = React.memo(() => {
       commonColumns.promotion(),
       commonColumns.group(),
       commonColumns.distributor(),
+      commonColumns.geo_indicator(),
     ],
     months: monthsPreset(filters.indicator, sales),
     total: totalPreset(filters.indicator),

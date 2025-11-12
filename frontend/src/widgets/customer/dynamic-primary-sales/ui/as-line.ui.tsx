@@ -11,7 +11,6 @@ import {
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
-import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { processPeriodData } from '#/shared/utils/process-period-data';
 
 import type { DynamicPrimarySalesAsLineProps } from '../dynamic-primary-sales.types';
@@ -21,9 +20,17 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
     const sectionStyle = useSectionStyle();
 
     const rawData = useMemo(() => {
-      return generateChartRawData(sales, {
-        valueField: indicator,
-        outputField: 'value',
+      return sales.map(item => {
+        const [year, month] = item.period.split('-').map(Number);
+        const quarter = Math.ceil(month / 3);
+
+        return {
+          year,
+          month,
+          quarter,
+          value:
+            indicator === 'packages' ? item.sales_packages : item.sales_amount,
+        };
       });
     }, [sales, indicator]);
 

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { LogoutButton } from '#/features/session/logout';
-import { Icon } from '#/shared/components/ui/icon';
+import { SolarUserLinearIcon } from '#/shared/components/icons';
 import { useSession } from '#/shared/session';
 import { cn } from '#/shared/utils/cn';
 
@@ -26,12 +26,8 @@ export const UserSideBar: React.FC<IUserSidebarProps> = React.memo(
         </div>
         <div className="flex flex-col items-start gap-2 mt-9">
           {[
-            {
-              label: 'Настройка аккаунта',
-              value: 'account-settings',
-              icon: 'solar:user-linear',
-            },
-            { label: 'Помощь', value: 'help', icon: 'solar:user-linear' },
+            { label: 'Настройка аккаунта', value: 'account-settings' },
+            { label: 'Помощь', value: 'help' },
           ].map((tab, i) => (
             <button
               key={i}
@@ -42,7 +38,7 @@ export const UserSideBar: React.FC<IUserSidebarProps> = React.memo(
               )}
               onClick={() => setActiveTab(tab.value as TTabType)}
             >
-              <Icon name={tab.icon} className="size-[1rem]" color="#333D4C" />
+              <SolarUserLinearIcon className="size-[1rem] text-[#333D4C]" />
               <span className="text-[#333D4C] font-inter text-sm font-medium leading-5">
                 {tab.label}
               </span>

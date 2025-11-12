@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 
-import { Icon } from '#/shared/components/ui/icon';
+import { SolarUserLinearIcon } from '#/shared/components/icons';
 import { routePaths } from '#/shared/router';
 
 import { Notifications } from './ui/notifications.ui';
@@ -22,10 +22,7 @@ export const ExpHeader: React.FC = React.memo(() => {
             onClick={() => navigate(routePaths.profile)}
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#333D4C] transition-colors hover:bg-[#EEF1F6]"
           >
-            <Icon
-              name="solar:user-linear"
-              className="size-[1.25rem] text-[#333D4C]"
-            />
+            <SolarUserLinearIcon className="size-[1.25rem] text-[#333D4C]" />
             <span>Профиль</span>
           </button>
         </div>
