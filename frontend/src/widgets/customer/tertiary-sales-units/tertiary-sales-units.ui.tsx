@@ -93,7 +93,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Третичные продажи, уп."
+      title="Третичные продажи (в упаковках)"
       headerEnd={
         <div className="flex items-center gap-4">
           <DbFilters {...filters} />

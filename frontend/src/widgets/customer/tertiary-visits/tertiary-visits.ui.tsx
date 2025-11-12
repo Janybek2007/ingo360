@@ -77,10 +77,6 @@ export const TertiaryVisits: React.FC = React.memo(() => {
           <h4 className="font-semibold text-xl leading-[120%] text-black mb-2">
             Третичные визиты
           </h4>
-          <p className="font-normal text-sm leading-[150%] text-[#727272]">
-            Визиты по брендам помесячно — в упаковках и $ + динамика визитов
-            брендов, SKU
-          </p>
         </div>
       }
       headerEnd={
