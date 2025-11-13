@@ -8,6 +8,7 @@ import { Table } from '#/shared/components/table';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { UsedFilter } from '#/shared/components/used-filter';
 import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
+import { selectFilter } from '#/shared/utils/filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
@@ -41,6 +42,13 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                   ? 'Бренд'
                   : 'Сегмент',
             size: 300,
+            enableColumnFilter: activeTab !== 'company',
+            filterFn: selectFilter(),
+            filterType: 'select',
+            selectOptions:
+              activeTab === 'company'
+                ? []
+                : entities.map(e => ({ value: e.entity, label: e.entity })),
           },
           {
             accessorKey: 'sales',
@@ -53,7 +61,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
               }),
           },
         ],
-        [activeTab]
+        [activeTab, entities]
       );
 
       return (
