@@ -47,6 +47,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     data: visits,
     columns: [
       commonColumns.specialistCoverageMedicalFacility(),
+      commonColumns.specialistCoverageDoctor(),
       commonColumns.specialistCoverageSpeciality(),
       commonColumns.specialistCoveragePercentage(),
       commonColumns.specialistCoverageTotalDoctors(),
@@ -81,6 +82,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
             formatHeader={{
               medical_facility_name: columnHeaderNames.medicalFacility,
               speciality_name: columnHeaderNames.speciality,
+              doctor_name: columnHeaderNames.doctor,
               coverage_percentage: columnHeaderNames.coveragePercentage,
               total_doctors: columnHeaderNames.coverageTotalDoctors,
               doctors_with_visits: columnHeaderNames.coverageDoctorsWithVisits,
@@ -89,6 +91,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
               'medical_facility_name',
               'speciality_name',
               'coverage_percentage',
+              'doctor_name',
               'total_doctors',
               'doctors_with_visits',
             ]}

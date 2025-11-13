@@ -42,7 +42,9 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
         geo_indicators_ids: filters.geoIndicators,
         search: filters.search,
-        group_by_dimensions: filters.groupBy,
+        group_by_dimensions: filters.groupBy.filter(
+          v => !['geo_indicator'].includes(v)
+        ),
       }
     )
   );

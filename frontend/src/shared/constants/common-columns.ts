@@ -198,12 +198,12 @@ export const commonColumns = {
     custom: {
       accessor: (row: any) =>
         `${row.last_name} ${row.first_name} ${row.patronymic || ''}`.trim() ||
-        'Не указано',
+        '-',
       cell: ({ row }) => {
         const user = row.original;
         return (
           `${user.last_name} ${user.first_name} ${user.patronymic || ''}`.trim() ||
-          'Не указано'
+          '-'
         );
       },
     },
@@ -272,7 +272,7 @@ export const commonColumns = {
     type: 'select',
     custom: {
       accessor: (row: any) =>
-        `${row.user_last_name} ${row.user_first_name}`.trim() || 'Не указано',
+        `${row.user_last_name} ${row.user_first_name}`.trim() || '-',
     },
   }),
   reportLogTargetTable: (): CColumn<any> => ({
@@ -316,7 +316,17 @@ export const commonColumns = {
     size: 224,
     type: 'select',
     custom: {
-      accessor: (row: any) => row.medical_facility_name || 'Не указано',
+      accessor: (row: any) => row.medical_facility_name || '-',
+    },
+  }),
+  specialistCoverageDoctor: (): CColumn<any> => ({
+    id: 'doctor_id',
+    key: 'doctor_name',
+    header: columnHeaderNames.doctor,
+    size: 224,
+    type: 'select',
+    custom: {
+      accessor: (row: any) => row.doctor_name || '-',
     },
   }),
   specialistCoverageSpeciality: (): CColumn<any> => ({
@@ -326,7 +336,7 @@ export const commonColumns = {
     size: 230,
     type: 'select',
     custom: {
-      accessor: (row: any) => row.speciality_name || 'Не указано',
+      accessor: (row: any) => row.speciality_name || '-',
     },
   }),
   specialistCoveragePercentage: (): CColumn<any> => ({

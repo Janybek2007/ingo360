@@ -30,6 +30,7 @@ export const columnHeaderNames = {
   targetTable: 'Целевая таблица',
   recordsCount: 'Количество записей',
   createdAt: 'Дата создания',
+  doctor: 'Врач',
   medicalFacility: 'ЛПУ',
   speciality: 'Специальность',
   coveragePercentage: 'Процент охвата врачей',

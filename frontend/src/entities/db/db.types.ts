@@ -82,6 +82,9 @@ export type TDbItem = {
   geo_indicator_name: string;
   geo_indicator_id: number;
   //
+  doctor_id: number;
+  doctor_name: string;
+  //
   year: number;
   quarter: number;
   month: number;
