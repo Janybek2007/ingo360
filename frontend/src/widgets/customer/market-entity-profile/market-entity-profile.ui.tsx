@@ -81,6 +81,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                 items={tabItems}
               />
               <UsedFilter
+                isReadMode={['mat', 'ytd'].includes(periodFilter.period)}
                 usedPeriodFilters={getUsedFilterItems([
                   {
                     value: periodFilter.selectedValues,

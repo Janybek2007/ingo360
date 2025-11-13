@@ -17,6 +17,7 @@ export interface IUsedFilterProps {
   usedPeriodFilters?: IUsedFilterItem[];
   periodViewMode?: PeriodViewMode;
   className?: string;
+  isReadMode?: boolean;
 }
 
 export interface IGroupedPeriod {

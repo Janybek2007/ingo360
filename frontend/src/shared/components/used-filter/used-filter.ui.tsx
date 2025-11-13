@@ -15,6 +15,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   isViewPeriods = true,
   periodViewMode = 'default',
   className,
+  isReadMode = false,
 }) => {
   const groupedItems = useMemo(() => usedFilterItems, [usedFilterItems]);
 
@@ -58,14 +59,16 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     >
       <div className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
         <span>{item.label}</span>
-        <button
-          type="button"
-          onClick={item.onDelete}
-          className="text-gray-400 hover:text-gray-600"
-          aria-label={`Удалить фильтр ${item.label}`}
-        >
-          <LucideXIcon className="size-3.5" />
-        </button>
+        {!isReadMode && (
+          <button
+            type="button"
+            onClick={item.onDelete}
+            className="text-gray-400 hover:text-gray-600"
+            aria-label={`Удалить фильтр ${item.label}`}
+          >
+            <LucideXIcon className="size-3.5" />
+          </button>
+        )}
       </div>
 
       {item.subItems?.length ? (
@@ -97,14 +100,16 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
       className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]"
     >
       <span>{period.label}</span>
-      <button
-        type="button"
-        onClick={period.onDelete}
-        className="text-gray-400 hover:text-gray-600"
-        aria-label={`Удалить фильтр ${period.label}`}
-      >
-        <LucideXIcon className="size-3.5" />
-      </button>
+      {!isReadMode && (
+        <button
+          type="button"
+          onClick={period.onDelete}
+          className="text-gray-400 hover:text-gray-600"
+          aria-label={`Удалить фильтр ${period.label}`}
+        >
+          <LucideXIcon className="size-3.5" />
+        </button>
+      )}
     </div>
   );
 
@@ -121,13 +126,15 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
           ? groupedPeriodItems.map(renderFromToItem)
           : groupedPeriodItems.map(renderDefaultItem))}
 
-      <button
-        type="button"
-        onClick={resetFilters}
-        className="px-2 py-[2px] text-[13px] text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
-      >
-        Сбросить
-      </button>
+      {!isReadMode && (
+        <button
+          type="button"
+          onClick={resetFilters}
+          className="px-2 py-[2px] text-[13px] text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
+        >
+          Сбросить
+        </button>
+      )}
     </div>
   );
 };

@@ -56,6 +56,7 @@ export const usePeriodFilter = (
     ]);
     const currentYearKey = `year-${currentYear}`;
     if (['mat', 'ytd'].includes(period)) return allCurrentYearItems.slice(0, 1);
+    if (period === 'year') return allCurrentYearItems;
     return [...allCurrentYearItems, currentYearKey];
   });
 
@@ -70,6 +71,7 @@ export const usePeriodFilter = (
         const currentYearKey = `year-${currentYear}`;
         if (['mat', 'ytd'].includes(newPeriod))
           return allCurrentYearItems.slice(0, 1);
+        if (newPeriod === 'year') return allCurrentYearItems;
         return [...allCurrentYearItems, currentYearKey];
       });
     },

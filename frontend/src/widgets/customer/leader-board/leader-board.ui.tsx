@@ -49,6 +49,7 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
                 <PeriodFilters {...periodFilter} />
               </div>
               <UsedFilter
+                isReadMode={['mat', 'ytd'].includes(periodFilter.period)}
                 usedPeriodFilters={getUsedFilterItems([
                   {
                     value: periodFilter.selectedValues,
