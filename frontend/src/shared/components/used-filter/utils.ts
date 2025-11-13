@@ -103,6 +103,10 @@ export class PeriodGrouping {
     for (const [year, yearData] of yearsMap.entries()) {
       const subItems = yearData.subItems!;
 
+      if (subItems.length === 0 && String(yearData.value).startsWith('year-')) {
+        continue;
+      }
+
       if (subItems.length === 0) {
         filtered.push(yearData);
         continue;

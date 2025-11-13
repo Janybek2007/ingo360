@@ -8,7 +8,10 @@ import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
-import { commonColumns } from '#/shared/constants/common-columns';
+import {
+  commonColumns,
+  marketInsightsDynamicMonths,
+} from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
@@ -27,7 +30,11 @@ interface MarketRow {
 
 export const MarketInsights: React.FC = React.memo(() => {
   const filters = useDbFilters({
-    config: { brands: { enabled: false }, groups: { enabled: false } },
+    config: {
+      brands: { enabled: false },
+      groups: { enabled: false },
+      indicator: { enabled: false },
+    },
   });
   const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
 
@@ -52,10 +59,9 @@ export const MarketInsights: React.FC = React.memo(() => {
       commonColumns.marketInsightsBrand(),
       commonColumns.marketInsightsSegment(),
       commonColumns.marketInsightsDosageForm(),
+      commonColumns.marketMolucule(),
       commonColumns.marketInsightsDosage(),
-      { id: 'YTD6M23', key: 'YTD6M23', header: 'YTD-6M-23', aggregate: 'sum' },
-      { id: 'YTD6M24', key: 'YTD6M24', header: 'YTD-6M-24', aggregate: 'sum' },
-      { id: 'YTD6M25', key: 'YTD6M25', header: 'YTD-6M-25', aggregate: 'sum' },
+      ...marketInsightsDynamicMonths(metricData),
     ],
   });
 

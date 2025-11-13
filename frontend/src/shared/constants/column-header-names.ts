@@ -17,6 +17,7 @@ export const columnHeaderNames = {
   year: 'Год',
   month: 'Месяц',
   status: 'Статус',
+  molecule: 'Молекула',
   companyName: 'Компания',
   companyActiveUsersLimit: 'Лимит учетных записей',
   companyActiveUsers: 'Активные пользователи',

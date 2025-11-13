@@ -396,8 +396,68 @@ export const commonColumns = {
     header: columnHeaderNames.dosage,
     type: 'select',
   }),
+  marketMolucule: (): CColumn<any> => ({
+    id: 'molecule',
+    key: 'molecule',
+    header: columnHeaderNames.molecule,
+    type: 'select',
+  }),
 };
+
 //
+
+export const marketInsightsDynamicMonths = (data: any[]): CColumn<any>[] => {
+  if (!data || data.length === 0) return [];
+
+  const firstRow = data[0];
+  const staticKeys = [
+    'company',
+    'brand',
+    'segment',
+    'dosage_form',
+    'dosage',
+    'molecule',
+  ];
+
+  return Object.keys(firstRow)
+    .filter(key => !staticKeys.includes(key))
+    .sort((a, b) => {
+      const parseKey = (key: string) => {
+        const parts = key.split('-');
+        if (parts.length === 2) {
+          const month = parseInt(parts[0], 10);
+          const year = parseInt(parts[1], 10);
+          return { year, month };
+        }
+        return { year: 0, month: 0 };
+      };
+
+      const aParsed = parseKey(a);
+      const bParsed = parseKey(b);
+
+      if (aParsed.year !== bParsed.year) {
+        return aParsed.year - bParsed.year;
+      }
+      return aParsed.month - bParsed.month;
+    })
+    .map(key => {
+      const parts = key.split('-');
+      let header = key;
+
+      if (parts.length === 2) {
+        const month = parts[0].padStart(2, '0');
+        const year = `20${parts[1]}`;
+        header = `${year}-${month}`;
+      }
+
+      return {
+        id: key,
+        key: key,
+        header: header,
+        aggregate: 'sum' as const,
+      };
+    });
+};
 
 export const monthsPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
