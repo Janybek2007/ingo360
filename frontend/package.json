@@ -65,12 +65,11 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2",
-    "svgo": "^4.0.0",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.2",
     "vite": "^7.1.1",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-image-optimizer": "^2.0.2",
+    "vite-plugin-preload": "^0.4.4",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

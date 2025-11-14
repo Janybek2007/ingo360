@@ -1,8 +1,8 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react-swc';
-import { defineConfig } from 'vite';
+import { defineConfig, type HtmlTagDescriptor } from 'vite';
 import compression from 'vite-plugin-compression';
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+import Preload from 'vite-plugin-preload';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(({ mode }) => {
@@ -10,57 +10,125 @@ export default defineConfig(({ mode }) => {
 
   return {
     resolve: {
-      alias: {
-        '#': '/src',
-      },
+      alias: { '#': '/src' },
     },
+
     plugins: [
       react(),
       tailwindcss(),
       tsconfigPaths(),
-      ViteImageOptimizer({
-        jpg: { quality: 75 },
-        png: { quality: 80 },
-        webp: { quality: 80 },
+
+      Preload({
+        includeJs: true,
+        includeCss: true,
+        format: true,
+        mode: 'preload',
+        shouldPreload: chunk => {
+          if (chunk.type === 'chunk') {
+            const name = chunk.fileName;
+            return ['index', 'table', 'charts', 'forms'].some(n =>
+              name.includes(n)
+            );
+          }
+          return (
+            chunk.type === 'asset' &&
+            (chunk.fileName.endsWith('.css') ||
+              chunk.fileName.endsWith('.woff2'))
+          );
+        },
       }),
+
       compression({
         algorithm: 'gzip',
         ext: '.gz',
-        threshold: 1024,
-        deleteOriginFile: false,
         compressionOptions: { level: 9 },
+        threshold: 1024,
       }),
+
+      {
+        name: 'add-preconnect',
+        transformIndexHtml() {
+          const tags: HtmlTagDescriptor[] = [
+            {
+              tag: 'link',
+              injectTo: 'head-prepend',
+              attrs: {
+                rel: 'preconnect',
+                href: 'https://ingo360.pro',
+                crossorigin: '',
+              },
+            },
+            {
+              tag: 'script',
+              injectTo: 'head-prepend',
+              attrs: {
+                src: 'https://unpkg.com/modulepreload-polyfill/dist/modulepreload-polyfill.min.js',
+              },
+            },
+          ];
+          return tags;
+        },
+      },
     ],
-    server: { port: 4000, host: true, strictPort: true },
+
+    server: {
+      host: true,
+      port: 4000,
+      strictPort: true,
+    },
+
     preview: {
       host: true,
       port: 4000,
       strictPort: true,
       allowedHosts: ['ingo360.pro'],
     },
+
     build: {
       target: 'esnext',
-      sourcemap: isDev,
-      chunkSizeWarningLimit: 1000,
-      cssMinify: true,
-      ssr: false,
+      cssMinify: 'esbuild',
       cssCodeSplit: true,
       minify: 'esbuild',
+      sourcemap: false,
+      chunkSizeWarningLimit: 1200,
+
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('node_modules')) {
-              return 'vendor';
-            }
+            if (id.includes('node_modules')) return 'vendor';
+            if (id.includes('@tanstack/react-table')) return 'table';
+            if (id.includes('recharts')) return 'charts';
+            if (id.includes('xlsx')) return 'xlsx-lib';
+            if (id.includes('react-hook-form')) return 'forms';
           },
-          chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash].[ext]',
         },
       },
     },
+
     esbuild: {
       drop: isDev ? [] : ['console', 'debugger'],
     },
+
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        '@tanstack/react-query',
+        '@tanstack/react-table',
+        'recharts',
+      ],
+      esbuildOptions: {
+        target: 'esnext',
+      },
+    },
+
+    /**
+     * Полезно: отключаем трешевые циклические импорты в vite
+     */
+    logLevel: 'info',
+    clearScreen: false,
   };
 });
