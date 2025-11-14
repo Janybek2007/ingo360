@@ -28,7 +28,6 @@ import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { processPeriodData } from '#/shared/utils/process-period-data';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 const formatMoney = (value: number) => value.toLocaleString('ru-RU');
@@ -58,8 +57,8 @@ export const DistributorDynamics: React.FC = React.memo(() => {
         brand_ids: filters.brands,
         product_group_ids: filters.groups,
         distributor_ids: filters.distributors,
-        type_period: periodFilter.period,
-        filterValues: periodFilter.selectedValues,
+        group_by_period: periodFilter.period,
+        period_values: periodFilter.selectedValues,
       }
     )
   );
@@ -104,25 +103,11 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     const rawData = generateChartRawData(filtered, {
       valueField: 'total_amount',
       groupBy: item => item.distributor_name,
+      periodType: periodFilter.period,
     });
 
-    const distributorNames = distributorsData
-      .filter(d => distributors.includes(d.id))
-      .map(d => d.name);
-
-    return processPeriodData({
-      rawData,
-      period: periodFilter.period,
-      selectedValues: periodFilter.selectedValues,
-      aggregateFields: distributorNames,
-    });
-  }, [
-    periodFilter.period,
-    periodFilter.selectedValues,
-    sales,
-    distributorsData,
-    distributors,
-  ]);
+    return rawData;
+  }, [periodFilter.period, sales, distributors]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
@@ -177,10 +162,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
               {
                 value: periodFilter.selectedValues,
                 getLabelFromValue: getPeriodLabel,
-                onDelete: v =>
-                  periodFilter.onChange(
-                    periodFilter.selectedValues.filter(x => x !== v)
-                  ),
+                onDelete: periodFilter.onDelete,
               },
               distributors.length > 0 &&
                 distributors.length !== distributorsData.length && {

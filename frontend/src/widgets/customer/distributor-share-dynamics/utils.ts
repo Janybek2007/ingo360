@@ -1,4 +1,4 @@
-import { getMonthName } from '#/shared/utils/process-period-data';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 export type DistributorData = {
@@ -75,20 +75,19 @@ export class DistributorShareProcessor {
       return allPeriods;
     }
 
-    return allPeriods.filter(period => {
-      const [year, month] = period.split('-');
-      const monthNum = parseInt(month);
-      const quarter = Math.ceil(monthNum / 3);
+    return allPeriods.filter(periodKey => {
+      // periodKey может быть: "2023", "2023-01", "2023-Q1"
+      const parsed = parsePeriodData(periodKey, this.periodFilter.period);
 
       if (this.periodFilter.period === 'year') {
-        return this.periodFilter.selectedValues.includes(year);
-      } else if (this.periodFilter.period === 'month') {
+        return this.periodFilter.selectedValues.includes(`year-${parsed.year}`);
+      } else if (this.periodFilter.period === 'month' && parsed.month) {
         return this.periodFilter.selectedValues.includes(
-          `month-${year}-${monthNum}`
+          `month-${parsed.year}-${parsed.month}`
         );
-      } else if (this.periodFilter.period === 'quarter') {
+      } else if (this.periodFilter.period === 'quarter' && parsed.quarter) {
         return this.periodFilter.selectedValues.includes(
-          `quarter-${year}-${quarter}`
+          `quarter-${parsed.year}-${parsed.quarter}`
         );
       }
 
@@ -99,34 +98,22 @@ export class DistributorShareProcessor {
   private buildPeriodDataMap(filteredPeriods: string[]): Map<string, any> {
     const periodDataMap = new Map<string, any>();
 
-    filteredPeriods.forEach(period => {
-      const [year, month] = period.split('-');
-      const monthNum = parseInt(month);
-      const quarter = Math.ceil(monthNum / 3);
-      const yearNum = parseInt(year);
+    filteredPeriods.forEach(periodKey => {
+      // periodKey может быть: "2023", "2023-01", "2023-Q1"
+      const parsed = parsePeriodData(periodKey, this.periodFilter.period);
 
-      let key = period;
-      let label = `${getMonthName(monthNum).substring(0, 3)}-${year.slice(-2)}`;
-      let fullLabel = `${getMonthName(monthNum)} ${year}`;
-
-      if (this.periodFilter.period === 'year') {
-        key = year;
-        label = year;
-        fullLabel = year;
-      } else if (this.periodFilter.period === 'quarter') {
-        key = `${year}-Q${quarter}`;
-        label = `${quarter}кв-${year.slice(-2)}`;
-        fullLabel = `${quarter}кв ${year}`;
-      }
+      const key = periodKey;
+      const label = parsed.label;
+      const fullLabel = parsed.label;
 
       if (!periodDataMap.has(key)) {
         periodDataMap.set(key, {
           period: key,
           label,
           fullLabel,
-          year: yearNum,
-          month: monthNum,
-          quarter,
+          year: parsed.year,
+          month: parsed.month,
+          quarter: parsed.quarter,
           counts: new Map(),
         });
       }
@@ -134,9 +121,9 @@ export class DistributorShareProcessor {
       const periodData = periodDataMap.get(key);
 
       this.rawData.forEach(item => {
-        if (item.periods_data[period]) {
+        if (item.periods_data[periodKey]) {
           const distKey = `dist_${item.distributor_id}`;
-          const sharePercent = item.periods_data[period].share_percent;
+          const sharePercent = item.periods_data[periodKey].share_percent;
 
           if (!periodData[distKey]) {
             periodData[distKey] = 0;
@@ -184,9 +171,13 @@ export class DistributorShareProcessor {
   private sortData(data: any[]): any[] {
     return data.sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
+
       if (this.periodFilter.period === 'quarter') {
         return (a.quarter || 0) - (b.quarter || 0);
+      } else if (this.periodFilter.period === 'month') {
+        return (a.month || 0) - (b.month || 0);
       }
+
       return 0;
     });
   }

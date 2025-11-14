@@ -18,6 +18,7 @@ export type UsePeriodFilterReturn = {
   items: IFilterPeriodSelectItem[];
   setPeriod: (period: UsePeriodType) => void;
   onChange: (value: string[]) => void;
+  onDelete: (value: string | number) => void;
   onReset: VoidFunction;
 };
 
@@ -243,12 +244,21 @@ export const usePeriodFilter = (
     [selectedValues, years, getYearItems, items, period]
   );
 
+  const handleDelete = useCallback(
+    (value: string | number) => {
+      const newValues = selectedValues.filter(v => v !== value);
+      handleValueChange(newValues);
+    },
+    [handleValueChange, selectedValues]
+  );
+
   return {
     period,
     selectedValues,
     views,
     isView: getIsView(),
     setPeriod,
+    onDelete: handleDelete,
     items,
     onChange: handleValueChange,
     onReset: () => {

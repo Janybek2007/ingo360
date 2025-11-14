@@ -9,7 +9,7 @@ import type { IMSMetricsProps } from './ims-metrics.types';
 export const IMSMetrics: React.FC<IMSMetricsProps> = React.memo(
   ({ periodFilter, metricData, isLoading, queryError }) => {
     return (
-      <section className={isLoading ? '' : 'grid grid-cols-3 gap-6'}>
+      <section className={isLoading ? '' : 'grid grid-cols-3 gap-6 mt-6'}>
         {periodFilter.selectedValues.length === 0 ? (
           <PageSection>
             <div className="my-32">

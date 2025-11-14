@@ -41,7 +41,7 @@ export const MarketInsights: React.FC = React.memo(() => {
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {
       periods: periodFilter.selectedValues,
-      type_period: periodFilter.period,
+      group_by_period: periodFilter.period,
       limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
       search: filters.search,
       group_by_dimensions: filters.groupBy,
@@ -116,12 +116,7 @@ export const MarketInsights: React.FC = React.memo(() => {
               {
                 value: periodFilter.selectedValues,
                 getLabelFromValue: getPeriodLabel,
-                onDelete: value => {
-                  const newValues = periodFilter.selectedValues.filter(
-                    v => v !== value
-                  );
-                  periodFilter.onChange(newValues);
-                },
+                onDelete: periodFilter.onDelete,
               },
             ]),
             isView: filters.usedFilterItems.length > 0,

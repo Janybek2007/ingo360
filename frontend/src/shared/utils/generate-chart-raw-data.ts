@@ -1,23 +1,27 @@
 import type { TDbItem } from '#/entities/db';
+import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
+
+import { parsePeriodData } from './parse-period-data';
 
 export interface ChartRawDataPoint {
-  year: number;
-  month: number;
-  quarter: number;
-  [key: string]: number;
+  period: string;
+  label: string;
+  fullLabel: string;
+  [key: string]: string | number;
 }
 
 interface GenerateRawDataConfig {
   valueField: string;
   outputField?: string;
   groupBy?: (item: TDbItem) => string;
+  periodType: UsePeriodType;
 }
 
 export function generateChartRawData(
   items: TDbItem[],
   config: GenerateRawDataConfig
 ): ChartRawDataPoint[] {
-  const { valueField, outputField = 'value', groupBy } = config;
+  const { valueField, outputField = 'value', groupBy, periodType } = config;
   const dataMap = new Map<string, ChartRawDataPoint>();
 
   items.forEach(item => {
@@ -29,30 +33,28 @@ export function generateChartRawData(
       const value = (periodValue as any)?.[valueField];
       if (value === null || value === undefined) return;
 
-      const [year, month] = periodKey.split('-').map(Number);
-      const quarter = Math.ceil(month / 3);
-
+      const parsed = parsePeriodData(periodKey, periodType);
       const existing = dataMap.get(periodKey);
 
       if (groupKey) {
         if (existing) {
-          existing[groupKey] = (existing[groupKey] || 0) + value;
+          existing[groupKey] = ((existing[groupKey] as number) || 0) + value;
         } else {
           dataMap.set(periodKey, {
-            year,
-            month,
-            quarter,
+            period: periodKey,
+            label: parsed.label,
+            fullLabel: parsed.label,
             [groupKey]: value,
           });
         }
       } else {
         if (existing) {
-          existing[outputField] += value;
+          existing[outputField] = (existing[outputField] as number) + value;
         } else {
           dataMap.set(periodKey, {
-            year,
-            month,
-            quarter,
+            period: periodKey,
+            label: parsed.label,
+            fullLabel: parsed.label,
             [outputField]: value,
           });
         }
@@ -67,7 +69,6 @@ export function sortChartRawData(
   data: ChartRawDataPoint[]
 ): ChartRawDataPoint[] {
   return data.sort((a, b) => {
-    if (a.year !== b.year) return a.year - b.year;
-    return a.month - b.month;
+    return a.period.localeCompare(b.period);
   });
 }

@@ -12,6 +12,8 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import type { DynamicPrimarySalesData } from './dynamic-primary-sales.types';
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
@@ -48,6 +50,8 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
         {
           brand_ids: filters.brands,
           product_group_ids: filters.groups,
+          group_by_period: periodFilter.period,
+          period_values: periodFilter.selectedValues,
         }
       )
     );
@@ -77,6 +81,14 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               usedFilterItems={filters.usedFilterItems}
               resetFilters={resetFilters}
               isView={filters.usedFilterItems.length > 0}
+              isViewPeriods={periodFilter.isView}
+              usedPeriodFilters={getUsedFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: periodFilter.onDelete,
+                },
+              ])}
             />
 
             {as == 'line' ? (
@@ -89,7 +101,6 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               <DynamicPrimarySalesAsMixed
                 period={periodFilter.period}
                 sales={queryData.data?.[0] || []}
-                selectedValues={periodFilter.selectedValues}
                 indicator={filters.indicator}
               />
             )}

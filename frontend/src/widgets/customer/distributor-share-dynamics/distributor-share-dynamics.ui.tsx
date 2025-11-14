@@ -49,6 +49,8 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
         brand_ids: filters.brands,
         product_group_ids: filters.groups,
         group_by_dimensions: ['distributor'],
+        group_by_period: periodFilter.period,
+        period_values: periodFilter.selectedValues,
       }
     )
   );
@@ -108,12 +110,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
               {
                 value: periodFilter.selectedValues,
                 getLabelFromValue: getPeriodLabel,
-                onDelete: value => {
-                  const newValues = periodFilter.selectedValues.filter(
-                    v => v !== value
-                  );
-                  periodFilter.onChange(newValues);
-                },
+                onDelete: periodFilter.onDelete,
               },
             ])}
             resetFilters={resetFilters}

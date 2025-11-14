@@ -97,9 +97,11 @@ export type TDbItem = {
 export type IGetDBItemResponse = IDbItem[];
 
 export interface IGetDBItemsParams extends PaginationParams {
-  months?: number[];
+  //
   years?: number[];
+  months?: number[];
   quarters?: number[];
+  //
   brand_ids?: number[];
   distributor_ids?: number[];
   product_group_ids?: number[];
@@ -108,11 +110,11 @@ export interface IGetDBItemsParams extends PaginationParams {
   sku_ids?: number[];
   geo_indicators_ids?: number[];
   medical_facility_ids?: number[];
-  group_by_period?: 'month' | 'quarter' | 'year';
+  group_by_period?: UsePeriodType;
+  period_values?: string[];
   periods?: string[];
-  type_period?: UsePeriodType;
   group_column?: ISMGroupColumn;
-  filterValues?: string[];
+  filter_values?: string[];
   group_by_dimensions?: string[];
   indicator?: string;
 }

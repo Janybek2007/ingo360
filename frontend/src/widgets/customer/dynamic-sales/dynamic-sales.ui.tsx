@@ -20,7 +20,7 @@ import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { processPeriodData } from '#/shared/utils/process-period-data';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
 
 export type DynamicPrimarySalesData = {
   period: string;
@@ -33,10 +33,13 @@ export const DynamicSales: React.FC = React.memo(() => {
   const periodFilter = usePeriodFilter();
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>([
-      'sales/primary/reports/chart',
-      'sales/secondary/reports/chart',
-    ])
+    DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(
+      ['sales/primary/reports/chart', 'sales/secondary/reports/chart'],
+      {
+        group_by_period: periodFilter.period,
+        period_values: periodFilter.selectedValues,
+      }
+    )
   );
 
   const primarySales = React.useMemo(
@@ -52,42 +55,25 @@ export const DynamicSales: React.FC = React.memo(() => {
   const rawData = React.useMemo(() => {
     const dataMap = new Map<
       string,
-      {
-        year: number;
-        month: number;
-        quarter: number;
-        primaryValue: number;
-        secondaryValue: number;
-      }
+      { period: string; primaryValue: number; secondaryValue: number }
     >();
 
     primarySales.forEach(item => {
-      const [year, month] = item.period.split('-').map(Number);
-      const quarter = Math.ceil(month / 3);
-      const key = `${year}-${month}`;
-
-      dataMap.set(key, {
-        year,
-        month,
-        quarter,
+      dataMap.set(item.period, {
+        period: item.period,
         primaryValue: item.sales_amount,
         secondaryValue: 0,
       });
     });
 
     secondarySales.forEach(item => {
-      const [year, month] = item.period.split('-').map(Number);
-      const quarter = Math.ceil(month / 3);
-      const key = `${year}-${month}`;
-      const existing = dataMap.get(key);
+      const existing = dataMap.get(item.period);
 
       if (existing) {
         existing.secondaryValue = item.sales;
       } else {
-        dataMap.set(key, {
-          year,
-          month,
-          quarter,
+        dataMap.set(item.period, {
+          period: item.period,
           primaryValue: 0,
           secondaryValue: item.sales,
         });
@@ -95,8 +81,7 @@ export const DynamicSales: React.FC = React.memo(() => {
     });
 
     return Array.from(dataMap.values()).sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
+      return a.period.localeCompare(b.period);
     });
   }, [primarySales, secondarySales]);
 
@@ -105,13 +90,17 @@ export const DynamicSales: React.FC = React.memo(() => {
   }, [periodFilter]);
 
   const data = useMemo(() => {
-    return processPeriodData({
-      rawData,
-      period: periodFilter.period,
-      selectedValues: periodFilter.selectedValues,
-      aggregateFields: ['primaryValue', 'secondaryValue'],
+    return rawData.map(item => {
+      const parsed = parsePeriodData(item.period, periodFilter.period);
+
+      return {
+        label: parsed.label,
+        fullLabel: parsed.label,
+        primaryValue: item.primaryValue,
+        secondaryValue: item.secondaryValue,
+      };
     });
-  }, [periodFilter.period, periodFilter.selectedValues, rawData]);
+  }, [rawData, periodFilter.period]);
 
   const chartAxis = useMemo(
     () => calculateChartAxis(data, ['primaryValue', 'secondaryValue']),
@@ -136,12 +125,7 @@ export const DynamicSales: React.FC = React.memo(() => {
           {
             value: periodFilter.selectedValues,
             getLabelFromValue: getPeriodLabel,
-            onDelete: value => {
-              const newValues = periodFilter.selectedValues.filter(
-                v => v !== value
-              );
-              periodFilter.onChange(newValues);
-            },
+            onDelete: periodFilter.onDelete,
           },
         ])}
         resetFilters={resetFilters}

@@ -2,7 +2,7 @@ import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import type { IndicatorType } from '#/shared/types/global';
 
 export type DynamicPrimarySalesData = {
-  period: string;
+  period: string; // period:year = 2023, period:month = 2023-01, period:quarter = 2023-Q1
   coverage_months: number;
   stock_packages: number;
   stock_amount: number;
@@ -12,7 +12,6 @@ export type DynamicPrimarySalesData = {
 
 export interface DynamicPrimarySalesAsMixedProps {
   period: UsePeriodType;
-  selectedValues: string[];
   indicator: IndicatorType;
   sales: DynamicPrimarySalesData[];
 }

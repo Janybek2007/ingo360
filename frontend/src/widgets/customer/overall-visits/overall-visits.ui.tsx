@@ -19,13 +19,13 @@ import {
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
+import { allMonths } from '#/shared/constants/months';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { processPeriodData } from '#/shared/utils/process-period-data';
 
 interface OverallVisitRow extends TDbItem {
   year: 2025;
@@ -46,14 +46,15 @@ export const OverallVisits: React.FC = React.memo(() => {
       search: { enabled: false },
     },
   });
-  const periodFilter = usePeriodFilter();
+  const periodFilter = usePeriodFilter(['year', 'month'], 'month');
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-by-month'],
       {
         product_group_ids: filters.groups,
-        type_period: periodFilter.period,
-        filterValues: periodFilter.selectedValues,
+        filter_values: periodFilter.selectedValues,
+        group_by_period: periodFilter.period,
+        period_values: periodFilter.selectedValues,
       }
     )
   );
@@ -70,21 +71,17 @@ export const OverallVisits: React.FC = React.memo(() => {
   const rawData = useMemo(() => {
     const dataMap = new Map<
       string,
-      { year: number; month: number; quarter: number; value: number }
+      { year: number; month: number; value: number }
     >();
 
-    let filteredVisits = visits;
-
-    filteredVisits.forEach(item => {
+    visits.forEach(item => {
       const month = item.month;
       const year = item.year;
-      const quarter = Math.ceil(month / 3);
       const key = `${year}-${month}`;
 
       const existing = dataMap.get(key) || {
         year,
         month,
-        quarter,
         value: 0,
       };
       existing.value += item.total_visits;
@@ -98,13 +95,29 @@ export const OverallVisits: React.FC = React.memo(() => {
   }, [visits]);
 
   const chartData = useMemo(() => {
-    return processPeriodData({
-      rawData,
-      period: periodFilter.period,
-      selectedValues: periodFilter.selectedValues,
-      aggregateFields: ['value'],
-    });
-  }, [rawData, periodFilter.period, periodFilter.selectedValues]);
+    if (periodFilter.period === 'year') {
+      const yearMap = new Map<number, number>();
+
+      rawData.forEach(item => {
+        const current = yearMap.get(item.year) || 0;
+        yearMap.set(item.year, current + item.value);
+      });
+
+      return Array.from(yearMap.entries())
+        .map(([year, value]) => ({
+          label: year.toString(),
+          fullLabel: year.toString(),
+          value,
+        }))
+        .sort((a, b) => parseInt(a.label) - parseInt(b.label));
+    } else {
+      return rawData.map(item => ({
+        label: `${allMonths[item.month - 1]} ${item.year}`,
+        fullLabel: `${allMonths[item.month - 1]} ${item.year}`,
+        value: item.value,
+      }));
+    }
+  }, [rawData, periodFilter.period]);
 
   const chartAxis = useMemo(
     () => calculateChartAxis(chartData, ['value'], 10000),
@@ -135,12 +148,7 @@ export const OverallVisits: React.FC = React.memo(() => {
               {
                 value: periodFilter.selectedValues,
                 getLabelFromValue: getPeriodLabel,
-                onDelete: value => {
-                  const newValues = periodFilter.selectedValues.filter(
-                    v => v !== value
-                  );
-                  periodFilter.onChange(newValues);
-                },
+                onDelete: periodFilter.onDelete,
               },
             ])}
           />

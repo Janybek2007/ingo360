@@ -11,7 +11,7 @@ import {
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
-import { processPeriodData } from '#/shared/utils/process-period-data';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
 
 import type { DynamicPrimarySalesAsLineProps } from '../dynamic-primary-sales.types';
 
@@ -21,31 +21,20 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
 
     const rawData = useMemo(() => {
       return sales.map(item => {
-        const [year, month] = item.period.split('-').map(Number);
-        const quarter = Math.ceil(month / 3);
+        const parsed = parsePeriodData(item.period, period);
 
         return {
-          year,
-          month,
-          quarter,
+          label: parsed.label,
+          fullLabel: parsed.label,
           value:
             indicator === 'packages' ? item.sales_packages : item.sales_amount,
         };
       });
-    }, [sales, indicator]);
-
-    const data = useMemo(() => {
-      return processPeriodData({
-        rawData,
-        period,
-        selectedValues: [],
-        aggregateFields: ['value'],
-      });
-    }, [rawData, period]);
+    }, [sales, indicator, period]);
 
     const chartAxis = useMemo(
-      () => calculateChartAxis(data, ['value']),
-      [data]
+      () => calculateChartAxis(rawData, ['value']),
+      [rawData]
     );
 
     return (
@@ -53,7 +42,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
         <LineChart
           width={sectionStyle.width - 48}
           height={500}
-          data={data}
+          data={rawData}
           margin={{ top: 20, right: 16, bottom: 20 }}
         >
           <CartesianGrid strokeDasharray="4 4" vertical={false} />

@@ -22,7 +22,7 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
     const queryData = useKeepQuery(
       DbQueries.GetDbItemsQuery<TopMetricsRow>(['ims/reports/top'], {
         periods: periodFilter.selectedValues,
-        type_period: periodFilter.period,
+        group_by_period: periodFilter.period,
         group_column: isMarketDevelopmentPage ? activeTab : 'company',
       })
     );
@@ -34,14 +34,16 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
     return (
       <>
         {isMarketDevelopmentPage ? (
-          <MarketEntityProfile
-            periodFilter={periodFilter}
-            isLoading={queryData.isLoading}
-            queryError={queryData.error}
-            entities={metricData?.entities ?? []}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
+          <LazySection>
+            <MarketEntityProfile
+              periodFilter={periodFilter}
+              isLoading={queryData.isLoading}
+              queryError={queryData.error}
+              entities={metricData?.entities ?? []}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
+          </LazySection>
         ) : (
           <LazySection>
             <LeaderBoard

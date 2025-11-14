@@ -49,17 +49,12 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
                 <PeriodFilters {...periodFilter} />
               </div>
               <UsedFilter
-                isReadMode={['mat', 'ytd'].includes(periodFilter.period)}
+                isReadMode
                 usedPeriodFilters={getUsedFilterItems([
                   {
                     value: periodFilter.selectedValues,
                     getLabelFromValue: getPeriodLabel,
-                    onDelete: value => {
-                      const newValues = periodFilter.selectedValues.filter(
-                        v => v !== value
-                      );
-                      periodFilter.onChange(newValues);
-                    },
+                    onDelete: periodFilter.onDelete,
                   },
                 ])}
                 isViewPeriods={periodFilter.isView}

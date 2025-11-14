@@ -20,13 +20,8 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   const groupedItems = useMemo(() => usedFilterItems, [usedFilterItems]);
 
   const groupedPeriodItems = useMemo(() => {
-    return new PeriodGrouping(usedPeriodFilters).group(periodViewMode);
+    return new PeriodGrouping(usedPeriodFilters, periodViewMode).group();
   }, [usedPeriodFilters, periodViewMode]);
-
-  const isFromMode = useMemo(
-    () => new PeriodGrouping(usedPeriodFilters).isFromMode(),
-    [usedPeriodFilters]
-  );
 
   const handleSubItemsChange = useCallback(
     (item: IUsedFilterItem, values: string[]) => {
@@ -74,15 +69,16 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
       {item.subItems?.length ? (
         <Select<true, string>
           isMultiple
-          checkbox
           triggerText={`+${item.subItems.filter(sub => sub.onDelete).length}`}
           items={item.subItems.map(sub => ({
             label: sub.label,
             value: sub.value as string,
           }))}
           value={item.subItems.map(sub => sub.value as string)}
-          indeterminate
-          setValue={values => handleSubItemsChange(item, values)}
+          indeterminate={periodViewMode == 'default'}
+          setValue={values =>
+            periodViewMode == 'default' && handleSubItemsChange(item, values)
+          }
           classNames={{
             trigger:
               'px-2 py-[2px] text-[13px] border border-gray-200 hover:border-gray-300 rounded bg-white',
@@ -94,25 +90,6 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     </div>
   );
 
-  const renderFromToItem = (period: any) => (
-    <div
-      key={period.value}
-      className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]"
-    >
-      <span>{period.label}</span>
-      {!isReadMode && (
-        <button
-          type="button"
-          onClick={period.onDelete}
-          className="text-gray-400 hover:text-gray-600"
-          aria-label={`Удалить фильтр ${period.label}`}
-        >
-          <LucideXIcon className="size-3.5" />
-        </button>
-      )}
-    </div>
-  );
-
   return (
     <div
       className={cn(
@@ -121,10 +98,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
       )}
     >
       {isView && groupedItems.map(renderDefaultItem)}
-      {isViewPeriods &&
-        (isFromMode
-          ? groupedPeriodItems.map(renderFromToItem)
-          : groupedPeriodItems.map(renderDefaultItem))}
+      {isViewPeriods && groupedPeriodItems.map(renderDefaultItem)}
 
       {!isReadMode && (
         <button

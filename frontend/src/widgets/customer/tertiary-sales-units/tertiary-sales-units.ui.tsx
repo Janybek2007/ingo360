@@ -25,10 +25,10 @@ import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { processPeriodData } from '#/shared/utils/process-period-data';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
 
 interface TertiarySalesUnitsRaw {
-  period: string;
+  period: string; // period:year = 2023, period:month = 2023-01, period:quarter = 2023-Q1
   stock_packages: number;
   stock_amount: number;
   sales_packages: number;
@@ -53,42 +53,36 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TertiarySalesUnitsRaw[]>(
       ['sales/tertiary/reports/chart'],
-      { brand_ids: filters.brands, product_group_ids: filters.groups }
+      {
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
+        group_by_period: periodFilter.period,
+        period_values: periodFilter.selectedValues,
+      }
     )
   );
   const visits = React.useMemo(() => {
-    const data = queryData.data ? queryData.data[0] : [];
+    const rawData = queryData.data ? queryData.data[0] : [];
 
-    return data.map(item => {
-      const [year, month] = item.period.split('-').map(Number);
-      const quarter = Math.ceil(month / 3);
+    return rawData.map(item => {
+      const parsed = parsePeriodData(item.period, periodFilter.period);
 
       return {
-        year,
-        month,
-        quarter,
+        label: parsed.label,
+        fullLabel: parsed.label,
         value: item.sales_packages,
       };
     });
-  }, [queryData]);
+  }, [queryData, periodFilter.period]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
     filters.resetFilters();
   }, [periodFilter, filters]);
 
-  const chartData = useMemo(() => {
-    return processPeriodData({
-      rawData: visits,
-      period: periodFilter.period,
-      selectedValues: periodFilter.selectedValues,
-      aggregateFields: ['value'],
-    });
-  }, [visits, periodFilter.period, periodFilter.selectedValues]);
-
   const chartAxis = useMemo(
-    () => calculateChartAxis(chartData, ['value'], 1000),
-    [chartData]
+    () => calculateChartAxis(visits, ['value'], 1000),
+    [visits]
   );
 
   return (
@@ -105,99 +99,86 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
         isLoading={queryData.isLoading}
         queryError={queryData.error}
       >
-        {visits.length <= 10 ? (
-          <div>
-            <h4>
-              Мало данных для отображения графика. Попробуйте изменить фильтры.
-            </h4>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <UsedFilter
-              usedFilterItems={filters.usedFilterItems}
-              resetFilters={resetFilters}
-              isViewPeriods={periodFilter.isView}
-              isView={filters.usedFilterItems.length > 0}
-              usedPeriodFilters={getUsedFilterItems([
-                {
-                  value: periodFilter.selectedValues,
-                  getLabelFromValue: getPeriodLabel,
-                  onDelete: value => {
-                    const newValues = periodFilter.selectedValues.filter(
-                      v => v !== value
-                    );
-                    periodFilter.onChange(newValues);
-                  },
-                },
-              ])}
-            />
+        <div className="space-y-4">
+          <UsedFilter
+            usedFilterItems={filters.usedFilterItems}
+            resetFilters={resetFilters}
+            isViewPeriods={periodFilter.isView}
+            isView={filters.usedFilterItems.length > 0}
+            usedPeriodFilters={getUsedFilterItems([
+              {
+                value: periodFilter.selectedValues,
+                getLabelFromValue: getPeriodLabel,
+                onDelete: periodFilter.onDelete,
+              },
+            ])}
+          />
 
-            <div className="font-inter">
-              <LineChart
-                width={sectionStyle.width - 48}
-                height={500}
-                data={chartData}
-                margin={{ top: 20, right: 16, bottom: 20 }}
+          <div className="font-inter">
+            <LineChart
+              width={sectionStyle.width - 48}
+              height={500}
+              data={visits}
+              margin={{ top: 20, right: 16, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="4 4" vertical={false} />
+
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickMargin={20}
+                className="text-base text-[#474B4E] leading-full font-normal"
+                padding={{ left: 30, right: 30 }}
+              />
+
+              <YAxis
+                domain={chartAxis.domain}
+                ticks={chartAxis.ticks}
+                axisLine={false}
+                tickLine={false}
+                hide
+                className="text-base font-normal text-[#474B4E] leading-full"
+                tickMargin={20}
+                tickFormatter={value => Number(value).toLocaleString('ru-RU')}
+              />
+
+              <Tooltip
+                labelFormatter={(label, payload) => {
+                  if (payload && payload[0]) {
+                    return payload[0].payload.fullLabel || label;
+                  }
+                  return label;
+                }}
+                formatter={value => {
+                  return [
+                    (value as number).toLocaleString('ru-RU'),
+                    'Упаковок',
+                  ];
+                }}
+              />
+
+              <Line
+                type="linear"
+                dataKey="value"
+                stroke={'#0B5A7C'}
+                strokeWidth={3}
+                dot={{ r: 5, fill: '#0B5A7C' }}
+                activeDot={{ r: 6 }}
+                connectNulls={false}
               >
-                <CartesianGrid strokeDasharray="4 4" vertical={false} />
-
-                <XAxis
-                  dataKey="label"
-                  axisLine={false}
-                  tickMargin={20}
-                  className="text-base text-[#474B4E] leading-full font-normal"
-                  padding={{ left: 30, right: 30 }}
-                />
-
-                <YAxis
-                  domain={chartAxis.domain}
-                  ticks={chartAxis.ticks}
-                  axisLine={false}
-                  tickLine={false}
-                  hide
-                  className="text-base font-normal text-[#474B4E] leading-full"
-                  tickMargin={20}
-                  tickFormatter={value => Number(value).toLocaleString('ru-RU')}
-                />
-
-                <Tooltip
-                  labelFormatter={(label, payload) => {
-                    if (payload && payload[0]) {
-                      return payload[0].payload.fullLabel || label;
-                    }
-                    return label;
-                  }}
-                  formatter={value => {
-                    return [
-                      (value as number).toLocaleString('ru-RU'),
-                      'Упаковок',
-                    ];
-                  }}
-                />
-
-                <Line
-                  type="linear"
+                <LabelList
                   dataKey="value"
-                  stroke={'#0B5A7C'}
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: '#0B5A7C' }}
-                  activeDot={{ r: 6 }}
-                  connectNulls={false}
-                >
-                  <LabelList
-                    dataKey="value"
-                    position="top"
-                    className="font-inter text-xs"
-                    formatter={value => {
-                      if (value === undefined || value === null) return '';
-                      return Number(value).toLocaleString('ru-RU');
-                    }}
-                  />
-                </Line>
-              </LineChart>
-            </div>
+                  position="top"
+                  className="font-inter text-xs"
+                  formatter={value => {
+                    if (value === undefined || value === null) return '';
+                    return Number(value).toLocaleString('ru-RU');
+                  }}
+                />
+              </Line>
+            </LineChart>
           </div>
-        )}
+        </div>
       </AsyncBoundary>
     </PageSection>
   );

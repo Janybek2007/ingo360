@@ -1,38 +1,47 @@
-import { MonthFull } from '#/shared/constants/months';
+import { allMonths } from '../constants/months';
 
 export function getPeriodLabel(value: string | number): string {
-  const parts = String(value).split('-');
+  const strValue = String(value);
+  const parts = strValue.split('-');
 
-  if (parts[0] === 'year') {
-    return parts[1];
+  if (!parts[0]) return '';
+
+  const type = parts[0];
+  const year = parts[1];
+  const period = parts[2];
+
+  switch (type) {
+    case 'month':
+      if (period && year) {
+        const monthIndex = parseInt(period, 10) - 1;
+        return `${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
+      }
+      return `${year || ''}`;
+
+    case 'quarter':
+      if (period && year) {
+        return `Q${period} ${year}`;
+      }
+      return `${year || ''}`;
+
+    case 'year':
+      return year || '';
+
+    case 'mat':
+      if (period && year) {
+        const monthIndex = parseInt(period, 10) - 1;
+        return `MAT ${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
+      }
+      return `MAT ${year || ''}`;
+
+    case 'ytd':
+      if (period && year) {
+        const monthIndex = parseInt(period, 10) - 1;
+        return `YTD ${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
+      }
+      return `YTD ${year || ''}`;
+
+    default:
+      return strValue;
   }
-
-  if (parts[0] === 'month') {
-    const year = parts[1];
-    const monthIndex = parseInt(parts[2], 10) - 1;
-    const monthName = Object.values(MonthFull)[monthIndex];
-    return `${monthName} ${year.slice(-2)}`;
-  }
-
-  if (parts[0] === 'quarter') {
-    const year = parts[1];
-    const quarter = parts[2];
-    return `${quarter}кв ${year.slice(-2)}`;
-  }
-
-  if (parts[0] === 'mat') {
-    const year = parts[1];
-    const monthIndex = parseInt(parts[2], 10) - 1;
-    const monthName = Object.values(MonthFull)[monthIndex];
-    return `${monthName} ${year.slice(-2)}`;
-  }
-
-  if (parts[0] === 'ytd') {
-    const year = parts[1];
-    const monthIndex = parseInt(parts[2], 10) - 1;
-    const monthName = Object.values(MonthFull)[monthIndex];
-    return `${monthName} ${year.slice(-2)}`;
-  }
-
-  return value.toString();
 }

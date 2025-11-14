@@ -86,12 +86,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                   {
                     value: periodFilter.selectedValues,
                     getLabelFromValue: getPeriodLabel,
-                    onDelete: value => {
-                      const newValues = periodFilter.selectedValues.filter(
-                        v => v !== value
-                      );
-                      periodFilter.onChange(newValues);
-                    },
+                    onDelete: periodFilter.onDelete,
                   },
                 ])}
                 isViewPeriods={periodFilter.isView}

@@ -36,23 +36,39 @@ export class DbQueries {
   }
   private static buildQueryString(params?: IGetDBItemsParams) {
     let p: Record<string, any> = params || {};
-    if (params?.type_period && Number(params?.periods?.length) > 0) {
+    if (params?.group_by_period && Number(params?.periods?.length) > 0) {
       p = {
         ...params,
-        type_period: this.buildTypePeriod(params.type_period),
+        type_period: this.buildTypePeriod(params.group_by_period),
         periods: this.parsePeriods(
           params?.periods || [],
-          params!.type_period as UsePeriodType
+          params!.group_by_period
         ),
       };
     }
-    if (params?.type_period && Number(params?.filterValues?.length) > 0) {
+    if (params?.group_by_period && Number(params?.filter_values?.length) > 0) {
       p = {
         ...p,
         ...this.parsePeriodFilters(
-          params.type_period,
-          params.filterValues || []
+          params.group_by_period,
+          params.filter_values || []
         ),
+      };
+    }
+    if (
+      params?.period_values &&
+      params.period_values.length > 0 &&
+      params.group_by_period
+    ) {
+      const periodData = this.parsePeriodValues(
+        params.period_values,
+        params.group_by_period
+      );
+      p = {
+        ...p,
+        years: periodData.years,
+        quarters: periodData.quarters,
+        months: periodData.months,
       };
     }
     if (params && params?.search?.trim() !== '') {
@@ -60,6 +76,7 @@ export class DbQueries {
     } else p.search = undefined;
 
     delete p.filterValues;
+    delete p.period_values;
     return qs.stringify(p, { arrayFormat: 'repeat' });
   }
   private static buildTypePeriod(type_period: UsePeriodType) {
@@ -121,5 +138,44 @@ export class DbQueries {
           return `${Number(month)}-${year.slice(-2)}`;
         }
       });
+  }
+
+  private static parsePeriodValues(
+    values: string[],
+    groupByPeriod: UsePeriodType
+  ): {
+    years: string[];
+    quarters: string[];
+    months: string[];
+  } {
+    const years: string[] = [];
+    const quarters: string[] = [];
+    const months: string[] = [];
+
+    values.forEach(value => {
+      if (groupByPeriod === 'year' && value.startsWith('year-')) {
+        // "year-2025" → "2025"
+        years.push(value.replace('year-', ''));
+      } else if (groupByPeriod === 'quarter' && value.startsWith('quarter-')) {
+        // "quarter-2025-3" → "3"
+        const parts = value.split('-');
+        const quarter = parts[2];
+        quarters.push(quarter);
+      } else if (
+        (groupByPeriod === 'month' ||
+          groupByPeriod === 'mat' ||
+          groupByPeriod === 'ytd') &&
+        (value.startsWith('month-') ||
+          value.startsWith('mat-') ||
+          value.startsWith('ytd-'))
+      ) {
+        // "month-2025-1" → "01"
+        const parts = value.split('-');
+        const month = parts[2];
+        months.push(month.padStart(2, '0'));
+      }
+    });
+
+    return { years, quarters, months };
   }
 }

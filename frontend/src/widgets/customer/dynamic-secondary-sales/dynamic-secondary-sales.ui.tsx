@@ -25,7 +25,7 @@ import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { processPeriodData } from '#/shared/utils/process-period-data';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
 
 interface DynamicSecondarySalesRaw {
   period: string;
@@ -51,39 +51,36 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<DynamicSecondarySalesRaw[]>(
       ['sales/secondary/reports/chart'],
-      { brand_ids: filters.brands, product_group_ids: filters.groups }
+      {
+        brand_ids: filters.brands,
+        product_group_ids: filters.groups,
+        group_by_period: periodFilter.period,
+        period_values: periodFilter.selectedValues,
+      }
     )
   );
   const sales = React.useMemo(() => {
-    const data = queryData.data ? queryData.data[0] : [];
-    return data.map(item => {
-      const [year, month] = item.period.split('-').map(Number);
-      const quarter = Math.ceil(month / 3);
+    const rawData = queryData.data ? queryData.data[0] : [];
+    return rawData.map(item => {
+      const parsed = parsePeriodData(item.period, periodFilter.period);
 
       return {
-        year,
-        month,
-        quarter,
+        label: parsed.label,
+        fullLabel: parsed.label,
         value: item.sales,
       };
     });
-  }, [queryData.data]);
+  }, [queryData.data, periodFilter.period]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
     filters.resetFilters();
   }, [periodFilter, filters]);
 
-  const data = useMemo(() => {
-    return processPeriodData({
-      rawData: sales,
-      period: periodFilter.period,
-      selectedValues: periodFilter.selectedValues,
-      aggregateFields: ['value'],
-    });
-  }, [periodFilter.period, periodFilter.selectedValues, sales]);
-
-  const chartAxis = useMemo(() => calculateChartAxis(data, ['value']), [data]);
+  const chartAxis = useMemo(
+    () => calculateChartAxis(sales, ['value']),
+    [sales]
+  );
 
   return (
     <PageSection
@@ -101,12 +98,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
           {
             value: periodFilter.selectedValues,
             getLabelFromValue: getPeriodLabel,
-            onDelete: value => {
-              const newValues = periodFilter.selectedValues.filter(
-                v => v !== value
-              );
-              periodFilter.onChange(newValues);
-            },
+            onDelete: periodFilter.onDelete,
           },
         ])}
         resetFilters={resetFilters}
@@ -123,7 +115,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
               key={filters.indicator}
               width={sectionStyle.width - 48}
               height={500}
-              data={data}
+              data={sales}
               margin={{ top: 20, right: 16, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
