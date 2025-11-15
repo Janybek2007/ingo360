@@ -1,9 +1,8 @@
 import React from 'react';
 
 import { UserSettings } from './contents/user-settings';
+import type { TTabType } from './profile-content.types';
 import { UserSideBar } from './ui/user-sidebar.ui';
-
-export type TTabType = 'account-settings' | 'help';
 
 export const ProfileContent: React.FC = React.memo(() => {
   const [activeTab, setActiveTab] =

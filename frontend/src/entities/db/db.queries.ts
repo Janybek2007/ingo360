@@ -18,7 +18,7 @@ export class DbQueries {
 
   static GetDbItemsQuery<T = IGetDBItemResponse>(
     urls: ExtraDbType[],
-    options?: IGetDBItemsParams
+    options: IGetDBItemsParams = { enabled: true }
   ) {
     return queryOptions({
       queryKey: this.queryKeys.getDbItems(urls, this.buildQueryString(options)),
@@ -32,6 +32,7 @@ export class DbQueries {
               .json<T>()
           )
         ),
+      enabled: options?.enabled,
     });
   }
   private static buildQueryString(params?: IGetDBItemsParams) {

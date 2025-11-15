@@ -12,6 +12,7 @@ import {
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
+import { PeriodSorting } from '#/shared/utils/period-sorting';
 
 import type { DynamicPrimarySalesAsLineProps } from '../dynamic-primary-sales.types';
 
@@ -20,7 +21,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
     const sectionStyle = useSectionStyle();
 
     const rawData = useMemo(() => {
-      return sales.map(item => {
+      return sales.sort(PeriodSorting.sortByPeriod(period)).map(item => {
         const parsed = parsePeriodData(item.period, period);
 
         return {

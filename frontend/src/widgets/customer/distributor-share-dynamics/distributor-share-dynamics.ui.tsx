@@ -51,6 +51,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
         group_by_dimensions: ['distributor'],
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+        enabled: !filterOptions.isLoading,
       }
     )
   );
@@ -159,11 +160,14 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                   return label;
                 }}
                 formatter={(value: number, name: string, props: any) => {
-                  // Используем оригинальное значение из _original для отображения
                   const dataKey = props.dataKey;
                   const originalValue = props.payload._original?.[dataKey];
                   const displayValue =
                     originalValue !== undefined ? originalValue : value;
+
+                  if (displayValue === 0 || displayValue === undefined) {
+                    return null;
+                  }
 
                   const formattedValue =
                     Math.abs(displayValue) < 0.01 && displayValue !== 0

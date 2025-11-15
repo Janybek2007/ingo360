@@ -49,12 +49,13 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
                 <PeriodFilters {...periodFilter} />
               </div>
               <UsedFilter
-                isReadMode
+                isReadOnly
                 usedPeriodFilters={getUsedFilterItems([
                   {
                     value: periodFilter.selectedValues,
                     getLabelFromValue: getPeriodLabel,
                     onDelete: periodFilter.onDelete,
+                    isReadOnly: true,
                   },
                 ])}
                 isViewPeriods={periodFilter.isView}

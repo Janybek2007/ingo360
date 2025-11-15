@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
@@ -138,6 +138,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     set(false);
     setSearchQuery('');
   });
+  const parentRef = useRef<HTMLDivElement>(null);
 
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
@@ -262,7 +263,11 @@ export function Select<ISM extends boolean = false, VT = string>({
             <SearchInput value={searchQuery} onChange={handleSearchChange} />
           )}
 
-          <div className="overflow-auto noscrollbar flex-1 py-1">
+          <div
+            ref={parentRef}
+            className="overflow-auto noscrollbar flex-1 py-1"
+            style={{ maxHeight: '18rem' }}
+          >
             {filteredItems.length === 0 ? (
               <div className="px-3 py-2 text-center text-gray-500">
                 Ничего не найдено

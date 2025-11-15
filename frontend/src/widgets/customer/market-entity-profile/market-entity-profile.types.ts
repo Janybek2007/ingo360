@@ -1,3 +1,4 @@
+import type { UseDbFiltersReturn } from '#/shared/components/db-filters';
 import type { UsePeriodFilterReturn } from '#/shared/hooks/use-period-filter';
 import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
 
@@ -8,4 +9,5 @@ export interface MarketEntityProfileProps {
   periodFilter: UsePeriodFilterReturn;
   activeTab: ISMGroupColumn;
   setActiveTab: React.Dispatch<React.SetStateAction<ISMGroupColumn>>;
+  filters: UseDbFiltersReturn;
 }

@@ -14,20 +14,24 @@ export const useDbFilters = ({
   groupsOptions = [],
   distributorsOptions = [],
   geoIndicatorsOptions = [],
+  segmentsOptions = [],
   config,
 }: UseDbFiltersProps): UseDbFiltersReturn => {
   const indicatorDefault = config?.indicator?.defaultValue || 'amount';
   const rowsCountDefault = config?.rowsCount?.defaultValue || 'all';
 
   // States
-  const [brands, setBrands] = useState<number[]>([]);
-  const [groups, setGroups] = useState<number[]>([]);
-  const [distributors, setDistributors] = useState<number[]>([]);
-  const [geoIndicators, setGeoIndicators] = useState<number[]>([]);
+  const [brands, setBrands] = useState<(string | number)[]>([]);
+  const [groups, setGroups] = useState<(string | number)[]>([]);
+  const [segment, setSegment] = useState<string | null>(null);
+  const [distributors, setDistributors] = useState<(string | number)[]>([]);
+  const [geoIndicators, setGeoIndicators] = useState<(string | number)[]>([]);
   const [indicator, setIndicator] = useState<IndicatorType>(indicatorDefault);
   const [rowsCount, setRowsCount] = useState<'all' | number>(rowsCountDefault);
   const [groupBy, setGroupBy] = useState<string[]>([]);
   const [search, setSearch] = useState('');
+
+  const brandsMultiple = config?.brands?.multiple === true;
 
   // Options
   const options = useMemo(() => {
@@ -36,6 +40,7 @@ export const useDbFilters = ({
       groups: groupsOptions,
       distributors: distributorsOptions,
       geoIndicators: geoIndicatorsOptions,
+      segments: segmentsOptions,
       indicators: config?.indicator?.options || [
         { value: 'amount', label: 'Деньги' },
         { value: 'packages', label: 'Упаковка' },
@@ -53,6 +58,7 @@ export const useDbFilters = ({
     groupsOptions,
     distributorsOptions,
     geoIndicatorsOptions,
+    segmentsOptions,
     config,
   ]);
 
@@ -68,7 +74,7 @@ export const useDbFilters = ({
         onDelete: () => setRowsCount('all'),
       },
     ]);
-    if (brands.length > 0) {
+    if (brands.length > 0 && brandsMultiple) {
       usedFilterItems.push({
         label: 'Бренды: ',
         value: 'brand-roots',
@@ -77,12 +83,18 @@ export const useDbFilters = ({
           const brand = options.brands.find(b => b.value === brandId);
           return {
             label: brand?.label || '',
-            value: brandId,
+            value: brandId as string,
             onDelete: () => {
               setBrands(prev => prev.filter(b => b !== brandId));
             },
           };
         }),
+      });
+    } else if (brands.length > 0 && !brandsMultiple) {
+      usedFilterItems.push({
+        label: `Бренд: ${brands[0]}`,
+        value: brands[0],
+        onDelete: () => setBrands([]),
       });
     }
     if (groups.length > 0) {
@@ -94,7 +106,7 @@ export const useDbFilters = ({
           const group = options.groups.find(g => g.value === groupId);
           return {
             label: group?.label || '',
-            value: groupId,
+            value: groupId as string,
             onDelete: () => {
               setGroups(prev => prev.filter(g => g !== groupId));
             },
@@ -113,7 +125,7 @@ export const useDbFilters = ({
           );
           return {
             label: distributor?.label || '',
-            value: distributorId,
+            value: distributorId as string,
             onDelete: () => {
               setDistributors(prev => prev.filter(d => d !== distributorId));
             },
@@ -133,12 +145,19 @@ export const useDbFilters = ({
           );
           return {
             label: geoIndicator?.label || '',
-            value: geoIndicatorId,
+            value: geoIndicatorId as string,
             onDelete: () => {
               setGeoIndicators(prev => prev.filter(g => g !== geoIndicatorId));
             },
           };
         }),
+      });
+    }
+    if (segment) {
+      usedFilterItems.push({
+        label: `Сегмент: ${segment}`,
+        value: segment,
+        onDelete: () => setSegment(null),
       });
     }
     if (search.trim().length > 0) {
@@ -152,6 +171,7 @@ export const useDbFilters = ({
     return usedFilterItems;
   }, [
     rowsCount,
+    brandsMultiple,
     brands,
     groups,
     distributors,
@@ -159,6 +179,7 @@ export const useDbFilters = ({
     search,
     options.brands,
     options.groups,
+    segment,
     options.distributors,
     options.geoIndicators,
   ]);
@@ -167,10 +188,12 @@ export const useDbFilters = ({
 
   const defaults = useMemo(
     () => ({
-      brands: [] as number[],
-      groups: [] as number[],
-      distributors: [] as number[],
-      geoIndicators: [] as number[],
+      brands: [],
+      groups: [],
+      distributors: [],
+      geoIndicators: [],
+      segment: null,
+      segments: [],
       indicator: indicatorDefault,
       rowsCount: rowsCountDefault,
       search: '',
@@ -182,6 +205,7 @@ export const useDbFilters = ({
     setBrands(defaults.brands);
     setGroups(defaults.groups);
     setGeoIndicators(defaults.geoIndicators);
+    setSegment(defaults.segment);
     setDistributors(defaults.distributors);
     setIndicator(defaults.indicator);
     setRowsCount(defaults.rowsCount);
@@ -194,6 +218,7 @@ export const useDbFilters = ({
     groups,
     geoIndicators,
     distributors,
+    segment,
     indicator,
     rowsCount,
     groupBy,
@@ -204,6 +229,7 @@ export const useDbFilters = ({
     setGroups,
     setGeoIndicators,
     setDistributors,
+    setSegment,
     setIndicator,
     setRowsCount,
     setGroupBy,
@@ -222,6 +248,7 @@ export const useDbFilters = ({
       groups: config?.groups?.enabled !== false,
       geoIndicators: config?.geoIndicators?.enabled === true,
       distributors: config?.distributors?.enabled === true,
+      segments: config?.segment?.enabled === true,
       indicator: config?.indicator?.enabled !== false,
       rowsCount: config?.rowsCount?.enabled !== false,
       search: config?.search?.enabled !== false,

@@ -3,6 +3,7 @@ import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
+import { PeriodSorting } from '#/shared/utils/period-sorting';
 
 import type { DynamicPrimarySalesAsMixedProps } from '../dynamic-primary-sales.types';
 
@@ -11,20 +12,26 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
     const sectionStyle = useSectionStyle();
 
     const processedData = useMemo(() => {
-      return salesData.map((item, idx) => {
-        const parsed = parsePeriodData(item.period, period);
+      return salesData
+        .sort(PeriodSorting.sortByPeriod(period))
+        .map((item, idx) => {
+          const parsed = parsePeriodData(item.period, period);
 
-        return {
-          label: parsed.label,
-          fullLabel: parsed.label,
-          primary:
-            indicator === 'packages' ? item.sales_packages : item.sales_amount,
-          remains:
-            indicator === 'packages' ? item.stock_packages : item.stock_amount,
-          trade_stock: item.coverage_months,
-          xIndex: `${idx}`,
-        };
-      });
+          return {
+            label: parsed.label,
+            fullLabel: parsed.label,
+            primary:
+              indicator === 'packages'
+                ? item.sales_packages
+                : item.sales_amount,
+            remains:
+              indicator === 'packages'
+                ? item.stock_packages
+                : item.stock_amount,
+            trade_stock: item.coverage_months,
+            xIndex: `${idx}`,
+          };
+        });
     }, [salesData, indicator, period]);
 
     const tradeStockMax = useMemo(() => {

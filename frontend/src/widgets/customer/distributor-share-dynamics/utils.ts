@@ -1,4 +1,5 @@
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
+import { PeriodSorting } from '#/shared/utils/period-sorting';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 export type DistributorData = {
@@ -65,7 +66,9 @@ export class DistributorShareProcessor {
       Object.keys(item.periods_data).forEach(period => periodsSet.add(period));
     });
 
-    return Array.from(periodsSet).sort();
+    return Array.from(periodsSet).sort(
+      PeriodSorting.comparator(this.periodFilter.period)
+    );
   }
 
   private getFilteredPeriods(): string[] {

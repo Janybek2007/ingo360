@@ -5,12 +5,7 @@ import { SolarUserLinearIcon } from '#/shared/components/icons';
 import { useSession } from '#/shared/session';
 import { cn } from '#/shared/utils/cn';
 
-import type { TTabType } from '../profile-content.ui';
-
-interface IUserSidebarProps {
-  activeTab: TTabType;
-  setActiveTab: React.Dispatch<React.SetStateAction<TTabType>>;
-}
+import type { IUserSidebarProps, TTabType } from '../profile-content.types';
 
 export const UserSideBar: React.FC<IUserSidebarProps> = React.memo(
   ({ activeTab, setActiveTab }) => {

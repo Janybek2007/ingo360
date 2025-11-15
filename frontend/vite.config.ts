@@ -81,16 +81,6 @@ export default defineConfig(({ mode }) => {
       host: true,
       port: 4000,
       strictPort: true,
-      hmr: {
-        overlay: true,
-      },
-      warmup: {
-        clientFiles: [
-          './src/app/**/*.{ts,tsx}',
-          './src/shared/ui/**/*.{ts,tsx}',
-          './src/routes/**/*.{ts,tsx}',
-        ],
-      },
     },
 
     preview: {
@@ -259,8 +249,8 @@ export default defineConfig(({ mode }) => {
       ],
       exclude: [
         'xlsx', // Большой, загружать lazy
-        'recharts', // Загружать только на страницах с графиками
-      ],
+        isProd && 'recharts',
+      ].filter(Boolean) as string[],
       esbuildOptions: {
         target: 'es2022',
         supported: {

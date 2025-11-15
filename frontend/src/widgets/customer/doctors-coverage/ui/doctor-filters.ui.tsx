@@ -5,21 +5,7 @@ import { LucideArrowIcon } from '#/shared/components/icons';
 import { Select } from '#/shared/components/ui/select';
 import { allMonths } from '#/shared/constants/months';
 
-export interface FiltersConfig {
-  months: number[];
-  years: number[];
-  medical_facility_ids: number[];
-}
-
-interface DoctorFiltersProps {
-  filters: Partial<FiltersConfig> | number[];
-  setFilters: React.Dispatch<
-    React.SetStateAction<Partial<FiltersConfig> | number[]>
-  >;
-  showConfigs?: Partial<
-    Record<'medical_facilities' | 'years' | 'months', boolean>
-  >;
-}
+import type { DoctorFiltersProps } from '../doctors-covarage.types';
 
 export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
   ({
@@ -43,13 +29,13 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
     return (
       <div className="flex items-center gap-4">
         {showConfigs.medical_facilities && (
-          <Select<true, number>
+          <Select<true, number | string>
             value={
               Array.isArray(filters)
                 ? filters
                 : (filters.medical_facility_ids ?? [])
             }
-            setValue={value => setFilters(value)}
+            setValue={value => setFilters(value.map(Number))}
             isMultiple
             checkbox
             search

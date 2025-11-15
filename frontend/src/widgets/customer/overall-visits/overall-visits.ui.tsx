@@ -55,6 +55,7 @@ export const OverallVisits: React.FC = React.memo(() => {
         filter_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+        enabled: !filterOptions.isLoading,
       }
     )
   );

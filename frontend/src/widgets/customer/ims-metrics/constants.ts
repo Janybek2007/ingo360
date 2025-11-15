@@ -1,5 +1,7 @@
+import type { IMSMetricsRow } from '#/shared/types/ims';
+
 interface ICPICard {
-  key: string;
+  key: keyof IMSMetricsRow;
   fill: string;
   text: (value: string | number) => string;
   subText: string;

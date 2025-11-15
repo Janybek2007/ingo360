@@ -2,6 +2,7 @@ import type { TDbItem } from '#/entities/db';
 import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 
 import { parsePeriodData } from './parse-period-data';
+import { PeriodSorting } from './period-sorting';
 
 export interface ChartRawDataPoint {
   period: string;
@@ -29,37 +30,39 @@ export function generateChartRawData(
 
     const groupKey = groupBy ? groupBy(item) : null;
 
-    Object.entries(item.periods_data).forEach(([periodKey, periodValue]) => {
-      const value = (periodValue as any)?.[valueField];
-      if (value === null || value === undefined) return;
+    Object.entries(item.periods_data)
+      .sort(PeriodSorting.sortByPeriodsData(config.periodType))
+      .forEach(([periodKey, periodValue]) => {
+        const value = (periodValue as any)?.[valueField];
+        if (value === null || value === undefined) return;
 
-      const parsed = parsePeriodData(periodKey, periodType);
-      const existing = dataMap.get(periodKey);
+        const parsed = parsePeriodData(periodKey, periodType);
+        const existing = dataMap.get(periodKey);
 
-      if (groupKey) {
-        if (existing) {
-          existing[groupKey] = ((existing[groupKey] as number) || 0) + value;
+        if (groupKey) {
+          if (existing) {
+            existing[groupKey] = ((existing[groupKey] as number) || 0) + value;
+          } else {
+            dataMap.set(periodKey, {
+              period: periodKey,
+              label: parsed.label,
+              fullLabel: parsed.label,
+              [groupKey]: value,
+            });
+          }
         } else {
-          dataMap.set(periodKey, {
-            period: periodKey,
-            label: parsed.label,
-            fullLabel: parsed.label,
-            [groupKey]: value,
-          });
+          if (existing) {
+            existing[outputField] = (existing[outputField] as number) + value;
+          } else {
+            dataMap.set(periodKey, {
+              period: periodKey,
+              label: parsed.label,
+              fullLabel: parsed.label,
+              [outputField]: value,
+            });
+          }
         }
-      } else {
-        if (existing) {
-          existing[outputField] = (existing[outputField] as number) + value;
-        } else {
-          dataMap.set(periodKey, {
-            period: periodKey,
-            label: parsed.label,
-            fullLabel: parsed.label,
-            [outputField]: value,
-          });
-        }
-      }
-    });
+      });
   });
 
   return sortChartRawData(Array.from(dataMap.values()));

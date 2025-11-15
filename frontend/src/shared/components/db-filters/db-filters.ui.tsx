@@ -1,15 +1,14 @@
-import React from 'react';
-
 import { Select } from '#/shared/components/ui/select';
 
 import { SearchInput } from '../search-input';
 import type { DbFiltersProps } from './db-filters.types';
 
-export const DbFilters: React.FC<DbFiltersProps> = ({
+export const DbFilters = ({
   brands = [],
   groups = [],
   geoIndicators = [],
   distributors = [],
+  segment = null,
   indicator = 'amount',
   rowsCount = 'all',
   setBrands,
@@ -18,11 +17,13 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
   setDistributors,
   setIndicator,
   setRowsCount,
+  setSegment,
   options,
   enabled,
   setSearch,
   children,
-}) => {
+  brandsMultiple = true,
+}: DbFiltersProps) => {
   const {
     brands: brandsEnabled = true,
     groups: groupsEnabled = true,
@@ -31,6 +32,7 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
     indicator: indicatorEnabled = true,
     rowsCount: rowsCountEnabled = true,
     search: searchEnabled = true,
+    segments: segmentsEnabled = false,
   } = enabled;
 
   return (
@@ -38,33 +40,45 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
       {searchEnabled && setSearch && <SearchInput saveValue={setSearch} />}
       {children}
       {brandsEnabled && setBrands && options.brands && (
-        <Select<true, number>
-          value={brands}
-          setValue={setBrands}
-          showToggleAll
-          isMultiple
-          checkbox
+        <Select<boolean, string | number>
+          value={brandsMultiple ? brands : brands[0] || ''}
+          setValue={value => {
+            if (brandsMultiple) setBrands(value as (string | number)[]);
+            else setBrands([value as any]);
+          }}
+          search={!brandsMultiple}
+          isMultiple={brandsMultiple as true}
+          checkbox={brandsMultiple}
           items={options.brands}
-          triggerText={'Бренд'}
-          classNames={{ menu: 'w-[10rem] w-max left-0' }}
+          triggerText={'Бренды'}
+          classNames={{ menu: 'w-[30rem] right-0' }}
+        />
+      )}
+      {segmentsEnabled && setSegment && options.segments && (
+        <Select<false, string | number>
+          value={segment || ''}
+          setValue={v => setSegment(String(v))}
+          items={options.segments}
+          triggerText={'Сегменты'}
+          classNames={{ menu: 'w-[30rem] right-0' }}
         />
       )}
 
       {groupsEnabled && setGroups && options.groups && (
-        <Select<true, number>
+        <Select<true, string | number>
           value={groups}
           setValue={setGroups}
           isMultiple
           checkbox
           showToggleAll
           items={options.groups}
-          triggerText={'Группа'}
-          classNames={{ menu: 'w-[10rem] w-max left-0' }}
+          triggerText={'Группы'}
+          classNames={{ menu: 'w-[30rem] w-max right-0' }}
         />
       )}
 
       {geoIndicatorsEnabled && setGeoIndicators && options.geoIndicators && (
-        <Select<true, number>
+        <Select<true, string | number>
           value={geoIndicators}
           setValue={setGeoIndicators}
           isMultiple
@@ -72,20 +86,20 @@ export const DbFilters: React.FC<DbFiltersProps> = ({
           showToggleAll
           items={options.geoIndicators}
           triggerText={'Индикаторы'}
-          classNames={{ menu: 'w-[10rem] w-max left-0' }}
+          classNames={{ menu: 'w-[10rem] w-max right-0' }}
         />
       )}
 
       {distributorsEnabled && setDistributors && options.distributors && (
-        <Select<true, number>
+        <Select<true, string | number>
           value={distributors}
           setValue={setDistributors}
           isMultiple
           checkbox
           showToggleAll
           items={options.distributors}
-          triggerText={'Дистрибьютор'}
-          classNames={{ menu: 'w-[10rem] w-max left-0' }}
+          triggerText={'Дистрибьюторы'}
+          classNames={{ menu: 'w-[10rem] w-max right-0' }}
         />
       )}
 

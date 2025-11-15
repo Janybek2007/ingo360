@@ -21,6 +21,7 @@ import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
+import { PeriodSorting } from '#/shared/utils/period-sorting';
 
 export type DynamicPrimarySalesData = {
   period: string;
@@ -90,16 +91,18 @@ export const DynamicSales: React.FC = React.memo(() => {
   }, [periodFilter]);
 
   const data = useMemo(() => {
-    return rawData.map(item => {
-      const parsed = parsePeriodData(item.period, periodFilter.period);
+    return rawData
+      .sort(PeriodSorting.sortByPeriod(periodFilter.period))
+      .map(item => {
+        const parsed = parsePeriodData(item.period, periodFilter.period);
 
-      return {
-        label: parsed.label,
-        fullLabel: parsed.label,
-        primaryValue: item.primaryValue,
-        secondaryValue: item.secondaryValue,
-      };
-    });
+        return {
+          label: parsed.label,
+          fullLabel: parsed.label,
+          primaryValue: item.primaryValue,
+          secondaryValue: item.secondaryValue,
+        };
+      });
   }, [rawData, periodFilter.period]);
 
   const chartAxis = useMemo(

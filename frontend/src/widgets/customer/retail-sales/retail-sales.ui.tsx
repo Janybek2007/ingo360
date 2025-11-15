@@ -44,6 +44,7 @@ export const RetailSales: React.FC = React.memo(() => {
       geo_indicators_ids: filters.geoIndicators,
       search: filters.search,
       group_by_dimensions: filters.groupBy,
+      enabled: !filterOptions.isLoading,
     })
   );
 

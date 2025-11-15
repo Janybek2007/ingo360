@@ -45,6 +45,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         group_by_dimensions: filters.groupBy.filter(
           v => !['geo_indicator'].includes(v)
         ),
+        enabled: !filterOptions.isLoading,
       }
     )
   );

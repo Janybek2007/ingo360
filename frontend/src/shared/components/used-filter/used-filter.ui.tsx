@@ -15,7 +15,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   isViewPeriods = true,
   periodViewMode = 'default',
   className,
-  isReadMode = false,
+  isReadOnly = false,
 }) => {
   const groupedItems = useMemo(() => usedFilterItems, [usedFilterItems]);
 
@@ -54,7 +54,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     >
       <div className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
         <span>{item.label}</span>
-        {!isReadMode && (
+        {!item.isReadOnly && (
           <button
             type="button"
             onClick={item.onDelete}
@@ -100,7 +100,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
       {isView && groupedItems.map(renderDefaultItem)}
       {isViewPeriods && groupedPeriodItems.map(renderDefaultItem)}
 
-      {!isReadMode && (
+      {!isReadOnly && (
         <button
           type="button"
           onClick={resetFilters}

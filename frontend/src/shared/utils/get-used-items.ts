@@ -6,6 +6,7 @@ export interface IFilterConfig {
   getLabelFromValue?: (value: string | number) => string;
   onDelete: (value: string | number) => void;
   main?: Omit<IFilterConfig, 'value'> & { label: string };
+  isReadOnly?: boolean;
 }
 export function getUsedFilterItems(
   filters: (IFilterConfig | boolean)[]
@@ -35,6 +36,7 @@ export function getUsedFilterItems(
               label,
               value,
               onDelete: () => filter.main!.onDelete(value),
+              isReadOnly: filter.isReadOnly,
             };
           })
       : undefined;
@@ -45,6 +47,7 @@ export function getUsedFilterItems(
         value: filter.value as string,
         onDelete: () => filter.onDelete(filter.value as string),
         subItems,
+        isReadOnly: filter.isReadOnly,
       });
     } else {
       values.forEach(value => {
@@ -63,6 +66,7 @@ export function getUsedFilterItems(
           label,
           value,
           onDelete: () => filter.onDelete(value),
+          isReadOnly: filter.isReadOnly,
         });
       });
     }

@@ -196,6 +196,7 @@ export class PeriodGrouping {
         label: `${this.getPeriodTypeLabel(type)}: ${prefix} ${label}`,
         value: String(item.value),
         onDelete: item.onDelete,
+        isReadOnly: item.isReadOnly || false,
       });
     }
 

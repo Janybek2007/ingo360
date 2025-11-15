@@ -59,6 +59,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
         distributor_ids: filters.distributors,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+        enabled: !filterOptions.isLoading,
       }
     )
   );

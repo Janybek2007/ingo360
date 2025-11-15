@@ -40,6 +40,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
         search: filters.search,
         group_by_dimensions: filters.groupBy,
+        enabled: !filterOptions.isLoading,
       }
     )
   );

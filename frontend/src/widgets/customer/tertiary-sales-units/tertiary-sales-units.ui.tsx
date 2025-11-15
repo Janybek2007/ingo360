@@ -26,6 +26,7 @@ import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
+import { PeriodSorting } from '#/shared/utils/period-sorting';
 
 interface TertiarySalesUnitsRaw {
   period: string; // period:year = 2023, period:month = 2023-01, period:quarter = 2023-Q1
@@ -58,21 +59,24 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
         product_group_ids: filters.groups,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+        enabled: !filterOptions.isLoading,
       }
     )
   );
   const visits = React.useMemo(() => {
     const rawData = queryData.data ? queryData.data[0] : [];
 
-    return rawData.map(item => {
-      const parsed = parsePeriodData(item.period, periodFilter.period);
+    return rawData
+      .sort(PeriodSorting.sortByPeriod(periodFilter.period))
+      .map(item => {
+        const parsed = parsePeriodData(item.period, periodFilter.period);
 
-      return {
-        label: parsed.label,
-        fullLabel: parsed.label,
-        value: item.sales_packages,
-      };
-    });
+        return {
+          label: parsed.label,
+          fullLabel: parsed.label,
+          value: item.sales_packages,
+        };
+      });
   }, [queryData, periodFilter.period]);
 
   const resetFilters = React.useCallback(() => {

@@ -6,8 +6,11 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
-import type { DoctorsCoverageRow } from '../doctors-coverage.ui';
-import { DoctorFilters, type FiltersConfig } from './doctor-filters.ui';
+import type {
+  DoctorsCoverageRow,
+  FiltersConfig,
+} from '../doctors-covarage.types';
+import { DoctorFilters } from './doctor-filters.ui';
 
 export const DoctorsPercentageVisits: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<FiltersConfig>({
@@ -64,7 +67,7 @@ export const DoctorsPercentageVisits: React.FC = React.memo(() => {
               outerRadius={110}
               labelLine={false}
               label={entry =>
-                `${(entry.count_with_visits as number)?.toFixed(1)} (${(entry.coverage_percentage as number)?.toFixed(1)}%)`
+                `${entry.value?.toFixed(1)} (${((entry as any).coverage_percentage as number)?.toFixed(1)}%)`
               }
               paddingAngle={0}
             >

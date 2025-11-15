@@ -4,32 +4,35 @@ import type { IUsedFilterItem } from '../used-filter';
 
 export interface UseDbFiltersReturn {
   // Individual states
-  brands: number[];
-  groups: number[];
-  geoIndicators: number[];
-  distributors: number[];
+  brands: (number | string)[];
+  groups: (number | string)[];
+  geoIndicators: (number | string)[];
+  segment: string | null;
+  distributors: (number | string)[];
   indicator: IndicatorType;
   rowsCount: 'all' | number;
   groupBy: string[];
   search: string;
 
   // Setters
-  setBrands: React.Dispatch<React.SetStateAction<number[]>>;
-  setGroups: React.Dispatch<React.SetStateAction<number[]>>;
-  setGeoIndicators: React.Dispatch<React.SetStateAction<number[]>>;
-  setDistributors: React.Dispatch<React.SetStateAction<number[]>>;
+  setBrands: React.Dispatch<React.SetStateAction<(number | string)[]>>;
+  setGroups: React.Dispatch<React.SetStateAction<(number | string)[]>>;
+  setGeoIndicators: React.Dispatch<React.SetStateAction<(number | string)[]>>;
+  setDistributors: React.Dispatch<React.SetStateAction<(number | string)[]>>;
   setIndicator: React.Dispatch<React.SetStateAction<IndicatorType>>;
   setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
+  setSegment: React.Dispatch<React.SetStateAction<string | null>>;
   setGroupBy: React.Dispatch<React.SetStateAction<string[]>>;
   setSearch: React.Dispatch<React.SetStateAction<string>>;
 
   // Options
   options: {
-    brands: Array<{ value: number; label: string }>;
-    groups: Array<{ value: number; label: string }>;
-    distributors: Array<{ value: number; label: string }>;
-    geoIndicators: Array<{ value: number; label: string }>;
+    brands: FilterOptions[];
+    groups: FilterOptions[];
+    distributors: FilterOptions[];
+    geoIndicators: FilterOptions[];
     indicators: Array<{ value: IndicatorType; label: string }>;
+    segments: FilterOptions[];
     rowsCounts: Array<{ value: 'all' | number; label: string }>;
   };
 
@@ -42,6 +45,7 @@ export interface UseDbFiltersReturn {
     brands: boolean;
     groups: boolean;
     geoIndicators: boolean;
+    segments: boolean;
     distributors: boolean;
     indicator: boolean;
     rowsCount: boolean;
@@ -49,7 +53,10 @@ export interface UseDbFiltersReturn {
   };
 }
 
-export type DbFiltersProps = UseDbFiltersReturn & React.PropsWithChildren;
+export type DbFiltersProps = UseDbFiltersReturn &
+  React.PropsWithChildren & {
+    brandsMultiple?: boolean;
+  };
 
 export interface FilterOptionItem {
   id: number;
@@ -57,7 +64,7 @@ export interface FilterOptionItem {
 }
 
 export interface FilterOptions {
-  value: number;
+  value: string | number;
   label: string;
 }
 
@@ -67,6 +74,10 @@ export interface UseFilterOptionsConfig {
   distributors?: boolean;
   medicalFacilities?: boolean;
   geoIndicators?: boolean;
+  segment?: boolean;
+  urls?: {
+    brands?: 'ims/filter-options/brand-name' | 'products/brands/filter-options';
+  };
 }
 
 //
@@ -75,11 +86,13 @@ export interface UseDbFiltersProps {
   groupsOptions?: FilterOptions[];
   distributorsOptions?: FilterOptions[];
   geoIndicatorsOptions?: FilterOptions[];
+  segmentsOptions?: FilterOptions[];
   config?: {
-    brands?: { enabled?: boolean };
+    brands?: { enabled?: boolean; multiple?: boolean };
     groups?: { enabled?: boolean };
     distributors?: { enabled?: boolean };
     geoIndicators?: { enabled?: boolean };
+    segment?: { enabled?: boolean };
     search?: { enabled?: boolean };
     indicator?: {
       enabled?: boolean;

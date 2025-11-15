@@ -102,14 +102,14 @@ export interface IGetDBItemsParams extends PaginationParams {
   months?: number[];
   quarters?: number[];
   //
-  brand_ids?: number[];
-  distributor_ids?: number[];
-  product_group_ids?: number[];
+  brand_ids?: (string | number)[];
+  distributor_ids?: (string | number)[];
+  product_group_ids?: (string | number)[];
   search?: string;
-  promo_type_id?: number[];
-  sku_ids?: number[];
-  geo_indicators_ids?: number[];
-  medical_facility_ids?: number[];
+  promo_type_id?: (string | number)[];
+  sku_ids?: (string | number)[];
+  geo_indicators_ids?: (string | number)[];
+  medical_facility_ids?: (string | number)[];
   group_by_period?: UsePeriodType;
   period_values?: string[];
   periods?: string[];
@@ -117,4 +117,7 @@ export interface IGetDBItemsParams extends PaginationParams {
   filter_values?: string[];
   group_by_dimensions?: string[];
   indicator?: string;
+  enabled?: boolean;
+  segment_name?: string;
+  brand_name?: string;
 }

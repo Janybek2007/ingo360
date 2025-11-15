@@ -2,13 +2,13 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { DbFilters } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { UsedFilter } from '#/shared/components/used-filter';
 import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
-import { selectFilter } from '#/shared/utils/filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
@@ -29,6 +29,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
       queryError,
       activeTab,
       setActiveTab,
+      filters,
     }) => {
       const columns = useMemo<ColumnDef<EntityRow>[]>(
         () => [
@@ -42,13 +43,6 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                   ? 'Бренд'
                   : 'Сегмент',
             size: 300,
-            enableColumnFilter: activeTab !== 'company',
-            filterFn: selectFilter(),
-            filterType: 'select',
-            selectOptions:
-              activeTab === 'company'
-                ? []
-                : entities.map(e => ({ value: e.entity, label: e.entity })),
           },
           {
             accessorKey: 'sales',
@@ -61,7 +55,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
               }),
           },
         ],
-        [activeTab, entities]
+        [activeTab]
       );
 
       return (
@@ -69,6 +63,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
           title="Профайл компании, бренда или сегмента"
           headerEnd={
             <div className="flex gap-4 items-center relative z-100">
+              <DbFilters {...filters} brandsMultiple={false} />
               <PeriodFilters {...periodFilter} />
             </div>
           }
@@ -81,16 +76,22 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                 items={tabItems}
               />
               <UsedFilter
-                isReadMode={['mat', 'ytd'].includes(periodFilter.period)}
+                isReadOnly
                 usedPeriodFilters={getUsedFilterItems([
                   {
                     value: periodFilter.selectedValues,
                     getLabelFromValue: getPeriodLabel,
                     onDelete: periodFilter.onDelete,
+                    isReadOnly: true,
                   },
                 ])}
+                usedFilterItems={filters.usedFilterItems}
+                isView={periodFilter.isView}
                 isViewPeriods={periodFilter.isView}
-                resetFilters={periodFilter.onReset}
+                resetFilters={() => {
+                  periodFilter.onReset();
+                  filters.resetFilters();
+                }}
                 periodViewMode="from"
               />
             </div>

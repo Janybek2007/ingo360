@@ -29,12 +29,12 @@ export const IMSMetrics: React.FC<IMSMetricsProps> = React.memo(
                 >
                   <h3 className="font-medium text-[2rem] leading-full text-center tracking-[-0.02em]">
                     {card.text(
-                      Number(
-                        metricData[card.key as keyof typeof metricData] || 0
-                      ).toLocaleString('ru-RU', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2,
-                      })
+                      typeof metricData[card.key as keyof typeof metricData] ===
+                        'string'
+                        ? metricData[card.key]
+                        : Number(metricData[card.key] || 0).toLocaleString(
+                            'ru-RU'
+                          )
                     )}
                   </h3>
                   <p className="font-inter font-normal text-base leading-full text-center tracking-[-0.002em]">
