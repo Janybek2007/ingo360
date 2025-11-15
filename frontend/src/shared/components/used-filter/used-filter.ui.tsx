@@ -36,6 +36,8 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     },
     []
   );
+  console.log(usedPeriodFilters, 'usedPeriodFilters');
+  console.log(groupedPeriodItems, 'groupedPeriodItems');
 
   if (
     (!groupedItems.length && !groupedPeriodItems.length) ||

@@ -113,11 +113,13 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
           )}
         </div>
 
-        <div className={cn(classNames?.content)} key={current}>
-          {children?.({
-            current: current,
-          })}
-        </div>
+        {children && (
+          <div className={cn(classNames?.content)} key={current}>
+            {children?.({
+              current: current,
+            })}
+          </div>
+        )}
       </div>
     );
   }

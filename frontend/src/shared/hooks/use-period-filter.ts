@@ -56,7 +56,12 @@ export const usePeriodFilter = (
       currentYear,
     ]);
     const currentYearKey = `year-${currentYear}`;
-    if (['mat', 'ytd'].includes(period)) return allCurrentYearItems.slice(0, 1);
+    if (['mat', 'ytd'].includes(defaultPeriod)) {
+      if (defaultPeriod === 'ytd') {
+        return [`ytd-${currentYear}-12`];
+      }
+      return allCurrentYearItems.slice(0, 1);
+    }
     if (period === 'year') return allCurrentYearItems;
     return [...allCurrentYearItems, currentYearKey];
   });
@@ -70,8 +75,12 @@ export const usePeriodFilter = (
           currentYear,
         ]);
         const currentYearKey = `year-${currentYear}`;
-        if (['mat', 'ytd'].includes(newPeriod))
+        if (['mat', 'ytd'].includes(newPeriod)) {
+          if (newPeriod === 'ytd') {
+            return [`ytd-${currentYear}-12`];
+          }
           return allCurrentYearItems.slice(0, 1);
+        }
         if (newPeriod === 'year') return allCurrentYearItems;
         return [...allCurrentYearItems, currentYearKey];
       });

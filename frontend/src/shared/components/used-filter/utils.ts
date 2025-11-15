@@ -77,7 +77,17 @@ export class PeriodGrouping {
   }
 
   private parsePeriodValue(value: string | number): ParsedPeriod {
-    const parts = String(value).split('-');
+    const valueStr = String(value);
+    const parts = valueStr.split('-');
+
+    if (parts.length === 1 && /^\d{4}$/.test(valueStr)) {
+      return {
+        type: 'year',
+        year: valueStr,
+        number: undefined,
+      };
+    }
+
     return {
       type: parts[0] || '',
       year: parts[1] || '',
@@ -155,9 +165,15 @@ export class PeriodGrouping {
 
   private groupByYear(): IUsedFilterItem[] {
     const yearsMap: YearGroupMap = {};
+    const yearItems: IUsedFilterItem[] = [];
 
     for (const item of this.items) {
       const { type, year } = this.parsePeriodValue(item.value);
+
+      if (type === 'year' && !String(item.value).includes('-')) {
+        yearItems.push(item);
+        continue;
+      }
 
       if (!type || !year || !this.isPeriodType(type)) {
         continue;
@@ -170,7 +186,8 @@ export class PeriodGrouping {
       yearsMap[year].items.push(item);
     }
 
-    return this.filterAndFormatYears(yearsMap);
+    const visibleYears = yearItems.length > 1 ? yearItems : [];
+    return [...visibleYears, ...this.filterAndFormatYears(yearsMap)];
   }
 
   /**

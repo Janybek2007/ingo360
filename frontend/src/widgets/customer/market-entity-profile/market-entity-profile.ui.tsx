@@ -76,6 +76,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                 items={tabItems}
               />
               <UsedFilter
+                className="mt-4"
                 isReadOnly
                 usedPeriodFilters={getUsedFilterItems([
                   {
