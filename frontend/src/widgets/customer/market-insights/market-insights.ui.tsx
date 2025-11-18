@@ -101,7 +101,6 @@ export const MarketInsights: React.FC = React.memo(() => {
     >
       <AsyncBoundary
         queryError={queryData.error}
-        isEmpty={metricData.length === 0}
         isLoading={queryData.isLoading}
       >
         <Table

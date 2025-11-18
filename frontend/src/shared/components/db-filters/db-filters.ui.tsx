@@ -51,6 +51,7 @@ export const DbFilters = React.memo(
             }}
             search={!brandsMultiple}
             isMultiple={brandsMultiple as true}
+            showToggleAll
             checkbox={brandsMultiple}
             items={options.brands}
             triggerText={'Бренды'}

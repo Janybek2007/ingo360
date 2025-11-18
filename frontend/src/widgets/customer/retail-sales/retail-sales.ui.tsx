@@ -111,7 +111,7 @@ export const RetailSales: React.FC = React.memo(() => {
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
             }}
-            selectKeys={visibleColumns}
+            selectKeys={visibleColumns.filter(v => !['total'].includes(v))}
             periodKey={filters.indicator}
             data={sales}
             fileName="retail-sales.xlsx"
@@ -122,7 +122,6 @@ export const RetailSales: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={sales.length === 0}
       >
         <Table
           key={filters.indicator}

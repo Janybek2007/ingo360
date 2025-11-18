@@ -104,7 +104,6 @@ export const DistributorShare: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={sales.length === 0}
       >
         <Table
           filters={{

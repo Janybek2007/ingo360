@@ -12,6 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
+import { LucideAlertCircleIcon } from '../icons';
 import { UsedFilter } from '../used-filter';
 import type { ITableProps } from './table.types';
 import { TableBody } from './ui/table-body.ui';
@@ -141,9 +142,7 @@ export const Table: React.FC<ITableProps> = React.memo(
           style={containerStyle}
         >
           {table.getRowModel().rows.length === 0 ? (
-            <div className="flex items-center justify-center py-10 text-gray-500 text-sm">
-              Нет данных
-            </div>
+            <DefaultEmpty />
           ) : (
             <table
               id="custom-table"
@@ -165,4 +164,15 @@ export const Table: React.FC<ITableProps> = React.memo(
   }
 );
 
+const DefaultEmpty = React.memo(() => (
+  <div className="flex flex-col items-center justify-center my-40 px-4 text-center text-gray-500 space-y-3">
+    <LucideAlertCircleIcon className="text-gray-400 size-[36px]" />
+    <p className="font-medium text-base">Нет данных для отображения</p>
+    <p className="text-sm text-gray-400 max-w-sm">
+      Попробуйте изменить фильтры.
+    </p>
+  </div>
+));
+
+DefaultEmpty.displayName = 'DefaultEmpty';
 Table.displayName = '_Table_';

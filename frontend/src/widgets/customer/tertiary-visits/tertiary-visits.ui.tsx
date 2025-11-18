@@ -104,7 +104,7 @@ export const TertiaryVisits: React.FC = React.memo(() => {
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
             }}
-            selectKeys={visibleColumns}
+            selectKeys={visibleColumns.filter(v => !['total'].includes(v))}
             periodKey={filters.indicator}
             data={visits}
             fileName="tertiary-visits.xlsx"
@@ -115,7 +115,6 @@ export const TertiaryVisits: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={visits.length === 0}
       >
         <Table
           key={filters.indicator}

@@ -96,7 +96,6 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={visits.length === 0}
       >
         <Table
           filters={{

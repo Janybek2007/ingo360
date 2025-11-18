@@ -31,7 +31,7 @@ export const useDbFilters = ({
   const [groupBy, setGroupBy] = useState<string[]>([]);
   const [search, setSearch] = useState('');
 
-  const brandsMultiple = config?.brands?.multiple === true;
+  const brandsMultiple = config?.brands?.multiple ?? true;
 
   // Options
   const options = useMemo(() => {

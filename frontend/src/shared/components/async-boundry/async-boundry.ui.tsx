@@ -14,14 +14,10 @@ export const AsyncBoundary: React.FC<IAsyncBoundaryProps> = ({
   boundary,
   isLoading = false,
   queryError,
-  isEmpty = false,
   onRetry,
 }) => {
   if (isLoading) {
     return <>{fallback}</>;
-  }
-  if (isEmpty) {
-    return <DefaultEmpty />;
   }
 
   if (queryError) {
@@ -70,22 +66,5 @@ const DefaultError = React.memo(
   )
 );
 
-const DefaultEmpty = React.memo(
-  ({
-    title = 'Нет данных для отображения',
-    description = 'Попробуйте изменить фильтры.',
-  }: {
-    title?: string;
-    description?: string;
-  }) => (
-    <div className="flex flex-col items-center justify-center my-40 px-4 text-center text-gray-500 space-y-3">
-      <LucideAlertCircleIcon className="text-gray-400 size-[36px]" />
-      <p className="font-medium text-base">{title}</p>
-      <p className="text-sm text-gray-400 max-w-sm">{description}</p>
-    </div>
-  )
-);
-
 DefaultFallback.displayName = 'DefaultFallback';
 DefaultError.displayName = 'DefaultError';
-DefaultEmpty.displayName = 'DefaultEmpty';

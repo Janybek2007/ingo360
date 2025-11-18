@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DbQueries } from '#/entities/db';
-import { useDbFilters, useFilterOptions } from '#/shared/components/db-filters';
+import { useDbFilters } from '#/shared/components/db-filters';
 import { LazySection } from '#/shared/components/lazy-section';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
@@ -17,16 +17,15 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
     const [activeTab, setActiveTab] = React.useState<ISMGroupColumn>('company');
     const isBrandEnabled = activeTab === 'brand' && isMarketDevelopmentPage;
     const isSegmentEnabled = activeTab === 'segment' && isMarketDevelopmentPage;
+    const [brands, setBrands] = React.useState<string[]>([]);
+    const [segments, setSegments] = React.useState<string[]>([]);
 
-    const filterOptions = useFilterOptions({
-      groups: false,
-      segment: isSegmentEnabled,
-      brands: isBrandEnabled,
-      urls: { brands: 'ims/filter-options/brand-name' },
-    });
     const filters = useDbFilters({
-      brandsOptions: filterOptions.brands,
-      segmentsOptions: filterOptions.segments,
+      brandsOptions: brands.map(brand => ({ label: brand, value: brand })),
+      segmentsOptions: segments.map(segment => ({
+        label: segment,
+        value: segment,
+      })),
       config: {
         groups: { enabled: false },
         search: { enabled: false },
@@ -49,13 +48,25 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
         group_column: isMarketDevelopmentPage ? activeTab : 'company',
         segment_name: filters.segment ?? undefined,
         brand_name: String(filters.brands[0]) ?? undefined,
-        enabled: !filterOptions.isLoading,
       })
     );
-
     const metricData = React.useMemo(() => {
       return queryData.data ? queryData.data[0] : null;
     }, [queryData.data]);
+
+    React.useEffect(() => {
+      if (queryData.isLoading || !queryData.data) return;
+      const data = queryData.data[0];
+      if (activeTab === 'brand') {
+        setBrands([
+          ...new Set(data.entities.map(item => item.entity)).values(),
+        ]);
+      } else if (activeTab === 'segment') {
+        setSegments([
+          ...new Set(data.entities.map(item => item.entity)).values(),
+        ]);
+      }
+    }, [activeTab, queryData.data, queryData.isLoading]);
 
     return (
       <>

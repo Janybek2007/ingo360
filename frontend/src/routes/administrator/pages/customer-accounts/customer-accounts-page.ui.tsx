@@ -117,7 +117,6 @@ const CustomerAccountsPage: React.FC = () => {
         <AsyncBoundary
           isLoading={customersQuery.isLoading}
           queryError={customersQuery.error}
-          isEmpty={filteredData.length === 0}
         >
           <Table
             columns={allColumns}

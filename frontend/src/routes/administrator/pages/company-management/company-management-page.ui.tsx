@@ -122,7 +122,6 @@ const CompanyManagementPage: React.FC = () => {
         <AsyncBoundary
           isLoading={queryData.isLoading}
           queryError={queryData.error}
-          isEmpty={filteredData.length === 0}
         >
           <Table
             columns={allColumns}

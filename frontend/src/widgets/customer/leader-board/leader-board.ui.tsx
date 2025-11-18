@@ -83,11 +83,7 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
                 </p>
               </div>
             ) : (
-              <AsyncBoundary
-                isLoading={isLoading}
-                isEmpty={entities.length === 0}
-                queryError={queryError}
-              >
+              <AsyncBoundary isLoading={isLoading} queryError={queryError}>
                 <Table
                   highlightRow={row =>
                     row.is_user_company ? 'bg-yellow-100 font-bold' : ''

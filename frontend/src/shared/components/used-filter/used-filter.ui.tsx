@@ -20,8 +20,12 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   const groupedItems = useMemo(() => usedFilterItems, [usedFilterItems]);
 
   const groupedPeriodItems = useMemo(() => {
-    return new PeriodGrouping(usedPeriodFilters, periodViewMode).group();
-  }, [usedPeriodFilters, periodViewMode]);
+    return new PeriodGrouping(
+      usedPeriodFilters,
+      periodViewMode,
+      isReadOnly
+    ).group();
+  }, [usedPeriodFilters, periodViewMode, isReadOnly]);
 
   const handleSubItemsChange = useCallback(
     (item: IUsedFilterItem, values: string[]) => {

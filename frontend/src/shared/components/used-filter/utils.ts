@@ -44,10 +44,16 @@ export class PeriodGrouping {
   private items: IUsedFilterItem[];
   private itemsCache: Map<string, any> = new Map();
   private mode: PeriodViewMode;
+  private isReadOnly: boolean = false;
 
-  constructor(items: IUsedFilterItem[] = [], mode: PeriodViewMode = 'default') {
+  constructor(
+    items: IUsedFilterItem[] = [],
+    mode: PeriodViewMode = 'default',
+    isReadOnly: boolean = false
+  ) {
     this.items = Array.isArray(items) ? items : [];
     this.mode = mode;
+    this.isReadOnly = isReadOnly;
     this.validateItems();
   }
 
@@ -149,6 +155,11 @@ export class PeriodGrouping {
     );
 
     for (const [type, typeItems] of Object.entries(byType)) {
+      // Для режима isReadOnly игнорируем проверку полноты для month и year
+      if (this.isReadOnly && (type === 'month' || type === 'year')) {
+        continue;
+      }
+
       if (typeItems.length === PeriodGrouping.FULL_YEAR_COUNTS[type]) {
         return true;
       }
@@ -186,7 +197,12 @@ export class PeriodGrouping {
       yearsMap[year].items.push(item);
     }
 
-    const visibleYears = yearItems.length > 1 ? yearItems : [];
+    // В режиме isReadOnly показываем годы, даже если выбран только один
+    const visibleYears = this.isReadOnly
+      ? yearItems
+      : yearItems.length > 1
+        ? yearItems
+        : [];
     return [...visibleYears, ...this.filterAndFormatYears(yearsMap)];
   }
 

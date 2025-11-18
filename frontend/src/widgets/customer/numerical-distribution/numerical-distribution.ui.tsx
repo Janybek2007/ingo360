@@ -70,7 +70,6 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      ignore: ['total'],
       setGroupBy: filters.setGroupBy,
     });
 
@@ -112,7 +111,6 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       <AsyncBoundary
         isLoading={queryData.isLoading}
         queryError={queryData.error}
-        isEmpty={sales.length === 0}
       >
         <Table
           filters={{

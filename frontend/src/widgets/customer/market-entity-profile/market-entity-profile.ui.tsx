@@ -128,11 +128,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                   </p>
                 </div>
               ) : (
-                <AsyncBoundary
-                  isLoading={isLoading}
-                  queryError={queryError}
-                  isEmpty={entities.length === 0}
-                >
+                <AsyncBoundary isLoading={isLoading} queryError={queryError}>
                   <Table
                     highlightRow={row =>
                       row.is_user_company ? 'bg-yellow-100 font-bold' : ''

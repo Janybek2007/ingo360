@@ -71,11 +71,7 @@ const ReportLogsPage: React.FC = () => {
           </div>
         }
       >
-        <AsyncBoundary
-          isLoading={isLoading}
-          queryError={error}
-          isEmpty={tableData.length === 0}
-        >
+        <AsyncBoundary isLoading={isLoading} queryError={error}>
           <Table
             columns={columnsForTable}
             data={tableData}
