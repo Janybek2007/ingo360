@@ -47,7 +47,11 @@ const ExportToExcelComponent = <T extends object>({
           ? [...selectKeys, ...periodKeys]
           : [...(Object.keys(item) as (keyof T)[]), ...periodKeys];
 
-      keysToExport.forEach(key => {
+      const filteredKeys = keysToExport.filter(
+        key => !String(key).startsWith('period_')
+      );
+
+      filteredKeys.forEach(key => {
         const keyStr = String(key);
         let value = periodKeys.includes(keyStr)
           ? (getNestedValue(item, keyStr) ?? item[keyStr as keyof T])

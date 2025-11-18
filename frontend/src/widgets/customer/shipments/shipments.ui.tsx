@@ -97,13 +97,7 @@ export const Shipments: React.FC = React.memo(() => {
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
             }}
-            selectKeys={[
-              'sku_name',
-              'brand_name',
-              'promotion_type_name',
-              'distributor_name',
-              'product_group_name',
-            ]}
+            selectKeys={visibleColumns}
             periodKey={filters.indicator}
             data={sales}
             fileName="первичные_продажи.xlsx"

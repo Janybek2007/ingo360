@@ -30,6 +30,7 @@ interface UseGenerateColumnsProps<TData> {
     getValue: (row: TData, periodKey: string) => number | null | undefined;
     asPercent?: boolean;
     indicatorKey?: string;
+    noFraction?: boolean;
   };
   total?: {
     getValue: (row: TData) => number | null | undefined;
@@ -38,8 +39,16 @@ interface UseGenerateColumnsProps<TData> {
   };
 }
 
-const formatValue = (value: number, asPercent?: boolean): string => {
-  if (asPercent) return `${value.toFixed(2)}%`;
+const formatValue = (
+  value: number,
+  asPercent?: boolean,
+  noFraction?: boolean
+): string => {
+  if (asPercent) {
+    if (noFraction) return `${Math.trunc(value)}%`;
+    return `${value.toFixed(2)}%`;
+  }
+
   return value.toLocaleString('ru-RU', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
@@ -49,12 +58,14 @@ const formatValue = (value: number, asPercent?: boolean): string => {
 const CellValue = ({
   value,
   asPercent,
+  noFraction,
 }: {
   value: number | null | undefined;
   asPercent?: boolean;
+  noFraction?: boolean;
 }) => {
   if (value === null || value === undefined) return <>-</>;
-  const formatted = formatValue(value, asPercent);
+  const formatted = formatValue(value, asPercent, noFraction);
   return (
     <span className={value < 0 ? 'text-red-600 font-medium' : ''}>
       {formatted}
@@ -89,11 +100,13 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
       };
 
       // Accessor
+      if (col.key) {
+        column.accessorKey = col.key as string;
+      }
+
       if (col.custom?.accessor) {
         // @ts-ignore
         column.accessorFn = col.custom.accessor;
-      } else if (col.key) {
-        column.accessorKey = col.key as string;
       }
 
       // Custom cell
@@ -161,22 +174,19 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
             <CellValue
               value={getValue() as number}
               asPercent={months.asPercent}
+              noFraction={months.noFraction}
             />
           ),
+
           meta: {
             aggregate: 'sum',
             getGroupValue: row => months.getValue(row, period),
             setValue: (row, value) => {
               if (!row || typeof row !== 'object') return;
-              const target = row as unknown as {
-                periods_data?: Record<string, Record<string, number>>;
-              };
-              if (!target.periods_data) {
-                target.periods_data = {};
-              }
-              if (!target.periods_data[period]) {
+              const target = row as any;
+              if (!target.periods_data) target.periods_data = {};
+              if (!target.periods_data[period])
                 target.periods_data[period] = {};
-              }
               const indicatorKey = months.indicatorKey ?? 'value';
               target.periods_data[period][indicatorKey] =
                 typeof value === 'number' ? value : Number(value) || 0;

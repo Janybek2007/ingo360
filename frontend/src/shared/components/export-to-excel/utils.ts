@@ -19,7 +19,7 @@ export function setNestedValue(obj: any, path: string, value: any): void {
 
 const formatPeriodKey = (period: string): string => {
   const [year, month] = period.split('-');
-  return `${year.slice(2)}/${parseInt(month, 10)}`;
+  return `${year}-${parseInt(month, 10)}`;
 };
 
 const isPeriodObject = (value: any): boolean => {

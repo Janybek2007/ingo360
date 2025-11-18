@@ -102,13 +102,7 @@ export const Inventory: React.FC = React.memo(() => {
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
             }}
-            selectKeys={[
-              'sku_name',
-              'brand_name',
-              'promotion_type_name',
-              'distributor_name',
-              'product_group_name',
-            ]}
+            selectKeys={visibleColumns}
             periodKey={'coverage_months'}
             data={sales}
             fileName="Товарный_запас.xlsx"

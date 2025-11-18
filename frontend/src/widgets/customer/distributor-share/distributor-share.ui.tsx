@@ -24,12 +24,7 @@ export const DistributorShare: React.FC = React.memo(() => {
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
     config: {
-      indicator: {
-        options: [
-          { value: 'amount', label: 'Деньги' },
-          { value: 'share_percent', label: 'Проценты' },
-        ],
-      },
+      indicator: { enabled: false },
     },
   });
 
@@ -61,8 +56,9 @@ export const DistributorShare: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset(filters.indicator, sales, {
-      asPercent: filters.indicator === 'share_percent',
+    months: monthsPreset('share_percent', sales, {
+      asPercent: true,
+      noFraction: true,
     }),
   });
 
@@ -75,7 +71,7 @@ export const DistributorShare: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title="Доли дистрибьюторов в деньгах/процентах"
+      title="Доли дистрибьюторов в процентах"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <DbFilters {...filters} />
@@ -97,13 +93,7 @@ export const DistributorShare: React.FC = React.memo(() => {
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
             }}
-            selectKeys={[
-              'sku_name',
-              'brand_name',
-              'promotion_type_name',
-              'distributor_name',
-              'product_group_name',
-            ]}
+            selectKeys={visibleColumns}
             periodKey={filters.indicator}
             data={sales}
             fileName="distributor-share.xlsx"
@@ -117,7 +107,6 @@ export const DistributorShare: React.FC = React.memo(() => {
         isEmpty={sales.length === 0}
       >
         <Table
-          key={filters.indicator}
           filters={{
             usedFilterItems: filters.usedFilterItems,
             resetFilters: filters.resetFilters,

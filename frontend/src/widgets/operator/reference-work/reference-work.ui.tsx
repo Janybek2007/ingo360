@@ -82,7 +82,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
               />
               <ExportToExcelButton
                 formatHeader={transformHeaderKeys(columnsForTable)}
-                selectKeys={Object.keys(transformHeaderKeys(columnsForTable))}
+                selectKeys={visibleColumns}
                 data={currentData}
                 fileName="reference.xlsx"
               />

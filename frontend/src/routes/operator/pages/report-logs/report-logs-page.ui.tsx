@@ -64,9 +64,7 @@ const ReportLogsPage: React.FC = () => {
             />
             <ExportToExcelButton
               formatHeader={transformHeaderKeys(columnsForTable, ['published'])}
-              selectKeys={Object.keys(
-                transformHeaderKeys(columnsForTable, ['published'])
-              )}
+              selectKeys={visibleColumns.filter(id => ['ignore'].includes(id))}
               data={tableData}
               fileName="import_logs.xlsx"
             />

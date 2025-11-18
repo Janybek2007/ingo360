@@ -87,14 +87,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
               total_doctors: columnHeaderNames.coverageTotalDoctors,
               doctors_with_visits: columnHeaderNames.coverageDoctorsWithVisits,
             }}
-            selectKeys={[
-              'medical_facility_name',
-              'speciality_name',
-              'coverage_percentage',
-              'doctor_name',
-              'total_doctors',
-              'doctors_with_visits',
-            ]}
+            selectKeys={visibleColumns}
             fileName="specialist-coverage.xlsx"
           />
         </div>

@@ -464,7 +464,7 @@ export const monthsPreset = <
 >(
   indicator: string,
   data: TData[],
-  options?: { asPercent?: boolean }
+  options?: { asPercent?: boolean; noFraction?: boolean }
 ) => {
   const years = new Set<number>();
   data.forEach(row => {
@@ -499,6 +499,7 @@ export const monthsPreset = <
     },
     asPercent: options?.asPercent,
     indicatorKey: indicator,
+    noFraction: options?.noFraction,
   };
 };
 

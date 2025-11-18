@@ -100,12 +100,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
               segment_name: columnHeaderNames.segment,
               product_group_name: columnHeaderNames.productGroup,
             }}
-            selectKeys={[
-              'sku_name',
-              'brand_name',
-              'segment_name',
-              'product_group_name',
-            ]}
+            selectKeys={visibleColumns}
             periodAsPercent
             periodKey={'nd_percent'}
             data={sales}

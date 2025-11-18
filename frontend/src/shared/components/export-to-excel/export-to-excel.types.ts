@@ -14,7 +14,7 @@ export type ExportToExcelProps<T extends object> = {
   data: T[];
   fileName?: string;
   formatHeader?: ExportFormat<T>;
-  selectKeys?: NestedKeys<T>[] | string[];
+  selectKeys?: NestedKeys<T>[] | (string | false)[];
   periodKey?: string;
   periodAsPercent?: boolean;
   transform?: (item: T) => T;

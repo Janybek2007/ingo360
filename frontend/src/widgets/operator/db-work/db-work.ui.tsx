@@ -103,8 +103,8 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 formatHeader={transformHeaderKeys(columnsForTable, [
                   'published',
                 ])}
-                selectKeys={Object.keys(
-                  transformHeaderKeys(columnsForTable, ['published'])
+                selectKeys={visibleColumns.filter(id =>
+                  ['ignore'].includes(id)
                 )}
                 transform={(row: IDbItem) => ({
                   ...row,
