@@ -6,6 +6,7 @@ import type {
   FilterOptionItem,
   FilterOptions,
   UseFilterOptionsConfig,
+  UseFilterOptionsReturn,
 } from '../db-filters.types';
 
 const defaultUrls = {
@@ -24,7 +25,9 @@ const transformToFilterOptions = (data?: FilterOptionItem[]): FilterOptions[] =>
       : { value: item.id, label: item.name }
   ) || [];
 
-export const useFilterOptions = (config: UseFilterOptionsConfig = {}) => {
+export const useFilterOptions = (
+  config: UseFilterOptionsConfig = {}
+): UseFilterOptionsReturn => {
   const {
     brands: brandsEnabled = true,
     groups: groupsEnabled = true,

@@ -8,6 +8,7 @@ export interface UseDbFiltersReturn {
   groups: (number | string)[];
   geoIndicators: (number | string)[];
   segment: string | null;
+  periods: string[];
   distributors: (number | string)[];
   indicator: IndicatorType;
   rowsCount: 'all' | number;
@@ -20,6 +21,7 @@ export interface UseDbFiltersReturn {
   setGeoIndicators: React.Dispatch<React.SetStateAction<(number | string)[]>>;
   setDistributors: React.Dispatch<React.SetStateAction<(number | string)[]>>;
   setIndicator: React.Dispatch<React.SetStateAction<IndicatorType>>;
+  setPeriods: React.Dispatch<React.SetStateAction<string[]>>;
   setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
   setSegment: React.Dispatch<React.SetStateAction<string | null>>;
   setGroupBy: React.Dispatch<React.SetStateAction<string[]>>;
@@ -78,6 +80,17 @@ export interface UseFilterOptionsConfig {
   urls?: {
     brands?: 'ims/filter-options/brand-name' | 'products/brands/filter-options';
   };
+}
+
+export interface UseFilterOptionsReturn {
+  isLoading: boolean;
+  error: Error | null;
+  brands: FilterOptions[];
+  groups: FilterOptions[];
+  distributors: FilterOptions[];
+  medicalFacilities: FilterOptions[];
+  segments: FilterOptions[];
+  geoIndicators: FilterOptions[];
 }
 
 //

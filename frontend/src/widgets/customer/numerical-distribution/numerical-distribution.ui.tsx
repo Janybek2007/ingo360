@@ -64,7 +64,10 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.geo_indicator(),
     ],
-    months: monthsPreset('nd_percent', sales, { asPercent: true }),
+    months: monthsPreset('nd_percent', sales, {
+      asPercent: true,
+      noFraction: true,
+    }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -98,12 +101,14 @@ export const NumericalDistribution: React.FC = React.memo(() => {
               brand_name: columnHeaderNames.brand,
               segment_name: columnHeaderNames.segment,
               product_group_name: columnHeaderNames.productGroup,
+              geo_indicator_name: columnHeaderNames.geoIndicator,
             }}
             selectKeys={visibleColumns}
             periodAsPercent
+            noFraction
             periodKey={'nd_percent'}
             data={sales}
-            fileName="numerical-distribution.xlsx"
+            fileName="Нумерическая дистрибьюция по аптекам"
           />
         </div>
       }

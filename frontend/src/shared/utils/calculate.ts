@@ -58,7 +58,7 @@ export function calcPeriodTotals<T extends TDbItem>(
     }
   }
 
-  const monthTotals = Array(12).fill(0);
+  const monthTotals: number[] = Array(12).fill(0);
   for (const [key, value] of Object.entries(totalsByMonth)) {
     const monthIndex = Number(key.split('-')[1]) - 1;
     if (monthIndex >= 0 && monthIndex < 12) {

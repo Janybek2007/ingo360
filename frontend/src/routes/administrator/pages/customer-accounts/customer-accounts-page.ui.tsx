@@ -102,7 +102,7 @@ const CustomerAccountsPage: React.FC = () => {
               formatHeader={transformHeaderKeys(allColumns)}
               selectKeys={Object.keys(transformHeaderKeys(allColumns))}
               data={filteredData}
-              fileName="customers.xlsx"
+              fileName="Аккаунты клиентов"
             />
             <Button
               onClick={() => set('create')}

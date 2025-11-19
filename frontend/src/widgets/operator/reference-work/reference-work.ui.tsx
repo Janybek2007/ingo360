@@ -5,7 +5,7 @@ import type { IReferenceItem } from '#/entities/reference';
 import { AddReferenceWrapper } from '#/features/reference/add';
 import { DeleteReferenceWrapper } from '#/features/reference/delete';
 import { EditReferenceWrapper } from '#/features/reference/edit';
-import { ImportReferencButton } from '#/features/reference/import';
+import { ImportReferenceButton } from '#/features/reference/import';
 import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -84,9 +84,9 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 formatHeader={transformHeaderKeys(columnsForTable)}
                 selectKeys={visibleColumns}
                 data={currentData}
-                fileName="reference.xlsx"
+                fileName={`Справочные данные ${findCurrentTab(tabsItems, current)?.subItem?.label}`}
               />
-              <ImportReferencButton type={current} />
+              <ImportReferenceButton type={current} />
               <AddReferenceWrapper type={current} />
             </div>
           }

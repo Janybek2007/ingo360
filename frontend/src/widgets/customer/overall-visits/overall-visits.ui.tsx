@@ -28,9 +28,9 @@ import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 interface OverallVisitRow extends TDbItem {
-  year: 2025;
-  month: 1;
-  total_visits: 4334;
+  year: number;
+  month: number;
+  total_visits: number;
 }
 
 export const OverallVisits: React.FC = React.memo(() => {
@@ -168,7 +168,7 @@ export const OverallVisits: React.FC = React.memo(() => {
                 axisLine={false}
                 tickMargin={20}
                 className="text-base text-[#474B4E] leading-full font-normal"
-                padding={{ left: 30, right: 30 }}
+                padding={{ left: 45, right: 30 }}
               />
 
               <YAxis

@@ -8,6 +8,7 @@ import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import {
   commonColumns,
   marketInsightsDynamicMonths,
@@ -49,7 +50,25 @@ export const MarketInsights: React.FC = React.memo(() => {
   );
 
   const metricData = React.useMemo(() => {
-    return queryData.data ? queryData.data[0] : [];
+    if (!queryData.data || queryData.data.length === 0) return [];
+
+    return queryData.data[0].map(row => {
+      const newRow: Record<string, any> = {};
+
+      Object.entries(row).forEach(([key, value]) => {
+        const match = key.match(/^(\d{1,2})-(\d{2})$/);
+        if (match) {
+          const month = match[1].padStart(2, '0');
+          const year = `20${match[2]}`;
+          const newKey = `${year}-${month}`;
+          newRow[newKey] = value;
+        } else {
+          newRow[key] = value;
+        }
+      });
+
+      return newRow;
+    });
   }, [queryData.data]);
 
   const allColumns = useGenerateColumns({
@@ -59,7 +78,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       commonColumns.marketInsightsBrand(),
       commonColumns.marketInsightsSegment(),
       commonColumns.marketInsightsDosageForm(),
-      commonColumns.marketMolucule(),
+      commonColumns.marketMolecule(),
       commonColumns.marketInsightsDosage(),
       ...marketInsightsDynamicMonths(metricData),
     ],
@@ -93,8 +112,17 @@ export const MarketInsights: React.FC = React.memo(() => {
             }}
           />
           <ExportToExcelButton
+            formatHeader={{
+              company: columnHeaderNames.companyName,
+              brand: columnHeaderNames.brand,
+              segment: columnHeaderNames.segment,
+              molecule: columnHeaderNames.molecule,
+              dosage_form: columnHeaderNames.dosageForm,
+              dosage: columnHeaderNames.dosage,
+            }}
+            selectKeys={visibleColumns}
             data={metricData}
-            fileName="market-insights.xlsx"
+            fileName="Данные по рынкам"
           />
         </div>
       }
@@ -122,7 +150,7 @@ export const MarketInsights: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={metricData}
-          maxHeight={400}
+          maxHeight={560}
         />
       </AsyncBoundary>
     </PageSection>

@@ -107,7 +107,7 @@ const CompanyManagementPage: React.FC = () => {
               formatHeader={transformHeaderKeys(allColumns)}
               selectKeys={Object.keys(transformHeaderKeys(allColumns))}
               data={filteredData}
-              fileName="companies.xlsx"
+              fileName="Компании"
             />
             <Button
               onClick={() => set('create')}

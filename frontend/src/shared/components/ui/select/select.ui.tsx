@@ -49,7 +49,7 @@ const SelectItem = memo(
           )}
           <span>{item.label}</span>
         </div>
-        {!checkbox && isSelected && (
+        {!checkbox && isSelected && !indeterminate && (
           <LucideCheckIcon className="size-4 text-gray-700 shrink-0" />
         )}
       </button>

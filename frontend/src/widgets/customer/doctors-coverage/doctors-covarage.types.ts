@@ -1,3 +1,5 @@
+import type { FilterOptions } from '#/shared/components/db-filters';
+
 export interface DoctorsCoverageRow {
   speciality_id: 8;
   speciality_name: 'Проктолог';
@@ -12,6 +14,12 @@ export interface FiltersConfig {
   medical_facility_ids: number[];
 }
 
+export interface DoctorCountVisitsProps {
+  medicalFacilityIds: number[];
+  children?: React.ReactNode;
+  usedFilter?: React.ReactNode;
+}
+
 export interface DoctorFiltersProps {
   filters: Partial<FiltersConfig> | number[];
   setFilters: React.Dispatch<
@@ -20,4 +28,5 @@ export interface DoctorFiltersProps {
   showConfigs?: Partial<
     Record<'medical_facilities' | 'years' | 'months', boolean>
   >;
+  medicalFacilityItems?: FilterOptions[];
 }

@@ -66,7 +66,7 @@ const ReportLogsPage: React.FC = () => {
               formatHeader={transformHeaderKeys(columnsForTable, ['published'])}
               selectKeys={visibleColumns.filter(id => ['ignore'].includes(id))}
               data={tableData}
-              fileName="import_logs.xlsx"
+              fileName="Журнал отчетов"
             />
           </div>
         }

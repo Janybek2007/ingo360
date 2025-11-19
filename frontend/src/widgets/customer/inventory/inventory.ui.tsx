@@ -101,11 +101,13 @@ export const Inventory: React.FC = React.memo(() => {
               promotion_type_name: columnHeaderNames.promotion,
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
+              total: columnHeaderNames.total,
             }}
+            hasTotal
             selectKeys={visibleColumns}
             periodKey={'coverage_months'}
             data={sales}
-            fileName="Товарный_запас.xlsx"
+            fileName="Товарный запас"
           />
         </div>
       }
@@ -122,7 +124,7 @@ export const Inventory: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={sales}
-          maxHeight={500}
+          maxHeight={560}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"
         />

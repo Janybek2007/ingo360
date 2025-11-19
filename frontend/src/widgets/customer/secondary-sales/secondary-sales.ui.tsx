@@ -102,11 +102,14 @@ export const SecondarySales: React.FC = React.memo(() => {
               promotion_type_name: columnHeaderNames.promotion,
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
+              geo_indicator_name: columnHeaderNames.geoIndicator,
+              total: columnHeaderNames.total,
             }}
+            hasTotal
             selectKeys={visibleColumns}
             periodKey={filters.indicator}
             data={sales}
-            fileName="secondary-sales.xlsx"
+            fileName="Вторичные продажи"
           />
         </div>
       }
@@ -123,7 +126,7 @@ export const SecondarySales: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={sales}
-          maxHeight={500}
+          maxHeight={560}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"
         />

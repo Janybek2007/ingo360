@@ -85,7 +85,7 @@ const IngoAccountsPage: React.FC = () => {
               formatHeader={transformHeaderKeys(allColumns)}
               selectKeys={Object.keys(transformHeaderKeys(allColumns))}
               data={filteredData}
-              fileName="users.xlsx"
+              fileName="Учетные записи INDIGO"
             />
             <Button
               onClick={() => set('create')}

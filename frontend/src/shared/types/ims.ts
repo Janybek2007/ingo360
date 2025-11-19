@@ -3,6 +3,7 @@ export interface EntityRow {
   entity: string;
   sales: number;
   is_user_company: boolean;
+  is_user_entity: boolean;
 }
 
 export interface IMSMetricsRow {

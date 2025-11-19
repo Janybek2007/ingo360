@@ -5,9 +5,9 @@ import { LazySection } from '#/shared/components/lazy-section';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { DoctorsCoverage } from '#/widgets/customer/doctors-coverage';
 import { OverallVisits } from '#/widgets/customer/overall-visits';
+import { RetailSales } from '#/widgets/customer/retail-sales';
 import { SpecialistCoverage } from '#/widgets/customer/specialist-coverage';
 import { TertiarySalesUnits } from '#/widgets/customer/tertiary-sales-units';
-import { TertiaryVisits } from '#/widgets/customer/tertiary-visits';
 import { TotalVisitsPeriod } from '#/widgets/customer/total-visits-period';
 
 const VisitActivityPage: React.FC = () => {
@@ -45,7 +45,7 @@ const VisitActivityPage: React.FC = () => {
                   <TertiarySalesUnits />
                 </LazySection>
                 <LazySection>
-                  <TertiaryVisits />
+                  <RetailSales />
                 </LazySection>
               </>
             )}

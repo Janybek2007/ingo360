@@ -1,86 +1,17 @@
 import React from 'react';
-import * as XLSX from 'xlsx';
 
 import { cn } from '#/shared/utils/cn';
 
-import type { ExportFormat, ExportToExcelProps } from './export-to-excel.types';
-import {
-  flattenPeriodData,
-  getNestedValue,
-  hasPeriods,
-  setNestedValue,
-} from './utils';
+import type { ExportToExcelProps } from './export-to-excel.types';
+import { ExcelExporter } from './utils';
 
-const ExportToExcelComponent = <T extends object>({
-  data,
-  fileName = 'export.xlsx',
-  formatHeader,
-  selectKeys = [],
-  periodKey,
-  periodAsPercent = false,
-  transform,
-}: ExportToExcelProps<T>) => {
+const ExportToExcelComponent = <T extends object>(
+  props: ExportToExcelProps<T>
+) => {
   const handleExport = React.useCallback(() => {
-    if (!data || data.length === 0) {
-      console.warn('Нет данных для экспорта');
-      return;
-    }
-
-    let formattedData = transform ? data.map(transform) : data;
-    let periodKeys: string[] = [];
-
-    if (periodKey && hasPeriods(formattedData)) {
-      const result = flattenPeriodData(
-        formattedData,
-        periodKey,
-        periodAsPercent
-      );
-      formattedData = result.formattedData;
-      periodKeys = result.periodKeys;
-    }
-
-    formattedData = formattedData.map(item => {
-      const newItem: any = {};
-
-      const keysToExport =
-        selectKeys.length > 0
-          ? [...selectKeys, ...periodKeys]
-          : [...(Object.keys(item) as (keyof T)[]), ...periodKeys];
-
-      const filteredKeys = keysToExport.filter(
-        key => !String(key).startsWith('period_')
-      );
-
-      filteredKeys.forEach(key => {
-        const keyStr = String(key);
-        let value = periodKeys.includes(keyStr)
-          ? (getNestedValue(item, keyStr) ?? item[keyStr as keyof T])
-          : getNestedValue(item, keyStr);
-
-        value = value === undefined || value === null ? '-' : value;
-
-        const newKey =
-          formatHeader?.[keyStr as keyof ExportFormat<T>] || keyStr;
-        setNestedValue(newItem, newKey, value);
-      });
-
-      return newItem;
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    const workbook = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    XLSX.writeFile(workbook, fileName);
-  }, [
-    data,
-    fileName,
-    formatHeader,
-    selectKeys,
-    periodKey,
-    periodAsPercent,
-    transform,
-  ]);
+    const exporter = new ExcelExporter(props);
+    exporter.export();
+  }, [props]);
 
   return (
     <button

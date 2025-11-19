@@ -11,6 +11,7 @@ import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
@@ -103,7 +104,21 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
             isMultiple
             classNames={{ menu: 'min-w-[11.25rem] right-0' }}
           />
-          <ExportToExcelButton data={visits} fileName="visits.xlsx" />
+          <ExportToExcelButton
+            formatHeader={{
+              medical_facility: columnHeaderNames.medicalFacility,
+              pharmacy: columnHeaderNames.pharmacy,
+              indicator_name: columnHeaderNames.indicator,
+              year: columnHeaderNames.year,
+              month: columnHeaderNames.month,
+              employee: columnHeaderNames.employee,
+              product_group: columnHeaderNames.productGroup,
+              employee_visits: columnHeaderNames.employeeVisits,
+            }}
+            selectKeys={visibleColumns}
+            data={visits}
+            fileName="Количество визитов"
+          />
         </div>
       }
     >
@@ -118,7 +133,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={visits}
-          maxHeight={400}
+          maxHeight={560}
           rounded="none"
         />
       </AsyncBoundary>

@@ -70,7 +70,6 @@ export const RetailSales: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      ignore: ['actions', 'total'],
       setGroupBy: filters.setGroupBy,
     });
 
@@ -110,11 +109,14 @@ export const RetailSales: React.FC = React.memo(() => {
               promotion_type_name: columnHeaderNames.promotion,
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
+              geo_indicator_name: columnHeaderNames.geoIndicator,
+              total: columnHeaderNames.total,
             }}
-            selectKeys={visibleColumns.filter(v => !['total'].includes(v))}
+            hasTotal
+            selectKeys={visibleColumns}
             periodKey={filters.indicator}
             data={sales}
-            fileName="retail-sales.xlsx"
+            fileName="Третичные продажи"
           />
         </div>
       }

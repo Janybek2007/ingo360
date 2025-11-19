@@ -12,11 +12,14 @@ import type {
 } from '../doctors-covarage.types';
 import { DoctorFilters } from './doctor-filters.ui';
 
-export const DoctorsPercentageVisits: React.FC = React.memo(() => {
-  const [filters, setFilters] = React.useState<FiltersConfig>({
+export const DoctorsPercentageVisits: React.FC<{
+  medicalFacilityIds: number[];
+}> = React.memo(({ medicalFacilityIds }) => {
+  const [filters, setFilters] = React.useState<
+    Omit<FiltersConfig, 'medical_facility_ids'>
+  >({
     months: [],
     years: [],
-    medical_facility_ids: [],
   });
   const percentageQuery = useKeepQuery(
     DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
@@ -24,7 +27,7 @@ export const DoctorsPercentageVisits: React.FC = React.memo(() => {
       {
         months: filters.months,
         years: filters.years,
-        medical_facility_ids: filters.medical_facility_ids,
+        medical_facility_ids: medicalFacilityIds,
       }
     )
   );
@@ -67,7 +70,7 @@ export const DoctorsPercentageVisits: React.FC = React.memo(() => {
               outerRadius={110}
               labelLine={false}
               label={entry =>
-                `${entry.value?.toFixed(1)} (${((entry as any).coverage_percentage as number)?.toFixed(1)}%)`
+                `${entry.value?.toFixed(0)} (${((entry as any).coverage_percentage as number)?.toFixed(0)}%)`
               }
               paddingAngle={0}
             >
@@ -119,7 +122,7 @@ export const DoctorsPercentageVisits: React.FC = React.memo(() => {
                         color: '#4B5563',
                       }}
                     >
-                      Охват: {data.coverage_percentage.toFixed(1)}%
+                      Охват: {data.coverage_percentage.toFixed(0)}%
                     </span>
                   </div>,
                 ];

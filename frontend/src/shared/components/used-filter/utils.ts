@@ -220,13 +220,12 @@ export class PeriodGrouping {
       }
 
       const label = item.label || getPeriodLabel(item.value as string);
-      const prefix = type == 'mat' ? 'от' : 'до';
 
       result.push({
         type: type as UsePeriodType,
         year,
         items: [item],
-        label: `${this.getPeriodTypeLabel(type)}: ${prefix} ${label}`,
+        label: `${this.getPeriodTypeLabel(type)}: до ${label}`,
         value: String(item.value),
         onDelete: item.onDelete,
         isReadOnly: item.isReadOnly || false,

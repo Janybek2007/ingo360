@@ -5,7 +5,7 @@ import type { ReferencesType } from '#/shared/types/references.type';
 
 import { useImportReferenceMutation } from './import-reference.mutation';
 
-export const ImportReferencButton: React.FC<{ type: ReferencesType }> =
+export const ImportReferenceButton: React.FC<{ type: ReferencesType }> =
   React.memo(({ type }) => {
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { mutate, isPending } = useImportReferenceMutation(type);
@@ -48,4 +48,4 @@ export const ImportReferencButton: React.FC<{ type: ReferencesType }> =
     );
   });
 
-ImportReferencButton.displayName = '_ImportReferencButton_';
+ImportReferenceButton.displayName = '_ImportReferenceButton_';

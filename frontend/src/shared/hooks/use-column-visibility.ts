@@ -7,6 +7,7 @@ export interface UsecolumnVisibilityOptions<T> {
   ignore?: string[];
   setGroupBy?: React.Dispatch<React.SetStateAction<string[]>>;
   allowedGroupDimensions?: string[];
+  setPeriods?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export function useColumnVisibility<T>({
@@ -14,6 +15,7 @@ export function useColumnVisibility<T>({
   defaultVisible,
   ignore = [],
   setGroupBy,
+  setPeriods,
   allowedGroupDimensions,
 }: UsecolumnVisibilityOptions<T>) {
   const getInitialVisible = () =>
@@ -99,9 +101,36 @@ export function useColumnVisibility<T>({
     );
   }, [allColumns, ignore, setGroupBy, visibleColumns, allowedGroupDimensions]);
 
-  const setColumns = useCallback((value: React.SetStateAction<string[]>) => {
-    setVisibleColumns(value);
-  }, []);
+  const setColumns = useCallback(
+    (value: React.SetStateAction<string[]>) => {
+      setVisibleColumns(prev => {
+        const newColumns = typeof value === 'function' ? value(prev) : value;
+
+        if (setPeriods) {
+          const periodColumns = newColumns.filter(id =>
+            /^\d{4}-\d{2}$/.test(id)
+          );
+
+          if (periodColumns.length > 0) {
+            const periodHeaders = allColumns
+              .filter(col => {
+                const id = 'accessorKey' in col ? col.accessorKey : col.id;
+                return id && periodColumns.includes(String(id));
+              })
+              .map(col => ('header' in col ? String(col.header) : ''))
+              .filter(Boolean);
+
+            setPeriods(periodHeaders);
+          } else {
+            setPeriods([]);
+          }
+        }
+
+        return newColumns;
+      });
+    },
+    [setPeriods, allColumns]
+  );
 
   return {
     visibleColumns,

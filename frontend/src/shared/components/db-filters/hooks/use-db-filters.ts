@@ -27,6 +27,7 @@ export const useDbFilters = ({
   const [distributors, setDistributors] = useState<(string | number)[]>([]);
   const [geoIndicators, setGeoIndicators] = useState<(string | number)[]>([]);
   const [indicator, setIndicator] = useState<IndicatorType>(indicatorDefault);
+  const [periods, setPeriods] = useState<string[]>([]);
   const [rowsCount, setRowsCount] = useState<'all' | number>(rowsCountDefault);
   const [groupBy, setGroupBy] = useState<string[]>([]);
   const [search, setSearch] = useState('');
@@ -192,6 +193,7 @@ export const useDbFilters = ({
       groups: [],
       distributors: [],
       geoIndicators: [],
+      periods: [],
       segment: null,
       segments: [],
       indicator: indicatorDefault,
@@ -206,6 +208,7 @@ export const useDbFilters = ({
     setGroups(defaults.groups);
     setGeoIndicators(defaults.geoIndicators);
     setSegment(defaults.segment);
+    setPeriods(defaults.periods);
     setDistributors(defaults.distributors);
     setIndicator(defaults.indicator);
     setRowsCount(defaults.rowsCount);
@@ -218,6 +221,7 @@ export const useDbFilters = ({
     groups,
     geoIndicators,
     distributors,
+    periods,
     segment,
     indicator,
     rowsCount,
@@ -229,6 +233,7 @@ export const useDbFilters = ({
     setGroups,
     setGeoIndicators,
     setDistributors,
+    setPeriods,
     setSegment,
     setIndicator,
     setRowsCount,

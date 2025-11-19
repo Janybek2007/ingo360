@@ -94,9 +94,11 @@ export const DistributorShare: React.FC = React.memo(() => {
               product_group_name: columnHeaderNames.productGroup,
             }}
             selectKeys={visibleColumns}
-            periodKey={filters.indicator}
+            periodKey={'share_percent'}
+            noFraction
+            periodAsPercent
             data={sales}
-            fileName="distributor-share.xlsx"
+            fileName="Доли дистрибьюторов"
           />
         </div>
       }
@@ -112,7 +114,7 @@ export const DistributorShare: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={sales}
-          maxHeight={500}
+          maxHeight={560}
           rounded="none"
         />
       </AsyncBoundary>

@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { useFilterOptions } from '#/shared/components/db-filters';
 import { LucideArrowIcon } from '#/shared/components/icons';
-import { Select } from '#/shared/components/ui/select';
+import { type ISelectItem, Select } from '#/shared/components/ui/select';
 import { allMonths } from '#/shared/constants/months';
 
 import type { DoctorFiltersProps } from '../doctors-covarage.types';
@@ -16,16 +15,8 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
       years: false,
       months: false,
     },
+    medicalFacilityItems,
   }) => {
-    const filterOptions = useFilterOptions({
-      medicalFacilities: showConfigs.medical_facilities,
-      brands: false,
-      groups: false,
-    });
-    const medicalFacilityItems = showConfigs.medical_facilities
-      ? filterOptions.medicalFacilities
-      : [];
-
     return (
       <div className="flex items-center gap-4">
         {showConfigs.medical_facilities && (
@@ -39,7 +30,8 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
             isMultiple
             checkbox
             search
-            items={medicalFacilityItems}
+            showToggleAll
+            items={medicalFacilityItems as ISelectItem<number | string>[]}
             triggerText="ЛПУ"
             rightIcon={
               <LucideArrowIcon
@@ -49,7 +41,7 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
             }
             classNames={{
               trigger: 'gap-4 rounded-full justify-between',
-              menu: 'w-[20rem] left-0',
+              menu: 'w-[25rem] left-0 max-h-[400px]',
             }}
           />
         )}

@@ -81,7 +81,7 @@ export const commonColumns = {
   geo_indicator: (): CColumn<any> => ({
     id: 'geo_indicator_id',
     key: 'geo_indicator_name',
-    header: columnHeaderNames.geo_indicator,
+    header: columnHeaderNames.geoIndicator,
     size: 150,
     type: 'select',
     groupDimension: 'geo_indicator',
@@ -346,7 +346,7 @@ export const commonColumns = {
     size: 230,
     type: 'number',
     custom: {
-      accessor: (row: any) => `${row.coverage_percentage.toFixed(1)}%`,
+      accessor: (row: any) => `${row.coverage_percentage.toFixed(0)}%`,
     },
   }),
   specialistCoverageTotalDoctors: (): CColumn<any> => ({
@@ -396,7 +396,7 @@ export const commonColumns = {
     header: columnHeaderNames.dosage,
     type: 'select',
   }),
-  marketMolucule: (): CColumn<any> => ({
+  marketMolecule: (): CColumn<any> => ({
     id: 'molecule',
     key: 'molecule',
     header: columnHeaderNames.molecule,
@@ -422,41 +422,20 @@ export const marketInsightsDynamicMonths = (data: any[]): CColumn<any>[] => {
   return Object.keys(firstRow)
     .filter(key => !staticKeys.includes(key))
     .sort((a, b) => {
-      const parseKey = (key: string) => {
-        const parts = key.split('-');
-        if (parts.length === 2) {
-          const month = parseInt(parts[0], 10);
-          const year = parseInt(parts[1], 10);
-          return { year, month };
-        }
-        return { year: 0, month: 0 };
-      };
-
-      const aParsed = parseKey(a);
-      const bParsed = parseKey(b);
-
-      if (aParsed.year !== bParsed.year) {
-        return aParsed.year - bParsed.year;
-      }
-      return aParsed.month - bParsed.month;
+      const [aYear, aMonth] = a.split('-').map(Number);
+      const [bYear, bMonth] = b.split('-').map(Number);
+      if (aYear !== bYear) return aYear - bYear;
+      return aMonth - bMonth;
     })
-    .map(key => {
-      const parts = key.split('-');
-      let header = key;
-
-      if (parts.length === 2) {
-        const month = parts[0].padStart(2, '0');
-        const year = `20${parts[1]}`;
-        header = `${year}-${month}`;
-      }
-
-      return {
-        id: key,
-        key: key,
-        header: header,
-        aggregate: 'sum' as const,
-      };
-    });
+    .map(key => ({
+      id: key,
+      key,
+      header: key,
+      aggregate: 'sum' as const,
+      custom: {
+        cell: ({ row }) => row.original[key],
+      },
+    }));
 };
 
 export const monthsPreset = <
@@ -507,21 +486,40 @@ export const totalPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
 >(
   indicator: string,
-  asPercent?: boolean
+  options: { asPercent?: boolean; periods?: string[] } = {
+    asPercent: false,
+    periods: [],
+  }
 ) => ({
   getValue: (row: TData) => {
     if (!row.periods_data) return null;
 
+    const periods = options?.periods || [];
+
+    if (periods.length === 0) {
+      let total = 0;
+      Object.values(row.periods_data).forEach(periodValues => {
+        const value = periodValues[indicator];
+        if (value != null) {
+          total += value;
+        }
+      });
+      return total;
+    }
+
     let total = 0;
-    Object.values(row.periods_data).forEach(periodValues => {
-      const value = periodValues[indicator];
-      if (value != null) {
-        total += value;
+    periods.forEach(period => {
+      const periodValues = row.periods_data?.[period];
+      if (periodValues) {
+        const value = periodValues[indicator];
+        if (value != null) {
+          total += value;
+        }
       }
     });
 
     return total;
   },
-  asPercent,
+  asPercent: options?.asPercent,
   indicatorKey: indicator,
 });

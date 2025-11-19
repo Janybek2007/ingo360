@@ -56,14 +56,14 @@ export const Shipments: React.FC = React.memo(() => {
       commonColumns.distributor(),
     ],
     months: monthsPreset(filters.indicator, sales),
-    total: totalPreset(filters.indicator),
+    total: totalPreset(filters.indicator, { periods: filters.periods }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      ignore: ['total'],
       setGroupBy: filters.setGroupBy,
+      setPeriods: filters.setPeriods,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
@@ -96,11 +96,13 @@ export const Shipments: React.FC = React.memo(() => {
               promotion_type_name: columnHeaderNames.promotion,
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
+              total: columnHeaderNames.total,
             }}
-            selectKeys={visibleColumns.filter(v => !['total'].includes(v))}
+            hasTotal
+            selectKeys={visibleColumns}
             periodKey={filters.indicator}
             data={sales}
-            fileName="первичные_продажи.xlsx"
+            fileName="Первичные продажи"
           />
         </div>
       }
@@ -117,7 +119,7 @@ export const Shipments: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={sales}
-          maxHeight={500}
+          maxHeight={560}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"
         />

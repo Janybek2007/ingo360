@@ -88,7 +88,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
               doctors_with_visits: columnHeaderNames.coverageDoctorsWithVisits,
             }}
             selectKeys={visibleColumns}
-            fileName="specialist-coverage.xlsx"
+            fileName="Охват специалистов"
           />
         </div>
       }
@@ -104,7 +104,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={visits}
-          maxHeight={400}
+          maxHeight={560}
           rounded="none"
         />
       </AsyncBoundary>

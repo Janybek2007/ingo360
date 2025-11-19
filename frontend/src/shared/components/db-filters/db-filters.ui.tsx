@@ -51,11 +51,11 @@ export const DbFilters = React.memo(
             }}
             search={!brandsMultiple}
             isMultiple={brandsMultiple as true}
-            showToggleAll
+            showToggleAll={brandsMultiple}
             checkbox={brandsMultiple}
             items={options.brands}
             triggerText={'Бренды'}
-            classNames={{ menu: 'w-[30rem] right-0' }}
+            classNames={{ menu: 'w-[30rem] right-0 max-h-[400px]' }}
           />
         )}
         {segmentsEnabled && setSegment && options.segments && (
@@ -64,7 +64,7 @@ export const DbFilters = React.memo(
             setValue={v => setSegment(String(v))}
             items={options.segments}
             triggerText={'Сегменты'}
-            classNames={{ menu: 'w-[30rem] right-0' }}
+            classNames={{ menu: 'w-[30rem] right-0 max-h-[400px]' }}
           />
         )}
 

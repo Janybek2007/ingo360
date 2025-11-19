@@ -132,7 +132,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
                 axisLine={false}
                 tickMargin={20}
                 className="text-base text-[#474B4E] leading-full font-normal"
-                padding={{ left: 30, right: 30 }}
+                padding={{ left: 45, right: 30 }}
               />
 
               <YAxis

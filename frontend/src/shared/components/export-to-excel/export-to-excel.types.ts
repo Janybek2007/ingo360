@@ -12,10 +12,12 @@ export type ExportFormat<T> = {
 
 export type ExportToExcelProps<T extends object> = {
   data: T[];
+  hasTotal?: boolean;
   fileName?: string;
-  formatHeader?: ExportFormat<T>;
+  formatHeader?: ExportFormat<T | { total: number }>;
   selectKeys?: NestedKeys<T>[] | (string | false)[];
   periodKey?: string;
   periodAsPercent?: boolean;
+  noFraction?: boolean;
   transform?: (item: T) => T;
 };

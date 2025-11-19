@@ -65,7 +65,6 @@ export const Stocks: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      ignore: ['total'],
       setGroupBy: filters.setGroupBy,
     });
 
@@ -99,11 +98,13 @@ export const Stocks: React.FC = React.memo(() => {
               promotion_type_name: columnHeaderNames.promotion,
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
+              total: columnHeaderNames.total,
             }}
-            selectKeys={visibleColumns.filter(v => !['total'].includes(v))}
+            hasTotal
+            selectKeys={visibleColumns}
             periodKey={filters.indicator}
             data={sales}
-            fileName="stocks.xlsx"
+            fileName="Остатки"
           />
         </div>
       }
@@ -120,7 +121,7 @@ export const Stocks: React.FC = React.memo(() => {
           }}
           columns={columnsForTable}
           data={sales}
-          maxHeight={500}
+          maxHeight={560}
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"
         />

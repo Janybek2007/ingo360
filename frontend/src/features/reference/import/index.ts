@@ -1,1 +1,1 @@
-export { ImportReferencButton } from './import-reference.ui';
+export { ImportReferenceButton } from './import-reference.ui';

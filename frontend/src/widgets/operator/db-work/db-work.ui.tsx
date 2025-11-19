@@ -103,15 +103,13 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 formatHeader={transformHeaderKeys(columnsForTable, [
                   'published',
                 ])}
-                selectKeys={visibleColumns.filter(id =>
-                  ['ignore'].includes(id)
-                )}
+                selectKeys={visibleColumns}
                 transform={(row: IDbItem) => ({
                   ...row,
                   month: allMonths[Number(row.month) - 1],
                 })}
                 data={tableData}
-                fileName="dbwork.xlsx"
+                fileName={`Данные ${findCurrentTab(tabsItems, current.replace('/', '_'))?.tab.label}`}
               />
               {!['visits', 'ims'].includes(current) && (
                 <PublishUnpublishedButton

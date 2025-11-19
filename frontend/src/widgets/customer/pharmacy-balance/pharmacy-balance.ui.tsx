@@ -91,7 +91,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             selectKeys={visibleColumns}
             periodKey={filters.indicator}
             data={sales}
-            fileName="white-spots.xlsx"
+            fileName="Остаток по аптекам"
           />
         </div>
       }
