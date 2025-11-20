@@ -105,7 +105,6 @@ export const NumericalDistribution: React.FC = React.memo(() => {
             }}
             selectKeys={visibleColumns}
             periodAsPercent
-            noFraction
             periodKey={'nd_percent'}
             data={sales}
             fileName="Нумерическая дистрибьюция по аптекам"

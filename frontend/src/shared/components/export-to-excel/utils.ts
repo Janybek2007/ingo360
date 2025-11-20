@@ -11,7 +11,6 @@ export class ExcelExporter<T extends object> {
   private periodAsPercent: boolean;
   private transform?: (item: T) => any;
   private hasTotal: boolean;
-  private noFraction: boolean;
   private emptyValue: string = '-';
 
   constructor(props: ExportToExcelProps<T>) {
@@ -23,7 +22,6 @@ export class ExcelExporter<T extends object> {
     this.periodAsPercent = props.periodAsPercent || false;
     this.transform = props.transform;
     this.hasTotal = props.hasTotal || false;
-    this.noFraction = props.noFraction || false;
   }
 
   private getNestedValue(obj: any, path: string): any {
@@ -121,15 +119,9 @@ export class ExcelExporter<T extends object> {
         if (rawValue !== undefined && rawValue !== null) {
           value = rawValue;
 
-          if (this.periodAsPercent && total > 0) {
-            let percent = (rawValue / total) * 100;
-            if (this.noFraction) {
-              percent = Math.round(percent);
-            } else {
-              percent = +percent.toFixed(2);
-            }
-            value = `${percent}%`;
-          } else if (this.noFraction && typeof value === 'number') {
+          if (this.periodAsPercent) {
+            value = `${Math.round(rawValue)}%`;
+          } else if (typeof value === 'number') {
             value = Math.round(value);
           }
         }
@@ -222,6 +214,8 @@ export class ExcelExporter<T extends object> {
       headers,
       ...finalData.map(item => headers.map(header => item[header])),
     ];
+
+    console.log(dataArray);
 
     const worksheet = XLSX.utils.aoa_to_sheet(dataArray);
     const workbook = XLSX.utils.book_new();

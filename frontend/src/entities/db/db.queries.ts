@@ -121,23 +121,28 @@ export class DbQueries {
     return periods
       .filter(period => {
         if (type_period === 'year') {
-          // "2025", либо "year-2025"
           return !period.includes('-') || period.startsWith('year-');
         }
         return period.startsWith(`${type_period}-`);
       })
       .map(period => {
+        const parts = period.split('-'); // ["quarter", "2025", "1"]
+
         if (type_period === 'year') {
-          // "2025" => "25" или "year-2025" => "25"
           const year = period.replace('year-', '');
           return year.slice(-2);
-        } else {
-          // "mat-2025-1" => "1-25"
-          const parts = period.split('-');
-          const year = parts[1]; // "2025"
-          const month = parts[2]; // "1"
-          return `${Number(month)}-${year.slice(-2)}`;
         }
+
+        const year = parts[1]; // "2025"
+        const value = parts[2]; // "1"
+
+        if (type_period === 'quarter') {
+          // q1-25
+          return `q${Number(value)}-${year.slice(-2)}`;
+        }
+
+        // month/mat/ytd → "1-25"
+        return `${Number(value)}-${year.slice(-2)}`;
       });
   }
 

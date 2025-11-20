@@ -11,7 +11,7 @@ import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import {
   commonColumns,
-  marketInsightsDynamicMonths,
+  marketInsightsDynamicPeriods,
 } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
@@ -80,7 +80,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       commonColumns.marketInsightsDosageForm(),
       commonColumns.marketMolecule(),
       commonColumns.marketInsightsDosage(),
-      ...marketInsightsDynamicMonths(metricData),
+      ...marketInsightsDynamicPeriods(metricData),
     ],
   });
 

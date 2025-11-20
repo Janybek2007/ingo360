@@ -58,7 +58,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     >
       <div className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
         <span>{item.label}</span>
-        {!item.isReadOnly && (
+        {(!item.isReadOnly || !isReadOnly) && (
           <button
             type="button"
             onClick={item.onDelete}

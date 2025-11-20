@@ -228,7 +228,7 @@ export class PeriodGrouping {
         label: `${this.getPeriodTypeLabel(type)}: до ${label}`,
         value: String(item.value),
         onDelete: item.onDelete,
-        isReadOnly: item.isReadOnly || false,
+        isReadOnly: item.isReadOnly || this.isReadOnly,
       });
     }
 

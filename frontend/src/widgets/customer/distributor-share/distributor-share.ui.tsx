@@ -95,7 +95,6 @@ export const DistributorShare: React.FC = React.memo(() => {
             }}
             selectKeys={visibleColumns}
             periodKey={'share_percent'}
-            noFraction
             periodAsPercent
             data={sales}
             fileName="Доли дистрибьюторов"

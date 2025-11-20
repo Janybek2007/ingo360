@@ -406,10 +406,11 @@ export const commonColumns = {
 
 //
 
-export const marketInsightsDynamicMonths = (data: any[]): CColumn<any>[] => {
+export const marketInsightsDynamicPeriods = (data: any[]): CColumn<any>[] => {
   if (!data || data.length === 0) return [];
 
   const firstRow = data[0];
+
   const staticKeys = [
     'company',
     'brand',
@@ -419,23 +420,65 @@ export const marketInsightsDynamicMonths = (data: any[]): CColumn<any>[] => {
     'molecule',
   ];
 
-  return Object.keys(firstRow)
+  const parsePeriod = (key: string): { year: number; order: number } => {
+    if (key.startsWith('q')) {
+      // quarter: q1-25
+      const [, rest] = key.split('q');
+      const [quarter, yy] = rest.split('-').map(Number);
+      return { year: 2000 + yy, order: quarter };
+    }
+
+    if (key.includes('-')) {
+      // month: 1-25
+      const [m, yy] = key.split('-').map(Number);
+      return { year: 2000 + yy, order: m };
+    }
+
+    // year: "25"
+    if (/^\d+$/.test(key)) {
+      return { year: 2000 + Number(key), order: 1 };
+    }
+
+    return { year: 0, order: 0 };
+  };
+
+  const formatHeader = (key: string): string => {
+    if (key.startsWith('q')) {
+      const [, rest] = key.split('q');
+      const [q, yy] = rest.split('-');
+      return `Q${q} 20${yy}`;
+    }
+    if (key.includes('-')) {
+      const [m, yy] = key.split('-');
+      return `М${m} 20${yy}`;
+    }
+    if (/^\d+$/.test(key)) {
+      return `20${key}`;
+    }
+    return key;
+  };
+
+  const sortPeriods = (a: string, b: string) => {
+    const pa = parsePeriod(a);
+    const pb = parsePeriod(b);
+
+    if (pa.year !== pb.year) return pa.year - pb.year;
+    return pa.order - pb.order;
+  };
+
+  const periodKeys = Object.keys(firstRow)
     .filter(key => !staticKeys.includes(key))
-    .sort((a, b) => {
-      const [aYear, aMonth] = a.split('-').map(Number);
-      const [bYear, bMonth] = b.split('-').map(Number);
-      if (aYear !== bYear) return aYear - bYear;
-      return aMonth - bMonth;
-    })
-    .map(key => ({
-      id: key,
-      key,
-      header: key,
-      aggregate: 'sum' as const,
-      custom: {
-        cell: ({ row }) => row.original[key],
-      },
-    }));
+    .sort(sortPeriods);
+
+  return periodKeys.map(key => ({
+    id: key,
+    key,
+    header: formatHeader(key),
+    aggregate: 'sum' as const,
+    custom: {
+      cell: ({ row }) => row.original[key],
+    },
+  }));
 };
 
 export const monthsPreset = <
