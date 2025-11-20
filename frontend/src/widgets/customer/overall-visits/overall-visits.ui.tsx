@@ -19,18 +19,18 @@ import {
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
-import { allMonths } from '#/shared/constants/months';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
+import { PeriodSorting } from '#/shared/utils/period-sorting';
 
 interface OverallVisitRow extends TDbItem {
-  year: number;
-  month: number;
-  total_visits: number;
+  period: string;
+  total_visits: 6962;
 }
 
 export const OverallVisits: React.FC = React.memo(() => {
@@ -46,13 +46,12 @@ export const OverallVisits: React.FC = React.memo(() => {
       search: { enabled: false },
     },
   });
-  const periodFilter = usePeriodFilter(['year', 'month'], 'month');
+  const periodFilter = usePeriodFilter();
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
-      ['visits/reports/visits-by-month'],
+      ['visits/reports/visits-by-period'],
       {
         product_group_ids: filters.groups,
-        filter_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
         enabled: !filterOptions.isLoading,
@@ -69,56 +68,19 @@ export const OverallVisits: React.FC = React.memo(() => {
     filters.resetFilters();
   }, [periodFilter, filters]);
 
-  const rawData = useMemo(() => {
-    const dataMap = new Map<
-      string,
-      { year: number; month: number; value: number }
-    >();
-
-    visits.forEach(item => {
-      const month = item.month;
-      const year = item.year;
-      const key = `${year}-${month}`;
-
-      const existing = dataMap.get(key) || {
-        year,
-        month,
-        value: 0,
-      };
-      existing.value += item.total_visits;
-      dataMap.set(key, existing);
-    });
-
-    return Array.from(dataMap.values()).sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
-    });
-  }, [visits]);
-
   const chartData = useMemo(() => {
-    if (periodFilter.period === 'year') {
-      const yearMap = new Map<number, number>();
+    return visits
+      .sort(PeriodSorting.sortByPeriod(periodFilter.period))
+      .map(item => {
+        const parsed = parsePeriodData(item.period, periodFilter.period);
 
-      rawData.forEach(item => {
-        const current = yearMap.get(item.year) || 0;
-        yearMap.set(item.year, current + item.value);
+        return {
+          label: parsed.label,
+          fullLabel: parsed.label,
+          value: item.total_visits,
+        };
       });
-
-      return Array.from(yearMap.entries())
-        .map(([year, value]) => ({
-          label: year.toString(),
-          fullLabel: year.toString(),
-          value,
-        }))
-        .sort((a, b) => parseInt(a.label) - parseInt(b.label));
-    } else {
-      return rawData.map(item => ({
-        label: `${allMonths[item.month - 1]} ${item.year}`,
-        fullLabel: `${allMonths[item.month - 1]} ${item.year}`,
-        value: item.value,
-      }));
-    }
-  }, [rawData, periodFilter.period]);
+  }, [visits, periodFilter.period]);
 
   const chartAxis = useMemo(
     () => calculateChartAxis(chartData, ['value'], 10000),

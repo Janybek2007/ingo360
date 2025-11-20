@@ -3,7 +3,10 @@ import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { UsedFilter } from '#/shared/components/used-filter';
+import { allMonths } from '#/shared/constants/months';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 import type {
@@ -53,6 +56,58 @@ export const DoctorsPercentageVisits: React.FC<{
               months: true,
               quarters: true,
             }}
+          />
+        </div>
+        <div>
+          <UsedFilter
+            usedFilterItems={getUsedFilterItems([
+              filters.years.length > 0 && {
+                value: filters.years,
+                getLabelFromValue: value => String(value),
+                onDelete: () => setFilters(prev => ({ ...prev, years: [] })),
+                main: {
+                  label: 'Год:',
+                  onDelete: value =>
+                    setFilters(prev => ({
+                      ...prev,
+                      years: prev.years.filter(y => y !== Number(value)),
+                    })),
+                },
+              },
+              filters.quarters.length > 0 && {
+                value: filters.quarters,
+                getLabelFromValue: value => `Квартал ${value}`,
+                onDelete: () =>
+                  setFilters(prev => ({
+                    ...prev,
+                    quarters: [],
+                  })),
+                main: {
+                  label: 'Квартал:',
+                  onDelete: value =>
+                    setFilters(prev => ({
+                      ...prev,
+                      quarters: prev.quarters.filter(q => q !== Number(value)),
+                    })),
+                },
+              },
+              filters.months.length > 0 && {
+                value: filters.months,
+                getLabelFromValue: value => allMonths[Number(value) - 1],
+                onDelete: () => setFilters(prev => ({ ...prev, months: [] })),
+                main: {
+                  label: 'Месяц:',
+                  onDelete: value =>
+                    setFilters(prev => ({
+                      ...prev,
+                      months: prev.months.filter(m => m !== Number(value)),
+                    })),
+                },
+              },
+            ])}
+            resetFilters={() =>
+              setFilters({ months: [], quarters: [], years: [] })
+            }
           />
         </div>
 

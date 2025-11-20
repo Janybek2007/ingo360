@@ -6,7 +6,7 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import { DoctorsCountVisits } from './ui/count-visits.ui';
 import { DoctorFilters } from './ui/doctor-filters.ui';
-import { DoctorsPercentageVisits } from './ui/doctors-percentage-visits.ui';
+import { DoctorsPercentageVisits } from './ui/percentage-visits.ui';
 
 export const DoctorsCoverage: React.FC = React.memo(() => {
   const [medicalFacilityIds, setMedicalFacilityIds] = React.useState<number[]>(

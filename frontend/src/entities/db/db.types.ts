@@ -114,7 +114,6 @@ export interface IGetDBItemsParams extends PaginationParams {
   period_values?: string[];
   periods?: string[];
   group_column?: ISMGroupColumn;
-  filter_values?: string[];
   group_by_dimensions?: string[];
   indicator?: string;
   enabled?: boolean;
