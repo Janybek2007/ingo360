@@ -11,6 +11,7 @@ export interface DoctorsCoverageRow {
 export interface FiltersConfig {
   months: number[];
   years: number[];
+  quarters: number[];
   medical_facility_ids: number[];
 }
 
@@ -26,7 +27,7 @@ export interface DoctorFiltersProps {
     React.SetStateAction<Partial<FiltersConfig> | number[]>
   >;
   showConfigs?: Partial<
-    Record<'medical_facilities' | 'years' | 'months', boolean>
+    Record<'medical_facilities' | 'years' | 'months' | 'quarters', boolean>
   >;
   medicalFacilityItems?: FilterOptions[];
 }

@@ -17,16 +17,15 @@ export const DoctorsPercentageVisits: React.FC<{
 }> = React.memo(({ medicalFacilityIds }) => {
   const [filters, setFilters] = React.useState<
     Omit<FiltersConfig, 'medical_facility_ids'>
-  >({
-    months: [],
-    years: [],
-  });
+  >({ months: [], quarters: [], years: [] });
+
   const percentageQuery = useKeepQuery(
     DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
       ['visits/reports/doctors-by-specialty'],
       {
         months: filters.months,
         years: filters.years,
+        quarters: filters.quarters,
         medical_facility_ids: medicalFacilityIds,
       }
     )
@@ -52,6 +51,7 @@ export const DoctorsPercentageVisits: React.FC<{
               medical_facilities: false,
               years: true,
               months: true,
+              quarters: true,
             }}
           />
         </div>

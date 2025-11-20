@@ -160,7 +160,6 @@ export class ExcelExporter<T extends object> {
       const totalKey = this.hasTotal && 'total' in item ? ['total'] : [];
       // порядок:
       // текстовые колонки → периоды → total (если есть)
-      console.log(periodKeys);
       const keysToExport = [
         ...textKeys,
         ...this.periodKeysSort(periodKeys),
@@ -214,8 +213,6 @@ export class ExcelExporter<T extends object> {
       headers,
       ...finalData.map(item => headers.map(header => item[header])),
     ];
-
-    console.log(dataArray);
 
     const worksheet = XLSX.utils.aoa_to_sheet(dataArray);
     const workbook = XLSX.utils.book_new();

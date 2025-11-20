@@ -69,6 +69,34 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = React.memo(
             }}
           />
         )}
+        {showConfigs.quarters &&
+          !Array.isArray(filters) &&
+          filters.quarters && (
+            <Select<true, number>
+              triggerText="Квартал"
+              items={[1, 2, 3, 4].map(quarter => ({
+                value: quarter,
+                label: `Квартал ${quarter}`,
+              }))}
+              value={filters.quarters}
+              checkbox
+              isMultiple
+              showToggleAll
+              setValue={value =>
+                setFilters(prev => ({ ...prev, quarters: value }))
+              }
+              rightIcon={
+                <LucideArrowIcon
+                  type="chevron-down"
+                  className="size-[1.125rem]"
+                />
+              }
+              classNames={{
+                trigger: 'gap-4 rounded-full min-w-[7.5rem] justify-between',
+                menu: 'w-[14rem] w-max right-0',
+              }}
+            />
+          )}
         {showConfigs.months && !Array.isArray(filters) && filters.months && (
           <Select<true, number>
             triggerText="Месяц"

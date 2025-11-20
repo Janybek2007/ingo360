@@ -79,13 +79,7 @@ export const RetailSales: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      beforeHeader={
-        <div className="max-w-[36.25rem]">
-          <h4 className="font-semibold text-xl leading-[120%] text-black mb-2">
-            Третичные продажи
-          </h4>
-        </div>
-      }
+      title="Третичные продажи"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
           <DbFilters {...filters} />

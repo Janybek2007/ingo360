@@ -42,9 +42,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
         limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
         geo_indicators_ids: filters.geoIndicators,
         search: filters.search,
-        group_by_dimensions: filters.groupBy.filter(
-          v => !['geo_indicator'].includes(v)
-        ),
+        group_by_dimensions: ['distributor', 'sku', ...filters.groupBy],
         enabled: !filterOptions.isLoading,
       }
     )
@@ -62,6 +60,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       commonColumns.brand(),
       commonColumns.segment(),
       commonColumns.group(),
+      commonColumns.distributor(),
       commonColumns.geo_indicator(),
     ],
     months: monthsPreset('nd_percent', sales, {

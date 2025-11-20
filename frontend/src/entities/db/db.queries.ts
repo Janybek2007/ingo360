@@ -75,9 +75,10 @@ export class DbQueries {
     if (params && params?.search?.trim() !== '') {
       p.search = params.search?.trim();
     } else p.search = undefined;
-
+    p.group_by_dimensions = [...new Set(p.group_by_dimensions || [])];
     delete p.filterValues;
     delete p.period_values;
+    delete p.enabled;
     return qs.stringify(p, { arrayFormat: 'repeat' });
   }
   private static buildTypePeriod(type_period: UsePeriodType) {
