@@ -161,9 +161,10 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
 
     // Месяцы
     if (months && months.periods.length > 0) {
-      months.periods.forEach(period => {
+      months.periods.forEach((period, i) => {
         result.push({
           id: period,
+          period: i + 1,
           accessorFn: row => months.getValue(row, period),
           header: period,
           size: 140,
@@ -200,6 +201,7 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
     if (total) {
       result.push({
         id: 'total',
+        accessorKey: 'total',
         header: 'Итого',
         size: 120,
         cell: ({ row }) => (

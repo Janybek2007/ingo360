@@ -20,6 +20,7 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
           const columnDef = column.columnDef;
           const accessor = columnDef.accessorKey as string;
           const columnId = column.id;
+          const period = columnDef.period;
 
           if (accessor === 'total' || columnId === 'total') {
             const total = rowTotal.grandTotal ?? 0;
@@ -44,9 +45,8 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
             );
           }
 
-          const monthMatch = columnId.match(/period_(\d+)/);
-          if (monthMatch && rowTotal.monthTotals) {
-            const monthIndex = parseInt(monthMatch[1]) - 1;
+          if (period && rowTotal.monthTotals) {
+            const monthIndex = period - 1;
             const total = rowTotal.monthTotals[monthIndex] ?? 0;
 
             return (
@@ -73,9 +73,7 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
             <td
               key={column.id}
               className="text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white sticky bottom-0 z-[16]"
-            >
-              -
-            </td>
+            ></td>
           );
         })}
     </tr>

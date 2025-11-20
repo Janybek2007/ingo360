@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Select } from '#/shared/components/ui/select';
+import { cn } from '#/shared/utils/cn';
 
 import { SearchInput } from '../search-input';
 import type { DbFiltersProps } from './db-filters.types';
@@ -55,7 +56,12 @@ export const DbFilters = React.memo(
             checkbox={brandsMultiple}
             items={options.brands}
             triggerText={'Бренды'}
-            classNames={{ menu: 'w-[30rem] right-0 max-h-[400px]' }}
+            classNames={{
+              menu: cn(
+                brandsMultiple ? 'w-[20rem]' : 'w-[30rem]',
+                'right-0 max-h-[400px]'
+              ),
+            }}
           />
         )}
         {segmentsEnabled && setSegment && options.segments && (

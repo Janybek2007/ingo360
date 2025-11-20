@@ -1,5 +1,13 @@
 import React, { useMemo } from 'react';
-import { Bar, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  ComposedChart,
+  LabelList,
+  Line,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
@@ -109,13 +117,29 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             fill={'#FFC000'}
             maxBarSize={Infinity}
             radius={[0, 0, 0, 0]}
-          />
+          >
+            <LabelList
+              dataKey="remains"
+              position="top"
+              formatter={value => Number(value).toLocaleString('ru-RU')}
+              className="text-xs fill-black"
+            />
+          </Bar>
+
           <Bar
             dataKey="primary"
             fill={'#0B5A7C'}
             maxBarSize={Infinity}
             radius={[0, 0, 0, 0]}
-          />
+          >
+            <LabelList
+              dataKey="primary"
+              position="top"
+              formatter={value => Number(value).toLocaleString('ru-RU')}
+              className="text-xs fill-black"
+            />
+          </Bar>
+
           <Line
             type="linear"
             dataKey="trade_stock"
@@ -123,6 +147,12 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             stroke={'#888888'}
             strokeWidth={3}
             activeDot={{ r: 6 }}
+            label={{
+              position: 'top',
+              fill: '#000',
+              fontSize: 10,
+              formatter: value => Number(value).toLocaleString('ru-RU'),
+            }}
           />
         </ComposedChart>
       </div>

@@ -12,6 +12,7 @@ export class ExcelExporter<T extends object> {
   private transform?: (item: T) => any;
   private hasTotal: boolean;
   private noFraction: boolean;
+  private emptyValue: string = '-';
 
   constructor(props: ExportToExcelProps<T>) {
     this.data = props.data;
@@ -115,7 +116,7 @@ export class ExcelExporter<T extends object> {
       periodKeys.forEach(period => {
         const rawValue = periodData[period]?.[this.periodKey!];
 
-        let value: string | number = '-';
+        let value: string | number = this.emptyValue;
 
         if (rawValue !== undefined && rawValue !== null) {
           value = rawValue;
@@ -146,6 +147,16 @@ export class ExcelExporter<T extends object> {
     return { formattedData, periodKeys };
   }
 
+  private periodKeysSort = (arr: string[]) => {
+    return [...arr].sort((a, b) => {
+      const [ay, am] = a.split('-').map(Number);
+      const [by, bm] = b.split('-').map(Number);
+
+      if (ay !== by) return ay - by;
+      return am - bm;
+    });
+  };
+
   private formatData(data: any[], periodKeys: string[]): any[] {
     return data.map(item => {
       const newItem: any = {};
@@ -157,7 +168,12 @@ export class ExcelExporter<T extends object> {
       const totalKey = this.hasTotal && 'total' in item ? ['total'] : [];
       // порядок:
       // текстовые колонки → периоды → total (если есть)
-      const keysToExport = [...textKeys, ...periodKeys, ...totalKey];
+      console.log(periodKeys);
+      const keysToExport = [
+        ...textKeys,
+        ...this.periodKeysSort(periodKeys),
+        ...totalKey,
+      ];
 
       keysToExport.forEach(key => {
         const keyStr = String(key);
@@ -166,7 +182,7 @@ export class ExcelExporter<T extends object> {
           ? item[keyStr]
           : this.getNestedValue(item, keyStr);
 
-        value = value === undefined || value === null ? '-' : value;
+        value = value === undefined || value === null ? this.emptyValue : value;
 
         const newKey =
           this.formatHeader?.[
