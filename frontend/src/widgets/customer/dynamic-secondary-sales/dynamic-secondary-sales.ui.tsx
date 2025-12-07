@@ -129,7 +129,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
                 axisLine={false}
                 tickMargin={20}
                 className="text-[#474B4E] font-normal text-base leading-full"
-                padding={{ left: 50, right: 30 }}
+                padding={{ left: 55, right: 30 }}
               />
 
               <YAxis

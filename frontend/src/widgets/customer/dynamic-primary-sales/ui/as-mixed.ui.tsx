@@ -98,7 +98,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             // eslint-disable-next-line react-hooks/static-components
             tick={<CustomXAxisTick />}
             tickMargin={10}
-            padding={{ left: 50, right: 10 }}
+            padding={{ left: 55, right: 10 }}
           />
 
           <YAxis yAxisId="lineAxis" domain={[0, tradeStockMax]} hide />
