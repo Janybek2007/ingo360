@@ -42,8 +42,8 @@ export const commonColumns = {
   responsible_employee: (): CColumn<any> => ({
     id: 'responsible_employee_id',
     key: 'responsible_employee_name',
-    header: columnHeaderNames.responsible_employee,
-    size: 150,
+    header: columnHeaderNames.responsibleEmployee,
+    size: 260,
     type: 'select',
     groupDimension: 'responsible_employee',
     custom: { accessor: row => row.responsible_employee_name || '-' },
@@ -420,44 +420,55 @@ export const marketInsightsDynamicPeriods = (data: any[]): CColumn<any>[] => {
     'molecule',
   ];
 
-  const parsePeriod = (key: string): { year: number; order: number } => {
-    if (key.startsWith('q')) {
-      // quarter: q1-25
-      const [, rest] = key.split('q');
-      const [quarter, yy] = rest.split('-').map(Number);
-      return { year: 2000 + yy, order: quarter };
+  // ---- Parsing ----
+  const parsePeriod = (key: string) => {
+    // новый формат: YYYY-MM
+    if (/^\d{4}-\d{2}$/.test(key)) {
+      const [year, month] = key.split('-').map(Number);
+      return { type: 'month' as const, year, order: month };
     }
 
-    if (key.includes('-')) {
-      // month: 1-25
+    // квартал: q1-25
+    if (key.startsWith('q')) {
+      const [, rest] = key.split('q');
+      const [q, yy] = rest.split('-').map(Number);
+      return { type: 'quarter' as const, year: 2000 + yy, order: q };
+    }
+
+    // месяц старого формата: 1-25
+    if (/^\d{1,2}-\d{2}$/.test(key)) {
       const [m, yy] = key.split('-').map(Number);
-      return { year: 2000 + yy, order: m };
+      return { type: 'month' as const, year: 2000 + yy, order: m };
     }
 
-    // year: "25"
-    if (/^\d+$/.test(key)) {
-      return { year: 2000 + Number(key), order: 1 };
+    // год: "25"
+    if (/^\d{2}$/.test(key)) {
+      return { type: 'year' as const, year: 2000 + Number(key), order: 1 };
     }
 
-    return { year: 0, order: 0 };
+    return { type: 'unknown' as const, year: 0, order: 0 };
   };
 
+  // ---- Format Header ----
   const formatHeader = (key: string): string => {
-    if (key.startsWith('q')) {
-      const [, rest] = key.split('q');
-      const [q, yy] = rest.split('-');
-      return `Q${q} 20${yy}`;
+    const p = parsePeriod(key);
+
+    switch (p.type) {
+      case 'month':
+        return `${p.year}-${String(p.order).padStart(2, '0')}`;
+
+      case 'quarter':
+        return `${p.year}-Q${p.order}`;
+
+      case 'year':
+        return `${p.year}`;
+
+      default:
+        return key;
     }
-    if (key.includes('-')) {
-      const [m, yy] = key.split('-');
-      return `М${m} 20${yy}`;
-    }
-    if (/^\d+$/.test(key)) {
-      return `20${key}`;
-    }
-    return key;
   };
 
+  // ---- Sorting ----
   const sortPeriods = (a: string, b: string) => {
     const pa = parsePeriod(a);
     const pb = parsePeriod(b);

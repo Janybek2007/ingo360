@@ -27,18 +27,18 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProps> = React.memo(
 
     return (
       <div className="w-1/2 rounded-2xl p-5 bg-white">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
+            Количество врачей
+          </h4>
+          {children}
+        </div>
+        <div>{usedFilter}</div>
+
         <AsyncBoundary
           isLoading={countQuery.isLoading}
           queryError={countQuery.error}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
-              Количество врачей
-            </h4>
-            {children}
-          </div>
-          <div>{usedFilter}</div>
-
           <div className="relative min-h-[24rem] max-h-[24rem] py-2 w-full flex items-center justify-center my-3">
             <PieChart width={360} height={360}>
               <Pie

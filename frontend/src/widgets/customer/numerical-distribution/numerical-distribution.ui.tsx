@@ -70,9 +70,10 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
-    useColumnVisibility({
+    useColumnVisibility<TDbItem>({
       allColumns,
       setGroupBy: filters.setGroupBy,
+      ignore: ['sku_name', 'distributor_name'],
     });
 
   return (
@@ -101,8 +102,9 @@ export const NumericalDistribution: React.FC = React.memo(() => {
               segment_name: columnHeaderNames.segment,
               product_group_name: columnHeaderNames.productGroup,
               geo_indicator_name: columnHeaderNames.geoIndicator,
+              distributor_name: columnHeaderNames.distributor,
             }}
-            selectKeys={visibleColumns}
+            selectKeys={['sku_name', ...visibleColumns, 'distributor_name']}
             periodAsPercent
             periodKey={'nd_percent'}
             data={sales}

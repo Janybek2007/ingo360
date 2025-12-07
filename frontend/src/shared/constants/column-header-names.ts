@@ -4,7 +4,7 @@ export const columnHeaderNames = {
   promotion: 'Тип промоции',
   group: 'Группа',
   productGroup: 'Группа товара',
-  responsible_employee: 'Ответственный сотрудник',
+  responsibleEmployee: 'Ответственный сотрудник',
   segment: 'Сегмент',
   distributor: 'Дистр',
   distributorNetwork: 'Сеть',

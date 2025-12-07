@@ -22,23 +22,13 @@ export class ExcelExporter<T extends object> {
     this.periodAsPercent = props.periodAsPercent || false;
     this.transform = props.transform;
     this.hasTotal = props.hasTotal || false;
+    console.log(this.selectKeys);
   }
 
   private getNestedValue(obj: any, path: string): any {
     return path.split('.').reduce((current, key) => {
       return current && typeof current === 'object' ? current[key] : undefined;
     }, obj);
-  }
-
-  private setNestedValue(obj: any, path: string, value: any): void {
-    const keys = path.split('.');
-    let current = obj;
-    for (let i = 0; i < keys.length - 1; i++) {
-      const key = keys[i];
-      current[key] = current[key] || {};
-      current = current[key];
-    }
-    current[keys[keys.length - 1]] = value;
   }
 
   private isPeriodObject(value: any): boolean {
@@ -122,7 +112,7 @@ export class ExcelExporter<T extends object> {
           if (this.periodAsPercent) {
             value = `${Math.round(rawValue)}%`;
           } else if (typeof value === 'number') {
-            value = Math.round(value);
+            value = Number(rawValue.toFixed(2));
           }
         }
 
@@ -153,35 +143,27 @@ export class ExcelExporter<T extends object> {
     return data.map(item => {
       const newItem: any = {};
 
-      const textKeys = Object.keys(item).filter(
-        key =>
-          !periodKeys.includes(key) && key !== 'total' && !key.endsWith('_id')
+      const allowedTextKeys = this.selectKeys.filter(
+        key => !/^\d{4}-\d{2}$/.test(String(key))
       );
-      const totalKey = this.hasTotal && 'total' in item ? ['total'] : [];
-      // порядок:
-      // текстовые колонки → периоды → total (если есть)
-      const keysToExport = [
-        ...textKeys,
-        ...this.periodKeysSort(periodKeys),
-        ...totalKey,
-      ];
 
-      keysToExport.forEach(key => {
+      allowedTextKeys.forEach(key => {
         const keyStr = String(key);
-
-        let value = periodKeys.includes(keyStr)
-          ? item[keyStr]
-          : this.getNestedValue(item, keyStr);
-
+        let value = this.getNestedValue(item, keyStr);
         value = value === undefined || value === null ? this.emptyValue : value;
 
-        const newKey =
-          this.formatHeader?.[
-            keyStr as keyof ExportToExcelProps<T>['formatHeader']
-          ] || keyStr;
-
-        this.setNestedValue(newItem, newKey, value);
+        const headerName =
+          this.formatHeader?.[keyStr as keyof typeof this.formatHeader] ||
+          keyStr;
+        newItem[headerName] = value;
       });
+
+      this.periodKeysSort(periodKeys).forEach(period => {
+        const value = item[period] ?? this.emptyValue;
+        newItem[period] = value;
+      });
+
+      if (this.hasTotal && 'total' in item) newItem['Итого'] = item.total;
 
       return newItem;
     });

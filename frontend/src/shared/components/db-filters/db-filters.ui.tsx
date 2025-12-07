@@ -54,6 +54,7 @@ export const DbFilters = React.memo(
             isMultiple={brandsMultiple as true}
             showToggleAll={brandsMultiple}
             checkbox={brandsMultiple}
+            defaultAllSelected
             items={options.brands}
             triggerText={'Бренды'}
             classNames={{
@@ -69,6 +70,7 @@ export const DbFilters = React.memo(
             value={segment || ''}
             setValue={v => setSegment(String(v))}
             items={options.segments}
+            search
             triggerText={'Сегменты'}
             classNames={{ menu: 'w-[30rem] right-0 max-h-[400px]' }}
           />
@@ -80,6 +82,7 @@ export const DbFilters = React.memo(
             setValue={setGroups}
             isMultiple
             checkbox
+            defaultAllSelected
             showToggleAll
             items={options.groups}
             triggerText={'Группы'}
@@ -93,9 +96,10 @@ export const DbFilters = React.memo(
             setValue={setGeoIndicators}
             isMultiple
             checkbox
+            defaultAllSelected
             showToggleAll
             items={options.geoIndicators}
-            triggerText={'Индикаторы'}
+            triggerText={'Гео индикаторы'}
             classNames={{ menu: 'w-[10rem] w-max right-0' }}
           />
         )}
@@ -106,6 +110,7 @@ export const DbFilters = React.memo(
             setValue={setDistributors}
             isMultiple
             checkbox
+            defaultAllSelected
             showToggleAll
             items={options.distributors}
             triggerText={'Дистрибьюторы'}

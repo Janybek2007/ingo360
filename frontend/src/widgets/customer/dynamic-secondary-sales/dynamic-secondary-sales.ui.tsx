@@ -129,7 +129,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
                 axisLine={false}
                 tickMargin={20}
                 className="text-[#474B4E] font-normal text-base leading-full"
-                padding={{ left: 45, right: 30 }}
+                padding={{ left: 50, right: 30 }}
               />
 
               <YAxis
@@ -153,7 +153,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
                 formatter={value => {
                   return [
                     (value as number).toLocaleString('ru-RU'),
-                    'Вторичка',
+                    'Вторичные продажи',
                   ];
                 }}
               />

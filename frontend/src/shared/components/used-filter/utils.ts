@@ -33,13 +33,6 @@ export class PeriodGrouping {
     mat: 12,
     ytd: 12,
   };
-  private static readonly PERIOD_TYPE_LABELS: Record<string, string> = {
-    month: 'Месяц',
-    quarter: 'Квартал',
-    mat: 'МАТ',
-    ytd: 'YTD',
-    year: 'Год',
-  };
 
   private items: IUsedFilterItem[];
   private itemsCache: Map<string, any> = new Map();
@@ -107,10 +100,6 @@ export class PeriodGrouping {
 
   private isMatYtdType(type: string): boolean {
     return PeriodGrouping.MAT_YTD_TYPES.includes(type as any);
-  }
-
-  private getPeriodTypeLabel(type: string): string {
-    return PeriodGrouping.PERIOD_TYPE_LABELS[type] || type;
   }
 
   private sortByPeriodNumber(items: IUsedFilterItem[]): IUsedFilterItem[] {
@@ -225,7 +214,7 @@ export class PeriodGrouping {
         type: type as UsePeriodType,
         year,
         items: [item],
-        label: `${this.getPeriodTypeLabel(type)}: до ${label}`,
+        label: `до ${label}`,
         value: String(item.value),
         onDelete: item.onDelete,
         isReadOnly: item.isReadOnly || this.isReadOnly,

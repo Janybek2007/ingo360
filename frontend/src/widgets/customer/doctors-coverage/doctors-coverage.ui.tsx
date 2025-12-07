@@ -1,23 +1,23 @@
 import React from 'react';
 
 import { useFilterOptions } from '#/shared/components/db-filters';
+import { LucideArrowIcon } from '#/shared/components/icons';
+import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import { DoctorsCountVisits } from './ui/count-visits.ui';
-import { DoctorFilters } from './ui/doctor-filters.ui';
 import { DoctorsPercentageVisits } from './ui/percentage-visits.ui';
 
 export const DoctorsCoverage: React.FC = React.memo(() => {
-  const [medicalFacilityIds, setMedicalFacilityIds] = React.useState<number[]>(
-    []
-  );
-
   const filterOptions = useFilterOptions({
     medicalFacilities: true,
     brands: false,
     groups: false,
   });
+  const [medicalFacilityIds, setMedicalFacilityIds] = React.useState<number[]>(
+    []
+  );
 
   return (
     <section>
@@ -50,11 +50,26 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
             />
           }
         >
-          <DoctorFilters
-            filters={medicalFacilityIds}
-            setFilters={ids => setMedicalFacilityIds(ids as number[])}
-            showConfigs={{ medical_facilities: true }}
-            medicalFacilityItems={filterOptions.medicalFacilities}
+          <Select<true, number | string>
+            value={medicalFacilityIds}
+            setValue={value => setMedicalFacilityIds(value.map(Number))}
+            isMultiple
+            checkbox
+            search
+            defaultAllSelected
+            showToggleAll
+            items={filterOptions.medicalFacilities}
+            triggerText="ЛПУ"
+            rightIcon={
+              <LucideArrowIcon
+                type="chevron-down"
+                className="size-[1.125rem]"
+              />
+            }
+            classNames={{
+              trigger: 'gap-4 rounded-full justify-between',
+              menu: 'w-[25rem] left-0 max-h-[400px]',
+            }}
           />
         </DoctorsCountVisits>
         <DoctorsPercentageVisits medicalFacilityIds={medicalFacilityIds} />

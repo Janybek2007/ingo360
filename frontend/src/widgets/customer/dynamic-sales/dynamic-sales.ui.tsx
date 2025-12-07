@@ -152,7 +152,7 @@ export const DynamicSales: React.FC = React.memo(() => {
                 axisLine={false}
                 tickMargin={20}
                 className="text-base text-[#474B4E] leading-full font-normal"
-                padding={{ left: 45, right: 30 }}
+                padding={{ left: 50, right: 30 }}
               />
               <YAxis
                 domain={chartAxis.domain}
@@ -173,8 +173,8 @@ export const DynamicSales: React.FC = React.memo(() => {
                 }}
                 formatter={(value, name) => {
                   const label =
-                    name === 'primaryValue' ? 'Первичка' : 'Вторичка';
-                  return [value.toLocaleString('ru-RU'), label];
+                    name === 'primaryValue' ? 'Первичные ' : 'Вторичные ';
+                  return [value.toLocaleString('ru-RU'), `${label} продажи`];
                 }}
               />
               <Line

@@ -34,7 +34,6 @@ export const MarketInsights: React.FC = React.memo(() => {
     config: {
       brands: { enabled: false },
       groups: { enabled: false },
-      indicator: { enabled: false },
     },
   });
   const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
@@ -55,6 +54,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     return queryData.data[0].map(row => {
       const newRow: Record<string, any> = {};
 
+      // Correct format
       Object.entries(row).forEach(([key, value]) => {
         const match = key.match(/^(\d{1,2})-(\d{2})$/);
         if (match) {
@@ -70,6 +70,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       return newRow;
     });
   }, [queryData.data]);
+  console.log(metricData.slice(0, 1));
 
   const allColumns = useGenerateColumns({
     data: metricData,

@@ -50,7 +50,7 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
             checkbox={!['mat', 'ytd'].includes(period)}
             triggerText={
               ['mat', 'ytd'].includes(period)
-                ? `Выберите значение (${period == 'mat' ? 'от' : 'до'})`
+                ? `Выберите значение (до)`
                 : 'Выберите значения'
             }
             items={items}

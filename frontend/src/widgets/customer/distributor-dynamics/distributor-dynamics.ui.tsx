@@ -202,7 +202,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                   axisLine={false}
                   tickMargin={20}
                   className="text-[#474B4E] font-normal text-base leading-full"
-                  padding={{ left: 45, right: 20 }}
+                  padding={{ left: 50, right: 20 }}
                 />
                 <YAxis
                   domain={chartAxis.domain}

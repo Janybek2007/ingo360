@@ -143,6 +143,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                         ? 'bg-yellow-100 font-bold'
                         : ''
                     }
+                    // isVirtualized={false}
                     isViewFilter={false}
                     pinnedRow={row => row.is_user_company || row.is_user_entity}
                     columns={columns}

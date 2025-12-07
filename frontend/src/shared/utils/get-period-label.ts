@@ -30,16 +30,16 @@ export function getPeriodLabel(value: string | number): string {
     case 'mat':
       if (period && year) {
         const monthIndex = parseInt(period, 10) - 1;
-        return `MAT ${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
+        return `${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
       }
-      return `MAT ${year || ''}`;
+      return `${year || ''}`;
 
     case 'ytd':
       if (period && year) {
         const monthIndex = parseInt(period, 10) - 1;
-        return `YTD ${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
+        return `${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
       }
-      return `YTD ${year || ''}`;
+      return `${year || ''}`;
 
     default:
       return strValue;

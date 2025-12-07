@@ -83,7 +83,9 @@ export class DistributorShareProcessor {
       const parsed = parsePeriodData(periodKey, this.periodFilter.period);
 
       if (this.periodFilter.period === 'year') {
-        return this.periodFilter.selectedValues.includes(`year-${parsed.year}`);
+        return this.periodFilter.selectedValues.includes(
+          parsed.year.toString()
+        );
       } else if (this.periodFilter.period === 'month' && parsed.month) {
         return this.periodFilter.selectedValues.includes(
           `month-${parsed.year}-${parsed.month}`

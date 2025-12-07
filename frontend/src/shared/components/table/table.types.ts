@@ -44,6 +44,7 @@ export interface ITableProps {
   filters?: IUsedFilterProps & {
     custom?: ColumnFiltersState;
   };
+  isVirtualized?: boolean;
   isViewFilter?: boolean;
   rowTotal?: {
     firstColSpan: number;
@@ -57,7 +58,8 @@ export interface ITableBodyProps {
   highlightRow?: (row: any) => string;
   pinnedRow?: (row: any) => boolean;
   rowTotal?: ITableProps['rowTotal'];
-  rowVirtualizer: Virtualizer<any, any>;
+  rowVirtualizer: Virtualizer<HTMLDivElement, Element> | null;
+  isVirtualized?: boolean;
 }
 
 export interface ITableHeaderProps {

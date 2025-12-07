@@ -22,8 +22,8 @@ export function TableBody({
     ? rows.filter(row => !pinnedRow(row.original))
     : rows;
 
-  const virtualRows = rowVirtualizer.getVirtualItems() || [];
-  const totalSize = rowVirtualizer.getTotalSize() || 0;
+  const virtualRows = rowVirtualizer?.getVirtualItems() || [];
+  const totalSize = rowVirtualizer?.getTotalSize() || 0;
 
   const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start || 0 : 0;
   const paddingBottom =

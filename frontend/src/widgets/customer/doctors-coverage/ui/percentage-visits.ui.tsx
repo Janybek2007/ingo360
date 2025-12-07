@@ -3,33 +3,27 @@ import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
-import { allMonths } from '#/shared/constants/months';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
-import type {
-  DoctorsCoverageRow,
-  FiltersConfig,
-} from '../doctors-covarage.types';
-import { DoctorFilters } from './doctor-filters.ui';
+import type { DoctorsCoverageRow } from '../doctors-covarage.types';
 
 export const DoctorsPercentageVisits: React.FC<{
   medicalFacilityIds: number[];
 }> = React.memo(({ medicalFacilityIds }) => {
-  const [filters, setFilters] = React.useState<
-    Omit<FiltersConfig, 'medical_facility_ids'>
-  >({ months: [], quarters: [], years: [] });
-
+  const periodFilter = usePeriodFilter();
   const percentageQuery = useKeepQuery(
     DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
       ['visits/reports/doctors-by-specialty'],
       {
-        months: filters.months,
-        years: filters.years,
-        quarters: filters.quarters,
         medical_facility_ids: medicalFacilityIds,
+        group_by_period: periodFilter.period,
+        period_values: periodFilter.selectedValues,
       }
     )
   );
@@ -39,75 +33,27 @@ export const DoctorsPercentageVisits: React.FC<{
   );
   return (
     <div className="w-1/2 rounded-2xl p-5 bg-white">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
+          Доля врачей с визитами (%)
+        </h4>
+        <PeriodFilters {...periodFilter} />
+      </div>
       <AsyncBoundary
         isLoading={percentageQuery.isLoading}
         queryError={percentageQuery.error}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
-            Доля врачей с визитами (%)
-          </h4>
-          <DoctorFilters
-            filters={filters}
-            setFilters={value => setFilters(value as FiltersConfig)}
-            showConfigs={{
-              medical_facilities: false,
-              years: true,
-              months: true,
-              quarters: true,
-            }}
-          />
-        </div>
         <div>
           <UsedFilter
-            usedFilterItems={getUsedFilterItems([
-              filters.years.length > 0 && {
-                value: filters.years,
-                getLabelFromValue: value => String(value),
-                onDelete: () => setFilters(prev => ({ ...prev, years: [] })),
-                main: {
-                  label: 'Год:',
-                  onDelete: value =>
-                    setFilters(prev => ({
-                      ...prev,
-                      years: prev.years.filter(y => y !== Number(value)),
-                    })),
-                },
-              },
-              filters.quarters.length > 0 && {
-                value: filters.quarters,
-                getLabelFromValue: value => `Квартал ${value}`,
-                onDelete: () =>
-                  setFilters(prev => ({
-                    ...prev,
-                    quarters: [],
-                  })),
-                main: {
-                  label: 'Квартал:',
-                  onDelete: value =>
-                    setFilters(prev => ({
-                      ...prev,
-                      quarters: prev.quarters.filter(q => q !== Number(value)),
-                    })),
-                },
-              },
-              filters.months.length > 0 && {
-                value: filters.months,
-                getLabelFromValue: value => allMonths[Number(value) - 1],
-                onDelete: () => setFilters(prev => ({ ...prev, months: [] })),
-                main: {
-                  label: 'Месяц:',
-                  onDelete: value =>
-                    setFilters(prev => ({
-                      ...prev,
-                      months: prev.months.filter(m => m !== Number(value)),
-                    })),
-                },
+            usedPeriodFilters={getUsedFilterItems([
+              {
+                value: periodFilter.selectedValues,
+                getLabelFromValue: getPeriodLabel,
+                onDelete: periodFilter.onDelete,
               },
             ])}
-            resetFilters={() =>
-              setFilters({ months: [], quarters: [], years: [] })
-            }
+            resetFilters={periodFilter.onReset}
+            isViewPeriods={periodFilter.isView}
           />
         </div>
 

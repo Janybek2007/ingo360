@@ -9,7 +9,7 @@ import {
 } from '#/shared/components/icons';
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { useActivePath } from '#/shared/hooks/use-active-path';
-import { routePaths } from '#/shared/router';
+import { roleAccess, routePaths } from '#/shared/router';
 import { useSession } from '#/shared/session/session.context';
 import { cn } from '#/shared/utils/cn';
 
@@ -63,11 +63,13 @@ export const Sidebar: React.FC = React.memo(() => {
     >
       <div className="mb-8 flex items-center justify-between">
         {!isCollapsed && (
-          <img
-            src={Assets.Logo}
-            alt="Logo Asset"
-            className="w-[10rem] h-[3.5625rem]"
-          />
+          <Link to={roleAccess[user?.role || 'customer'][0]}>
+            <img
+              src={Assets.Logo}
+              alt="Logo Asset"
+              className="w-[10rem] h-[3.5625rem]"
+            />
+          </Link>
         )}
         <button
           onClick={toggleCollapse}

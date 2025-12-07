@@ -33,6 +33,7 @@ export const Table: React.FC<ITableProps> = React.memo(
     rowTotal,
     enableColumnResizing = true,
     isViewFilter = true,
+    isVirtualized = true,
   }) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -73,13 +74,14 @@ export const Table: React.FC<ITableProps> = React.memo(
       enableColumnResizing,
     });
 
-    const tableContainerRef = useRef<HTMLTableElement>(null);
+    const tableContainerRef = useRef<HTMLDivElement>(null);
 
     const rowVirtualizer = useVirtualizer({
       count: table.getRowModel().rows.length,
       getScrollElement: () => tableContainerRef.current,
       estimateSize: () => 50,
       overscan: data.length > 1000 ? 10 : 5,
+      enabled: isVirtualized,
       measureElement:
         typeof window !== 'undefined' &&
         navigator.userAgent.indexOf('Firefox') === -1
@@ -155,6 +157,7 @@ export const Table: React.FC<ITableProps> = React.memo(
                 pinnedRow={pinnedRow}
                 rowTotal={rowTotal}
                 rowVirtualizer={rowVirtualizer}
+                isVirtualized={isVirtualized}
               />
             </table>
           )}

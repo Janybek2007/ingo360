@@ -87,9 +87,10 @@ export const PharmacyBalance: React.FC = React.memo(() => {
               brand_name: columnHeaderNames.brand,
               distributor_name: columnHeaderNames.distributor,
               product_group_name: columnHeaderNames.productGroup,
+              responsible_employee_name: columnHeaderNames.responsibleEmployee,
             }}
             selectKeys={visibleColumns}
-            periodKey={filters.indicator}
+            periodKey={'total_packages'}
             data={sales}
             fileName="Остаток по аптекам"
           />

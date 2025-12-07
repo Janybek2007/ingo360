@@ -86,7 +86,6 @@ const SearchInput = memo(
 
 SearchInput.displayName = 'SearchInput';
 
-// Мемоизированный компонент кнопки "Выбрать все"
 const ToggleAllButton = memo(
   ({
     allSelected,
@@ -131,6 +130,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   labelTemplate = '{label}',
   showToggleAll = false,
   indeterminate = false,
+  defaultAllSelected = false,
 }: ISelectProps<ISM, VT>) {
   const [open, { toggle, set }] = useToggle();
   const [searchQuery, setSearchQuery] = useState('');
@@ -144,6 +144,13 @@ export function Select<ISM extends boolean = false, VT = string>({
     return getUniqueItems(items, ['value']);
   }, [items]);
 
+  // Если defaultAllSelected = true и value ещё не установлен — считаем все выбранными
+  const effectiveValue = useMemo(() => {
+    if (!isMultiple || !defaultAllSelected) return value;
+    if (Array.isArray(value) && value.length > 0) return value;
+    return uniqueItems.map(item => item.value);
+  }, [value, isMultiple, defaultAllSelected, uniqueItems]);
+
   const filteredItems = useMemo(() => {
     if (!search || !searchQuery.trim()) return uniqueItems;
 
@@ -151,55 +158,69 @@ export function Select<ISM extends boolean = false, VT = string>({
     return uniqueItems.filter(item => item.label.toLowerCase().includes(query));
   }, [uniqueItems, searchQuery, search]);
 
+  // Теперь isSelected учитывает defaultAllSelected
   const isSelected = useCallback(
     (item: ISelectItem<VT>) => {
-      if (isMultiple && Array.isArray(value)) return value.includes(item.value);
-      return value === item.value;
+      if (!isMultiple) return effectiveValue === item.value;
+
+      const arr = Array.isArray(effectiveValue) ? effectiveValue : [];
+      return arr.includes(item.value);
     },
-    [value, isMultiple]
+    [effectiveValue, isMultiple]
   );
 
   const handleSelect = useCallback(
     (item: ISelectItem<VT>) => {
-      if (isMultiple && Array.isArray(value)) {
-        const newValue = value.includes(item.value)
-          ? value.filter(v => v !== item.value)
-          : [...value, item.value];
-        setValue(newValue as ISelectProps<ISM, VT>['value']);
-      } else {
-        setValue(item.value as ISelectProps<ISM, VT>['value']);
+      if (!isMultiple) {
+        setValue(item.value as any);
         set(false);
+        return;
       }
+
+      // Множественный выбор
+      const current = Array.isArray(effectiveValue) ? effectiveValue : [];
+      const newValue = current.includes(item.value)
+        ? current.filter(v => v !== item.value) // удаляем
+        : [...current, item.value]; // добавляем
+
+      setValue(newValue as any);
     },
-    [setValue, set, value, isMultiple]
+    [isMultiple, effectiveValue, setValue, set]
   );
 
   const handleToggleAll = useCallback(() => {
-    if (!isMultiple || !Array.isArray(value)) return;
-    const allSelected = filteredItems.every(item => value.includes(item.value));
+    if (!isMultiple) return;
+
+    const allSelected = filteredItems.every(
+      item =>
+        Array.isArray(effectiveValue) && effectiveValue.includes(item.value)
+    );
 
     setValue(allSelected ? [] : (filteredItems.map(item => item.value) as any));
-  }, [isMultiple, filteredItems, value, setValue]);
+  }, [isMultiple, filteredItems, effectiveValue, setValue]);
 
   const findItemLabel = useMemo(() => {
-    if (changeTriggerText && Array.isArray(value)) {
+    if (changeTriggerText && Array.isArray(effectiveValue)) {
       return uniqueItems
-        .filter(item => value.includes(item.value))
+        .filter(item => effectiveValue.includes(item.value))
         .map(item => item.label)
         .join(', ');
     } else {
-      const found = uniqueItems.find(v => v.value === value);
+      const found = uniqueItems.find(v => v.value === effectiveValue);
       return found ? found.label : '';
     }
-  }, [uniqueItems, value, changeTriggerText]);
+  }, [uniqueItems, effectiveValue, changeTriggerText]);
 
   const allSelected = useMemo(() => {
-    if (!isMultiple || !Array.isArray(value)) return false;
+    if (!isMultiple) return false;
     return (
       filteredItems.length > 0 &&
-      filteredItems.every(item => value.includes(item.value))
+      filteredItems.every(
+        item =>
+          Array.isArray(effectiveValue) && effectiveValue.includes(item.value)
+      )
     );
-  }, [filteredItems, value, isMultiple]);
+  }, [filteredItems, effectiveValue, isMultiple]);
 
   const handleSearchChange = useCallback((newQuery: string) => {
     setSearchQuery(newQuery);
