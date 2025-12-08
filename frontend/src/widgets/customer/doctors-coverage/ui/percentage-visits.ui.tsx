@@ -24,6 +24,7 @@ export const DoctorsPercentageVisits: React.FC<{
         medical_facility_ids: medicalFacilityIds,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+        method: 'POST',
       }
     )
   );

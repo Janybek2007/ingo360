@@ -122,28 +122,8 @@ export const useFilterOptions = (
     ]
   );
 
-  const error = useMemo(
-    () =>
-      brandsQuery.error ||
-      groupsQuery.error ||
-      distributorsQuery.error ||
-      medicalFacilitiesQuery.error ||
-      segmentsQuery.error ||
-      geoIndicatorsQuery.error ||
-      null,
-    [
-      brandsQuery.error,
-      groupsQuery.error,
-      distributorsQuery.error,
-      medicalFacilitiesQuery.error,
-      segmentsQuery.error,
-      geoIndicatorsQuery.error,
-    ]
-  );
-
   return {
     ...options,
     isLoading,
-    error,
   };
 };

@@ -18,18 +18,19 @@ export class DbQueries {
 
   static GetDbItemsQuery<T = IGetDBItemResponse>(
     urls: ExtraDbType[],
-    options: IGetDBItemsParams = { enabled: true }
+    opt: IGetDBItemsParams = { enabled: true, method: 'GET' }
   ) {
+    const options: IGetDBItemsParams = { enabled: true, method: 'GET', ...opt };
     return queryOptions({
       queryKey: this.queryKeys.getDbItems(urls, this.buildQueryString(options)),
       queryFn: () =>
         Promise.all(
           urls.map(url =>
-            http
-              .get(url, {
-                searchParams: this.buildQueryString(options),
-              })
-              .json<T>()
+            options.method === 'GET'
+              ? http
+                  .get(url, { searchParams: this.buildQueryString(options) })
+                  .json<T>()
+              : http.post(url, { json: options }).json<T>()
           )
         ),
       enabled: options?.enabled,

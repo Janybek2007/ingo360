@@ -84,7 +84,6 @@ export interface UseFilterOptionsConfig {
 
 export interface UseFilterOptionsReturn {
   isLoading: boolean;
-  error: Error | null;
   brands: FilterOptions[];
   groups: FilterOptions[];
   distributors: FilterOptions[];

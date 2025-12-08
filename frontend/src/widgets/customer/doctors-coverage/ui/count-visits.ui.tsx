@@ -3,7 +3,11 @@ import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { LucideArrowIcon } from '#/shared/components/icons';
+import { Select } from '#/shared/components/ui/select';
+import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 import type {
@@ -12,11 +16,11 @@ import type {
 } from '../doctors-covarage.types';
 
 export const DoctorsCountVisits: React.FC<DoctorCountVisitsProps> = React.memo(
-  ({ medicalFacilityIds, children, usedFilter }) => {
+  ({ medicalFacilityIds, medicalFacilityItems, setMedicalFacilityIds }) => {
     const countQuery = useKeepQuery(
       DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
         ['visits/reports/doctors-by-specialty'],
-        { medical_facility_ids: medicalFacilityIds }
+        { medical_facility_ids: medicalFacilityIds, method: 'POST' }
       )
     );
 
@@ -31,9 +35,52 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProps> = React.memo(
           <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
             Количество врачей
           </h4>
-          {children}
+          <Select<true, number | string>
+            value={medicalFacilityIds}
+            setValue={value => setMedicalFacilityIds(value.map(Number))}
+            isMultiple
+            checkbox
+            search
+            defaultAllSelected
+            showToggleAll
+            items={medicalFacilityItems}
+            triggerText="ЛПУ"
+            rightIcon={
+              <LucideArrowIcon
+                type="chevron-down"
+                className="size-[1.125rem]"
+              />
+            }
+            classNames={{
+              trigger: 'gap-4 rounded-full justify-between',
+              menu: 'w-[25rem] left-0 max-h-[400px]',
+            }}
+          />
         </div>
-        <div>{usedFilter}</div>
+        <div>
+          <UsedFilter
+            usedFilterItems={getUsedFilterItems([
+              medicalFacilityIds.length > 0 && {
+                value: medicalFacilityIds,
+                getLabelFromValue(value) {
+                  return (
+                    medicalFacilityItems.find(item => item.value === value)
+                      ?.label ?? '-'
+                  );
+                },
+                main: {
+                  onDelete: v => {
+                    setMedicalFacilityIds(p =>
+                      p.filter(id => id !== Number(v))
+                    );
+                  },
+                  label: 'ЛПУ:',
+                },
+              },
+            ])}
+            resetFilters={() => setMedicalFacilityIds([])}
+          />
+        </div>
 
         <AsyncBoundary
           isLoading={countQuery.isLoading}

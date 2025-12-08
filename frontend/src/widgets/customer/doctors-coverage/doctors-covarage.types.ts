@@ -17,8 +17,8 @@ export interface FiltersConfig {
 
 export interface DoctorCountVisitsProps {
   medicalFacilityIds: number[];
-  children?: React.ReactNode;
-  usedFilter?: React.ReactNode;
+  medicalFacilityItems: FilterOptions[];
+  setMedicalFacilityIds: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export interface DoctorFiltersProps {

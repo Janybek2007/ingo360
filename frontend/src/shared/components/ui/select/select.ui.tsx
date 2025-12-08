@@ -139,14 +139,17 @@ export function Select<ISM extends boolean = false, VT = string>({
     setSearchQuery('');
   });
   const parentRef = useRef<HTMLDivElement>(null);
+  const initialValueRef = useRef(value);
 
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
   }, [items]);
 
-  // Если defaultAllSelected = true и value ещё не установлен — считаем все выбранными
   const effectiveValue = useMemo(() => {
     if (!isMultiple || !defaultAllSelected) return value;
+    // eslint-disable-next-line react-hooks/refs
+    const isInitialRender = value === initialValueRef.current;
+    if (!isInitialRender) return value;
     if (Array.isArray(value) && value.length > 0) return value;
     return uniqueItems.map(item => item.value);
   }, [value, isMultiple, defaultAllSelected, uniqueItems]);
@@ -158,7 +161,6 @@ export function Select<ISM extends boolean = false, VT = string>({
     return uniqueItems.filter(item => item.label.toLowerCase().includes(query));
   }, [uniqueItems, searchQuery, search]);
 
-  // Теперь isSelected учитывает defaultAllSelected
   const isSelected = useCallback(
     (item: ISelectItem<VT>) => {
       if (!isMultiple) return effectiveValue === item.value;
@@ -177,11 +179,10 @@ export function Select<ISM extends boolean = false, VT = string>({
         return;
       }
 
-      // Множественный выбор
       const current = Array.isArray(effectiveValue) ? effectiveValue : [];
       const newValue = current.includes(item.value)
-        ? current.filter(v => v !== item.value) // удаляем
-        : [...current, item.value]; // добавляем
+        ? current.filter(v => v !== item.value)
+        : [...current, item.value];
 
       setValue(newValue as any);
     },
@@ -191,12 +192,19 @@ export function Select<ISM extends boolean = false, VT = string>({
   const handleToggleAll = useCallback(() => {
     if (!isMultiple) return;
 
-    const allSelected = filteredItems.every(
-      item =>
-        Array.isArray(effectiveValue) && effectiveValue.includes(item.value)
-    );
+    const current = Array.isArray(effectiveValue) ? effectiveValue : [];
 
-    setValue(allSelected ? [] : (filteredItems.map(item => item.value) as any));
+    const allSelectedNow =
+      filteredItems.length > 0 &&
+      filteredItems.every(item => current.includes(item.value));
+
+    if (allSelectedNow) {
+      setValue([] as any);
+      return;
+    }
+
+    const newValues = filteredItems.map(item => item.value);
+    setValue(newValues as any);
   }, [isMultiple, filteredItems, effectiveValue, setValue]);
 
   const findItemLabel = useMemo(() => {

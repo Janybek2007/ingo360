@@ -26,7 +26,7 @@ interface MarketRow {
   dosage: string;
   dosage_form: string;
   segment: string;
-  [key: string]: number | string;
+  [key: string]: { amount: number; packages: number } | string;
 }
 
 export const MarketInsights: React.FC = React.memo(() => {
@@ -54,14 +54,17 @@ export const MarketInsights: React.FC = React.memo(() => {
     return queryData.data[0].map(row => {
       const newRow: Record<string, any> = {};
 
-      // Correct format
       Object.entries(row).forEach(([key, value]) => {
         const match = key.match(/^(\d{1,2})-(\d{2})$/);
         if (match) {
           const month = match[1].padStart(2, '0');
           const year = `20${match[2]}`;
           const newKey = `${year}-${month}`;
-          newRow[newKey] = value;
+          if (typeof value == 'object') {
+            newRow[newKey] = value[filters.indicator as 'amount'];
+          } else {
+            newRow[newKey] = value;
+          }
         } else {
           newRow[key] = value;
         }
@@ -69,8 +72,7 @@ export const MarketInsights: React.FC = React.memo(() => {
 
       return newRow;
     });
-  }, [queryData.data]);
-  console.log(metricData.slice(0, 1));
+  }, [queryData.data, filters.indicator]);
 
   const allColumns = useGenerateColumns({
     data: metricData,

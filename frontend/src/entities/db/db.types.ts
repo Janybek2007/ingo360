@@ -97,6 +97,7 @@ export type TDbItem = {
 export type IGetDBItemResponse = IDbItem[];
 
 export interface IGetDBItemsParams extends PaginationParams {
+  method?: 'GET' | 'POST';
   //
   years?: number[];
   months?: number[];
