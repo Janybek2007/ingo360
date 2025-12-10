@@ -27,13 +27,10 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
             return (
               <td
                 key={column.id}
-                style={{
-                  ...getCommonPinningStyles(column),
-                }}
+                style={getCommonPinningStyles(column, 20)}
                 className={cn(
                   'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white',
-                  'sticky bottom-0 z-[20]',
-                  column.getIsPinned() && 'border-l',
+                  'border-l bottom-0',
                   total < 0 && 'text-red-600'
                 )}
               >

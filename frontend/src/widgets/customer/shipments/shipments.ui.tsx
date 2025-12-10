@@ -120,6 +120,7 @@ export const Shipments: React.FC = React.memo(() => {
           columns={columnsForTable}
           data={sales}
           maxHeight={560}
+          // 5
           rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
           rounded="none"
         />

@@ -204,6 +204,8 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
         accessorKey: 'total',
         header: 'Итого',
         size: 120,
+        pinned: 'right',
+        enablePinning: true,
         cell: ({ row }) => (
           <CellValue
             value={total.getValue(row.original)}

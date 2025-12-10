@@ -141,6 +141,7 @@ export function TableBody({
 
         {virtualRows.map(virtualRow => {
           const row = rows[virtualRow.index];
+
           if (!row) return null;
 
           return (
@@ -153,17 +154,23 @@ export function TableBody({
             >
               {row.getVisibleCells().map(cell => {
                 const columnDef = cell.column.columnDef;
+                const accessor = columnDef.accessorKey;
 
                 return (
                   <td
                     key={cell.id}
                     style={{
+                      ...(accessor !== 'actions' &&
+                        getCommonPinningStyles(cell.column)),
                       minWidth: `${cell.column.getSize()}px`,
                       maxWidth: `${cell.column.getSize()}px`,
                     }}
                     className={cn(
+                      cell.column.getIsPinned() &&
+                        'bg-white group-hover:bg-gray-50',
                       'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
                       'overflow-hidden text-ellipsis border-b',
+                      columnDef.pinned == 'right' && 'border-l',
                       highlightRow?.(row.original)
                     )}
                   >
