@@ -12,15 +12,18 @@ export const CheckSession: React.FC<CheckSessionProps> = ({ children }) => {
   const { pathname } = useLocation();
   const { navigate } = useRouter();
 
+  const [finish, setFinish] = React.useState(false);
+
   React.useEffect(() => {
     if (isLoading) return;
 
     const isAuthPage = pathname.startsWith('/auth');
 
-    if (!user) {
+    if (!user || !user.is_active) {
       if (!isAuthPage) {
         navigate(routePaths.auth.login, { replace: true });
       }
+      setFinish(true);
       return;
     }
 
@@ -29,7 +32,9 @@ export const CheckSession: React.FC<CheckSessionProps> = ({ children }) => {
     if (!allowedPaths.includes(pathname)) {
       navigate(allowedPaths[0] || routePaths.auth.login, { replace: true });
     }
+
+    setFinish(true);
   }, [user, pathname, navigate, isLoading]);
 
-  return <>{isLoading ? '' : children}</>;
+  return <>{isLoading || !finish ? '' : children}</>;
 };

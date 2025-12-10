@@ -5,7 +5,6 @@ export interface IUsedFilterItem {
   value: string | number;
   onDelete: VoidFunction;
   subItems?: Omit<IUsedFilterItem, 'subItems'>[];
-  isReadOnly?: boolean;
 }
 
 export type PeriodViewMode = 'default' | 'from';
@@ -28,5 +27,4 @@ export interface IGroupedPeriod {
   label: string;
   value: string;
   onDelete: VoidFunction;
-  isReadOnly?: boolean;
 }

@@ -8,7 +8,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
@@ -110,16 +110,6 @@ export const Table: React.FC<ITableProps> = React.memo(
       filters?.resetFilters();
     }, [filters]);
 
-    const containerStyle = React.useMemo(
-      () => ({
-        maxHeight,
-        minHeight,
-        position: 'relative' as const,
-        zIndex: 1,
-      }),
-      [maxHeight, minHeight]
-    );
-
     return (
       <div className={cn('relative', className)}>
         {(filters || columnFilters.length > 0 || sorting.length > 0) &&
@@ -141,7 +131,7 @@ export const Table: React.FC<ITableProps> = React.memo(
             rounded == 'lg' && 'rounded-lg',
             allUsedFilters.length > 0 && 'mt-5'
           )}
-          style={containerStyle}
+          style={{ maxHeight, minHeight, position: 'relative', zIndex: 1 }}
         >
           {table.getRowModel().rows.length === 0 ? (
             <DefaultEmpty />
@@ -150,15 +140,24 @@ export const Table: React.FC<ITableProps> = React.memo(
               id="custom-table"
               className="text-sm border-separate border-spacing-0 w-full min-w-max"
             >
-              <TableHeader table={table} />
-              <TableBody
-                table={table}
-                highlightRow={highlightRow}
-                pinnedRow={pinnedRow}
-                rowTotal={rowTotal}
-                rowVirtualizer={rowVirtualizer}
-                isVirtualized={isVirtualized}
-              />
+              <Suspense fallback={<thead></thead>}>
+                <TableHeader table={table} />
+              </Suspense>
+              <Suspense fallback={<tbody></tbody>}>
+                <TableBody
+                  table={table}
+                  setOverflow={style => {
+                    if (tableContainerRef.current) {
+                      tableContainerRef.current.style.overflow = style;
+                    }
+                  }}
+                  highlightRow={highlightRow}
+                  pinnedRow={pinnedRow}
+                  rowTotal={rowTotal}
+                  rowVirtualizer={rowVirtualizer}
+                  isVirtualized={isVirtualized}
+                />
+              </Suspense>
             </table>
           )}
         </div>

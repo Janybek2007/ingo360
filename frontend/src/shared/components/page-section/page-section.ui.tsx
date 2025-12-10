@@ -58,8 +58,8 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
               </div>
             )}
           {children}
-          <div className="mx-auto">
-            {legends && legends.length > 0 && (
+          {legends && legends.length > 0 && (
+            <div className="mx-auto">
               <ul className="flex items-center flex-wrap justify-center gap-4 mt-4">
                 {legends.map((l, i) => (
                   <li
@@ -76,8 +76,8 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
                   </li>
                 ))}
               </ul>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </section>
     );

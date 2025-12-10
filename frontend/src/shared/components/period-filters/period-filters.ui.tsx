@@ -1,13 +1,13 @@
 import React from 'react';
 
 import {
-  type UsePeriodFilterReturn,
+  type PeriodFiltersProps,
   type UsePeriodType,
 } from '#/shared/hooks/use-period-filter';
 
 import { Select } from '../ui/select';
 
-export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
+export const PeriodFilters: React.FC<PeriodFiltersProps> = React.memo(
   ({
     period,
     setPeriod,
@@ -16,6 +16,7 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
     onChange,
     isSelectValues = true,
     views = ['mat', 'ytd', 'year', 'month', 'quarter'],
+    isMultiple = true,
   }) => {
     const periodTypeItems = React.useMemo(() => {
       const allTypes = [
@@ -27,6 +28,8 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
       ];
       return allTypes.filter(item => views.includes(item.value));
     }, [views]);
+
+    const isMulti = !['mat', 'ytd'].includes(period) && isMultiple;
 
     return (
       <div className="flex gap-4 relative z-60">
@@ -45,9 +48,9 @@ export const PeriodFilters: React.FC<UsePeriodFilterReturn> = React.memo(
 
         {isSelectValues && (
           <Select<boolean, string>
-            isMultiple={!['mat', 'ytd'].includes(period)}
-            showToggleAll={!['mat', 'ytd'].includes(period)}
-            checkbox={!['mat', 'ytd'].includes(period)}
+            isMultiple={isMulti}
+            showToggleAll={isMulti}
+            checkbox={isMulti}
             triggerText={
               ['mat', 'ytd'].includes(period)
                 ? `Выберите значение (до)`

@@ -19,55 +19,84 @@ type UseSizeType = (
   }
 ) => Size;
 
+// КЭШ размеров: ключ — DOM элемент
+const sizeCache = new WeakMap<Element | Window, Size>();
+
 export const useSize: UseSizeType = (_element, options = {}): Size => {
-  const [size, setSize] = useState<Size>({ width: 0, height: 0 });
   const { dependcies = [] } = options;
-  useEffect(() => {
-    if (typeof document === 'undefined' || typeof window === undefined) return;
-    const element = _element || window;
-    let targetElement: HTMLElement | Window | null | undefined = null;
-    if (typeof element === 'string') {
-      targetElement = document.querySelector(element) as HTMLElement;
-    } else if (element && 'current' in element) {
-      targetElement = element.current;
-    } else {
-      targetElement = element as HTMLElement | Window;
+
+  const resolveElement = (): HTMLElement | Window | null => {
+    if (typeof document === 'undefined') return null;
+
+    if (!_element) return window;
+
+    if (typeof _element === 'string') {
+      return document.querySelector(_element) as HTMLElement | null;
     }
 
-    if (!targetElement) return;
+    if (typeof _element === 'object' && 'current' in _element) {
+      return _element.current ?? null;
+    }
+
+    return _element as HTMLElement | Window;
+  };
+
+  const target = resolveElement();
+
+  // Начальное значение — берем из кэша, если есть
+  const [size, setSize] = useState<Size>(() => {
+    if (target && sizeCache.has(target)) {
+      return sizeCache.get(target)!;
+    }
+    return { width: 0, height: 0 };
+  });
+
+  useEffect(() => {
+    if (typeof document === 'undefined' || typeof window === 'undefined')
+      return;
+
+    const element = resolveElement();
+    if (!element) return;
 
     const updateSize = () => {
-      setSize({
+      const newSize: Size = {
         width:
-          (targetElement as HTMLElement).clientWidth ||
-          (targetElement as Window).innerWidth ||
+          (element as HTMLElement).clientWidth ||
+          (element as Window).innerWidth ||
           0,
         height:
-          (targetElement as HTMLElement).clientHeight ||
-          (targetElement as Window).innerHeight ||
+          (element as HTMLElement).clientHeight ||
+          (element as Window).innerHeight ||
           0,
+      };
+
+      // обновляем состояние только если реально изменилось
+      setSize(prev => {
+        if (prev.width === newSize.width && prev.height === newSize.height) {
+          return prev;
+        }
+        return newSize;
       });
+
+      // кладём в кэш
+      sizeCache.set(element, newSize);
     };
 
     updateSize();
-    if (typeof window === 'undefined') return;
 
     window.addEventListener('resize', updateSize);
 
     let resizeObserver: ResizeObserver | null = null;
-    if (targetElement !== window && 'ResizeObserver' in window) {
-      resizeObserver = new ResizeObserver(() => {
-        updateSize();
-      });
-      resizeObserver.observe(targetElement as HTMLElement);
+    if (element !== window && 'ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver(updateSize);
+      resizeObserver.observe(element as HTMLElement);
     }
 
     return () => {
       window.removeEventListener('resize', updateSize);
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
+      if (resizeObserver) resizeObserver.disconnect();
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_element, ...dependcies]);
 

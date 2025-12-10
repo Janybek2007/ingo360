@@ -70,7 +70,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
           headerEnd={
             <div className="flex gap-4 items-center relative z-100">
               <DbFilters {...filters} brandsMultiple={false} />
-              <PeriodFilters {...periodFilter} />
+              <PeriodFilters {...periodFilter} isMultiple={false} />
             </div>
           }
           classNames={{ wrapper: 'gap-3' }}
@@ -117,9 +117,11 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
               <div className="my-20">
                 <div className="flex flex-col items-center w-full gap-4.5">
                   <span className="font-medium text-5xl leading-full -tracking-[0.0125rem]">
-                    {entities.find(
-                      row => row.is_user_company || row.is_user_entity
-                    )?.rank ?? '-'}
+                    {isLoading
+                      ? '-'
+                      : (entities.find(
+                          row => row.is_user_company || row.is_user_entity
+                        )?.rank ?? '-')}
                   </span>
                   <p className="font-normal text-base leading-full -tracking-[0.0125rem]">
                     Ваше место в рейтинге
@@ -138,6 +140,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
               ) : (
                 <AsyncBoundary isLoading={isLoading} queryError={queryError}>
                   <Table
+                    isVirtualized={false}
                     highlightRow={row =>
                       row.is_user_company || row.is_user_entity
                         ? 'bg-yellow-100 font-bold'

@@ -126,7 +126,7 @@ const CompanyManagementPage: React.FC = () => {
           <Table
             columns={allColumns}
             data={filteredData}
-            maxHeight={500}
+            maxHeight={700}
             rounded="none"
           />
         </AsyncBoundary>

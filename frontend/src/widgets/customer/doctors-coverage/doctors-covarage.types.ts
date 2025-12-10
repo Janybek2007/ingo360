@@ -19,6 +19,7 @@ export interface DoctorCountVisitsProps {
   medicalFacilityIds: number[];
   medicalFacilityItems: FilterOptions[];
   setMedicalFacilityIds: React.Dispatch<React.SetStateAction<number[]>>;
+  enabled: boolean;
 }
 
 export interface DoctorFiltersProps {

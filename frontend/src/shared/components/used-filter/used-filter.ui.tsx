@@ -51,14 +51,17 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     <div
       key={item.value}
       className={`flex items-center gap-1.5 ${
-        item.subItems?.length
+        (item.subItems?.length as number) > 1
           ? 'rounded-md border border-gray-200 px-1.5 py-1'
           : ''
       }`}
     >
       <div className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
-        <span>{item.label}</span>
-        {(!item.isReadOnly || !isReadOnly) && (
+        <span>
+          {item.label}{' '}
+          {(item.subItems?.length as number) === 1 && item.subItems?.[0].label}
+        </span>
+        {!isReadOnly && (
           <button
             type="button"
             onClick={item.onDelete}
@@ -70,7 +73,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
         )}
       </div>
 
-      {item.subItems?.length ? (
+      {item.subItems && (item.subItems?.length as number) > 1 && (
         <Select<true, string>
           isMultiple
           triggerText={`+${item.subItems.filter(sub => sub.onDelete).length}`}
@@ -90,7 +93,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
             menu: 'min-w-[7rem] w-max max-w-[24rem] left-0',
           }}
         />
-      ) : null}
+      )}
     </div>
   );
 

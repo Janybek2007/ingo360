@@ -7,6 +7,7 @@ import { LucideArrowIcon } from '#/shared/components/icons';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
@@ -16,11 +17,16 @@ import type {
 } from '../doctors-covarage.types';
 
 export const DoctorsCountVisits: React.FC<DoctorCountVisitsProps> = React.memo(
-  ({ medicalFacilityIds, medicalFacilityItems, setMedicalFacilityIds }) => {
+  ({
+    medicalFacilityIds,
+    medicalFacilityItems,
+    setMedicalFacilityIds,
+    enabled = true,
+  }) => {
     const countQuery = useKeepQuery(
       DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
         ['visits/reports/doctors-by-specialty'],
-        { medical_facility_ids: medicalFacilityIds, method: 'POST' }
+        { method: 'POST', medical_facility_ids: medicalFacilityIds, enabled }
       )
     );
 
@@ -28,6 +34,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProps> = React.memo(
       () => (countQuery.data ? countQuery.data[0] : []),
       [countQuery.data]
     );
+    const sectionStyle = useSectionStyle();
 
     return (
       <div className="w-1/2 rounded-2xl p-5 bg-white">
@@ -86,8 +93,8 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProps> = React.memo(
           isLoading={countQuery.isLoading}
           queryError={countQuery.error}
         >
-          <div className="relative min-h-[24rem] max-h-[24rem] py-2 w-full flex items-center justify-center my-3">
-            <PieChart width={360} height={360}>
+          <div className="relative min-h-[28rem] max-h-[28rem] py-2 w-full flex items-center justify-center my-3">
+            <PieChart width={sectionStyle.width / 2 - 80} height={440}>
               <Pie
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore

@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
 import { UserQueries } from '#/entities/user/user.queries';
+import type { IUserItem } from '#/entities/user/user.types';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { getResponseError } from '#/shared/utils/get-error';
@@ -10,7 +11,6 @@ import {
   EditCustomerContract,
   type TAddCustomerContract,
 } from '../customer.contract';
-import type { TAddCustomerResponse } from '../customer.types';
 
 export const useEditCustomerMutation = (onClose: VoidFunction) => {
   return useMutation({
@@ -45,14 +45,18 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
         json: requestBody,
       });
 
-      return response.json<TAddCustomerResponse>();
+      return response.json<IUserItem>();
     },
-    async onSuccess() {
+    async onSuccess(data) {
       const { toast } = await import('sonner');
 
-      await queryClient.refetchQueries({
-        queryKey: UserQueries.queryKeys.getCustomers,
-      });
+      queryClient.setQueryData<IUserItem[]>(
+        UserQueries.queryKeys.getCustomers,
+        old => {
+          if (!old) return [data];
+          return old.map(user => (user.id === data.id ? data : user));
+        }
+      );
 
       onClose();
       toast.success('Клиент успешно обновлен');

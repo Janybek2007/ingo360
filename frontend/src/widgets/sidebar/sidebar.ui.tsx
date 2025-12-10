@@ -100,7 +100,7 @@ export const Sidebar: React.FC = React.memo(() => {
                 )}
               />
             ))
-          : navigations.map(item => (
+          : (navigations || []).map(item => (
               <Link
                 key={item.href}
                 to={item.href}

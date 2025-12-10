@@ -1,0 +1,9 @@
+{
+  "name": "Ingo360",
+  "short_name": "Ingo360",
+  "description": "Ingo360 — Progressive web app.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#f7f7f7",
+  "background_color": "#f7f7f7"
+}

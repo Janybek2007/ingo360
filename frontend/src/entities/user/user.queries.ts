@@ -10,6 +10,7 @@ export class UserQueries {
   static queryKeys = {
     getUser: ['get-user'],
     getUsers: ['get-users'],
+    getAdminOperators: ['get-admin-operators'],
     getCustomers: ['get-customers'],
   };
 
@@ -34,6 +35,19 @@ export class UserQueries {
   static GetUsersQuery() {
     return queryOptions({
       queryKey: this.queryKeys.getUsers,
+      queryFn: async () => {
+        const response = await http.get('users/').json<GetUsersResponse>();
+        return response.map(user => ({
+          ...user,
+          role: this.buildUserRole(user),
+        }));
+      },
+    });
+  }
+
+  static GetAdminOperatorsQuery() {
+    return queryOptions({
+      queryKey: this.queryKeys.getAdminOperators,
       queryFn: async () => {
         const response = await http
           .get('users/admins-operators')
@@ -62,6 +76,7 @@ export class UserQueries {
   private static buildUserRole(user: GetUserResponse): SessionRole {
     if (user.is_admin) return 'administrator';
     if (user.is_operator) return 'operator';
+    if (user.is_superuser) return 'superuser';
     return 'customer';
   }
 }

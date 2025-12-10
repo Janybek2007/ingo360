@@ -62,4 +62,5 @@ export const roleNavigations: Record<SessionRole, INavigationItem[]> = {
       label: 'Посмотреть логи отчетов',
     },
   ],
+  superuser: [],
 };

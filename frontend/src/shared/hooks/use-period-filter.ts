@@ -11,7 +11,6 @@ export interface IFilterPeriodSelectItem {
 
 export type UsePeriodFilterReturn = {
   period: UsePeriodType;
-  isSelectValues?: boolean;
   selectedValues: string[];
   views: UsePeriodType[];
   isView?: boolean;
@@ -22,70 +21,54 @@ export type UsePeriodFilterReturn = {
   onReset: VoidFunction;
 };
 
+export type PeriodFiltersProps = Omit<
+  UsePeriodFilterReturn,
+  'onDelete' | 'onReset' | 'isView'
+> & {
+  isSelectValues?: boolean;
+  isMultiple?: boolean;
+};
+
 export const usePeriodFilter = (
   views: UsePeriodType[] = ['year', 'month', 'quarter'],
-  defaultPeriod: UsePeriodType = 'month'
+  defaultPeriod: UsePeriodType = 'month',
+  isMultiple = true
 ): UsePeriodFilterReturn => {
   const [period, setPeriodState] = useState<UsePeriodType>(defaultPeriod);
 
   const currentYear = new Date().getFullYear();
 
   const buildAllItemValues = useCallback(
-    (periodArg: UsePeriodType, yearsArr: number[]) => {
+    (periodArg: UsePeriodType) => {
       const values: string[] = [];
-      yearsArr.forEach(year => {
-        if (periodArg === 'month') {
-          for (let i = 1; i <= 12; i++) values.push(`month-${year}-${i}`);
-        } else if (periodArg === 'quarter') {
-          for (let i = 1; i <= 4; i++) values.push(`quarter-${year}-${i}`);
-        } else if (periodArg === 'mat') {
-          for (let i = 1; i <= 12; i++) values.push(`mat-${year}-${i}`);
-        } else if (periodArg === 'ytd') {
-          for (let i = 1; i <= 12; i++) values.push(`ytd-${year}-${i}`);
-        } else {
-          values.push(`${year}`);
-        }
-      });
+      if (periodArg === 'month') {
+        if (isMultiple)
+          for (let i = 1; i <= 12; i++)
+            values.push(`month-${currentYear}-${i}`);
+        else values.push(`month-${currentYear}-12`);
+      } else if (periodArg === 'quarter') {
+        if (isMultiple)
+          for (let i = 1; i <= 4; i++)
+            values.push(`quarter-${currentYear}-${i}`);
+        else values.push(`quarter-${currentYear}-4`);
+      } else if (periodArg === 'mat') values.push(`mat-${currentYear}-12`);
+      else if (periodArg === 'ytd') values.push(`ytd-${currentYear}-12`);
+      else values.push(`${currentYear}`);
       return values;
     },
-    []
+    [isMultiple, currentYear]
   );
 
-  const [selectedValues, setSelectedValues] = useState<string[]>(() => {
-    const allCurrentYearItems = buildAllItemValues(defaultPeriod, [
-      currentYear,
-    ]);
-    const currentYearKey = `year-${currentYear}`;
-    if (['mat', 'ytd'].includes(defaultPeriod)) {
-      if (defaultPeriod === 'ytd') {
-        return [`ytd-${currentYear}-12`];
-      }
-      return allCurrentYearItems.slice(0, 1);
-    }
-    if (period === 'year') return allCurrentYearItems;
-    return [...allCurrentYearItems, currentYearKey];
-  });
+  const [selectedValues, setSelectedValues] = useState<string[]>(
+    buildAllItemValues(defaultPeriod)
+  );
 
   const setPeriod = useCallback(
     (newPeriod: UsePeriodType) => {
       setPeriodState(newPeriod);
-
-      setSelectedValues(() => {
-        const allCurrentYearItems = buildAllItemValues(newPeriod, [
-          currentYear,
-        ]);
-        const currentYearKey = `year-${currentYear}`;
-        if (['mat', 'ytd'].includes(newPeriod)) {
-          if (newPeriod === 'ytd') {
-            return [`ytd-${currentYear}-12`];
-          }
-          return allCurrentYearItems.slice(0, 1);
-        }
-        if (newPeriod === 'year') return allCurrentYearItems;
-        return [...allCurrentYearItems, currentYearKey];
-      });
+      setSelectedValues(buildAllItemValues(newPeriod));
     },
-    [buildAllItemValues, currentYear]
+    [buildAllItemValues]
   );
 
   const years = useMemo(() => {
@@ -139,11 +122,9 @@ export const usePeriodFilter = (
     const result: IFilterPeriodSelectItem[] = [];
 
     years.forEach(year => {
-      const yearKey = `year-${year}`;
       if (period === 'year') {
         result.push({ label: `${year}`, value: `${year}` });
       } else if (period === 'month') {
-        result.push({ label: `${year}`, value: yearKey });
         Object.values(MonthFull).forEach((monthName, idx) => {
           result.push({
             label: `${monthName} ${year}`,
@@ -151,7 +132,6 @@ export const usePeriodFilter = (
           });
         });
       } else if (period === 'quarter') {
-        result.push({ label: `${year}`, value: yearKey });
         for (let q = 1; q <= 4; q++) {
           result.push({
             label: `${q}кв ${year}`,

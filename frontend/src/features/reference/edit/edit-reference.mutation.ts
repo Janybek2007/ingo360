@@ -23,9 +23,7 @@ export const useEditReferenceMutation = (
         return null;
       }
       return http
-        .patch(`${type}/${id}`, {
-          json: parsedBody,
-        })
+        .patch(`${type}/${id}`, { json: parsedBody })
         .json<IReferenceItem>();
     },
     onSuccess: async updatedItem => {

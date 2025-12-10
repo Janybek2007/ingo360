@@ -19,11 +19,15 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
     <section>
       <div className="flex items-start gap-6 w-full">
         <DoctorsCountVisits
+          enabled={!filterOptions.isLoading}
           setMedicalFacilityIds={setMedicalFacilityIds}
           medicalFacilityItems={filterOptions.medicalFacilities}
           medicalFacilityIds={medicalFacilityIds}
         ></DoctorsCountVisits>
-        <DoctorsPercentageVisits medicalFacilityIds={medicalFacilityIds} />
+        <DoctorsPercentageVisits
+          enabled={!filterOptions.isLoading}
+          medicalFacilityIds={medicalFacilityIds}
+        />
       </div>
     </section>
   );

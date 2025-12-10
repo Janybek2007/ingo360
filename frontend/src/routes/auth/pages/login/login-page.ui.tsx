@@ -7,7 +7,13 @@ import { Assets } from '#/shared/assets';
 const LoginPage: React.FC = () => {
   return (
     <div className="h-screen font-inter">
-      <section className="h-full mx-auto flex items-start">
+      <div className="md:hidden h-full flex w-full items-center justify-center">
+        <div className="w-full max-w-[80dvw]">
+          <h3 className="mb-16 font-bold text-4xl">Войти</h3>
+          <LoginForm />
+        </div>
+      </div>
+      <section className="hidden md:flex h-full mx-auto items-start">
         <div className="w-1/2 pt-[4rem] px-[7.5rem] pb-[2.5rem] h-full flex flex-col justify-between">
           <div className="mb-[8.75rem]">
             <img

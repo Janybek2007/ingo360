@@ -11,6 +11,7 @@ import { authLayoutRoute } from '#/routes/auth/layout';
 import { customerLayoutRoute } from '#/routes/customer/layout';
 import { operatorLayoutRoute } from '#/routes/operator/layout';
 import { setPasswordPageRoute } from '#/routes/set-password';
+import { superUserPageRoute } from '#/routes/superuser';
 import { routePaths } from '#/shared/router';
 
 import RootLayout from './root.layout';
@@ -31,6 +32,7 @@ const browserRouter = () => {
         operatorLayoutRoute,
         authLayoutRoute,
         page404Route,
+        superUserPageRoute,
         setPasswordPageRoute,
         { path: '*', loader: () => redirect(routePaths.page404) },
       ],

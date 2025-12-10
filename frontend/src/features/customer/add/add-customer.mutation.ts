@@ -10,7 +10,6 @@ import {
   AddCustomerContract,
   type TAddCustomerContract,
 } from '../customer.contract';
-import type { TAddCustomerResponse } from '../customer.types';
 
 export const useAddCustomerMutation = (onClose: VoidFunction) => {
   return useMutation({
@@ -23,7 +22,7 @@ export const useAddCustomerMutation = (onClose: VoidFunction) => {
           position: parsedBody.position,
         },
       });
-      return response.json<TAddCustomerResponse>();
+      return response.json();
     },
     async onSuccess() {
       const { toast } = await import('sonner');

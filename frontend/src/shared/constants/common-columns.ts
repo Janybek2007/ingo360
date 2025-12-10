@@ -492,6 +492,49 @@ export const marketInsightsDynamicPeriods = (data: any[]): CColumn<any>[] => {
   }));
 };
 
+/*
+
+export const monthsPreset = <
+  TData extends { periods_data?: Record<string, Record<string, number>> },
+>(
+  indicator: string,
+  data: TData[],
+  options?: { asPercent?: boolean; noFraction?: boolean }
+) => {
+  const existingPeriods = new Set<string>();
+
+  data.forEach(row => {
+    if (!row.periods_data) return;
+
+    Object.keys(row.periods_data).forEach(period => {
+      // Проверяем, что в этом периоде есть значение именно по нашему индикатору
+      if (row.periods_data![period][indicator] !== undefined) {
+        existingPeriods.add(period);
+      }
+    });
+  });
+
+  const periods = Array.from(existingPeriods).sort((a, b) => {
+    const [ya, ma] = a.split('-').map(Number);
+    const [yb, mb] = b.split('-').map(Number);
+    return ya !== yb ? ya - yb : ma - mb;
+  });
+
+  return {
+    periods,
+    getValue: (row: TData, periodKey: string) => {
+      if (!row.periods_data?.[periodKey]) return null;
+      const value = row.periods_data[periodKey][indicator];
+      return value ?? null;
+    },
+    asPercent: options?.asPercent,
+    indicatorKey: indicator,
+    noFraction: options?.noFraction,
+  };
+};
+
+*/
+
 export const monthsPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
 >(

@@ -2,7 +2,6 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react-swc';
 import { defineConfig, type HtmlTagDescriptor } from 'vite';
 import compression from 'vite-plugin-compression';
-import Preload from 'vite-plugin-preload';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(({ mode }) => {
@@ -19,26 +18,6 @@ export default defineConfig(({ mode }) => {
 
       tailwindcss(),
       tsconfigPaths(),
-
-      Preload({
-        includeJs: true,
-        includeCss: true,
-        format: true,
-        mode: 'preload',
-        shouldPreload: chunk => {
-          if (chunk.type === 'chunk') {
-            const name = chunk.fileName;
-            return ['index', 'react-vendor', 'router-vendor'].some(n =>
-              name.includes(n)
-            );
-          }
-          return (
-            chunk.type === 'asset' &&
-            (chunk.fileName.endsWith('.css') ||
-              chunk.fileName.endsWith('.woff2'))
-          );
-        },
-      }),
 
       isProd &&
         compression({
@@ -101,10 +80,25 @@ export default defineConfig(({ mode }) => {
 
       rollupOptions: {
         output: {
-          entryFileNames: 'assets/[name]-[hash].js',
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
+          entryFileNames: 'assets/js/[name]-[hash].js',
+          chunkFileNames: chunk => {
+            if (chunk.name.includes('vendor')) {
+              return 'assets/vendors/[name]-[hash].js';
+            }
+            return 'assets/js/[name]-[hash].js';
+          },
 
+          assetFileNames: assetInfo => {
+            const name = assetInfo.name ?? '';
+            if (/\.css$/.test(name)) return 'assets/css/[name]-[hash][extname]';
+            if (/\.(png|jpe?g|gif|svg|webp|avif)$/.test(name))
+              return 'assets/images/[name]-[hash][extname]';
+            if (/\.(woff2?|ttf|otf|eot)$/.test(name))
+              return 'assets/fonts/[name]-[hash][extname]';
+            if (/\.(mp4|webm|ogg|mp3|wav)$/.test(name))
+              return 'assets/media/[name]-[hash][extname]';
+            return 'assets/other/[name]-[hash][extname]';
+          },
           manualChunks(id) {
             // Vendor chunks - только то что есть в package.json
             if (id.includes('node_modules')) {
@@ -186,18 +180,13 @@ export default defineConfig(({ mode }) => {
               return 'vendor';
             }
 
-            // App chunks - FSD архитектура
             if (id.includes('/src/app/')) return 'app';
-            if (id.includes('/src/routes/')) return 'routes';
-            if (id.includes('/src/widgets/')) return 'widgets';
-            if (id.includes('/src/features/')) return 'features';
-            if (id.includes('/src/entities/')) return 'entities';
 
-            // Shared слой
-            if (id.includes('/src/shared/ui/')) return 'shared-ui';
-            if (id.includes('/src/shared/lib/')) return 'shared-lib';
-            if (id.includes('/src/shared/api/')) return 'shared-api';
-            if (id.includes('/src/shared/')) return 'shared';
+            if (id.includes('/src/shared/components/ui')) return 'shared-ui';
+            if (id.includes('/src/shared/components/table'))
+              return 'shared-table-ui';
+            if (id.includes('/src/shared/hooks/')) return 'shared-hooks';
+            if (id.includes('/src/shared/utils/')) return 'shared-utils';
           },
 
           experimentalMinChunkSize: 20000, // 20kb

@@ -113,7 +113,7 @@ const ToggleAllButton = memo(
   }
 );
 
-ToggleAllButton.displayName = 'ToggleAllButton';
+ToggleAllButton.displayName = '_ToggleAllButton_';
 
 export function Select<ISM extends boolean = false, VT = string>({
   items,

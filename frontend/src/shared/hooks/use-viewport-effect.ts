@@ -14,6 +14,8 @@ export const useViewportEffect = () => {
 
     if (scale === 1.25) {
       root.style.setProperty('font-size', '75%');
+    } else if (scale === 1.125) {
+      root.style.setProperty('font-size', '80%');
     } else if (scale === 1) {
       root.style.setProperty('font-size', '85%');
     }

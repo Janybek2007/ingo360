@@ -24,7 +24,7 @@ const IngoAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [editData, setEditData] = useState<IUserItem | null>(null);
-  const queryData = useQuery(UserQueries.GetUsersQuery());
+  const queryData = useQuery(UserQueries.GetAdminOperatorsQuery());
 
   const filteredData = useMemo(() => {
     if (!queryData.data) return [];
@@ -104,7 +104,7 @@ const IngoAccountsPage: React.FC = () => {
           <Table
             columns={allColumns}
             data={filteredData}
-            maxHeight={500}
+            maxHeight={700}
             rounded="none"
           />
         </AsyncBoundary>

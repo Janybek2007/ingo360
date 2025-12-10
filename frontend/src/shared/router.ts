@@ -4,6 +4,8 @@ export const routePaths = {
   profile: '/profile',
   setPassword: '/users/set-password',
 
+  superuser: '/home',
+
   // Auth
   auth: {
     login: '/auth/login',
@@ -58,4 +60,5 @@ export const roleAccess = {
     routePaths.operator.reportLogs,
     routePaths.profile,
   ],
+  superuser: [routePaths.superuser],
 };

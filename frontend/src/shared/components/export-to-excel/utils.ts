@@ -60,7 +60,6 @@ export class ExcelExporter<T extends object> {
 
     const allPeriods = new Set<string>();
 
-    // собираем периоды
     data.forEach(item => {
       const periodDataKey = Object.keys(item).find(key =>
         this.isPeriodObject(item[key])
@@ -70,15 +69,13 @@ export class ExcelExporter<T extends object> {
       const periodData = item[periodDataKey];
 
       Object.keys(periodData).forEach(period => {
-        if (useAllPeriods) {
-          allPeriods.add(period); // уже YYYY-MM
-        } else if (selectedPeriods.includes(period)) {
+        if (useAllPeriods || selectedPeriods.includes(period)) {
           allPeriods.add(period);
         }
       });
     });
 
-    const periodKeys = Array.from(allPeriods);
+    const periodKeys = this.periodKeysSort(Array.from(allPeriods));
 
     const formattedData = data.map(item => {
       const newItem: any = { ...item };
@@ -94,33 +91,31 @@ export class ExcelExporter<T extends object> {
 
       let total = 0;
 
-      // считаем total
-      periodKeys.forEach(period => {
-        const val = periodData[period]?.[this.periodKey!];
-        if (typeof val === 'number') total += val;
-      });
-
-      // формируем значения
       periodKeys.forEach(period => {
         const rawValue = periodData[period]?.[this.periodKey!];
 
-        let value: string | number = this.emptyValue;
-
         if (rawValue !== undefined && rawValue !== null) {
-          value = rawValue;
+          if (typeof rawValue === 'number') {
+            total += rawValue;
+          }
+
+          let value: string | number = rawValue;
 
           if (this.periodAsPercent) {
             value = `${Math.round(rawValue)}%`;
-          } else if (typeof value === 'number') {
+          } else if (typeof rawValue === 'number') {
             value = Number(rawValue.toFixed(2));
           }
-        }
 
-        newItem[period] = value;
+          newItem[period] = value;
+        }
+        // ← Важно: если периода нет — просто НЕ создаём ключ вообще!
       });
 
-      if (this.hasTotal) {
-        newItem['total'] = total;
+      if (this.hasTotal && total > 0) {
+        newItem['total'] = this.periodAsPercent
+          ? '100%'
+          : Number(total.toFixed(2));
       }
 
       return newItem;
@@ -155,15 +150,21 @@ export class ExcelExporter<T extends object> {
         const headerName =
           this.formatHeader?.[keyStr as keyof typeof this.formatHeader] ||
           keyStr;
+
         newItem[headerName] = value;
       });
 
-      this.periodKeysSort(periodKeys).forEach(period => {
-        const value = item[period] ?? this.emptyValue;
-        newItem[period] = value;
+      // Только те периоды, которые реально есть в объекте
+      periodKeys.forEach(period => {
+        if (period in item) {
+          newItem[period] = item[period];
+        }
+        // если периода нет — просто пропускаем колонку (ячейка будет пустая в Excel)
       });
 
-      if (this.hasTotal && 'total' in item) newItem['Итого'] = item.total;
+      if (this.hasTotal && 'total' in item) {
+        newItem['Итого'] = item.total;
+      }
 
       return newItem;
     });

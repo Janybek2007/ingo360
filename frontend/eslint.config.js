@@ -34,10 +34,7 @@ export default [
         ecmaFeatures: {
           jsx: true,
         },
-        project: [
-          path.resolve(process.cwd(), './tsconfig.app.json'),
-          path.resolve(process.cwd(), './tsconfig.node.json'),
-        ],
+        project: [path.resolve(process.cwd(), './tsconfig.json')],
         tsconfigRootDir: process.cwd(),
       },
     },

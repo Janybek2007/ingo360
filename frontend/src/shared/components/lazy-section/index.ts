@@ -1,2 +1,2 @@
 export type { LazySectionProps } from './lazy-section.types';
-export { LazySection } from './lazy-section.ui';
+export { LazySection, SectionSkeleton } from './lazy-section.ui';

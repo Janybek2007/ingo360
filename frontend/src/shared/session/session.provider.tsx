@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { UserQueries } from '#/entities/user/user.queries';
 
 import { WelcomeMessage } from '../components/welcome-message';
-import { useViewportEffect } from '../hooks/useViewportEffect';
+import { useViewportEffect } from '../hooks/use-viewport-effect';
 import { useNotifications } from './hooks/use-notifications';
 import { useUserAccess } from './hooks/use-user-access';
 import { SessionContext } from './session.context';

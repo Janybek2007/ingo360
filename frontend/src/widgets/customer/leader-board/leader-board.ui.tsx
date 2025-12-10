@@ -46,7 +46,7 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
                 <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
                   Рейтинг компаний
                 </h4>
-                <PeriodFilters {...periodFilter} />
+                <PeriodFilters {...periodFilter} isMultiple={false} />
               </div>
               <UsedFilter
                 isReadOnly
@@ -85,6 +85,7 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
             ) : (
               <AsyncBoundary isLoading={isLoading} queryError={queryError}>
                 <Table
+                  isVirtualized={false}
                   highlightRow={row =>
                     row.is_user_company ? 'bg-yellow-100 font-bold' : ''
                   }

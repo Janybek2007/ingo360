@@ -31,7 +31,7 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
       const { toast } = await import('sonner');
 
       await queryClient.refetchQueries({
-        queryKey: UserQueries.queryKeys.getUsers,
+        queryKey: UserQueries.queryKeys.getAdminOperators,
       });
 
       onClose();

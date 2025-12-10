@@ -12,11 +12,8 @@ interface ParsedPeriod {
   number?: number;
 }
 
-interface YearGroupMap {
-  [year: string]: {
-    items: IUsedFilterItem[];
-    byType: Record<string, IUsedFilterItem[]>;
-  };
+interface YearGroup {
+  items: IUsedFilterItem[];
 }
 
 export class PeriodGrouping {
@@ -26,7 +23,7 @@ export class PeriodGrouping {
     'mat',
     'ytd',
   ] as const;
-  private static readonly MAT_YTD_TYPES = ['mat', 'ytd'] as const;
+  private static readonly CUMULATIVE_TYPES = ['mat', 'ytd'] as const;
   private static readonly FULL_YEAR_COUNTS: Record<string, number> = {
     month: 12,
     quarter: 4,
@@ -34,209 +31,98 @@ export class PeriodGrouping {
     ytd: 12,
   };
 
-  private items: IUsedFilterItem[];
-  private itemsCache: Map<string, any> = new Map();
+  private items: IUsedFilterItem[] = [];
+  private cache = new Map<string, any>();
   private mode: PeriodViewMode;
-  private isReadOnly: boolean = false;
+  private isReadOnly: boolean;
 
   constructor(
     items: IUsedFilterItem[] = [],
     mode: PeriodViewMode = 'default',
-    isReadOnly: boolean = false
+    isReadOnly = false
   ) {
     this.items = Array.isArray(items) ? items : [];
     this.mode = mode;
     this.isReadOnly = isReadOnly;
-    this.validateItems();
   }
 
-  /**
-   * Основной публичный метод - единственная функция на выходе
-   * Группирует периоды по годам или режиму отображения
-   * @param mode - Режим отображения ('default' | 'from')
-   * @returns Массив сгруппированных элементов
-   */
   public group(): IUsedFilterItem[] | IGroupedPeriod[] {
-    if (!this.items.length) {
-      return [];
-    }
+    if (!this.items.length) return [];
 
-    const cacheKey = `group-${this.mode}`;
-    if (this.itemsCache.has(cacheKey)) {
-      return this.itemsCache.get(cacheKey);
-    }
+    const key = `${this.mode}-${this.isReadOnly}`;
+    if (this.cache.has(key)) return this.cache.get(key)!;
 
     const result =
-      this.mode === 'from' && this.hasMatYtdItems()
-        ? this.groupMatYtd()
-        : this.groupByYear();
-
-    this.itemsCache.set(cacheKey, result);
+      this.mode === 'from' ? this.groupAsFrom() : this.groupByYear();
+    this.cache.set(key, result);
     return result;
   }
 
-  private parsePeriodValue(value: string | number): ParsedPeriod {
-    const valueStr = String(value);
-    const parts = valueStr.split('-');
+  private parse(value: string | number): ParsedPeriod {
+    const str = String(value);
+    const parts = str.split('-');
 
-    if (parts.length === 1 && /^\d{4}$/.test(valueStr)) {
-      return {
-        type: 'year',
-        year: valueStr,
-        number: undefined,
-      };
+    if (parts.length === 1 && /^\d{4}$/.test(str)) {
+      return { type: 'year', year: str };
     }
 
     return {
       type: parts[0] || '',
       year: parts[1] || '',
-      number: parts[2] ? parseInt(parts[2], 10) : undefined,
+      number: parts[2] ? Number(parts[2]) : undefined,
     };
   }
 
-  private isPeriodType(type: string): boolean {
-    return PeriodGrouping.PERIOD_TYPES.includes(type as any);
+  private isPeriodType(type: string): type is UsePeriodType {
+    return (PeriodGrouping.PERIOD_TYPES as readonly string[]).includes(type);
   }
 
-  private isMatYtdType(type: string): boolean {
-    return PeriodGrouping.MAT_YTD_TYPES.includes(type as any);
+  private isCumulativeType(type: string): boolean {
+    return (PeriodGrouping.CUMULATIVE_TYPES as readonly string[]).includes(
+      type
+    );
   }
 
-  private sortByPeriodNumber(items: IUsedFilterItem[]): IUsedFilterItem[] {
+  private sortByNumber(items: IUsedFilterItem[]): IUsedFilterItem[] {
     return [...items].sort((a, b) => {
-      const aNum = this.parsePeriodValue(a.value).number || 0;
-      const bNum = this.parsePeriodValue(b.value).number || 0;
+      const aNum = this.parse(a.value).number ?? 0;
+      const bNum = this.parse(b.value).number ?? 0;
       return aNum - bNum;
     });
   }
 
-  private groupByType(
-    items: IUsedFilterItem[],
-    year: string
-  ): Record<string, IUsedFilterItem[]> {
-    const groups: Record<string, IUsedFilterItem[]> = {
-      month: [],
-      quarter: [],
-      mat: [],
-      ytd: [],
-    };
-
-    for (const item of items) {
-      const { type } = this.parsePeriodValue(item.value);
-
-      if (type && groups.hasOwnProperty(type)) {
-        const itemYear = this.parsePeriodValue(item.value).year;
-        if (itemYear === year) {
-          groups[type].push(item);
-        }
-      }
-    }
-
-    return groups;
-  }
-
-  private isYearComplete(items: IUsedFilterItem[]): boolean {
-    if (!items.length) return false;
-
-    const byType = this.groupByType(
-      items,
-      this.parsePeriodValue(items[0].value).year
-    );
-
-    for (const [type, typeItems] of Object.entries(byType)) {
-      // Для режима isReadOnly игнорируем проверку полноты для month и year
-      if (this.isReadOnly && (type === 'month' || type === 'year')) {
-        continue;
-      }
-
-      if (typeItems.length === PeriodGrouping.FULL_YEAR_COUNTS[type]) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private hasMatYtdItems(): boolean {
-    if (!this.items.length) return false;
-    const { type } = this.parsePeriodValue(this.items[0].value);
-    return this.isMatYtdType(type);
-  }
-
+  // Режим по умолчанию — группировка по годам
   private groupByYear(): IUsedFilterItem[] {
-    const yearsMap: YearGroupMap = {};
-    const yearItems: IUsedFilterItem[] = [];
+    const years = new Map<string, YearGroup>();
+    const fullYears: IUsedFilterItem[] = [];
 
     for (const item of this.items) {
-      const { type, year } = this.parsePeriodValue(item.value);
+      const { type, year } = this.parse(item.value);
 
-      if (type === 'year' && !String(item.value).includes('-')) {
-        yearItems.push(item);
+      if (type === 'year') {
+        fullYears.push(item);
         continue;
       }
 
-      if (!type || !year || !this.isPeriodType(type)) {
-        continue;
-      }
+      if (!this.isPeriodType(type) || !year) continue;
 
-      if (!yearsMap[year]) {
-        yearsMap[year] = { items: [], byType: {} };
-      }
-
-      yearsMap[year].items.push(item);
+      if (!years.has(year)) years.set(year, { items: [] });
+      years.get(year)!.items.push(item);
     }
 
-    // В режиме isReadOnly показываем годы, даже если выбран только один
-    const visibleYears = this.isReadOnly
-      ? yearItems
-      : yearItems.length > 1
-        ? yearItems
-        : [];
-    return [...visibleYears, ...this.filterAndFormatYears(yearsMap)];
-  }
-
-  /**
-   * Группирует элементы для режима MAT/YTD ("от X")
-   */
-  private groupMatYtd(): IGroupedPeriod[] {
-    const result: IGroupedPeriod[] = [];
-
-    for (const item of this.items) {
-      const { type, year } = this.parsePeriodValue(item.value);
-
-      if (!type || !year || type === 'year' || !this.isPeriodType(type)) {
-        continue;
-      }
-
-      const label = item.label || getPeriodLabel(item.value as string);
-
-      result.push({
-        type: type as UsePeriodType,
-        year,
-        items: [item],
-        label: `до ${label}`,
-        value: String(item.value),
-        onDelete: item.onDelete,
-        isReadOnly: item.isReadOnly || this.isReadOnly,
-      });
-    }
-
-    return result;
-  }
-
-  /**
-   * Фильтрует годы и форматирует их для отображения
-   */
-  private filterAndFormatYears(yearsMap: YearGroupMap): IUsedFilterItem[] {
     const result: IUsedFilterItem[] = [];
 
-    for (const [year, { items }] of Object.entries(yearsMap)) {
+    if (this.isReadOnly || fullYears.length > 1) {
+      result.push(...fullYears);
+    }
+
+    for (const [year, { items }] of years) {
       if (!this.isYearComplete(items)) {
         result.push({
           label: year,
           value: `year-${year}`,
           onDelete: () => {},
-          subItems: this.sortByPeriodNumber(items),
+          subItems: this.sortByNumber(items),
         });
       }
     }
@@ -244,13 +130,55 @@ export class PeriodGrouping {
     return result;
   }
 
-  /**
-   * Валидирует элементы фильтра
-   */
-  private validateItems(): void {
-    if (!Array.isArray(this.items)) {
-      console.warn('[PeriodGrouping] Items должны быть массивом');
-      this.items = [];
+  // Режим "from"
+  private groupAsFrom(): IGroupedPeriod[] {
+    const result: IGroupedPeriod[] = [];
+
+    for (const item of this.items) {
+      const { type, year } = this.parse(item.value);
+
+      if (type === 'year' || !this.isPeriodType(type) || !year) continue;
+
+      const baseLabel = item.label || getPeriodLabel(String(item.value));
+      const label = this.isCumulativeType(type) ? `до ${baseLabel}` : baseLabel;
+
+      result.push({
+        type,
+        year,
+        label,
+        value: String(item.value),
+        items: [item],
+        onDelete: item.onDelete,
+      });
     }
+
+    // Сортировка по году + номеру периода
+    return result.sort((a, b) => {
+      if (a.year !== b.year) return Number(a.year) - Number(b.year);
+      const aNum = this.parse(a.value).number ?? 0;
+      const bNum = this.parse(b.value).number ?? 0;
+      return aNum - bNum;
+    });
+  }
+
+  private isYearComplete(items: IUsedFilterItem[]): boolean {
+    const counts: Record<string, number> = {
+      month: 0,
+      quarter: 0,
+      mat: 0,
+      ytd: 0,
+    };
+
+    for (const item of items) {
+      const { type } = this.parse(item.value);
+      if (this.isPeriodType(type)) counts[type]++;
+    }
+
+    for (const [type, count] of Object.entries(counts)) {
+      if (this.isReadOnly && type === 'month') continue;
+      if (count === PeriodGrouping.FULL_YEAR_COUNTS[type]) return true;
+    }
+
+    return false;
   }
 }

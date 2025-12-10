@@ -2,12 +2,12 @@ import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
 import { UserQueries } from '#/entities/user/user.queries';
+import type { IUserItem } from '#/entities/user/user.types';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { getResponseError } from '#/shared/utils/get-error';
 
 import { EditUserContract, type TAddUserContract } from '../users.contracts';
-import type { TAddUserResponse } from '../users.types';
 
 export const useEditUserMutation = (onClose: VoidFunction) => {
   return useMutation({
@@ -26,11 +26,8 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
         first_name: parsedBody.first_name,
         last_name: parsedBody.last_name,
         is_active: parsedBody.is_active,
-        is_superuser: parsedBody.is_superuser,
-        is_verified: parsedBody.is_verified,
         is_operator: parsedBody.role === 'operator',
         is_admin: parsedBody.role === 'administrator',
-        company_id: parsedBody.company_id,
       };
 
       if (parsedBody.password && parsedBody.password.trim().length > 0) {
@@ -41,14 +38,18 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
         json: requestBody,
       });
 
-      return response.json<TAddUserResponse>();
+      return response.json<IUserItem>();
     },
-    async onSuccess() {
+    async onSuccess(data) {
       const { toast } = await import('sonner');
 
-      await queryClient.refetchQueries({
-        queryKey: UserQueries.queryKeys.getUsers,
-      });
+      queryClient.setQueryData<IUserItem[]>(
+        UserQueries.queryKeys.getAdminOperators,
+        old => {
+          if (!old) return [data];
+          return old.map(user => (user.id === data.id ? data : user));
+        }
+      );
 
       onClose();
       toast.success('Пользователь успешно обновлен');

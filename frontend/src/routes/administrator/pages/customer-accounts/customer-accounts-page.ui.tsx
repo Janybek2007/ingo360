@@ -40,8 +40,8 @@ const CustomerAccountsPage: React.FC = () => {
       ...customer,
       fullName:
         `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
-      position: (customer as { position?: string }).position || 'Не указана',
-      companyName: customer.company?.name || 'Не указана',
+      position: (customer as { position?: string }).position || 'Не указано',
+      companyName: customer.company?.name || 'Не указано',
     })) as CustomerRow[];
 
     return filterBySearch<CustomerRow>(normalized, search, [
@@ -61,7 +61,7 @@ const CustomerAccountsPage: React.FC = () => {
       commonColumns.customerPosition(),
       commonColumns.customerCompany(290, customersQuery.data || []),
       commonColumns.userEmail(),
-      commonColumns.status(150, 'statusDisplay'),
+      commonColumns.status(150, 'is_active'),
       {
         id: 'actions',
         header: 'Действия',
@@ -121,7 +121,7 @@ const CustomerAccountsPage: React.FC = () => {
           <Table
             columns={allColumns}
             data={filteredData}
-            maxHeight={500}
+            maxHeight={700}
             rounded="none"
           />
         </AsyncBoundary>

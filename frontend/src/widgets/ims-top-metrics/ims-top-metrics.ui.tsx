@@ -17,6 +17,7 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
     const [activeTab, setActiveTab] = React.useState<ISMGroupColumn>('company');
     const isBrandEnabled = activeTab === 'brand' && isMarketDevelopmentPage;
     const isSegmentEnabled = activeTab === 'segment' && isMarketDevelopmentPage;
+
     const [brands, setBrands] = React.useState<string[]>([]);
     const [segments, setSegments] = React.useState<string[]>([]);
 
@@ -38,7 +39,8 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
 
     const periodFilter = usePeriodFilter(
       ['mat', 'ytd', 'year', 'month'],
-      'mat'
+      'mat',
+      false
     );
 
     const queryData = useKeepQuery(
@@ -75,7 +77,7 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
             <MarketEntityProfile
               filters={filters}
               periodFilter={periodFilter}
-              isLoading={queryData.isLoading}
+              isLoading={queryData.isLoading || queryData.isFetching}
               queryError={queryData.error}
               entities={metricData?.entities ?? []}
               activeTab={activeTab}

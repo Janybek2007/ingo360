@@ -7,6 +7,7 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { stringToColor } from '#/shared/utils/string-to-color';
@@ -15,7 +16,8 @@ import type { DoctorsCoverageRow } from '../doctors-covarage.types';
 
 export const DoctorsPercentageVisits: React.FC<{
   medicalFacilityIds: number[];
-}> = React.memo(({ medicalFacilityIds }) => {
+  enabled: boolean;
+}> = React.memo(({ medicalFacilityIds, enabled = true }) => {
   const periodFilter = usePeriodFilter();
   const percentageQuery = useKeepQuery(
     DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
@@ -25,6 +27,7 @@ export const DoctorsPercentageVisits: React.FC<{
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
         method: 'POST',
+        enabled,
       }
     )
   );
@@ -32,6 +35,9 @@ export const DoctorsPercentageVisits: React.FC<{
     () => (percentageQuery.data ? percentageQuery.data[0] : []),
     [percentageQuery.data]
   );
+
+  const sectionStyle = useSectionStyle();
+
   return (
     <div className="w-1/2 rounded-2xl p-5 bg-white">
       <div className="flex items-center justify-between mb-4">
@@ -58,8 +64,8 @@ export const DoctorsPercentageVisits: React.FC<{
           />
         </div>
 
-        <div className="relative min-h-[24rem] max-h-[24rem] py-2 w-full flex items-center justify-center my-3">
-          <PieChart width={500} height={360}>
+        <div className="relative min-h-[28rem] max-h-[28rem] py-2 w-full flex items-center justify-center my-3">
+          <PieChart width={sectionStyle.width / 2 - 80} height={440}>
             <Pie
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
