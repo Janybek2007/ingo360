@@ -47,7 +47,6 @@ export function getUsedFilterItems(
         value: filter.value as string,
         onDelete: () => filter.onDelete?.(filter.value as string),
         subItems,
-        isReadOnly: filter.isReadOnly,
       });
     } else {
       values.forEach(value => {
@@ -66,7 +65,6 @@ export function getUsedFilterItems(
           label,
           value,
           onDelete: () => filter.onDelete?.(value),
-          isReadOnly: filter.isReadOnly,
         });
       });
     }
