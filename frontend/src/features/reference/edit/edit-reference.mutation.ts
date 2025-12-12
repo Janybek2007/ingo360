@@ -1,10 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import type { HTTPError } from 'ky';
 
 import type { IReferenceItem } from '#/entities/reference';
 import { http } from '#/shared/api';
+import { QueryOnError } from '#/shared/libs/react-query';
 import type { ReferencesType } from '#/shared/types/references.type';
-import { getResponseError } from '#/shared/utils/get-error';
 
 import { updateReferencesCache } from '../utils';
 
@@ -44,14 +43,6 @@ export const useEditReferenceMutation = (
       onClose();
       toast.success('Ресурс успешно отредактирован');
     },
-    onError: async (error: HTTPError) => {
-      const { toast } = await import('sonner');
-      try {
-        const data = await getResponseError(error.response);
-        toast.error(data);
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
-      }
-    },
+    onError: QueryOnError,
   });
 };

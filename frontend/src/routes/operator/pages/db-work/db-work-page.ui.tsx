@@ -14,7 +14,7 @@ const DbWorkPage: React.FC = () => {
   const [groupBy, setGroupBy] = React.useState<string[]>([]);
 
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
-    defaultValue: 'sales/tertiary/reports/sales',
+    defaultValue: 'sales_primary',
   });
 
   const queryData = useQuery(

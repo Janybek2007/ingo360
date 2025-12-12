@@ -30,7 +30,7 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = React.memo(
 
     const confirmButtonClassName = React.useMemo(() => {
       const baseClasses =
-        'px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-150';
+        'md:px-5 px-4 md:py-2 py-1 text-sm font-medium text-white rounded-lg transition-colors duration-150';
 
       if (confirmAs === 'danger') {
         return `${baseClasses} bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm shadow-rose-200`;
@@ -44,22 +44,22 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = React.memo(
         title={title}
         onClose={handleCancel}
         classNames={{
-          body: 'min-w-[30rem] max-w-[30rem]',
+          body: 'md:min-w-[32rem] md:max-w-[32rem] min-w-[90dvw] max-w-[90dvw] md:p-7 p-5',
         }}
       >
-        <div className="pb-2">
+        <div className="md:pb-2 pb-1">
           {message && (
-            <p className="text-gray-600 text-[0.938rem] leading-relaxed">
+            <p className="text-gray-600 text-[0.8rem] md:text-[0.938rem] leading-relaxed">
               {message}
             </p>
           )}
-          {children && <div className="mt-4">{children}</div>}
+          {children && <div className="md:mt-4 mt-3">{children}</div>}
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="md:mt-6 mt-4 flex justify-end gap-3">
           <button
             className={cn(
-              'px-5 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg',
+              'md:px-5 px-4 md:py-2 py-1 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg',
               'hover:bg-gray-50 hover:border-gray-300 active:bg-gray-100 transition-all duration-150'
             )}
             onClick={handleCancel}

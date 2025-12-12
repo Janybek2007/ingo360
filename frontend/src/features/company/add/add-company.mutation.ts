@@ -1,10 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import type { HTTPError } from 'ky';
 
 import { CompanyQueries } from '#/entities/company';
 import { http } from '#/shared/api';
-import { queryClient } from '#/shared/libs/react-query';
-import { getResponseError } from '#/shared/utils/get-error';
+import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 
 import {
   AddCompanyContract,
@@ -30,14 +28,6 @@ export const useAddCompanyMutation = (onClose: VoidFunction) => {
       onClose();
       toast.success('Ресурс успешно добавлен');
     },
-    onError: async (error: HTTPError) => {
-      const { toast } = await import('sonner');
-      try {
-        const data = await getResponseError(error.response);
-        toast.error(data);
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
-      }
-    },
+    onError: QueryOnError,
   });
 };

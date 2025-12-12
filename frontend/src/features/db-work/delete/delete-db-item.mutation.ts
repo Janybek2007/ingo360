@@ -1,10 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import type { HTTPError } from 'ky';
 
 import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
+import { QueryOnError } from '#/shared/libs/react-query';
 import type { DbType } from '#/shared/types/db.type';
-import { getResponseError } from '#/shared/utils/get-error';
 
 import { updateDbCache } from '../utils';
 
@@ -40,14 +39,6 @@ export const useDeleteDbItemMutation = (
       toast.success('Ресурс успешно удален');
       onClose();
     },
-    onError: async (error: HTTPError) => {
-      const { toast } = await import('sonner');
-      try {
-        const data = await getResponseError(error.response);
-        toast.error(data);
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
-      }
-    },
+    onError: QueryOnError,
   });
 };

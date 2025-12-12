@@ -36,7 +36,7 @@ export class UserQueries {
     return queryOptions({
       queryKey: this.queryKeys.getUsers,
       queryFn: async () => {
-        const response = await http.get('users/').json<GetUsersResponse>();
+        const response = await http.get('users').json<GetUsersResponse>();
         return response.map(user => ({
           ...user,
           role: this.buildUserRole(user),

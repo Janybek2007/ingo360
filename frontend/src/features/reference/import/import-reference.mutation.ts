@@ -1,11 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import type { HTTPError } from 'ky';
 
 import { ReferenceQueries } from '#/entities/reference';
 import { http } from '#/shared/api';
-import { queryClient } from '#/shared/libs/react-query';
+import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 import type { ReferencesType } from '#/shared/types/references.type';
-import { getResponseError } from '#/shared/utils/get-error';
 
 export const useImportReferenceMutation = (type: ReferencesType) => {
   return useMutation({
@@ -32,14 +30,6 @@ export const useImportReferenceMutation = (type: ReferencesType) => {
 
       toast.success('Файл успешно импортирован');
     },
-    onError: async (error: HTTPError) => {
-      const { toast } = await import('sonner');
-      try {
-        const data = await getResponseError(error.response);
-        toast.error(data);
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
-      }
-    },
+    onError: QueryOnError,
   });
 };
