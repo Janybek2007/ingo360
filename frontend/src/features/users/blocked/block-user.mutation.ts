@@ -9,7 +9,7 @@ export const useBlockUserMutation = (userId: number, onClose: VoidFunction) => {
   return useMutation({
     mutationKey: ['block-user', userId],
     mutationFn: async () => {
-      const response = await http.post(`users/${userId}`, {
+      const response = await http.patch(`users/${userId}`, {
         json: { is_active: false },
       });
       return response.json<GetUserResponse>();
