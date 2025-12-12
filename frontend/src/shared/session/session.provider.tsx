@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 
-import { UserQueries } from '#/entities/user/user.queries';
+import { UserQueries } from '#/entities/user';
 
 import { WelcomeMessage } from '../components/welcome-message';
 import { useViewportEffect } from '../hooks/use-viewport-effect';

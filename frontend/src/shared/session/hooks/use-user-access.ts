@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import type { GetUserResponse, UserAccess } from '#/entities/user/user.types';
+import type { GetUserResponse, UserAccess } from '#/entities/user';
 
 import type { NotificationMessage } from '../types';
 

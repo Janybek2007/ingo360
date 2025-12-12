@@ -3,7 +3,7 @@ import React from 'react';
 import { useSession } from '#/shared/session';
 
 export const WelcomeMessage: React.FC = () => {
-  const { user, isWelcomeShown: isVisible, setIsWelcomeShown } = useSession();
+  const { user, setIsWelcomeShown } = useSession();
 
   const getRoleText = React.useCallback((role: string) => {
     const roles: Record<string, string> = {
@@ -22,22 +22,22 @@ export const WelcomeMessage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [setIsWelcomeShown]);
 
-  if (!isVisible || !user) return null;
+  if (!user) return null;
 
   const fullName = [user.last_name, user.first_name, user.patronymic]
     .filter(Boolean)
     .join(' ');
 
   return (
-    <div className="fixed bottom-4 right-4 w-[30rem] z-[10000]">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full border-l-4 border-blue-500">
+    <div className="fixed bottom-4 right-4 w-[90dvw] md:w-[30rem] z-[10000]">
+      <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 w-full border-l-4 border-blue-500">
         <button
           onClick={() => setIsWelcomeShown(false)}
           className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
           aria-label="Закрыть"
         >
           <svg
-            className="w-5 h-5"
+            className="w-4 h-4 md:w-5 md:h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -53,9 +53,9 @@ export const WelcomeMessage: React.FC = () => {
 
         <div className="flex items-start space-x-4 w-full">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-blue-600"
+                className="w-5 h-5 md:w-6 md:h-6 text-blue-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -71,10 +71,10 @@ export const WelcomeMessage: React.FC = () => {
           </div>
 
           <div className="flex-1 w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
               Добро пожаловать {getRoleText(user.role)}!
             </h3>
-            <p className="text-gray-700 mb-2">
+            <p className="text-gray-700 mb-2 text-sm md:text-base">
               <span className="font-medium">{fullName}</span>
             </p>
           </div>

@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
-import { UserQueries } from '#/entities/user/user.queries';
-import type {
-  GetUserResponse,
-  GetUsersResponse,
-} from '#/entities/user/user.types';
+import {
+  type GetUserResponse,
+  type GetUsersResponse,
+  UserQueries,
+} from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { getResponseError } from '#/shared/utils/get-error';

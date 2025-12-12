@@ -4,7 +4,7 @@ import type { HTTPError } from 'ky';
 import qs from 'qs';
 import { useForm } from 'react-hook-form';
 
-import { UserQueries } from '#/entities/user/user.queries';
+import { UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
 import { useSession } from '#/shared/session';

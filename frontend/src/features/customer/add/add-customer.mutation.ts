@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { UserQueries } from '#/entities/user/user.queries';
+import { UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 

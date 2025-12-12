@@ -2,7 +2,7 @@ import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { UserQueries } from '#/entities/user/user.queries';
+import { UserQueries } from '#/entities/user';
 
 import { queryClient } from '../../libs/react-query';
 import { useSocket } from '../../libs/socket';

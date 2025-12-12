@@ -23,7 +23,7 @@ const Modal: React.FC<IModalProps> = React.memo(
         <div className="overlay"></div>
         <div
           className={cn(
-            'relative z-[290] p-7 bg-white rounded-2xl',
+            'relative z-[290] p-6 bg-white rounded-2xl',
             classNames?.body
           )}
           ref={contentRef}

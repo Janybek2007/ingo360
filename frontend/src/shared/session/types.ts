@@ -1,4 +1,4 @@
-import type { GetUserResponse, UserAccess } from '#/entities/user/user.types';
+import type { GetUserResponse, UserAccess } from '#/entities/user';
 
 export interface ISessionContext {
   user: GetUserResponse | null;

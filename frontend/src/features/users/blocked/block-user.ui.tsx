@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { IUserItem } from '#/entities/user/user.types';
+import type { IUserItem } from '#/entities/user';
 import { ConfirmModal } from '#/shared/components/confirm-modal';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
@@ -18,12 +18,28 @@ export const BlockUserWrapper: React.FC<{
         <ConfirmModal
           onClose={() => set(false)}
           title="Подтверждение блокировки"
-          message={`Вы уверены, что хотите заблокировать пользователя "${user.first_name} ${user.last_name}"?`}
+          message={`Вы уверены, что хотите заблокировать пользователя?`}
           confirmAs="danger"
           disabled={mutation.isPending}
           confirmText={mutation.isPending ? 'Блокировка...' : 'Заблокировать'}
           onConfirm={mutation.mutateAsync}
-        />
+        >
+          <div className="space-y-1.5">
+            <p className="text-base text-gray-600">
+              <span className="font-medium">Имя:</span> {user.first_name}{' '}
+              {user.last_name}
+            </p>
+            <p className="text-base text-gray-600">
+              <span className="font-medium">Email:</span> {user.email}
+            </p>
+            {user.company?.name && (
+              <p className="text-base text-gray-600">
+                <span className="font-medium">Компания:</span>{' '}
+                {user.company.name}
+              </p>
+            )}
+          </div>
+        </ConfirmModal>
       )}
       <button
         type="button"

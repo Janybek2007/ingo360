@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useMemo, useState } from 'react';
 
-import { UserQueries } from '#/entities/user/user.queries';
-import type { IUserItem } from '#/entities/user/user.types';
+import { type IUserItem, UserQueries } from '#/entities/user';
 import { AddUserModal } from '#/features/users/add';
 import { EditUserModal } from '#/features/users/edit';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
