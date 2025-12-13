@@ -1,15 +1,14 @@
 import React from 'react';
 
-import type { ICompanyItem } from '../../company.types';
-
-interface ICompanyWithCount extends ICompanyItem {
-  userCount: number;
+interface IGroup {
+  name: string;
+  count: number;
 }
 
-export const CompanyListItem: React.FC<{
-  company: ICompanyWithCount;
-  onClick: () => void;
-}> = React.memo(({ company, onClick }) => {
+export const GroupItem: React.FC<{
+  group: IGroup;
+  onClick: VoidFunction;
+}> = React.memo(({ group, onClick }) => {
   return (
     <div
       onClick={onClick}
@@ -25,14 +24,14 @@ export const CompanyListItem: React.FC<{
     >
       <div className="flex items-center gap-2">
         <p className="text-base text-gray-900 transition-colors duration-150">
-          {company.name}
+          {group.name}
         </p>
         <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 transition-colors duration-150 hover:bg-blue-100">
-          {company.userCount} пользователей
+          {group.count} пользователей
         </span>
       </div>
     </div>
   );
 });
 
-CompanyListItem.displayName = '_CompanyListItem_';
+GroupItem.displayName = '_GroupItem_';

@@ -7,14 +7,7 @@ import { LucideXIcon } from '../../icons';
 import type { IModalProps } from './modal.types';
 
 const Modal: React.FC<IModalProps> = React.memo(
-  ({
-    title,
-    children,
-    description,
-    onClose,
-    classNames,
-    closeOnOverlayClick = true,
-  }) => {
+  ({ title, children, onClose, classNames, closeOnOverlayClick = true }) => {
     const contentRef = useClickAway<HTMLDivElement>(
       () => closeOnOverlayClick && onClose()
     );
@@ -33,7 +26,6 @@ const Modal: React.FC<IModalProps> = React.memo(
               <h4 className="font-inter text-2xl leading-[100%] font-semibold">
                 {title}
               </h4>
-              {description && <p>{description}</p>}
             </div>
             <button
               onClick={onClose}
