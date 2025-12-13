@@ -11,7 +11,7 @@ const LoginPage: React.FC = () => {
     <div className="h-screen font-inter">
       {size.width <= 768 && (
         <div className="h-full flex w-full items-center justify-center">
-          <div className="w-full max-w-[80dvw]">
+          <div className="w-full max-w-[90dvw]">
             <h3 className="mb-16 font-bold text-4xl">Войти</h3>
             <LoginForm />
           </div>

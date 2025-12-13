@@ -16,9 +16,6 @@ export const UsersList: React.FC = React.memo(() => {
   const query = useQuery(UserQueries.GetUsersQuery());
   const [selectedGroup, setSelectedGroup] = React.useState<SelectedGroup>(null);
 
-  /**
-   * Фильтр пользователей по выбранной группе
-   */
   const usersFiltered = React.useMemo(() => {
     if (!query.data || !selectedGroup) return [];
 
@@ -41,9 +38,6 @@ export const UsersList: React.FC = React.memo(() => {
       });
   }, [query.data, selectedGroup]);
 
-  /**
-   * Подсчёты для групп
-   */
   const {
     companies = [],
     operatorsCount = 0,
@@ -78,7 +72,7 @@ export const UsersList: React.FC = React.memo(() => {
   }, [query.data]);
 
   return (
-    <div className="container mx-auto max-w-2xl px-3 py-4">
+    <div className="px-3 py-4">
       <AsyncBoundary isLoading={query.isLoading} queryError={query.error}>
         {!selectedGroup ? (
           <div className="flex flex-col gap-6">
@@ -119,20 +113,14 @@ export const UsersList: React.FC = React.memo(() => {
           <div className="flex flex-col gap-3">
             <button
               onClick={() => setSelectedGroup(null)}
-              className="self-start rounded-lg bg-gray-500 px-4 py-2 text-white hover:bg-gray-600 transition"
+              className="self-start rounded-lg bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
             >
               Назад
             </button>
 
             <div className="flex max-h-[calc(100vh-2rem)] flex-col gap-3 overflow-y-auto">
               {usersFiltered.map((user, index) => (
-                <div
-                  key={user.id}
-                  className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <UserListItem user={user} />
-                </div>
+                <UserListItem key={`${user.id}-${index}`} user={user} />
               ))}
             </div>
           </div>

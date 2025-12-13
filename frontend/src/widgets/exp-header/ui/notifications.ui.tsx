@@ -39,11 +39,11 @@ export const Notifications: React.FC = React.memo(() => {
         title="Уведомления временно недоступны"
       >
         <FlowbiteBellOutlineIcon className="size-[1.25rem]" />
-        {notifications.length > 0 && (
+        {/* {notifications.length > 0 && (
           <span className="absolute -top-1 -right-1 block h-5 w-5 rounded-full bg-red-500 text-white text-xs text-center leading-5">
             {notifications.length}
           </span>
-        )}
+        )} */}
       </button>
       {isOpen && (
         <div className="absolute right-0 mt-2 max-w-[27.5rem] min-w-[27.5rem] z-50 bg-white border border-gray-200 rounded-md shadow-lg text-sm">

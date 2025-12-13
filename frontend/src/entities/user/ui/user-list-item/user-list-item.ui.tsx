@@ -18,7 +18,7 @@ export const UserListItem: React.FC<{ user: IUserItem }> = React.memo(
     }, [user]);
 
     return (
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:border-gray-200">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 hover:border-gray-200">
         <div className="flex flex-wrap gap-2">
           {user.company?.name && (
             <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 transition-colors duration-150 hover:bg-blue-100">
