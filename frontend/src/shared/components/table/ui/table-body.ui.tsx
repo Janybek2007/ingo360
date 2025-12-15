@@ -1,5 +1,5 @@
 import { flexRender } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
@@ -11,21 +11,6 @@ const CHUNK_SIZE = 200;
 const CHUNK_DELAY = 50;
 const PROGRESSIVE_LOAD_THRESHOLD = 1000;
 
-const TableLoadingOverlay = React.memo(
-  ({ current, total }: Record<'current' | 'total', number>) => (
-    <div className="absolute inset-0 bg-black/10 z-[100] flex items-center justify-center pointer-events-auto">
-      <div className="bg-white rounded-lg px-6 py-4 shadow-xl flex items-center gap-3">
-        <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <span className="text-gray-700 font-medium">
-          Подгружаем строки… {current} / {total}
-        </span>
-      </div>
-    </div>
-  )
-);
-
-TableLoadingOverlay.displayName = '_TableLoadingOverlay_';
-
 export function TableBody({
   table,
   highlightRow,
@@ -33,7 +18,6 @@ export function TableBody({
   rowTotal,
   rowVirtualizer,
   isVirtualized = true,
-  setOverflow,
 }: ITableBodyProps) {
   const rows = table.getRowModel().rows;
 
@@ -66,13 +50,6 @@ export function TableBody({
     () => rows.slice(0, visibleRowCount),
     [rows, visibleRowCount]
   );
-
-  const isLoading =
-    rows.length > PROGRESSIVE_LOAD_THRESHOLD && visibleRowCount < rows.length;
-
-  React.useEffect(() => {
-    setOverflow?.(isLoading ? 'hidden' : 'auto');
-  }, [isLoading, setOverflow]);
 
   if (!isVirtualized || !rowVirtualizer) {
     return (
@@ -114,10 +91,6 @@ export function TableBody({
 
           {rowTotal && <TableTotalRow table={table} rowTotal={rowTotal} />}
         </tbody>
-
-        {isLoading && (
-          <TableLoadingOverlay current={visibleRowCount} total={rows.length} />
-        )}
       </>
     );
   }
@@ -190,9 +163,6 @@ export function TableBody({
 
         {rowTotal && <TableTotalRow table={table} rowTotal={rowTotal} />}
       </tbody>
-      {isLoading && (
-        <TableLoadingOverlay current={visibleRowCount} total={rows.length} />
-      )}
     </>
   );
 }

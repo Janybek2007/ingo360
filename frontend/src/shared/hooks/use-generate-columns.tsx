@@ -7,7 +7,7 @@ import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
 export interface CColumn<TData> {
   id: string;
-  key?: keyof TData; // Простой ключ для доступа к данным
+  key?: keyof TData;
   header: string;
   type?: ColumnDefBase<TData>['filterType'];
   size?: number;

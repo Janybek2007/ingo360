@@ -22,7 +22,6 @@ export class ExcelExporter<T extends object> {
     this.periodAsPercent = props.periodAsPercent || false;
     this.transform = props.transform;
     this.hasTotal = props.hasTotal || false;
-    console.log(this.selectKeys);
   }
 
   private getNestedValue(obj: any, path: string): any {
@@ -102,14 +101,13 @@ export class ExcelExporter<T extends object> {
           let value: string | number = rawValue;
 
           if (this.periodAsPercent) {
-            value = `${Math.round(rawValue)}%`;
+            value = `${Math.trunc(rawValue)}%`;
           } else if (typeof rawValue === 'number') {
             value = Number(rawValue.toFixed(2));
           }
 
           newItem[period] = value;
         }
-        // ← Важно: если периода нет — просто НЕ создаём ключ вообще!
       });
 
       if (this.hasTotal && total > 0) {
@@ -154,12 +152,11 @@ export class ExcelExporter<T extends object> {
         newItem[headerName] = value;
       });
 
-      // Только те периоды, которые реально есть в объекте
       periodKeys.forEach(period => {
-        if (period in item) {
-          newItem[period] = item[period];
-        }
-        // если периода нет — просто пропускаем колонку (ячейка будет пустая в Excel)
+        newItem[period] =
+          item[period] !== undefined && item[period] !== null
+            ? item[period]
+            : this.emptyValue;
       });
 
       if (this.hasTotal && 'total' in item) {
@@ -194,7 +191,9 @@ export class ExcelExporter<T extends object> {
 
     const dataArray = [
       headers,
-      ...finalData.map(item => headers.map(header => item[header])),
+      ...finalData.map(item =>
+        headers.map(header => item[header] || this.emptyValue)
+      ),
     ];
 
     const worksheet = XLSX.utils.aoa_to_sheet(dataArray);

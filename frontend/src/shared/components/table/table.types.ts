@@ -60,7 +60,6 @@ export interface ITableBodyProps {
   rowTotal?: ITableProps['rowTotal'];
   rowVirtualizer: Virtualizer<HTMLDivElement, Element> | null;
   isVirtualized?: boolean;
-  setOverflow?: (style: 'hidden' | 'auto') => void;
 }
 
 export interface ITableHeaderProps {

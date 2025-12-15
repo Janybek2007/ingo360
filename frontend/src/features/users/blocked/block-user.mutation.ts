@@ -13,7 +13,7 @@ export const useBlockUserMutation = (userId: number, onClose: VoidFunction) => {
       });
       return response.json<GetUserResponse>();
     },
-    async onSuccess() {
+    async onSuccess(data) {
       const { toast } = await import('sonner');
 
       await queryClient.refetchQueries({
@@ -21,7 +21,9 @@ export const useBlockUserMutation = (userId: number, onClose: VoidFunction) => {
       });
 
       onClose();
-      toast.success('Пользователь успешно добавлен');
+      toast.success(
+        `Пользователь ${!data.is_active ? 'заблокирован' : 'разблокирован'} успешно`
+      );
     },
     onError: QueryOnError,
   });

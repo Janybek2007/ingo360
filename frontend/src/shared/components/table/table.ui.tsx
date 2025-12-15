@@ -146,11 +146,6 @@ export const Table: React.FC<ITableProps> = React.memo(
               <Suspense fallback={<tbody></tbody>}>
                 <TableBody
                   table={table}
-                  setOverflow={style => {
-                    if (tableContainerRef.current) {
-                      tableContainerRef.current.style.overflow = style;
-                    }
-                  }}
                   highlightRow={highlightRow}
                   pinnedRow={pinnedRow}
                   rowTotal={rowTotal}

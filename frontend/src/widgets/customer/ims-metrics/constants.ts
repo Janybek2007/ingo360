@@ -9,7 +9,9 @@ interface ICPICard {
 
 const formatPercent = (value: number | string | undefined) => {
   if (typeof value === 'number') {
-    return value < 1 ? `${value.toFixed(2)} %` : `${Math.round(value)} %`;
+    return value < 1 && value > 0
+      ? `${value.toFixed(2)} %`
+      : `${Math.round(value)} %`;
   }
   return value !== undefined ? `${value} %` : '-';
 };
@@ -18,13 +20,15 @@ export const metrics: ICPICard[] = [
   {
     key: 'sales',
     fill: '#E6E5FF',
-    text: value => (value !== undefined ? `${value} USD` : '-'),
+    text: value =>
+      value !== undefined ? `${value.toLocaleString('ru-RU')} USD` : '-',
     subText: 'Продажи $',
   },
   {
     key: 'market_sales',
     fill: '#A6F7E2',
-    text: value => (value !== undefined ? `${value} USD` : '-'),
+    text: value =>
+      value !== undefined ? `${value.toLocaleString('ru-RU')} USD` : '-',
     subText: 'Рынок / Сегмент $',
   },
   {
