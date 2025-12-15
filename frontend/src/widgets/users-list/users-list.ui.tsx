@@ -19,23 +19,25 @@ export const UsersList: React.FC = React.memo(() => {
   const usersFiltered = React.useMemo(() => {
     if (!query.data || !selectedGroup) return [];
 
-    return [...query.data]
-      .filter(user => !user.is_superuser)
-      .filter(user => {
-        switch (selectedGroup.type) {
-          case 'company':
-            return user.company?.id === selectedGroup.id;
+    return (
+      [...query.data]
+        // .filter(user => !user.is_superuser)
+        .filter(user => {
+          switch (selectedGroup.type) {
+            case 'company':
+              return user.company?.id === selectedGroup.id;
 
-          case 'operators':
-            return user.is_operator;
+            case 'operators':
+              return user.is_operator;
 
-          case 'admins':
-            return user.is_admin;
+            case 'admins':
+              return user.is_admin;
 
-          default:
-            return false;
-        }
-      });
+            default:
+              return false;
+          }
+        })
+    );
   }, [query.data, selectedGroup]);
 
   const {

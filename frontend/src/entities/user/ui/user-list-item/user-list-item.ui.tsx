@@ -44,18 +44,12 @@ export const UserListItem: React.FC<{ user: IUserItem }> = React.memo(
           </p>
         </div>
 
-        {user.is_active ? (
-          isCurrentUser ? (
-            <div className="w-full rounded-lg bg-blue-50 py-2.5 text-center text-sm font-medium text-blue-600 transition-colors duration-150">
-              Это ваш аккаунт
-            </div>
-          ) : (
-            <BlockUserWrapper user={user} />
-          )
-        ) : (
-          <div className="w-full rounded-lg bg-gray-50 py-2.5 text-center text-sm font-medium text-gray-400 transition-colors duration-150">
-            Пользователь заблокирован
+        {isCurrentUser ? (
+          <div className="w-full rounded-lg bg-blue-50 py-2.5 text-center text-sm font-medium text-blue-600 transition-colors duration-150">
+            Это ваш аккаунт
           </div>
+        ) : (
+          <BlockUserWrapper user={user} />
         )}
       </div>
     );

@@ -7,9 +7,9 @@ import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 export const useBlockUserMutation = (userId: number, onClose: VoidFunction) => {
   return useMutation({
     mutationKey: ['block-user', userId],
-    mutationFn: async () => {
+    mutationFn: async ({ is_active }: { is_active: boolean }) => {
       const response = await http.patch(`users/${userId}`, {
-        json: { is_active: false },
+        json: { is_active },
       });
       return response.json<GetUserResponse>();
     },
