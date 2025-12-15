@@ -65,10 +65,12 @@ export class UserQueries {
       queryKey: this.queryKeys.getCustomers,
       queryFn: async () => {
         const response = await http.get('users').json<GetUsersResponse>();
-        return response.map(user => ({
-          ...user,
-          role: this.buildUserRole(user),
-        }));
+        return response
+          .filter(v => !v.is_admin && !v.is_operator && !v.is_superuser)
+          .map(user => ({
+            ...user,
+            role: this.buildUserRole(user),
+          }));
       },
     });
   }
