@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CompanyBaseContract = z.object({
   name: z.string().min(1, 'Поле обязательно'),
-  ims_name: z.string().min(1, 'Поле обязательно'),
+  ims_name: z.string().optional(),
   active_users_limit: z.union([z.string(), z.number()]).transform(Number),
   contract_number: z
     .union([z.string(), z.number()])
