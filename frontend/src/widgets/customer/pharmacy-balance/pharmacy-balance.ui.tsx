@@ -34,7 +34,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         product_group_ids: filters.groups,
         limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
         search: filters.search,
-        group_by_dimensions: ['pharmacy', ...filters.groupBy],
+        group_by_dimensions: filters.groupBy,
         enabled: !filterOptions.isLoading,
       }
     )
