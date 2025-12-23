@@ -159,6 +159,15 @@ export const commonColumns = {
       },
     },
   }),
+  imsName: (size = 200): CColumn<any> => ({
+    id: 'ims_name',
+    key: 'ims_name',
+    header: columnHeaderNames.ims_name,
+    size,
+    custom: {
+      cell: ({ row }) => row.original?.ims_name || '-',
+    },
+  }),
   companyName: (size = 200): CColumn<any> => ({
     id: 'name',
     key: 'name',

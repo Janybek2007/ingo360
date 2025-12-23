@@ -46,6 +46,7 @@ const CompanyManagementPage: React.FC = () => {
     data: filteredData,
     columns: [
       commonColumns.companyName(),
+      commonColumns.imsName(),
       commonColumns.companyActiveUsersLimit(),
       commonColumns.companyActiveUsers(),
       commonColumns.companyContractNumber(),

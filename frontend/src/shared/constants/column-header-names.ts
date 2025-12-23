@@ -12,6 +12,7 @@ export const columnHeaderNames = {
   geoIndicator: 'Гео индикатор',
   pharmacy: 'Аптека',
   employee: 'Сотрудник',
+  ims_name: 'IMS',
   dosageForm: 'Форма выписка',
   dosage: 'Дозировка',
   year: 'Год',
