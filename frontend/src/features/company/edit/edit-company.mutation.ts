@@ -25,7 +25,7 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
       const response = await http.patch(`companies/${id}`, {
         json: {
           name: parsedBody.name,
-          ims_name: parsedBody.ims_name,
+          ims_name: parsedBody.ims_name?.trim() || null,
           active_users_limit: parsedBody.active_users_limit,
           can_primary_sales: parsedBody.can_primary_sales,
           can_secondary_sales: parsedBody.can_secondary_sales,
