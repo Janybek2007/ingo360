@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import type { DbType } from '#/shared/types/db.type';
 
 import { updateDbCache } from '../utils';
@@ -16,15 +17,16 @@ export const useDeleteDbItemMutation = (
     mutationKey: ['delet-db-item', type, id],
     mutationFn: async () => {
       if (!id) {
-        const { toast } = await import('sonner');
-        toast.error('Отсутствует id ресурса');
+        toast({
+          message: 'Отсутствует id ресурса',
+          type: 'warning',
+          duration: 8000, // 8 seconds
+        });
         return null;
       }
       return http.delete(`${type}/${id}`).json<IDbItem>();
     },
     onSuccess: async () => {
-      const { toast } = await import('sonner');
-
       updateDbCache(type, (data, { urls }) => {
         const targetIndex = urls.indexOf(type);
         if (targetIndex === -1) return data;
@@ -36,7 +38,10 @@ export const useDeleteDbItemMutation = (
         return data;
       });
 
-      toast.success('Ресурс успешно удален');
+      toast({
+        message: 'Ресурс успешно удален',
+        duration: 8000, // 8 seconds
+      });
       onClose();
     },
     onError: QueryOnError,

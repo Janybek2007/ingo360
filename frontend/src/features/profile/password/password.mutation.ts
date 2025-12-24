@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
 import { http } from '#/shared/api';
+import { toast } from '#/shared/libs/toast/toast';
 import { getResponseError } from '#/shared/utils/get-error';
 
 import {
@@ -25,17 +26,26 @@ export const useUpdatePasswordMutation = () => {
         .json();
     },
     onSuccess: async () => {
-      const { toast } = await import('sonner');
-      toast.success('Пароль успешно обновлен');
+      toast({
+        message: 'Пароль успешно обновлен',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: async (error: HTTPError) => {
-      const { toast } = await import('sonner');
       try {
         const data = await getResponseError(error.response);
-        toast.error(data);
+        toast({
+          message: 'Ошибка обновления пароля',
+          description: data || 'Произошла ошибка при обновлении пароля',
+          type: 'error',
+        });
       } catch (e) {
         console.error('Ошибка разбора ответа', e);
-        toast.error('Произошла ошибка при обновлении пароля');
+        toast({
+          message: 'Произошла ошибка при обновлении пароля',
+          type: 'error',
+          duration: 8000, // 8 seconds
+        });
       }
     },
   });

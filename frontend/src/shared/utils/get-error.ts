@@ -1,18 +1,18 @@
 import { ERROR_MESSAGES } from '../constants/errors';
 
-type PydanticErrorDetail = {
+type ErrorDetail = {
   loc: (string | number)[];
   msg: string;
   type: string;
 };
 
-type PydanticErrorResponse = {
-  detail: PydanticErrorDetail[] | string;
+type ErrorResponse = {
+  detail: ErrorDetail[] | string;
 };
 
 export async function getResponseError(error: Response): Promise<string> {
   try {
-    const data = (await error.json()) as PydanticErrorResponse;
+    const data = (await error.json()) as ErrorResponse;
 
     if (Array.isArray(data.detail)) {
       return data.detail

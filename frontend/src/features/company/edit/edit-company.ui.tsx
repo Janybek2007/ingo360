@@ -1,8 +1,8 @@
 import React from 'react';
-import { toast } from 'sonner';
 
 import type { ICompanyItem } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import { toast } from '#/shared/libs/toast/toast';
 
 import {
   EditCompanyContract,
@@ -23,9 +23,12 @@ export const EditCompanyModal: React.FC<{
       );
       if (Number.isFinite(newLimit) && newLimit > 0) {
         if (companyData.active_users > newLimit) {
-          toast.error(
-            'Лимит не может быть меньше количества активных пользователей'
-          );
+          toast({
+            message:
+              'Лимит не может быть меньше количества активных пользователей',
+            type: 'warning',
+            duration: 8000, // 8 seconds
+          });
           return;
         }
       }

@@ -4,6 +4,7 @@ import type { HTTPError } from 'ky';
 import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
+import { toast } from '#/shared/libs/toast/toast';
 import { getResponseError } from '#/shared/utils/get-error';
 
 import type { TSendRequestContract } from './send-request.contract';
@@ -28,10 +29,12 @@ export const useSendRequestMutation = (callback?: VoidFunction) => {
         .json<{ id: number }>();
     },
     onSuccess: async response => {
-      const { toast } = await import('sonner');
       if (response.id) {
         callback?.();
-        toast.success('Заявка отправлена');
+        toast({
+          message: 'Заявка отправлена',
+          duration: 8000, // 8 seconds
+        });
       }
     },
     onError: async (error: HTTPError) => {

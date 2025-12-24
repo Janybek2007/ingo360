@@ -1,15 +1,15 @@
-import Cookies from 'js-cookie';
 import { useEffect } from 'react';
-import { toast } from 'sonner';
 
 import { UserQueries } from '#/entities/user';
+import { toast } from '#/shared/libs/toast/toast';
+import { TokenUtils } from '#/shared/utils/token-utils';
 
 import { queryClient } from '../../libs/react-query';
 import { useSocket } from '../../libs/socket';
 import type { NotificationMessage } from '../types';
 
 export const useNotifications = (isWelcome = false) => {
-  const token = Cookies.get('access_token') || null;
+  const token = TokenUtils.getToken();
   const endpoint = token ? `/ws/notifications?token=${token}` : null;
 
   const { lastMessage } = useSocket(endpoint ?? '', Boolean(endpoint));
@@ -29,13 +29,14 @@ export const useNotifications = (isWelcome = false) => {
       ].includes(msg.type)
     ) {
       queryClient.setQueryData(UserQueries.queryKeys.getUser, null);
-      toast.error(
-        msg.message ||
+      toast({
+        duration: 2000,
+        message:
+          msg.message ||
           'Срок действия вашего сеанса истек. Пожалуйста, войдите в систему еще раз.',
-        { duration: 2000 }
-      );
-      Cookies.remove('access_token');
-      Cookies.remove('token_type');
+        type: 'warning',
+      });
+      TokenUtils.clearToken();
     }
   }, [lastMessage, isWelcome]);
 

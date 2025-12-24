@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 
 import { AddUserContract, type TAddUserContract } from '../users.contracts';
 import type { TAddUserResponse } from '../users.types';
@@ -26,14 +27,15 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
       return response.json<TAddUserResponse>();
     },
     async onSuccess() {
-      const { toast } = await import('sonner');
-
       await queryClient.refetchQueries({
         queryKey: UserQueries.queryKeys.getAdminOperators,
       });
 
       onClose();
-      toast.success('Пользователь успешно добавлен');
+      toast({
+        message: 'Пользователь успешно добавлен',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { DbQueries, type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import type { DbType } from '#/shared/types/db.type';
 
 export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
@@ -20,8 +21,6 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
       );
     },
     onSuccess: async updatedItems => {
-      const { toast } = await import('sonner');
-
       queryClient.setQueryData(
         DbQueries.queryKeys.getDbItems([type]),
         (oldData: IDbItem[][] | undefined) => {
@@ -36,7 +35,10 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
         }
       );
 
-      toast.success('Статус публикации обновлён');
+      toast({
+        message: 'Статус публикации обновлён',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

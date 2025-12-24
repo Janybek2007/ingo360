@@ -2,11 +2,16 @@ import { QueryClient } from '@tanstack/react-query';
 
 import { getResponseError } from '#/shared/utils/get-error';
 
+import { toast } from '../toast/toast';
+
 export const QueryOnError = async (error: any) => {
-  const { toast } = await import('sonner');
   try {
     const data = await getResponseError(error.response);
-    toast.error(data);
+    toast({
+      message: 'Произошла ошибка',
+      description: data || 'Неизвестная ошибка',
+      type: 'error',
+    });
   } catch (e) {
     console.error('Ошибка разбора ответа', e);
   }

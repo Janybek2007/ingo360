@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { type GetUserResponse, UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 
 export const useBlockUserMutation = (userId: number, onClose: VoidFunction) => {
   return useMutation({
@@ -14,16 +15,15 @@ export const useBlockUserMutation = (userId: number, onClose: VoidFunction) => {
       return response.json<GetUserResponse>();
     },
     async onSuccess(data) {
-      const { toast } = await import('sonner');
-
       await queryClient.refetchQueries({
         queryKey: UserQueries.queryKeys.getUsers,
       });
 
       onClose();
-      toast.success(
-        `Пользователь ${!data.is_active ? 'заблокирован' : 'разблокирован'} успешно`
-      );
+      toast({
+        message: `Пользователь ${!data.is_active ? 'заблокирован' : 'разблокирован'} успешно`,
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

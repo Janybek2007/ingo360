@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
 import { useRouter } from '#/shared/hooks/use-router';
+import { toast } from '#/shared/libs/toast/toast';
 import { routePaths } from '#/shared/router';
 import { getResponseError } from '#/shared/utils/get-error';
 
@@ -35,9 +36,11 @@ export const useResetPasswordMutation = (token: string | null) => {
       });
     },
     onSuccess: async () => {
-      const { toast } = await import('sonner');
       reset();
-      toast.success('Пароль успешно изменен');
+      toast({
+        message: 'Пароль успешно изменен',
+        duration: 8000, // 8 seconds
+      });
       setTimeout(() => navigate(routePaths.auth.login), 700);
     },
     onError: async (error: HTTPError) => {

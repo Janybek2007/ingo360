@@ -1,22 +1,16 @@
 import React from 'react';
 import { Outlet } from 'react-router';
-import { Toaster } from 'sonner';
 
 import { ScrollToTopButton } from '#/shared/components/scroll-to-top';
 import { ReactQueryProvider } from '#/shared/libs/react-query';
+import { ToastProvider } from '#/shared/libs/toast/toast.provider.ui';
 import { SessionProvider } from '#/shared/session';
 
 const RootLayout: React.FC = () => {
   return (
     <ReactQueryProvider>
       <SessionProvider>
-        <Toaster
-          position="bottom-right"
-          richColors
-          closeButton
-          duration={5000}
-          theme="light"
-        />
+        <ToastProvider />
         <Outlet />
         <ScrollToTopButton />
       </SessionProvider>

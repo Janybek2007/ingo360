@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { DbQueries } from '#/entities/db';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import type { DbType } from '#/shared/types/db.type';
 
 export const useImportDbItemMutation = (type: DbType) => {
@@ -22,13 +23,14 @@ export const useImportDbItemMutation = (type: DbType) => {
         .json();
     },
     onSuccess: async () => {
-      const { toast } = await import('sonner');
-
       await queryClient.invalidateQueries({
         queryKey: DbQueries.queryKeys.getDbItems([type]),
       });
 
-      toast.success('Файл успешно импортирован');
+      toast({
+        message: 'Файл успешно импортирован',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

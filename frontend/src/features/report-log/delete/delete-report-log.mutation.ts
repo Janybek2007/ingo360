@@ -4,6 +4,7 @@ import type { HTTPError } from 'ky';
 import { ReportLogsQueries } from '#/entities/report-logs';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import { getResponseError } from '#/shared/utils/get-error';
 
 export const useDeleteReportLogMutation = () => {
@@ -13,22 +14,31 @@ export const useDeleteReportLogMutation = () => {
       return http.delete(`import_logs/${reportLogId}`).json();
     },
     onSuccess: async () => {
-      const { toast } = await import('sonner');
-
       await queryClient.invalidateQueries({
         queryKey: ReportLogsQueries.queryKeys.getReportLogs,
       });
 
-      toast.success('Лог отчета успешно удален');
+      toast({
+        message: 'Лог отчета успешно удален',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: async (error: HTTPError) => {
-      const { toast } = await import('sonner');
       try {
         const data = await getResponseError(error.response);
-        toast.error(data);
+        toast({
+          message: 'Ошибка при удалении лога отчета',
+          description: data || 'Неизвестная ошибка',
+          type: 'error',
+          duration: 8000, // 8 seconds
+        });
       } catch (e) {
         console.error('Ошибка разбора ответа', e);
-        toast.error('Ошибка при удалении лога отчета');
+        toast({
+          message: 'Ошибка при удалении лога отчета',
+          type: 'error',
+          duration: 8000, // 8 seconds
+        });
       }
     },
   });

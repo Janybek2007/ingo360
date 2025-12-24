@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { CompanyQueries } from '#/entities/company';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 
 import {
   AccessCompanyContract,
@@ -28,8 +29,6 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
       return response.json();
     },
     async onSuccess() {
-      const { toast } = await import('sonner');
-
       onClose();
 
       queryClient.invalidateQueries({
@@ -37,7 +36,10 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
       });
 
       setTimeout(() => {
-        toast.success('Настройки доступа компании успешно обновлены');
+        toast({
+          message: 'Настройки доступа компании успешно обновлены',
+          duration: 8000, // 8 seconds
+        });
       }, 300);
     },
     onError: QueryOnError,

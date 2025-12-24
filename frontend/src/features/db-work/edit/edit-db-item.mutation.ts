@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import type { DbType } from '#/shared/types/db.type';
 
 import { matchesDbOptions, updateDbCache } from '../utils';
@@ -17,8 +18,11 @@ export const useEditDbItemMutation = (
 
     mutationFn: async (parsedBody: any) => {
       if (!id) {
-        const { toast } = await import('sonner');
-        toast.error('Отсутствует id ресурса');
+        toast({
+          message: 'Отсутствует id ресурса',
+          type: 'warning',
+          duration: 8000, // 8 seconds
+        });
         return null;
       }
       return http
@@ -29,8 +33,6 @@ export const useEditDbItemMutation = (
     },
     onSuccess: async updatedItem => {
       if (!updatedItem) return;
-
-      const { toast } = await import('sonner');
 
       updateDbCache(type, (data, { urls, options }) => {
         const targetIndex = urls.indexOf(type);
@@ -51,7 +53,11 @@ export const useEditDbItemMutation = (
       });
 
       onClose();
-      toast.success('Ресурс успешно редактрован');
+      toast({
+        message: 'Ресурс успешно редактрован',
+        type: 'success',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

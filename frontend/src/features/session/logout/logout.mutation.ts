@@ -4,6 +4,7 @@ import { UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
 import { useRouter } from '#/shared/hooks/use-router';
 import { queryClient } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import { routePaths } from '#/shared/router';
 import { TokenUtils } from '#/shared/utils/token-utils';
 
@@ -24,8 +25,10 @@ export const useLogoutMutation = () => {
       }
     },
     onSuccess: async () => {
-      const { toast } = await import('sonner');
-      toast.success('Вы успешно вышли из аккаунта');
+      toast({
+        message: 'Вы успешно вышли из аккаунта',
+        duration: 8000, // 8 seconds
+      });
     },
   });
 };

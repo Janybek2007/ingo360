@@ -4,6 +4,7 @@ import type { HTTPError } from 'ky';
 import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
+import { toast } from '#/shared/libs/toast/toast';
 
 import {
   ForgotPasswordContract,
@@ -31,8 +32,10 @@ export const useForgotMutation = () => {
       return response;
     },
     onSuccess: async () => {
-      const { toast } = await import('sonner');
-      toast.success('Письмо успешно отправлено');
+      toast({
+        message: 'Письмо успешно отправлено',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: async (error: HTTPError) => {
       try {

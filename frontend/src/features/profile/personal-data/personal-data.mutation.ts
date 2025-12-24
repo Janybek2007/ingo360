@@ -8,6 +8,7 @@ import {
 } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import { getResponseError } from '#/shared/utils/get-error';
 
 import {
@@ -26,8 +27,6 @@ export const useUpdatePersonalDataMutation = () => {
         .json<GetUsersResponse>();
     },
     onSuccess: async data => {
-      const { toast } = await import('sonner');
-
       queryClient.setQueryData(
         UserQueries.queryKeys.getUser,
         (oldData: GetUserResponse) => ({
@@ -36,16 +35,26 @@ export const useUpdatePersonalDataMutation = () => {
         })
       );
 
-      toast.success('Персональные данные успешно обновлены');
+      toast({
+        message: 'Персональные данные успешно обновлены',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: async (error: HTTPError) => {
-      const { toast } = await import('sonner');
       try {
         const data = await getResponseError(error.response);
-        toast.error(data);
+        toast({
+          message: 'Ошибка обновления персональных данных',
+          description: data || 'Произошла ошибка при обновлении данных',
+          type: 'error',
+        });
       } catch (e) {
         console.error('Ошибка разбора ответа', e);
-        toast.error('Произошла ошибка при обновлении данных');
+        toast({
+          message: 'Произошла ошибка при обновлении данных',
+          type: 'error',
+          duration: 8000, // 8 seconds
+        });
       }
     },
   });

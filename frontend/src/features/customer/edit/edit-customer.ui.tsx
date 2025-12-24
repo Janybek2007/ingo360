@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { toast } from 'sonner';
 
 import { CompanyQueries } from '#/entities/company';
 import type { IUserItem } from '#/entities/user';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
+import { toast } from '#/shared/libs/toast/toast';
 
 import {
   EditCustomerContract,
@@ -43,9 +43,12 @@ export const EditCustomerModal: React.FC<{
             (isActivating || isMovingCompany) &&
             company.active_users >= company.active_users_limit
           ) {
-            toast.error(
-              'Достигнут лимит активных пользователей для выбранной компании'
-            );
+            toast({
+              message:
+                'Достигнут лимит активных пользователей для выбранной компании',
+              type: 'warning',
+              duration: 8000, // 8 seconds
+            });
             return;
           }
         }

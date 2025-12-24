@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
 import { useRouter } from '#/shared/hooks/use-router';
+import { toast } from '#/shared/libs/toast/toast';
 import { routePaths } from '#/shared/router';
 import { getResponseError } from '#/shared/utils/get-error';
 
@@ -37,10 +38,12 @@ export const useSetPasswordMutation = (token: string | null) => {
       return response.json<{ message: string; user_id: number }>();
     },
     onSuccess: async response => {
-      const { toast } = await import('sonner');
       if (response.user_id) {
         reset();
-        toast.success(response.message);
+        toast({
+          message: response.message,
+          duration: 8000, // 8 seconds
+        });
         setTimeout(() => navigate(routePaths.auth.login), 700);
       }
     },

@@ -34,8 +34,6 @@
   color: var(--color-c1);
 }
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
 body {
   background: var(--color-c2);
 }

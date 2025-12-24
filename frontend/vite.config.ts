@@ -168,7 +168,7 @@ export default defineConfig(({ mode }) => {
               if (
                 id.includes('js-cookie') ||
                 id.includes('qs') ||
-                id.includes('sonner') ||
+                id.includes('react-hot-toast') ||
                 id.includes('use-debounce') ||
                 id.includes('use-local-storage-state') ||
                 id.includes('react-error-boundary')
@@ -233,7 +233,7 @@ export default defineConfig(({ mode }) => {
         'ky',
         'clsx',
         'tailwind-merge',
-        'sonner',
+        'react-hot-toast',
         'use-debounce',
       ],
       exclude: [

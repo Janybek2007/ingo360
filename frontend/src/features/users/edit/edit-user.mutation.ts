@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { type IUserItem, UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 
 import { EditUserContract, type TAddUserContract } from '../users.contracts';
 
@@ -38,8 +39,6 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
       return response.json<IUserItem>();
     },
     async onSuccess(data) {
-      const { toast } = await import('sonner');
-
       queryClient.setQueryData<IUserItem[]>(
         UserQueries.queryKeys.getAdminOperators,
         old => {
@@ -49,7 +48,10 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
       );
 
       onClose();
-      toast.success('Пользователь успешно обновлен');
+      toast({
+        message: 'Пользователь успешно обновлен',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { CompanyQueries } from '#/entities/company';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 
 import {
   EditCompanyContract,
@@ -41,14 +42,15 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
       return response.json<TAddCompanyResponse>();
     },
     async onSuccess() {
-      const { toast } = await import('sonner');
-
       queryClient.refetchQueries({
         queryKey: CompanyQueries.queryKeys.getCompanies,
       });
 
       onClose();
-      toast.success('Компания успешно обновлена');
+      toast({
+        message: 'Компания успешно обновлена',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

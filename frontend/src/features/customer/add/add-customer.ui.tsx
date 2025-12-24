@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { toast } from 'sonner';
 
 import { CompanyQueries } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import { toast } from '#/shared/libs/toast/toast';
 
 import {
   AddCustomerContract,
@@ -24,9 +24,12 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
 
       if (company && company.active_users_limit > 0) {
         if (company.active_users >= company.active_users_limit) {
-          toast.error(
-            'Достигнут лимит активных пользователей для выбранной компании'
-          );
+          toast({
+            message:
+              'Достигнут лимит активных пользователей для выбранной компании',
+            type: 'warning',
+            duration: 8000, // 8 seconds
+          });
           return;
         }
       }

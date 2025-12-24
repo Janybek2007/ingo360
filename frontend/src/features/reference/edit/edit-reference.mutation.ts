@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { IReferenceItem } from '#/entities/reference';
 import { http } from '#/shared/api';
 import { QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import type { ReferencesType } from '#/shared/types/references.type';
 
 import { updateReferencesCache } from '../utils';
@@ -17,8 +18,11 @@ export const useEditReferenceMutation = (
 
     mutationFn: async (parsedBody: any) => {
       if (!id) {
-        const { toast } = await import('sonner');
-        toast.error('Отсутствует id ресурса');
+        toast({
+          message: 'Отсутствует id ресурса',
+          type: 'warning',
+          duration: 8000, // 8 seconds
+        });
         return null;
       }
       return http
@@ -27,7 +31,6 @@ export const useEditReferenceMutation = (
     },
     onSuccess: async updatedItem => {
       if (!updatedItem) return;
-      const { toast } = await import('sonner');
 
       updateReferencesCache(type, (data, { urls }) => {
         const targetIndex = urls.indexOf(type);
@@ -41,7 +44,10 @@ export const useEditReferenceMutation = (
       });
 
       onClose();
-      toast.success('Ресурс успешно отредактирован');
+      toast({
+        message: 'Ресурс успешно отредактирован',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });

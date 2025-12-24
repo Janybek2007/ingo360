@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { QueryOnError } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toast';
 import type { DbType } from '#/shared/types/db.type';
 
 import { matchesDbOptions, updateDbCache } from '../utils';
@@ -21,8 +22,6 @@ export const useAddReferenceMutation = (
         .json<IDbItem>();
     },
     onSuccess: async newItem => {
-      const { toast } = await import('sonner');
-
       updateDbCache(type, (data, { urls, options }) => {
         const targetIndex = urls.indexOf(type);
         if (targetIndex === -1) return data;
@@ -42,7 +41,10 @@ export const useAddReferenceMutation = (
       });
 
       onClose();
-      toast.success('Ресурс успешно добавлен');
+      toast({
+        message: 'Ресурс успешно добавлен',
+        duration: 8000, // 8 seconds
+      });
     },
     onError: QueryOnError,
   });
