@@ -4,7 +4,6 @@ export { LoadingIcon } from './all/loading-twotone-loop.ui';
 export { LucideAlertCircleIcon } from './all/lucide-alert-circle.ui';
 export { LucideArrowIcon } from './all/lucide-arrow.ui';
 export { LucideCheckIcon } from './all/lucide-check.ui';
-export { LucideClipboardIcon } from './all/lucide-clypboard.ui';
 export { LucideEllipsisVerticalIcon } from './all/lucide-ellipsis-vertical.ui';
 export { LucideEyeIcon } from './all/lucide-eye.ui';
 export { LucideFilterIcon } from './all/lucide-filter.ui';

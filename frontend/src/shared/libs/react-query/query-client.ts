@@ -14,6 +14,11 @@ export const QueryOnError = async (error: any) => {
     });
   } catch (e) {
     console.error('Ошибка разбора ответа', e);
+    toast({
+      message: 'Произошла ошибка',
+      description: JSON.stringify(error),
+      type: 'error',
+    });
   }
 };
 

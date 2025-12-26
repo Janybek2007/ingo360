@@ -1,6 +1,6 @@
 import { toast as tt } from 'react-hot-toast';
 
-import { LucideClipboardIcon, LucideXIcon } from '#/shared/components/icons';
+import { LucideXIcon } from '#/shared/components/icons';
 
 type ToastType = 'success' | 'error' | 'warning';
 
@@ -57,82 +57,78 @@ export function toast({
               >
                 {isSuccess ? (
                   <svg
-                    className="w-4 h-4 text-emerald-600"
-                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
                     viewBox="0 0 24 24"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth={2.5}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 text-emerald-600"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
+                    <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                    <path d="m9 11 3 3L22 4" />
                   </svg>
                 ) : type === 'warning' ? (
                   <svg
-                    className="w-4 h-4 text-amber-600"
-                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
                     viewBox="0 0 24 24"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth={2.5}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 text-amber-600"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+                    <path d="M12 9v4" />
+                    <path d="M12 17h.01" />
                   </svg>
                 ) : (
                   <svg
-                    className="w-4 h-4 text-rose-600"
-                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
                     viewBox="0 0 24 24"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth={2.5}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 text-red-600"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="m15 9-6 6" />
+                    <path d="m9 9 6 6" />
                   </svg>
                 )}
               </div>
 
               {/* Контент */}
-              <div className="flex-1 min-w-0 pt-0.5">
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={copyToClipboard}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      copyToClipboard();
-                    }
-                  }}
-                  className="text-sm font-semibold text-gray-900 leading-relaxed cursor-pointer hover:text-gray-700 transition-colors select-none block"
-                  title="Нажмите для копирования"
-                >
+              <div
+                className="flex-1 min-w-0 pt-0.5"
+                role="button"
+                tabIndex={0}
+                onClick={copyToClipboard}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    copyToClipboard();
+                  }
+                }}
+                title="Нажмите для копирования"
+              >
+                <p className="text-sm font-semibold text-gray-900 leading-relaxed cursor-pointer hover:text-gray-700 transition-colors select-none block">
                   {message}
-                </span>
+                </p>
                 {description && (
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={copyToClipboard}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        copyToClipboard();
-                      }
-                    }}
-                    className="mt-1.5 text-sm text-gray-600 leading-relaxed cursor-pointer hover:text-gray-800 transition-colors select-none block"
-                    title="Нажмите для копирования"
-                  >
+                  <p className="mt-1.5 text-sm text-gray-600 leading-relaxed cursor-pointer hover:text-gray-800 transition-colors select-none block">
                     {description}
-                  </span>
+                  </p>
                 )}
               </div>
 
@@ -143,23 +139,6 @@ export function toast({
                 title="Закрыть"
               >
                 <LucideXIcon style={{ width: 18 }} />
-              </button>
-            </div>
-
-            {/* Действия */}
-            <div className="mt-4 flex items-center gap-2">
-              <button
-                onClick={copyToClipboard}
-                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isSuccess
-                    ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:scale-95'
-                    : type === 'warning'
-                      ? 'text-amber-700 bg-amber-50 hover:bg-amber-100 active:scale-95'
-                      : 'text-rose-700 bg-rose-50 hover:bg-rose-100 active:scale-95'
-                }`}
-              >
-                <LucideClipboardIcon style={{ width: 16 }} />
-                Копировать
               </button>
             </div>
           </div>
