@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 
-import { SolarUserLinearIcon } from '#/shared/components/icons';
+import { SolarUserLinearIcon } from '#/shared/assets/icons';
 import { routePaths } from '#/shared/router';
 
 import { Notifications } from './ui/notifications.ui';

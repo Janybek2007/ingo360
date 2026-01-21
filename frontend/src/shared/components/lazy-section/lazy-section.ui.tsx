@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 
-import { LoadingIcon } from '../icons';
+import { LoadingIcon } from '../../assets/icons';
 import { PageSection } from '../page-section';
 import type { LazySectionProps } from './lazy-section.types';
 

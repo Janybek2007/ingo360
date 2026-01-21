@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 
 import { ForgotPasswordForm } from '#/features/session/forgot-password';
 import { Assets } from '#/shared/assets';
-import { AnchorLeftIcon } from '#/shared/components/icons';
+import { AnchorLeftIcon } from '#/shared/assets/icons';
 import { routePaths } from '#/shared/router';
 import { cn } from '#/shared/utils/cn';
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { cn } from '#/shared/utils/cn';
 
-import { LucideXIcon } from '../../icons';
+import { LucideXIcon } from '../../../assets/icons';
 import type { IModalProps } from './modal.types';
 
 const Modal: React.FC<IModalProps> = React.memo(

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LucideArrowIcon } from '#/shared/components/icons';
+import { LucideArrowIcon } from '#/shared/assets/icons';
 import type { IFilterInputProps } from '#/shared/components/table/table.types';
 import { Select } from '#/shared/components/ui/select';
 import { cn } from '#/shared/utils/cn';

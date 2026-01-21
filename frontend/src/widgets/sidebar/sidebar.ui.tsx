@@ -6,7 +6,7 @@ import { Assets } from '#/shared/assets';
 import {
   LucideArrowIcon,
   SidebarNavigationsIcons,
-} from '#/shared/components/icons';
+} from '#/shared/assets/icons';
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { useActivePath } from '#/shared/hooks/use-active-path';
 import { roleAccess, routePaths } from '#/shared/router';

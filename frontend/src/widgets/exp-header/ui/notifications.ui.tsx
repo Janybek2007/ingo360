@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Assets } from '#/shared/assets';
-import { FlowbiteBellOutlineIcon } from '#/shared/components/icons';
+import { FlowbiteBellOutlineIcon } from '#/shared/assets/icons';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
 

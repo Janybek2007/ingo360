@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
 import { cn } from '#/shared/utils/cn';
 
-import { LucideFilterIcon } from '../../icons';
+import { LucideFilterIcon } from '../../../assets/icons';
 import type { ITableHeaderProps } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 import { FilterPopup } from './filter-popup/filter-popup.ui';

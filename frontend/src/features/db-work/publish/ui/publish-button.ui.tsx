@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MdiPublishIcon } from '#/shared/components/icons';
+import { MdiPublishIcon } from '#/shared/assets/icons';
 import type { DbType } from '#/shared/types/db.type';
 
 import { usePublishMutation } from '../publish.mutation';

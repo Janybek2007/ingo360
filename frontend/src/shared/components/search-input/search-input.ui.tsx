@@ -3,7 +3,7 @@ import { useDebounce } from 'use-debounce';
 
 import { cn } from '#/shared/utils/cn';
 
-import { LucideSearchIcon } from '../icons';
+import { LucideSearchIcon } from '../../assets/icons';
 import type { ISearchInputProps } from './search-input.types';
 
 export const SearchInput: React.FC<ISearchInputProps> = React.memo(

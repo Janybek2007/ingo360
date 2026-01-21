@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import { LucideXIcon } from '../icons';
+import { LucideXIcon } from '../../assets/icons';
 import { Select } from '../ui/select';
 import type { IUsedFilterItem, IUsedFilterProps } from './used-filter.types';
 import { PeriodGrouping } from './utils';

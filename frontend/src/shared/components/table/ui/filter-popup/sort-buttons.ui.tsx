@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LucideArrowIcon, LucideXIcon } from '#/shared/components/icons';
+import { LucideArrowIcon, LucideXIcon } from '#/shared/assets/icons';
 import { cn } from '#/shared/utils/cn';
 
 import type { ISortButtonsProps } from '../../table.types';

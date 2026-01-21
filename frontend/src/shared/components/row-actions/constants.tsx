@@ -2,7 +2,7 @@ import {
   MdiDeleteIcon,
   MdiPencilIcon,
   MslAdminPanelSettingsRounded,
-} from '../icons';
+} from '../../assets/icons';
 import type { IRowActionType } from './row-actions.types';
 
 export const DEFAULT_ROW_ACTION_TYPE_ITEM: Record<

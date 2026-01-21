@@ -4,7 +4,7 @@ import {
   LoadingIcon,
   LucideAlertCircleIcon,
   LucideRefreshCcwIcon,
-} from '../icons';
+} from '../../assets/icons';
 import type { IAsyncBoundaryProps } from './async-boundry.types';
 
 export const AsyncBoundary: React.FC<IAsyncBoundaryProps> = ({

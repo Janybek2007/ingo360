@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router';
 
 import { ResetPasswordForm } from '#/features/session/reset-password';
 import { Assets } from '#/shared/assets';
-import { AnchorLeftIcon } from '#/shared/components/icons';
+import { AnchorLeftIcon } from '#/shared/assets/icons';
 import { useRouter } from '#/shared/hooks/use-router';
 import { routePaths } from '#/shared/router';
 import { cn } from '#/shared/utils/cn';

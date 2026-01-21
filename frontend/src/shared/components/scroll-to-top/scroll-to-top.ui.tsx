@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router';
 
-import { LucideArrowIcon } from '#/shared/components/icons';
+import { LucideArrowIcon } from '#/shared/assets/icons';
 import { cn } from '#/shared/utils/cn';
 
 const SCROLL_THRESHOLD = 200;

@@ -2,8 +2,8 @@ import React from 'react';
 import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
 import { DbQueries } from '#/entities/db';
+import { LucideArrowIcon } from '#/shared/assets/icons';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
-import { LucideArrowIcon } from '#/shared/components/icons';
 import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';

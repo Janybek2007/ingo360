@@ -12,7 +12,7 @@ import React, { Suspense, useEffect, useRef, useState } from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import { LucideAlertCircleIcon } from '../icons';
+import { LucideAlertCircleIcon } from '../../assets/icons';
 import { UsedFilter } from '../used-filter';
 import type { ITableProps } from './table.types';
 import { TableBody } from './ui/table-body.ui';

@@ -6,7 +6,7 @@ import {
   LucideAlertCircleIcon,
   LucideArrowIcon,
   LucideEyeIcon,
-} from '../../icons';
+} from '../../../assets/icons';
 import { Select } from '../select';
 import type { IFormFieldProps } from './form-field.types';
 

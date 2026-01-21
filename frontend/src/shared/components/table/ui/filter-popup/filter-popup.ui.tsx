@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 
-import { LucideFilterIcon } from '#/shared/components/icons';
+import { LucideFilterIcon } from '#/shared/assets/icons';
 import { filterItems } from '#/shared/constants/filter-items';
 import { getPopupStyle } from '#/shared/utils/get-popup-style';
 

@@ -1,8 +1,8 @@
 import React from 'react';
 
 import type { ReportLog } from '#/entities/report-logs';
+import { MdiDeleteIcon } from '#/shared/assets/icons';
 import { ConfirmModal } from '#/shared/components/confirm-modal';
-import { MdiDeleteIcon } from '#/shared/components/icons';
 import { useToggle } from '#/shared/hooks/use-toggle';
 
 import { useDeleteReportLogMutation } from './delete-report-log.mutation';

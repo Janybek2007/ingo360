@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { LogoutButton } from '#/features/session/logout';
-import { SolarUserLinearIcon } from '#/shared/components/icons';
+import { SolarUserLinearIcon } from '#/shared/assets/icons';
 import { useSession } from '#/shared/session';
 import { cn } from '#/shared/utils/cn';
 

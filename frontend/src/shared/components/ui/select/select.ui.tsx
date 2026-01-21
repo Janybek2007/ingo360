@@ -5,7 +5,7 @@ import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
-import { LucideCheckIcon, LucidMinusIcon } from '../../icons';
+import { LucideCheckIcon, LucidMinusIcon } from '../../../assets/icons';
 import { Checkbox } from '../checkbox';
 import type { ISelectItem, ISelectProps } from './select.types';
 

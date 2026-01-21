@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { type IReferenceItem, ReferenceQueries } from '#/entities/reference';
+import { MdiPencilIcon } from '#/shared/assets/icons';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { MdiPencilIcon } from '#/shared/components/icons';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type {
   ReferencesType,

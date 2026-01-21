@@ -4,6 +4,7 @@ import { SendRequestWrapper } from '#/features/request/send';
 import { LoginForm } from '#/features/session/login';
 import { Assets } from '#/shared/assets';
 import { useSize } from '#/shared/hooks/use-size';
+import { DashboardPreview } from '#/widgets/dashboard-preview';
 
 const LoginPage: React.FC = () => {
   const size = useSize();
@@ -33,7 +34,9 @@ const LoginPage: React.FC = () => {
             </div>
             <SendRequestWrapper />
           </div>
-          <div className="w-1/2 h-full"></div>
+          <div className="w-1/2 h-full">
+            <DashboardPreview />
+          </div>
         </section>
       )}
     </div>

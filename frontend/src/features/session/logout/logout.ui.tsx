@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MyNauiLogoutIcon } from '#/shared/components/icons';
+import { MyNauiLogoutIcon } from '#/shared/assets/icons';
 import { cn } from '#/shared/utils/cn';
 
 import { useLogoutMutation } from './logout.mutation';

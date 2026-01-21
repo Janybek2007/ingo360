@@ -1,6 +1,6 @@
 import { toast as tt } from 'react-hot-toast';
 
-import { LucideXIcon } from '#/shared/components/icons';
+import { LucideXIcon } from '#/shared/assets/icons';
 
 type ToastType = 'success' | 'error' | 'warning';
 
@@ -126,7 +126,7 @@ export function toast({
                   {message}
                 </p>
                 {description && (
-                  <p className="mt-1.5 text-sm text-gray-600 leading-relaxed cursor-pointer hover:text-gray-800 transition-colors select-none block">
+                  <p className="mt-1.5 text-sm text-gray-600 leading-none cursor-pointer hover:text-gray-800 transition-colors select-none block">
                     {description}
                   </p>
                 )}
