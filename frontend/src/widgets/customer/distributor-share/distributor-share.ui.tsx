@@ -16,6 +16,7 @@ import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 
 export const DistributorShare: React.FC = React.memo(() => {
   const filterOptions = useFilterOptions();
@@ -28,6 +29,8 @@ export const DistributorShare: React.FC = React.memo(() => {
     },
   });
 
+  const periodFilter = usePeriodFilter();
+
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/distributor-shares'],
@@ -38,6 +41,8 @@ export const DistributorShare: React.FC = React.memo(() => {
         search: filters.search,
         group_by_dimensions: filters.groupBy,
         enabled: !filterOptions.isLoading,
+        period_values: periodFilter.selectedValues,
+        group_by_period: periodFilter.period,
       }
     )
   );

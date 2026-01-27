@@ -20,6 +20,7 @@ import {
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
 
 export const Inventory: React.FC = React.memo(() => {
@@ -32,6 +33,8 @@ export const Inventory: React.FC = React.memo(() => {
     },
   });
 
+  const periodFilter = usePeriodFilter();
+
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/stock-coverages'],
@@ -42,6 +45,8 @@ export const Inventory: React.FC = React.memo(() => {
         search: filters.search,
         group_by_dimensions: filters.groupBy,
         enabled: !filterOptions.isLoading,
+        period_values: periodFilter.selectedValues,
+        group_by_period: periodFilter.period,
       }
     )
   );

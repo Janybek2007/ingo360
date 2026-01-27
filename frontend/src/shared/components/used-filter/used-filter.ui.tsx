@@ -41,6 +41,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     []
   );
 
+  console.log(groupedPeriodItems);
   if (
     (!groupedItems.length && !groupedPeriodItems.length) ||
     (!isView && !isViewPeriods)
@@ -56,7 +57,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
           : ''
       }`}
     >
-      <div className="flex items-center gap-1 px-2 py-[2px] bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
+      <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
         <span>
           {item.label}{' '}
           {(item.subItems?.length as number) === 1 && item.subItems?.[0].label}
@@ -111,7 +112,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
         <button
           type="button"
           onClick={resetFilters}
-          className="px-2 py-[2px] text-[13px] text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
+          className="px-2 py-0.5 text-[13px] text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
         >
           Сбросить
         </button>

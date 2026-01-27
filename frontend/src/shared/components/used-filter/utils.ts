@@ -24,7 +24,9 @@ export class PeriodGrouping {
     'ytd',
   ] as const;
   private static readonly CUMULATIVE_TYPES = ['mat', 'ytd'] as const;
-  private static readonly FULL_YEAR_COUNTS: Record<string, number> = {
+
+  // сколько элементов считается "дефолтным окном"
+  private static readonly DEFAULT_WINDOW_COUNTS: Record<string, number> = {
     month: 12,
     quarter: 4,
     mat: 12,
@@ -54,6 +56,7 @@ export class PeriodGrouping {
 
     const result =
       this.mode === 'from' ? this.groupAsFrom() : this.groupByYear();
+
     this.cache.set(key, result);
     return result;
   }
@@ -91,19 +94,43 @@ export class PeriodGrouping {
     });
   }
 
-  // Режим по умолчанию — группировка по годам
+  private getFirstPeriodType(items: IUsedFilterItem[]): UsePeriodType | null {
+    for (const item of items) {
+      const { type } = this.parse(item.value);
+      if (this.isPeriodType(type)) return type;
+    }
+    return null;
+  }
+
+  // ===============================
+  // DEFAULT MODE
+  // ===============================
   private groupByYear(): IUsedFilterItem[] {
-    const years = new Map<string, YearGroup>();
-    const fullYears: IUsedFilterItem[] = [];
+    // 1️⃣ полностью игнорируем year-элементы
+    const periodItems = this.items.filter(
+      it => this.parse(it.value).type !== 'year'
+    );
 
-    for (const item of this.items) {
-      const { type, year } = this.parse(item.value);
+    if (!periodItems.length) return [];
 
-      if (type === 'year') {
-        fullYears.push(item);
-        continue;
+    // 2️⃣ ЕСЛИ РОВНО 12 МЕСЯЦЕВ / 4 КВАРТАЛА → НЕ ПОКАЗЫВАЕМ НИЧЕГО
+    const detectedType = this.getFirstPeriodType(periodItems);
+    if (detectedType) {
+      const need = PeriodGrouping.DEFAULT_WINDOW_COUNTS[detectedType];
+      const onlyThisType = periodItems.filter(
+        it => this.parse(it.value).type === detectedType
+      );
+
+      if (onlyThisType.length === need) {
+        return [];
       }
+    }
 
+    // 3️⃣ обычная группировка по годам
+    const years = new Map<string, YearGroup>();
+
+    for (const item of periodItems) {
+      const { type, year } = this.parse(item.value);
       if (!this.isPeriodType(type) || !year) continue;
 
       if (!years.has(year)) years.set(year, { items: [] });
@@ -112,25 +139,34 @@ export class PeriodGrouping {
 
     const result: IUsedFilterItem[] = [];
 
-    if (this.isReadOnly || fullYears.length > 1) {
-      result.push(...fullYears);
-    }
+    // сортируем годы: 2026, 2025, ...
+    const sortedYears = Array.from(years.entries()).sort(
+      ([a], [b]) => Number(b) - Number(a)
+    );
 
-    for (const [year, { items }] of years) {
-      if (!this.isYearComplete(items)) {
-        result.push({
-          label: year,
-          value: `year-${year}`,
-          onDelete: () => {},
-          subItems: this.sortByNumber(items),
-        });
+    for (const [year, { items }] of sortedYears) {
+      const sortedItems = this.sortByNumber(items);
+
+      // если в году 1 элемент — показываем просто его
+      if (sortedItems.length === 1) {
+        result.push(sortedItems[0]);
+        continue;
       }
+
+      result.push({
+        label: year,
+        value: `year-${year}`,
+        onDelete: () => {},
+        subItems: sortedItems,
+      });
     }
 
     return result;
   }
 
-  // Режим "from"
+  // ===============================
+  // FROM MODE
+  // ===============================
   private groupAsFrom(): IGroupedPeriod[] {
     const result: IGroupedPeriod[] = [];
 
@@ -152,33 +188,11 @@ export class PeriodGrouping {
       });
     }
 
-    // Сортировка по году + номеру периода
     return result.sort((a, b) => {
       if (a.year !== b.year) return Number(a.year) - Number(b.year);
       const aNum = this.parse(a.value).number ?? 0;
       const bNum = this.parse(b.value).number ?? 0;
       return aNum - bNum;
     });
-  }
-
-  private isYearComplete(items: IUsedFilterItem[]): boolean {
-    const counts: Record<string, number> = {
-      month: 0,
-      quarter: 0,
-      mat: 0,
-      ytd: 0,
-    };
-
-    for (const item of items) {
-      const { type } = this.parse(item.value);
-      if (this.isPeriodType(type)) counts[type]++;
-    }
-
-    for (const [type, count] of Object.entries(counts)) {
-      if (this.isReadOnly && type === 'month') continue;
-      if (count === PeriodGrouping.FULL_YEAR_COUNTS[type]) return true;
-    }
-
-    return false;
   }
 }

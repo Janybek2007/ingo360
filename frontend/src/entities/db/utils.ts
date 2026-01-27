@@ -16,6 +16,7 @@ export class BuildQueryString {
           params!.group_by_period
         ),
       };
+      delete p.group_by_period;
     }
     if (
       params?.period_values &&
@@ -106,6 +107,7 @@ export class BuildQueryString {
         const parts = value.split('-');
         const quarter = parts[2];
         quarters.push(quarter);
+        years.push(parts[1]);
       } else if (
         (groupByPeriod === 'month' ||
           groupByPeriod === 'mat' ||
@@ -118,6 +120,7 @@ export class BuildQueryString {
         const parts = value.split('-');
         const month = parts[2];
         months.push(month.padStart(2, '0'));
+        years.push(parts[1]);
       }
     });
 
