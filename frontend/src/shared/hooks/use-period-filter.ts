@@ -45,7 +45,6 @@ const currentQuarter = (m: number) => Math.floor((m - 1) / 3) + 1;
 const quarterFromYM = (ym: YM): YQ => ({ y: ym.y, q: currentQuarter(ym.m) });
 
 const addQuarters = (yq: YQ, delta: number): YQ => {
-  // q in 1..4
   const idx = yq.y * 4 + (yq.q - 1) + delta; // absolute quarter index
   const y = Math.floor(idx / 4);
   const q = (idx % 4) + 1;
@@ -69,7 +68,7 @@ export const usePeriodFilter = (
   const months36 = useMemo(() => {
     const out: YM[] = [];
     for (let i = 0; i < 36; i++) out.push(addMonths(current, -i));
-    return out; // [current, prev, ...]
+    return out;
   }, [current]);
 
   // 12 месяцев: current month + 11 назад (1 год)
@@ -90,43 +89,35 @@ export const usePeriodFilter = (
       if (p === 'year')
         return Array.from({ length: 5 }, (_, i) => current.y - i);
       if (p === 'quarter') return uniq(quarters12.map(x => x.y));
-      // month/mat/ytd
-      return uniq(months36.map(x => x.y));
+      return uniq(months36.map(x => x.y)); // month/mat/ytd
     },
     [current.y, months36, quarters12]
   );
 
   const buildAllItemValues = useCallback(
     (p: UsePeriodType) => {
-      // АКТИВНЫЕ элементы (по умолчанию):
-      // - month/mat/ytd: текущий месяц + 11 назад (12 значений)
-      // - quarter: текущий квартал + 3 назад (4 значения)
-      // - year: текущий год (или все годы, если нужно — поменяй на getRangeYears('year'))
       if (p === 'month') {
-        if (!isMultiple) {
-          return [`month-${current.y}-${current.m}`];
-        }
+        if (!isMultiple) return [`month-${current.y}-${current.m}`];
         return months12.map(x => `month-${x.y}-${x.m}`);
       }
+
       if (p === 'quarter') {
-        if (!isMultiple) {
-          return [`quarter-${currentYQ.y}-${currentYQ.q}`];
-        }
+        if (!isMultiple) return [`quarter-${currentYQ.y}-${currentYQ.q}`];
         return quarters4.map(x => `quarter-${x.y}-${x.q}`);
       }
+
       if (p === 'mat') {
-        if (!isMultiple) {
-          return [`mat-${current.y}-${current.m}`];
-        }
+        if (!isMultiple) return [`mat-${current.y}-${current.m}`];
         return months12.map(x => `mat-${x.y}-${x.m}`);
       }
+
       if (p === 'ytd') {
-        if (!isMultiple) {
-          return [`ytd-${current.y}-${current.m}`];
-        }
+        if (!isMultiple) return [`ytd-${current.y}-${current.m}`];
         return months12.map(x => `ytd-${x.y}-${x.m}`);
       }
-      return [`${current.y}`];
+
+      if (!isMultiple) return [`${current.y}`];
+      return [`${current.y}`, `${current.y - 1}`];
     },
     [current, currentYQ, months12, quarters4, isMultiple]
   );
@@ -143,7 +134,6 @@ export const usePeriodFilter = (
     [buildAllItemValues]
   );
 
-  // items (36 месяцев / 12 кварталов / 5 лет)
   const items = useMemo(() => {
     const result: IFilterPeriodSelectItem[] = [];
 
@@ -163,8 +153,7 @@ export const usePeriodFilter = (
       return result;
     }
 
-    // month / mat / ytd -> 36 месяцев
-    const prefix = period; // 'month' | 'mat' | 'ytd'
+    const prefix = period; // month | mat | ytd
     months36.forEach(({ y, m }) => {
       const monthName = Object.values(MonthFull)[m - 1];
       result.push({
@@ -178,7 +167,6 @@ export const usePeriodFilter = (
 
   const years = useMemo(() => getRangeYears(period), [getRangeYears, period]);
 
-  // Для чекбокса "год-XXXX": берем только те значения, которые реально есть в items
   const getYearItems = useCallback(
     (year: string) => {
       const allValues = items.map(i => i.value);
@@ -214,8 +202,6 @@ export const usePeriodFilter = (
       if (valueArray.length === allValues.length)
         return setSelectedValues(allValues);
 
-      // MAT/YTD: оставляем поведение "один выбранный" (как у тебя было)
-      // Если нужно, чтобы MAT/YTD тоже были множественными — скажи, уберу этот блок.
       if (period === 'mat' || period === 'ytd') {
         const newValues = valueArray.filter(v => v.startsWith(`${period}-`));
         const oldValues = selectedValues.filter(v =>

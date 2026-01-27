@@ -99,31 +99,53 @@ export class BuildQueryString {
     const months: string[] = [];
 
     values.forEach(value => {
-      if (groupByPeriod === 'year' && value.startsWith('year-')) {
-        // "year-2025" → "2025"
-        years.push(value.replace('year-', ''));
-      } else if (groupByPeriod === 'quarter' && value.startsWith('quarter-')) {
-        // "quarter-2025-3" → "3"
-        const parts = value.split('-');
+      const str = String(value);
+
+      // "2025" или "year-2025"
+      if (groupByPeriod === 'year') {
+        if (/^\d{4}$/.test(str)) {
+          years.push(str);
+          return;
+        }
+        if (str.startsWith('year-')) {
+          years.push(str.replace('year-', ''));
+          return;
+        }
+        return;
+      }
+
+      if (groupByPeriod === 'quarter' && str.startsWith('quarter-')) {
+        // "quarter-2025-3" → year=2025, quarter=3
+        const parts = str.split('-');
+        const year = parts[1];
         const quarter = parts[2];
-        quarters.push(quarter);
-        years.push(parts[1]);
-      } else if (
+        if (year) years.push(year);
+        if (quarter) quarters.push(quarter);
+        return;
+      }
+
+      if (
         (groupByPeriod === 'month' ||
           groupByPeriod === 'mat' ||
           groupByPeriod === 'ytd') &&
-        (value.startsWith('month-') ||
-          value.startsWith('mat-') ||
-          value.startsWith('ytd-'))
+        (str.startsWith('month-') ||
+          str.startsWith('mat-') ||
+          str.startsWith('ytd-'))
       ) {
-        // "month-2025-1" → "01"
-        const parts = value.split('-');
+        // "month-2025-1" → year=2025, month="01"
+        const parts = str.split('-');
+        const year = parts[1];
         const month = parts[2];
-        months.push(month.padStart(2, '0'));
-        years.push(parts[1]);
+        if (year) years.push(year);
+        if (month) months.push(month.padStart(2, '0'));
+        return;
       }
     });
 
-    return { years, quarters, months };
+    return {
+      years: Array.from(new Set(years)),
+      quarters: Array.from(new Set(quarters)),
+      months: Array.from(new Set(months)),
+    };
   }
 }
