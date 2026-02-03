@@ -12,7 +12,7 @@ export function transformData<T extends Record<string, any>>(data: T | null) {
       value &&
       typeof value === 'object' &&
       'id' in value &&
-      'name' in value
+      ('name' in value || 'full_name' in value)
     ) {
       result[`${key}_id`] = (value as IItem).id;
     }

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { DbQueries, type IDbItem } from '#/entities/db';
+import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toast';
@@ -10,19 +10,24 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
   return useMutation({
     mutationKey: ['publish', 'db-work', currentStatus],
     mutationFn: async (ids: number[]) => {
-      return Promise.all(
-        ids.map(id =>
-          http
-            .patch(`${type}/${id}`, {
-              json: { published: !currentStatus },
-            })
-            .json<Pick<IDbItem, 'published' | 'id'>>()
-        )
-      );
+      return http
+        .patch(`${type}/publish-unpublished`, {
+          json: { ids: [...new Set(ids)] },
+        })
+        .json<Pick<IDbItem, 'published' | 'id'>[]>();
     },
     onSuccess: async updatedItems => {
-      queryClient.setQueryData(
-        DbQueries.queryKeys.getDbItems([type]),
+      queryClient.setQueriesData(
+        {
+          predicate: query => {
+            const key = query.queryKey;
+            return (
+              Array.isArray(key) &&
+              key[0] === 'get-db-items' &&
+              key.includes(type)
+            );
+          },
+        },
         (oldData: IDbItem[][] | undefined) => {
           if (!oldData) return oldData;
 

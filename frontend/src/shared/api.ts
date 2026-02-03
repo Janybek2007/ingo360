@@ -6,6 +6,7 @@ import { TokenUtils } from './utils/token-utils';
 const http = ky.create({
   prefixUrl: FULL_API_URL,
   credentials: 'include',
+  timeout: false,
   hooks: {
     beforeRequest: [
       request => {

@@ -6,7 +6,11 @@ import { toast } from '../toast/toast';
 
 export const QueryOnError = async (error: any) => {
   try {
-    const data = await getResponseError(error.response);
+    const responseError = error?.response;
+    const fallbackMessage = error?.message || 'Неизвестная ошибка';
+    const data = responseError
+      ? await getResponseError(responseError)
+      : fallbackMessage;
     toast({
       message: 'Произошла ошибка',
       description: data || 'Неизвестная ошибка',
@@ -16,7 +20,7 @@ export const QueryOnError = async (error: any) => {
     console.error('Ошибка разбора ответа', e);
     toast({
       message: 'Произошла ошибка',
-      description: JSON.stringify(error),
+      description: JSON.stringify(e),
       type: 'error',
     });
   }

@@ -44,7 +44,7 @@ export const fieldsWithSelectItems = ({
         const label =
           labelKey && labelKey in d
             ? String((d as any)[labelKey])
-            : String(d.full_name ?? d.name ?? value);
+            : String(d.name ?? d.full_name ?? value);
 
         return {
           value,

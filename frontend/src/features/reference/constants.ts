@@ -354,7 +354,7 @@ export const referencesCEFields: Record<
         type: 'select',
       },
       {
-        name: 'indicator',
+        name: 'geo_indicator',
         label: 'Показатель',
         placeholder: 'Выберите показатель',
         type: 'select',
@@ -416,7 +416,7 @@ export const referencesDependsUrls: Record<
   ],
   'clients/pharmacies': [
     { fieldName: 'company_id', url: 'companies' },
-    { fieldName: 'indicator', url: 'clients/geo-indicators' },
+    { fieldName: 'geo_indicator', url: 'clients/geo-indicators' },
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },

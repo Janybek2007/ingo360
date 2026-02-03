@@ -41,7 +41,6 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
     []
   );
 
-  console.log(groupedPeriodItems);
   if (
     (!groupedItems.length && !groupedPeriodItems.length) ||
     (!isView && !isViewPeriods)

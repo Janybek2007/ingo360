@@ -36,10 +36,10 @@ export function toast({
           <div
             className={`h-1 w-full ${
               isSuccess
-                ? 'bg-gradient-to-r from-emerald-400 to-teal-400'
+                ? 'bg-linear-to-r from-emerald-400 to-teal-400'
                 : type === 'warning'
-                  ? 'bg-gradient-to-r from-amber-400 to-orange-400'
-                  : 'bg-gradient-to-r from-rose-400 to-pink-400'
+                  ? 'bg-linear-to-r from-amber-400 to-orange-400'
+                  : 'bg-linear-to-r from-rose-400 to-pink-400'
             }`}
           />
 
@@ -47,12 +47,12 @@ export function toast({
             <div className="flex items-start gap-4">
               {/* Иконка */}
               <div
-                className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${
+                className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${
                   isSuccess
-                    ? 'bg-gradient-to-br from-emerald-50 to-teal-50'
+                    ? 'bg-linear-to-br from-emerald-50 to-teal-50'
                     : type === 'warning'
-                      ? 'bg-gradient-to-br from-amber-50 to-orange-50'
-                      : 'bg-gradient-to-br from-rose-50 to-pink-50'
+                      ? 'bg-linear-to-br from-amber-50 to-orange-50'
+                      : 'bg-linear-to-br from-rose-50 to-pink-50'
                 }`}
               >
                 {isSuccess ? (
@@ -109,33 +109,31 @@ export function toast({
               </div>
 
               {/* Контент */}
-              <div
-                className="flex-1 min-w-0 pt-0.5"
-                role="button"
-                tabIndex={0}
-                onClick={copyToClipboard}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    copyToClipboard();
-                  }
-                }}
-                title="Нажмите для копирования"
-              >
+              <div className="flex-1 min-w-0 pt-0.5">
                 <p className="text-sm font-semibold text-gray-900 leading-relaxed cursor-pointer hover:text-gray-700 transition-colors select-none block">
                   {message}
                 </p>
                 {description && (
-                  <p className="mt-1.5 text-sm text-gray-600 leading-none cursor-pointer hover:text-gray-800 transition-colors select-none block">
+                  <p className="mt-1.5 text-sm text-gray-600 leading-none cursor-pointer hover:text-gray-800 transition-colors select-none block whitespace-pre-line">
                     {description}
                   </p>
                 )}
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={copyToClipboard}
+                    className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                    title="Скопировать"
+                  >
+                    Скопировать
+                  </button>
+                </div>
               </div>
 
               {/* Кнопка закрытия */}
               <button
                 onClick={() => tt.dismiss(t.id, t.toasterId)}
-                className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200 -mr-1 -mt-1"
+                className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200 -mr-1 -mt-1"
                 title="Закрыть"
               >
                 <LucideXIcon style={{ width: 18 }} />

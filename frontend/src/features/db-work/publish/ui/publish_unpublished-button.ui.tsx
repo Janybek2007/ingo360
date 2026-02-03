@@ -13,11 +13,11 @@ export const PublishUnpublishedButton: React.FC<{
   const mutation = usePublishMutation(type, false);
   return (
     <Button
-      disabled={disabled}
+      disabled={disabled || mutation.isPending}
       className="px-4 py-2 rounded-full"
       onClick={() => mutation.mutateAsync(ids)}
     >
-      Опубликовать неопубликованные
+      {mutation.isPending ? 'Публикуем...' : 'Опубликовать неопубликованные'}
     </Button>
   );
 });

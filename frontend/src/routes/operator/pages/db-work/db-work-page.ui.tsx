@@ -26,7 +26,7 @@ const DbWorkPage: React.FC = () => {
 
   const currentData = React.useMemo(() => {
     return queryData.data ? queryData.data[0] : [];
-  }, [queryData]);
+  }, [queryData.data]);
 
   return (
     <main>

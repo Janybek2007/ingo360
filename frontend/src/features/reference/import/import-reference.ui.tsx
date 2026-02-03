@@ -34,7 +34,7 @@ export const ImportReferenceButton: React.FC<{ type: ReferencesType }> =
           onClick={handleButtonClick}
           disabled={isPending}
         >
-          {isPending ? 'Импорт...' : 'Импорт из файла'}
+          {isPending ? 'Импортируем...' : 'Импорт из файла'}
         </Button>
         <input
           ref={fileInputRef}

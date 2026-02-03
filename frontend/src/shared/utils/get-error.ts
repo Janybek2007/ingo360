@@ -10,10 +10,20 @@ type ErrorResponse = {
   detail: ErrorDetail[] | string;
 };
 
-export async function getResponseError(error: Response): Promise<string> {
-  try {
-    const data = (await error.json()) as ErrorResponse;
+export async function getResponseError(error?: Response): Promise<string> {
+  if (!error) {
+    return 'Неизвестная ошибка';
+  }
 
+  let parsed: unknown = null;
+  try {
+    parsed = await error.clone().json();
+  } catch {
+    parsed = null;
+  }
+
+  if (parsed && typeof parsed === 'object') {
+    const data = parsed as ErrorResponse;
     if (Array.isArray(data.detail)) {
       return data.detail
         .map(err => {
@@ -26,9 +36,12 @@ export async function getResponseError(error: Response): Promise<string> {
     if (typeof data.detail === 'string') {
       return ERROR_MESSAGES[data.detail] || data.detail;
     }
-
-    return 'Неизвестная ошибка';
-  } catch {
-    return 'Ошибка разбора ответа сервера';
   }
+
+  const rawText = await error.text().catch(() => '');
+  if (!rawText) {
+    return 'Неизвестная ошибка';
+  }
+
+  return ERROR_MESSAGES[rawText] || rawText;
 }
