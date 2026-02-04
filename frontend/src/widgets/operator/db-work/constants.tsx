@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import type { IDbItem } from '#/entities/db';
+import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { allMonths } from '#/shared/constants/months';
 import type { DbType } from '#/shared/types/db.type';
 import {
@@ -18,7 +19,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'distributor',
       accessorKey: 'distributor.name',
-      header: 'Сеть',
+      header: columnHeaderNames.distributorNetwork,
       size: 130,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -36,7 +37,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'pharmacy',
       accessorKey: 'pharmacy.name',
-      header: 'Аптека',
+      header: columnHeaderNames.pharmacy,
       size: 350,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -54,7 +55,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'pharmacy',
       accessorKey: 'pharmacy.name',
-      header: 'Аптека',
+      header: columnHeaderNames.pharmacy,
       size: 350,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -69,12 +70,32 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       ),
     });
   }
+  if (['sales/secondary', 'sales/tertiary'].includes(type)) {
+    columns.push({
+      id: 'distributor',
+      accessorKey: 'distributor.name',
+      accessorFn: row => (row.distributor ? row.distributor.name : '-'),
+      header: columnHeaderNames.distributor,
+      size: 150,
+      filterType: 'select',
+      filterFn: selectFilter(),
+      enableColumnFilter: true,
+      meta: { groupDimension: 'distributor' },
+      selectOptions: getUniqueItems(
+        data.map(v => ({
+          label: v.distributor ? v.distributor.name : 'Не указано',
+          value: v.distributor ? v.distributor.id : 0,
+        })),
+        ['value']
+      ),
+    });
+  }
 
   if (['sales/primary', 'sales/secondary', 'sales/tertiary'].includes(type)) {
     columns.push({
       id: 'sku.brand',
       accessorKey: 'sku.brand.name',
-      header: 'Бренд',
+      header: columnHeaderNames.brand,
       size: 180,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -92,7 +113,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'sku',
       accessorKey: 'sku.name',
-      header: 'Продукт',
+      header: columnHeaderNames.skuProduct,
       size: 180,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -116,7 +137,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'pharmacy.id',
       accessorKey: 'pharmacy.name',
       accessorFn: row => row.pharmacy?.name || '-',
-      header: 'Аптека',
+      header: columnHeaderNames.pharmacy,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -132,7 +153,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'employee.id',
       accessorKey: 'employee.full_name',
-      header: 'Сотрудник',
+      header: columnHeaderNames.employee,
       size: 100,
       enableColumnFilter: true,
       filterFn: selectFilter(),
@@ -149,7 +170,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'product_group.id',
       accessorKey: 'product_group.name',
-      header: 'Группа',
+      header: columnHeaderNames.group,
       size: 100,
       enableColumnFilter: true,
       filterFn: selectFilter(),
@@ -167,7 +188,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'medical_facility.id',
       accessorKey: 'medical_facility.name',
       cell: ({ row }) => row.original.medical_facility?.name || '-',
-      header: 'ЛПУ',
+      header: columnHeaderNames.medicalFacility,
       size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
@@ -185,7 +206,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'doctor.id',
       accessorKey: 'doctor.name',
       cell: ({ row }) => row.original.doctor?.name || '-',
-      header: 'Доктор',
+      header: columnHeaderNames.doctor,
       size: 100,
       enableColumnFilter: true,
       filterFn: selectFilter(),
@@ -202,7 +223,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'client_type',
       accessorKey: 'client_type',
-      header: 'Тип клиента',
+      header: columnHeaderNames.client,
       size: 100,
       enableColumnFilter: true,
       filterFn: selectFilter(),
@@ -222,7 +243,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'company',
       accessorKey: 'company',
-      header: 'Компания',
+      header: columnHeaderNames.companyName,
       size: 200,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -236,7 +257,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'brand',
       accessorKey: 'brand',
-      header: 'Бренд',
+      header: columnHeaderNames.brand,
       size: 200,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -250,7 +271,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'segment',
       accessorKey: 'segment',
-      header: 'Сегмент',
+      header: columnHeaderNames.segment,
       size: 150,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -264,7 +285,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'molecule',
       accessorKey: 'molecule',
-      header: 'Молекула',
+      header: columnHeaderNames.molecule,
       size: 150,
       filterType: 'string',
       filterFn: stringFilter(),
@@ -274,7 +295,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'dosage',
       accessorKey: 'dosage',
-      header: 'Дозировка',
+      header: columnHeaderNames.dosage,
       size: 120,
       filterType: 'string',
       filterFn: stringFilter(),
@@ -284,7 +305,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'dosage_form',
       accessorKey: 'dosage_form',
-      header: 'Форма',
+      header: columnHeaderNames.dosageForm,
       size: 120,
       filterType: 'string',
       filterFn: stringFilter(),
@@ -294,7 +315,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'period',
       accessorKey: 'period',
-      header: 'Период',
+      header: columnHeaderNames.period,
       size: 160,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -308,7 +329,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'amount',
       accessorKey: 'amount',
-      header: 'Сумма',
+      header: columnHeaderNames.amount,
       size: 120,
       filterType: 'number',
       filterFn: numberFilter(),
@@ -318,7 +339,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
     columns.push({
       id: 'packages',
       accessorKey: 'packages',
-      header: 'Упаковки',
+      header: columnHeaderNames.packages,
       size: 120,
       filterType: 'number',
       filterFn: numberFilter(),
@@ -334,7 +355,7 @@ function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
     type !== 'sales/primary' && {
       id: 'indicator',
       accessorKey: 'indicator',
-      header: 'Показатель',
+      header: columnHeaderNames.indicator,
       size: 180,
       filterType: 'select',
       filterFn: selectFilter(),
@@ -349,7 +370,7 @@ function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
     },
     {
       accessorKey: 'packages',
-      header: 'Упаковки',
+      header: columnHeaderNames.packages,
       size: 140,
       enableColumnFilter: true,
       filterFn: numberFilter(),
@@ -358,7 +379,7 @@ function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
     },
     {
       accessorKey: 'amount',
-      header: 'Сумма',
+      header: columnHeaderNames.amount,
       size: 140,
       enableColumnFilter: true,
       filterFn: numberFilter(),
@@ -367,7 +388,7 @@ function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
     },
     {
       accessorKey: 'published',
-      header: 'Опубликовано',
+      header: columnHeaderNames.published,
       size: 180,
       enableColumnFilter: true,
       filterType: 'select',
@@ -391,7 +412,7 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
   return [
     {
       accessorKey: 'month',
-      header: 'Месяц',
+      header: columnHeaderNames.month,
       cell: ({ row }) => allMonths[Number(row.original.month) - 1],
       size: 100,
       enableColumnFilter: true,
@@ -404,7 +425,7 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
     },
     {
       accessorKey: 'year',
-      header: 'Год',
+      header: columnHeaderNames.year,
       size: 100,
       filterType: 'select',
       filterFn: selectFilter(),

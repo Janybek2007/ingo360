@@ -63,7 +63,8 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                   { value: 'all', label: 'Все' },
                   { value: 1000, label: '1000' },
                   { value: 5000, label: '5000' },
-                  { value: 10000, label: '10000' },
+                  { value: 10_000, label: '10000' },
+                  { value: 100_000, label: '100000' },
                 ]}
                 triggerText="Количество строк"
               />
@@ -82,7 +83,9 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
               />
               <ExportToExcelButton
                 formatHeader={transformHeaderKeys(columnsForTable)}
-                selectKeys={visibleColumns}
+                selectKeys={visibleColumns.filter(
+                  v => !['actions'].includes(v)
+                )}
                 data={currentData}
                 fileName={`Справочные данные ${findCurrentTab(tabsItems, current)?.subItem?.label}`}
               />

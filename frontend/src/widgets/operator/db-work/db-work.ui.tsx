@@ -104,7 +104,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 formatHeader={transformHeaderKeys(columnsForTable, [
                   'published',
                 ])}
-                selectKeys={visibleColumns}
+                selectKeys={visibleColumns.filter(
+                  v => !['actions'].includes(v)
+                )}
                 transform={(row: IDbItem) => ({
                   ...row,
                   month: allMonths[Number(row.month) - 1],

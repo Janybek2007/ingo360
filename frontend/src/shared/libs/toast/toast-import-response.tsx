@@ -211,7 +211,7 @@ const ModalContent = ({
             </button>
           </div>
         </div>
-        <div ref={listRef} className="mt-3 max-h-[60dvh] overflow-y-auto pr-1">
+        <div ref={listRef} className="mt-3 max-h-[40vh] overflow-y-auto pr-1">
           <ul
             className="relative text-sm text-slate-600"
             style={{ height: totalSize }}
@@ -253,12 +253,12 @@ const openModal = (title: string, content: string | React.ReactNode) => {
           title={title}
           onClose={() => tt.dismiss(newToast.id, newToast.toasterId)}
           classNames={{
-            body: 'md:min-w-[60rem] md:max-w-[60rem] min-w-[90dvw] max-w-[90dvw]',
+            body: 'md:min-w-[60rem] md:max-w-[80rem] min-w-[90dvw] max-w-[90dvw]',
             root: `toast-modal-${newToast.id}`,
           }}
         >
           {typeof content === 'string' ? (
-            <div className="max-h-[70vh] overflow-y-auto pr-2">
+            <div className="max-h-[60vh] overflow-y-auto pr-2">
               <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
                 {content}
               </div>
