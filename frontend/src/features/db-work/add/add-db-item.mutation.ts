@@ -16,7 +16,7 @@ export const useAddReferenceMutation = (
     mutationKey: ['add-db-item', type],
     mutationFn: async (parsedBody: any) => {
       return http
-        .post(`${type}`, {
+        .post(`${type}/create`, {
           json: parsedBody,
         })
         .json<IDbItem>();

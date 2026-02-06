@@ -1,3 +1,14 @@
+// Utilities
+export type ReplaceSeparators<T extends string> =
+  T extends `${infer A}/${infer B}`
+    ? ReplaceSeparators<`${A}_${B}`>
+    : T extends `${infer A}-${infer B}`
+      ? ReplaceSeparators<`${A}_${B}`>
+      : T;
+
+//
+
+export type SortDirection = 'ASC' | 'DESC';
 export type IndicatorType = 'amount' | 'packages' | 'share_percent';
 
 export interface PaginationParams {

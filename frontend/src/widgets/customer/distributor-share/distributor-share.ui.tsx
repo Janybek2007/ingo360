@@ -1,3 +1,4 @@
+import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
@@ -13,17 +14,24 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns, monthsPreset } from '#/shared/constants/common-columns';
+import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 
 export const DistributorShare: React.FC = React.memo(() => {
-  const filterOptions = useFilterOptions();
+  const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const filters = useDbFilters({
-    brandsOptions: filterOptions.brands,
-    groupsOptions: filterOptions.groups,
+  const filterOptions = useFilterOptions([
+    'products/brands',
+    'products/product-groups',
+  ]);
+
+  const dbFilters = useDbFilters({
+    brandsOptions: filterOptions.options.products_brands,
+    groupsOptions: filterOptions.options.products_product_groups,
     config: {
       indicator: { enabled: false },
       groupBy: {
@@ -39,11 +47,11 @@ export const DistributorShare: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/distributor-shares'],
       {
-        brand_ids: filters.brands,
-        product_group_ids: filters.groups,
-        limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
-        search: filters.search,
-        group_by_dimensions: filters.groupBy,
+        brand_ids: dbFilters.brands,
+        product_group_ids: dbFilters.groups,
+        limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
+        search: dbFilters.search,
+        group_by_dimensions: dbFilters.groupBy,
         enabled: !filterOptions.isLoading,
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
@@ -75,7 +83,7 @@ export const DistributorShare: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['total'],
-      setGroupBy: filters.setGroupBy,
+      setGroupBy: dbFilters.setGroupBy,
     });
 
   return (
@@ -83,7 +91,7 @@ export const DistributorShare: React.FC = React.memo(() => {
       title="Доли дистрибьюторов в процентах"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...filters} />
+          <DbFilters {...dbFilters} />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -115,16 +123,20 @@ export const DistributorShare: React.FC = React.memo(() => {
         isLoading={queryData.isLoading}
         queryError={queryData.error}
       >
-        <Table
-          filters={{
-            usedFilterItems: filters.usedFilterItems,
-            resetFilters: filters.resetFilters,
-          }}
-          columns={columnsForTable}
-          data={sales}
-          maxHeight={560}
-          rounded="none"
-        />
+        <FiltersContext.Provider
+          value={{ filters, setFilters, sorting, setSorting }}
+        >
+          <Table
+            filters={{
+              usedFilterItems: dbFilters.usedFilterItems,
+              resetFilters: dbFilters.resetFilters,
+            }}
+            columns={columnsForTable}
+            data={sales}
+            maxHeight={560}
+            rounded="none"
+          />
+        </FiltersContext.Provider>
       </AsyncBoundary>
     </PageSection>
   );

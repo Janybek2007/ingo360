@@ -2,857 +2,722 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
+import type {
+  FilterOptionsObject,
+  FilterOptionsReferencesKey,
+} from '#/shared/components/db-filters';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 import { selectFilter, stringFilter } from '#/shared/utils/filter';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
-export const referencesColumnsWithType: Record<
-  ReferencesTypeWithMain,
-  (options: IReferenceItem[]) => ColumnDef<IReferenceItem>[]
-> = {
-  'geography/countries': () => [
-    {
-      size: 200,
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'geography/settlements': data => [
-    {
-      accessorKey: 'name',
-      size: 200,
-      header: columnHeaderNames.name,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'region.id',
-      accessorKey: 'region.name',
-      accessorFn: item => item.region?.name ?? '-',
-      header: columnHeaderNames.region,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.region?.name ?? 'Не указано'),
-          value: item.region?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-  'geography/regions': data => [
-    {
-      accessorKey: 'name',
-      size: 200,
-      header: columnHeaderNames.name,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'country.id',
-      accessorKey: 'country.name',
-      accessorFn: item => item.country?.name ?? '-',
-      header: columnHeaderNames.country,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.country?.name ?? 'Не указано'),
-          value: item.country?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-  'geography/districts': data => [
-    {
-      accessorKey: 'name',
-      size: 180,
-      header: columnHeaderNames.name,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'company.id',
-      accessorKey: 'company.name',
-      accessorFn: item => item.company?.name ?? '-',
-      header: columnHeaderNames.companyName,
-      size: 140,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.company?.name ?? 'Не указано'),
-          value: item.company?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'settlement.id',
-      accessorKey: 'settlement.name',
-      accessorFn: item => item.settlement?.name ?? '-',
-      header: columnHeaderNames.settlement,
-      size: 180,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.settlement?.name ?? 'Не указано'),
-          value: item.settlement?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'region.id',
-      accessorKey: 'region.name',
-      accessorFn: item => item.region?.name ?? '-',
-      header: columnHeaderNames.region,
-      size: 180,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.region?.name ?? 'Не указано'),
-          value: item.region?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-  'products/product-groups': data => [
-    {
-      id: 'company.id',
-      accessorKey: 'company.name',
-      accessorFn: item => item.company?.name ?? '-',
-      header: columnHeaderNames.companyName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.company?.name ?? 'Не указано'),
-          value: item.company?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'products/promotion-types': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'products/brands': data => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      accessorKey: 'ims_name',
-      header: columnHeaderNames.imsName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'company.id',
-      accessorKey: 'company.name',
-      accessorFn: item => item.company?.name ?? '-',
-      header: columnHeaderNames.companyName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.company?.name ?? 'Не указано'),
-          value: item.company?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'promotion_type.id',
-      accessorKey: 'promotion_type.name',
-      accessorFn: item => item.promotion_type?.name ?? '-',
-      header: columnHeaderNames.promotion,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.promotion_type?.name ?? 'Не указано'),
-          value: item.promotion_type?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'product_group.id',
-      accessorKey: 'product_group.name',
-      accessorFn: item => item.product_group?.name ?? '-',
-      header: columnHeaderNames.group,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.product_group?.name ?? 'Не указано'),
-          value: item.product_group?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-  'products/dosages': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'products/dosage-forms': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'products/segments': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'products/skus': data => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'company.id',
-      accessorKey: 'company.name',
-      accessorFn: item => item.company?.name ?? '-',
-      header: columnHeaderNames.companyName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.company?.name ?? 'Не указано'),
-          value: item.company?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'brand.id',
-      accessorKey: 'brand.name',
-      accessorFn: item => item.brand?.name ?? '-',
-      header: columnHeaderNames.brand,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.brand?.name ?? 'Не указано'),
-          value: item.brand?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'promotion_type.id',
-      accessorKey: 'promotion_type.name',
-      accessorFn: item => item.promotion_type?.name ?? '-',
-      header: columnHeaderNames.brand,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.promotion_type?.name ?? 'Не указано'),
-          value: item.promotion_type?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'product_group.id',
-      accessorKey: 'product_group.name',
-      accessorFn: item => item.product_group?.name ?? '-',
-      header: columnHeaderNames.group,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.product_group?.name ?? 'Не указано'),
-          value: item.product_group?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'dosage_form.id',
-      accessorKey: 'dosage_form.name',
-      accessorFn: item => item.dosage_form?.name ?? '-',
-      header: columnHeaderNames.dosageForm,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.dosage_form?.name ?? 'Не указано'),
-          value: item.dosage_form?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'dosage.id',
-      accessorKey: 'dosage.name',
-      accessorFn: item => item.dosage?.name ?? '-',
-      header: columnHeaderNames.dosage,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.dosage?.name ?? 'Не указано'),
-          value: item.dosage?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'segment.id',
-      accessorKey: 'segment.name',
-      accessorFn: item => item.segment?.name ?? '-',
-      header: columnHeaderNames.segment,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.segment?.name ?? 'Не указано'),
-          value: item.segment?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-  'employees/positions': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'employees/employees': data => [
-    {
-      accessorKey: 'full_name',
-      header: columnHeaderNames.fullName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'company.id',
-      accessorKey: 'company.name',
-      accessorFn: item => item.company?.name ?? '-',
-      header: columnHeaderNames.companyName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.company?.name ?? 'Не указано'),
-          value: item.company?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'position.id',
-      accessorKey: 'position.name',
-      accessorFn: item => item.position?.name ?? '-',
-      header: columnHeaderNames.customerPosition,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.position?.name ?? 'Не указано'),
-          value: item.position?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'product_group.id',
-      accessorKey: 'product_group.name',
-      accessorFn: item => item.product_group?.name ?? '-',
-      header: columnHeaderNames.group,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.product_group?.name ?? 'Не указано'),
-          value: item.product_group?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'region.id',
-      accessorKey: 'region.name',
-      accessorFn: item => item.region?.name ?? '-',
-      header: columnHeaderNames.region,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.region?.name ?? 'Не указано'),
-          value: item.region?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'district.id',
-      accessorKey: 'district.name',
-      accessorFn: item => item.district?.name ?? '-',
-      header: columnHeaderNames.district,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.district?.name ?? 'Не указано'),
-          value: item.district?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-  'clients/distributors': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'clients/geo-indicators': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'clients/medical-facilities': data => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'facility_type.id',
-      accessorKey: 'facility_type',
-      accessorFn: item => item.facility_type ?? '-',
-      header: columnHeaderNames.facilityType,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.facility_type ?? 'Не указано'),
-          value: item.facility_type ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'settlement.id',
-      accessorKey: 'settlement.name',
-      accessorFn: item => item.settlement?.name ?? '-',
-      header: columnHeaderNames.settlement,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.settlement?.name ?? 'Не указано'),
-          value: item.settlement?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'geo_indicator',
-      accessorKey: 'geo_indicator',
-      header: columnHeaderNames.geo_indicator,
-      accessorFn: item => item.geo_indicator?.name ?? '-',
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-      cell: ({ row }) =>
-        React.createElement(
-          'span',
-          { title: row.original.geo_indicator?.name || '-' },
-          row.original.geo_indicator?.name || '-'
-        ),
-    },
-    {
-      id: 'district.id',
-      accessorKey: 'district.name',
-      accessorFn: item => item.district?.name ?? '-',
-      header: columnHeaderNames.district,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.district?.name ?? 'Не указано'),
-          value: item.district?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      accessorKey: 'address',
-      accessorFn: item => item.address ?? '-',
-      header: columnHeaderNames.address,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'clients/specialities': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'clients/client-categories': () => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-  ],
-  'clients/doctors': data => [
-    {
-      accessorKey: 'full_name',
-      header: columnHeaderNames.fullName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'responsible_employee.id',
-      accessorKey: 'responsible_employee.full_name',
-      accessorFn: item => item.responsible_employee?.full_name ?? '-',
-      header: columnHeaderNames.responsibleEmployee,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.responsible_employee?.full_name ?? 'Не указано'),
-          value: item.responsible_employee?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'medical_facility.id',
-      accessorKey: 'medical_facility.name',
-      accessorFn: item => item.medical_facility?.name ?? '-',
-      header: columnHeaderNames.medicalFacility,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.medical_facility?.name ?? 'Не указано'),
-          value: item.medical_facility?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'speciality.id',
-      accessorKey: 'speciality.name',
-      accessorFn: item => item.speciality?.name ?? '-',
-      header: columnHeaderNames.speciality,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.speciality?.name ?? 'Не указано'),
-          value: item.speciality?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'client_category.id',
-      accessorKey: 'client_category.name',
-      accessorFn: item => item.client_category?.name ?? '-',
-      header: columnHeaderNames.category,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.client_category?.name ?? 'Не указано'),
-          value: item.client_category?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-  'clients/pharmacies': data => [
-    {
-      accessorKey: 'name',
-      header: columnHeaderNames.name,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-    },
-    {
-      id: 'company.id',
-      accessorKey: 'company.name',
-      accessorFn: item => item.company?.name ?? '-',
-      header: columnHeaderNames.companyName,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.company?.name ?? 'Не указано'),
-          value: item.company?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'distributor.id',
-      accessorKey: 'distributor.name',
-      accessorFn: item => item.distributor?.name ?? '-',
-      header: columnHeaderNames.distrbutorAndNetwork,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.distributor?.name ?? 'Не указано'),
-          value: item.distributor?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'responsible_employee.id',
-      accessorKey: 'responsible_employee.full_name',
-      accessorFn: item => item.responsible_employee?.full_name ?? '-',
-      header: columnHeaderNames.responsibleEmployee,
-      size: 250,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.responsible_employee?.full_name ?? 'Не указано'),
-          value: item.responsible_employee?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'settlement.id',
-      accessorKey: 'settlement.name',
-      accessorFn: item => item.settlement?.name ?? '-',
-      header: columnHeaderNames.settlement,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.settlement?.name ?? 'Не указано'),
-          value: item.settlement?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'district.id',
-      accessorKey: 'district.name',
-      accessorFn: item => item.district?.name ?? '-',
-      header: columnHeaderNames.district,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.district?.name ?? 'Не указано'),
-          value: item.district?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'geo_indicator',
-      accessorKey: 'geo_indicator',
-      header: columnHeaderNames.geo_indicator,
-      accessorFn: item => item.geo_indicator?.name ?? '-',
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: stringFilter(),
-      filterType: 'string',
-      cell: ({ row }) =>
-        React.createElement(
-          'span',
-          { title: row.original.geo_indicator?.name || '-' },
-          row.original.geo_indicator?.name || '-'
-        ),
-    },
-    {
-      id: 'client_category.id',
-      accessorKey: 'client_category.name',
-      accessorFn: item => item.client_category?.name ?? '-',
-      header: columnHeaderNames.category,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.client_category?.name ?? 'Не указано'),
-          value: item.client_category?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-    {
-      id: 'product_group.id',
-      accessorKey: 'product_group.name',
-      accessorFn: item => item.product_group?.name ?? '-',
-      header: columnHeaderNames.group,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: getUniqueItems(
-        data.map(item => ({
-          label: String(item.product_group?.name ?? 'Не указано'),
-          value: item.product_group?.id ?? 0,
-        })),
-        ['value']
-      ),
-    },
-  ],
-};
+export function getReferenceTypeDeps(
+  current: ReferencesTypeWithMain
+): FilterOptionsReferencesKey[] {
+  switch (current) {
+    case 'geography/settlements':
+      return ['geography/regions'];
+
+    case 'geography/regions':
+      return ['geography/countries'];
+
+    case 'geography/districts':
+      return [
+        'companies_companies',
+        'geography/settlements',
+        'geography/regions',
+      ];
+
+    case 'products/product-groups':
+      return ['companies_companies'];
+
+    case 'products/brands':
+      return [
+        'companies_companies',
+        'products/promotion-types',
+        'products/product-groups',
+      ];
+
+    case 'products/skus':
+      return [
+        'companies_companies',
+        'products/brands',
+        'products/promotion-types',
+        'products/product-groups',
+        'products/dosage-forms',
+        'products/dosages',
+        'products/segments',
+      ];
+
+    case 'employees/employees':
+      return [
+        'companies_companies',
+        'employees/positions',
+        'products/product-groups',
+        'geography/regions',
+        'geography/districts',
+      ];
+
+    case 'clients/medical-facilities':
+      return [
+        'clients/medical-facilities',
+        'geography/settlements',
+        'geography/districts',
+      ];
+
+    case 'clients/doctors':
+      return [
+        'employees/employees',
+        'clients/medical-facilities',
+        'clients/specialities',
+        'clients/client-categories',
+      ];
+
+    case 'clients/pharmacies':
+      return [
+        'companies_companies',
+        'clients/distributors',
+        'employees/employees',
+        'geography/settlements',
+        'geography/districts',
+        'clients/client-categories',
+        'clients/geo-indicators',
+        'products/product-groups',
+      ];
+
+    default:
+      return [];
+  }
+}
+
+export function getReferenceWorkColumns(
+  type: ReferencesTypeWithMain,
+  filterOptions: FilterOptionsObject
+): ColumnDef<IReferenceItem>[] {
+  const columns: ColumnDef<IReferenceItem>[] = [];
+
+  switch (type) {
+    case 'geography/countries': {
+      columns.push({
+        size: 200,
+        accessorKey: 'name',
+        header: columnHeaderNames.name,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        filterType: 'string',
+      });
+      break;
+    }
+
+    case 'geography/settlements': {
+      columns.push(
+        {
+          accessorKey: 'name',
+          size: 200,
+          header: columnHeaderNames.name,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'region.id',
+          accessorKey: 'region.name',
+          accessorFn: item => item.region?.name ?? '-',
+          header: columnHeaderNames.region,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_regions,
+        }
+      );
+      break;
+    }
+
+    case 'geography/regions': {
+      columns.push(
+        {
+          accessorKey: 'name',
+          size: 200,
+          header: columnHeaderNames.name,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'country.id',
+          accessorKey: 'country.name',
+          accessorFn: item => item.country?.name ?? '-',
+          header: columnHeaderNames.country,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_countries,
+        }
+      );
+      break;
+    }
+
+    case 'geography/districts': {
+      columns.push(
+        {
+          accessorKey: 'name',
+          size: 180,
+          header: columnHeaderNames.name,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'company.id',
+          accessorKey: 'company.name',
+          accessorFn: item => item.company?.name ?? '-',
+          header: columnHeaderNames.companyName,
+          size: 140,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.companies_companies,
+        },
+        {
+          id: 'settlement.id',
+          accessorKey: 'settlement.name',
+          accessorFn: item => item.settlement?.name ?? '-',
+          header: columnHeaderNames.settlement,
+          size: 180,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_settlements,
+        },
+        {
+          id: 'region.id',
+          accessorKey: 'region.name',
+          accessorFn: item => item.region?.name ?? '-',
+          header: columnHeaderNames.region,
+          size: 180,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_regions,
+        }
+      );
+      break;
+    }
+
+    case 'products/product-groups': {
+      columns.push(
+        {
+          id: 'company.id',
+          accessorKey: 'company.name',
+          accessorFn: item => item.company?.name ?? '-',
+          header: columnHeaderNames.companyName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.companies_companies,
+        },
+        {
+          accessorKey: 'name',
+          header: columnHeaderNames.name,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        }
+      );
+      break;
+    }
+
+    case 'products/promotion-types': {
+      columns.push({
+        accessorKey: 'name',
+        header: columnHeaderNames.name,
+        size: 200,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        filterType: 'string',
+      });
+      break;
+    }
+
+    case 'products/brands': {
+      columns.push(
+        {
+          accessorKey: 'name',
+          header: columnHeaderNames.name,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          accessorKey: 'ims_name',
+          header: columnHeaderNames.imsName,
+          accessorFn: item => item.ims_name ?? '-',
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'company.id',
+          accessorKey: 'company.name',
+          accessorFn: item => item.company?.name ?? '-',
+          header: columnHeaderNames.companyName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.companies_companies,
+        },
+        {
+          id: 'promotion_type.id',
+          accessorKey: 'promotion_type.name',
+          accessorFn: item => item.promotion_type?.name ?? '-',
+          header: columnHeaderNames.promotion,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_promotion_types,
+        },
+        {
+          id: 'product_group.id',
+          accessorKey: 'product_group.name',
+          accessorFn: item => item.product_group?.name ?? '-',
+          header: columnHeaderNames.group,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_product_groups,
+        }
+      );
+      break;
+    }
+
+    case 'products/dosages':
+    case 'products/dosage-forms':
+    case 'products/segments':
+    case 'employees/positions':
+    case 'clients/distributors':
+    case 'clients/geo-indicators':
+    case 'clients/specialities':
+    case 'clients/client-categories': {
+      columns.push({
+        accessorKey: 'name',
+        header: columnHeaderNames.name,
+        size: 200,
+        enableColumnFilter: true,
+        filterFn: stringFilter(),
+        filterType: 'string',
+      });
+      break;
+    }
+
+    case 'products/skus': {
+      columns.push(
+        {
+          accessorKey: 'name',
+          header: columnHeaderNames.name,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'company.id',
+          accessorKey: 'company.name',
+          accessorFn: item => item.company?.name ?? '-',
+          header: columnHeaderNames.companyName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.companies_companies,
+        },
+        {
+          id: 'brand.id',
+          accessorKey: 'brand.name',
+          accessorFn: item => item.brand?.name ?? '-',
+          header: columnHeaderNames.brand,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_brands,
+        },
+        {
+          id: 'promotion_type.id',
+          accessorKey: 'promotion_type.name',
+          accessorFn: item => item.promotion_type?.name ?? '-',
+          header: columnHeaderNames.brand,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_promotion_types,
+        },
+        {
+          id: 'product_group.id',
+          accessorKey: 'product_group.name',
+          accessorFn: item => item.product_group?.name ?? '-',
+          header: columnHeaderNames.group,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_product_groups,
+        },
+        {
+          id: 'dosage_form.id',
+          accessorKey: 'dosage_form.name',
+          accessorFn: item => item.dosage_form?.name ?? '-',
+          header: columnHeaderNames.dosageForm,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_dosage_forms,
+        },
+        {
+          id: 'dosage.id',
+          accessorKey: 'dosage.name',
+          accessorFn: item => item.dosage?.name ?? '-',
+          header: columnHeaderNames.dosage,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_dosages,
+        },
+        {
+          id: 'segment.id',
+          accessorKey: 'segment.name',
+          accessorFn: item => item.segment?.name ?? '-',
+          header: columnHeaderNames.segment,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_segments,
+        }
+      );
+      break;
+    }
+
+    case 'employees/employees': {
+      columns.push(
+        {
+          accessorKey: 'full_name',
+          header: columnHeaderNames.fullName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'company.id',
+          accessorKey: 'company.name',
+          accessorFn: item => item.company?.name ?? '-',
+          header: columnHeaderNames.companyName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.companies_companies,
+        },
+        {
+          id: 'position.id',
+          accessorKey: 'position.name',
+          accessorFn: item => item.position?.name ?? '-',
+          header: columnHeaderNames.customerPosition,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.employees_positions,
+        },
+        {
+          id: 'product_group.id',
+          accessorKey: 'product_group.name',
+          accessorFn: item => item.product_group?.name ?? '-',
+          header: columnHeaderNames.group,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_product_groups,
+        },
+        {
+          id: 'region.id',
+          accessorKey: 'region.name',
+          accessorFn: item => item.region?.name ?? '-',
+          header: columnHeaderNames.region,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_regions,
+        },
+        {
+          id: 'district.id',
+          accessorKey: 'district.name',
+          accessorFn: item => item.district?.name ?? '-',
+          header: columnHeaderNames.district,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_districts,
+        }
+      );
+      break;
+    }
+
+    case 'clients/medical-facilities': {
+      columns.push(
+        {
+          accessorKey: 'name',
+          header: columnHeaderNames.name,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'facility_type.id',
+          accessorKey: 'facility_type',
+          accessorFn: item => item.facility_type ?? '-',
+          header: columnHeaderNames.facilityType,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.clients_medical_facilities,
+        },
+        {
+          id: 'settlement.id',
+          accessorKey: 'settlement.name',
+          accessorFn: item => item.settlement?.name ?? '-',
+          header: columnHeaderNames.settlement,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_settlements,
+        },
+        {
+          id: 'geo_indicator',
+          accessorKey: 'geo_indicator',
+          header: columnHeaderNames.geo_indicator,
+          accessorFn: item => item.geo_indicator?.name ?? '-',
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+          cell: ({ row }) =>
+            React.createElement(
+              'span',
+              { title: row.original.geo_indicator?.name || '-' },
+              row.original.geo_indicator?.name || '-'
+            ),
+        },
+        {
+          id: 'district.id',
+          accessorKey: 'district.name',
+          accessorFn: item => item.district?.name ?? '-',
+          header: columnHeaderNames.district,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_districts,
+        },
+        {
+          accessorKey: 'address',
+          accessorFn: item => item.address ?? '-',
+          header: columnHeaderNames.address,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        }
+      );
+      break;
+    }
+
+    case 'clients/doctors': {
+      columns.push(
+        {
+          accessorKey: 'full_name',
+          header: columnHeaderNames.fullName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'responsible_employee.id',
+          accessorKey: 'responsible_employee.full_name',
+          accessorFn: item => item.responsible_employee?.full_name ?? '-',
+          header: columnHeaderNames.responsibleEmployee,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.employees_employees,
+        },
+        {
+          id: 'medical_facility.id',
+          accessorKey: 'medical_facility.name',
+          accessorFn: item => item.medical_facility?.name ?? '-',
+          header: columnHeaderNames.medicalFacility,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.clients_medical_facilities,
+        },
+        {
+          id: 'speciality.id',
+          accessorKey: 'speciality.name',
+          accessorFn: item => item.speciality?.name ?? '-',
+          header: columnHeaderNames.speciality,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.clients_specialities,
+        },
+        {
+          id: 'client_category.id',
+          accessorKey: 'client_category.name',
+          accessorFn: item => item.client_category?.name ?? '-',
+          header: columnHeaderNames.category,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.clients_client_categories,
+        }
+      );
+      break;
+    }
+
+    case 'clients/pharmacies': {
+      columns.push(
+        {
+          accessorKey: 'name',
+          header: columnHeaderNames.name,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: stringFilter(),
+          filterType: 'string',
+        },
+        {
+          id: 'company.id',
+          accessorKey: 'company.name',
+          accessorFn: item => item.company?.name ?? '-',
+          header: columnHeaderNames.companyName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.companies_companies,
+        },
+        {
+          id: 'distributor.id',
+          accessorKey: 'distributor.name',
+          accessorFn: item => item.distributor?.name ?? '-',
+          header: columnHeaderNames.distrbutorAndNetwork,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.clients_distributors,
+        },
+        {
+          id: 'responsible_employee.id',
+          accessorKey: 'responsible_employee.full_name',
+          accessorFn: item => item.responsible_employee?.full_name ?? '-',
+          header: columnHeaderNames.responsibleEmployee,
+          size: 250,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.employees_employees,
+        },
+        {
+          id: 'settlement.id',
+          accessorKey: 'settlement.name',
+          accessorFn: item => item.settlement?.name ?? '-',
+          header: columnHeaderNames.settlement,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_settlements,
+        },
+        {
+          id: 'district.id',
+          accessorKey: 'district.name',
+          accessorFn: item => item.district?.name ?? '-',
+          header: columnHeaderNames.district,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.geography_districts,
+        },
+        {
+          id: 'geo_indicator',
+          accessorKey: 'geo_indicator',
+          header: columnHeaderNames.geo_indicator,
+          accessorFn: item => item.geo_indicator?.name ?? '-',
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          cell: ({ row }) =>
+            React.createElement(
+              'span',
+              { title: row.original.geo_indicator?.name || '-' },
+              row.original.geo_indicator?.name || '-'
+            ),
+          selectOptions: filterOptions.clients_geo_indicators,
+        },
+        {
+          id: 'client_category.id',
+          accessorKey: 'client_category.name',
+          accessorFn: item => item.client_category?.name ?? '-',
+          header: columnHeaderNames.category,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.clients_client_categories,
+        },
+        {
+          id: 'product_group.id',
+          accessorKey: 'product_group.name',
+          accessorFn: item => item.product_group?.name ?? '-',
+          header: columnHeaderNames.group,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_product_groups,
+        }
+      );
+      break;
+    }
+
+    default:
+      break;
+  }
+
+  return columns;
+}

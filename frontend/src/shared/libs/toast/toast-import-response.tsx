@@ -33,14 +33,16 @@ const getDownloadFileName = (name: string) => {
   return `${baseName || 'import'}-errors.txt`;
 };
 
-const getTotals = (response: TImportResponse) => [
-  `Импортировано: ${response.imported}`,
-  `Добавлено: ${response.inserted}`,
-  `Обновлено: ${response.updated}`,
-  `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch}`,
-  `Пропущено: ${response.skipped}`,
-  `Всего: ${response.total}`,
-];
+const getTotals = (response: TImportResponse) =>
+  [
+    `Импортировано: ${response.imported}`,
+    response.inserted && `Добавлено: ${response.inserted}`,
+    response.updated && `Обновлено: ${response.updated}`,
+    response.deduplicated_in_batch &&
+      `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch}`,
+    `Пропущено: ${response.skipped}`,
+    `Всего: ${response.total}`,
+  ].filter(Boolean);
 
 const formatSkipped = (records: TImportResponse['skipped_records']) =>
   records.map(record => ({
@@ -173,16 +175,22 @@ const ModalContent = ({
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
             Импортировано: {response.imported}
           </span>
-          <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
-            Добавлено: {response.inserted}
-          </span>
-          <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">
-            Обновлено: {response.updated}
-          </span>
-          <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-700">
-            Найдено дублей в файле (не загружены):{' '}
-            {response.deduplicated_in_batch}
-          </span>
+          {response.inserted && (
+            <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
+              Добавлено: {response.inserted}
+            </span>
+          )}
+          {response.updated && (
+            <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">
+              Обновлено: {response.updated}
+            </span>
+          )}
+          {response.deduplicated_in_batch && (
+            <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-700">
+              Найдено дублей в файле (не загружены):{' '}
+              {response.deduplicated_in_batch}
+            </span>
+          )}
           <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
             Пропущено: {response.skipped}
           </span>

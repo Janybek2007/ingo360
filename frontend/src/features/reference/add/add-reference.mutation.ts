@@ -17,7 +17,7 @@ export const useAddReferenceMutation = (
 
     mutationFn: async (parsedBody: any) => {
       return http
-        .post(`${type}`, {
+        .post(`${type}/create`, {
           json: parsedBody,
         })
         .json<IReferenceItem>();

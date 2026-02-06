@@ -1,4 +1,8 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+} from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -8,6 +12,7 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { UsedFilter } from '#/shared/components/used-filter';
+import { FiltersContext } from '#/shared/context/filters';
 import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -29,8 +34,11 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
       queryError,
       activeTab,
       setActiveTab,
-      filters,
+      filters: dbFilters,
     }) => {
+      const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+      const [sorting, setSorting] = React.useState<SortingState>([]);
+
       const columns = useMemo<ColumnDef<EntityRow>[]>(
         () => [
           { accessorKey: 'rank', header: 'Место', size: 130 },
@@ -69,7 +77,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
           title="Профайл компании, бренда или сегмента"
           headerEnd={
             <div className="flex gap-4 items-center relative z-100">
-              <DbFilters {...filters} brandsMultiple={false} />
+              <DbFilters {...dbFilters} brandsMultiple={false} />
               <PeriodFilters {...periodFilter} isMultiple={false} />
             </div>
           }
@@ -92,12 +100,12 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                     isReadOnly: true,
                   },
                 ])}
-                usedFilterItems={filters.usedFilterItems}
+                usedFilterItems={dbFilters.usedFilterItems}
                 isView={periodFilter.isView}
                 isViewPeriods={periodFilter.isView}
                 resetFilters={() => {
                   periodFilter.onReset();
-                  filters.resetFilters();
+                  dbFilters.resetFilters();
                 }}
                 periodViewMode="from"
               />
@@ -139,21 +147,27 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                 </div>
               ) : (
                 <AsyncBoundary isLoading={isLoading} queryError={queryError}>
-                  <Table
-                    isVirtualized={false}
-                    highlightRow={row =>
-                      row.is_user_company || row.is_user_entity
-                        ? 'bg-yellow-100 font-bold'
-                        : ''
-                    }
-                    // isVirtualized={false}
-                    isViewFilter={false}
-                    pinnedRow={row => row.is_user_company || row.is_user_entity}
-                    columns={columns}
-                    data={entities}
-                    enableColumnResizing={false}
-                    maxHeight={400}
-                  />
+                  <FiltersContext.Provider
+                    value={{ filters, setFilters, sorting, setSorting }}
+                  >
+                    <Table
+                      isVirtualized={false}
+                      highlightRow={row =>
+                        row.is_user_company || row.is_user_entity
+                          ? 'bg-yellow-100 font-bold'
+                          : ''
+                      }
+                      // isVirtualized={false}
+                      isViewFilter={false}
+                      pinnedRow={row =>
+                        row.is_user_company || row.is_user_entity
+                      }
+                      columns={columns}
+                      data={entities}
+                      enableColumnResizing={false}
+                      maxHeight={400}
+                    />
+                  </FiltersContext.Provider>
                 </AsyncBoundary>
               )}
             </div>

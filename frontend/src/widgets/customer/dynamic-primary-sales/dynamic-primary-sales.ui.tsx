@@ -30,11 +30,14 @@ const AsLegends = {
 
 export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
   React.memo(({ as = 'line' }) => {
-    const filterOptions = useFilterOptions();
+    const filterOptions = useFilterOptions([
+      'products/brands',
+      'products/product-groups',
+    ]);
 
     const filters = useDbFilters({
-      brandsOptions: filterOptions.brands,
-      groupsOptions: filterOptions.groups,
+      brandsOptions: filterOptions.options.products_brands,
+      groupsOptions: filterOptions.options.products_product_groups,
       config: {
         rowsCount: { enabled: false },
         indicator: { enabled: as == 'mixed' },

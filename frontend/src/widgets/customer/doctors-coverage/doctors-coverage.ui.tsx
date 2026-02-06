@@ -6,11 +6,8 @@ import { DoctorsCountVisits } from './ui/count-visits.ui';
 import { DoctorsPercentageVisits } from './ui/percentage-visits.ui';
 
 export const DoctorsCoverage: React.FC = React.memo(() => {
-  const filterOptions = useFilterOptions({
-    medicalFacilities: true,
-    brands: false,
-    groups: false,
-  });
+  const filterOptions = useFilterOptions(['clients/medical-facilities']);
+
   const [medicalFacilityIds, setMedicalFacilityIds] = React.useState<number[]>(
     []
   );
@@ -21,7 +18,9 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
         <DoctorsCountVisits
           enabled={!filterOptions.isLoading}
           setMedicalFacilityIds={setMedicalFacilityIds}
-          medicalFacilityItems={filterOptions.medicalFacilities}
+          medicalFacilityItems={
+            filterOptions.options.clients_medical_facilities
+          }
           medicalFacilityIds={medicalFacilityIds}
         ></DoctorsCountVisits>
         <DoctorsPercentageVisits

@@ -1,3 +1,4 @@
+import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React from 'react';
 
 import { DbQueries } from '#/entities/db';
@@ -13,6 +14,7 @@ import {
   commonColumns,
   marketInsightsDynamicPeriods,
 } from '#/shared/constants/common-columns';
+import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
@@ -30,7 +32,10 @@ interface MarketRow {
 }
 
 export const MarketInsights: React.FC = React.memo(() => {
-  const filters = useDbFilters({
+  const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+
+  const dbFilters = useDbFilters({
     config: {
       brands: { enabled: false },
       groups: { enabled: false },
@@ -47,9 +52,9 @@ export const MarketInsights: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {
       periods: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
-      limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
-      search: filters.search,
-      group_by_dimensions: filters.groupBy,
+      limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
+      search: dbFilters.search,
+      group_by_dimensions: dbFilters.groupBy,
     })
   );
 
@@ -66,7 +71,7 @@ export const MarketInsights: React.FC = React.memo(() => {
           const year = `20${match[2]}`;
           const newKey = `${year}-${month}`;
           if (typeof value == 'object') {
-            newRow[newKey] = value[filters.indicator as 'amount'];
+            newRow[newKey] = value[dbFilters.indicator as 'amount'];
           } else {
             newRow[newKey] = value;
           }
@@ -77,7 +82,7 @@ export const MarketInsights: React.FC = React.memo(() => {
 
       return newRow;
     });
-  }, [queryData.data, filters.indicator]);
+  }, [queryData.data, dbFilters.indicator]);
 
   const allColumns = useGenerateColumns({
     data: metricData,
@@ -96,7 +101,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['actions'],
-      setGroupBy: filters.setGroupBy,
+      setGroupBy: dbFilters.setGroupBy,
     });
 
   return (
@@ -104,7 +109,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       title="Данные по рынкам"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...filters}>
+          <DbFilters {...dbFilters}>
             <PeriodFilters {...periodFilter} />
           </DbFilters>
           <Select<true>
@@ -139,27 +144,31 @@ export const MarketInsights: React.FC = React.memo(() => {
         queryError={queryData.error}
         isLoading={queryData.isLoading}
       >
-        <Table
-          filters={{
-            usedFilterItems: filters.usedFilterItems,
-            resetFilters: () => {
-              filters.resetFilters();
-              periodFilter.onReset();
-            },
-            isViewPeriods: periodFilter.isView,
-            usedPeriodFilters: getUsedFilterItems([
-              {
-                value: periodFilter.selectedValues,
-                getLabelFromValue: getPeriodLabel,
-                onDelete: periodFilter.onDelete,
+        <FiltersContext.Provider
+          value={{ filters, setFilters, sorting, setSorting }}
+        >
+          <Table
+            filters={{
+              usedFilterItems: dbFilters.usedFilterItems,
+              resetFilters: () => {
+                dbFilters.resetFilters();
+                periodFilter.onReset();
               },
-            ]),
-            isView: filters.usedFilterItems.length > 0,
-          }}
-          columns={columnsForTable}
-          data={metricData}
-          maxHeight={560}
-        />
+              isViewPeriods: periodFilter.isView,
+              usedPeriodFilters: getUsedFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: periodFilter.onDelete,
+                },
+              ]),
+              isView: dbFilters.usedFilterItems.length > 0,
+            }}
+            columns={columnsForTable}
+            data={metricData}
+            maxHeight={560}
+          />
+        </FiltersContext.Provider>
       </AsyncBoundary>
     </PageSection>
   );

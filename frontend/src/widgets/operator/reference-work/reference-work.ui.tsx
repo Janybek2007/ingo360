@@ -8,6 +8,10 @@ import { EditReferenceWrapper } from '#/features/reference/edit';
 import { ImportReferenceButton } from '#/features/reference/import';
 import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import {
+  type FilterOptionsReferencesKey,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
@@ -18,32 +22,43 @@ import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { transformHeaderKeys } from '#/shared/utils/transform';
 
-import { referencesColumnsWithType } from './constants';
+import { getReferenceTypeDeps, getReferenceWorkColumns } from './constants';
 import type { IReferenceWorkProps } from './reference-work.types';
 
 const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
   ({ currentData, current, rowsCount, setRowsCount, ...props }) => {
-    const allColumns = useMemo(
-      (): ColumnDef<IReferenceItem>[] => [
-        ...referencesColumnsWithType[current as ReferencesTypeWithMain](
-          currentData
-        ),
-        {
-          id: 'actions',
-          header: 'Действия',
-          enablePinning: true,
-          pinned: 'right',
-          size: 160,
-          cell: ({ row }) => (
-            <div className="flex items-center gap-2 pr-10">
-              <EditReferenceWrapper type={current} defaultData={row.original} />
-              <DeleteReferenceWrapper data={row.original} type={current} />
-            </div>
-          ),
-        },
-      ],
-      [current, currentData]
+    const references = useMemo(
+      () => getReferenceTypeDeps(current as ReferencesTypeWithMain),
+      [current]
     );
+
+    const filterOptions = useFilterOptions(
+      references,
+      current as FilterOptionsReferencesKey
+    );
+
+    const allColumns = useMemo((): ColumnDef<IReferenceItem>[] => {
+      const columns = getReferenceWorkColumns(
+        current as ReferencesTypeWithMain,
+        filterOptions.options
+      );
+
+      columns.push({
+        id: 'actions',
+        header: 'Действия',
+        enablePinning: true,
+        pinned: 'right',
+        size: 160,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2 pr-10">
+            <EditReferenceWrapper type={current} defaultData={row.original} />
+            <DeleteReferenceWrapper data={row.original} type={current} />
+          </div>
+        ),
+      });
+
+      return columns;
+    }, [current, filterOptions]);
 
     const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
       useColumnVisibility({

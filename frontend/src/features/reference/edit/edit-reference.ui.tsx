@@ -1,9 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
-import { type IReferenceItem, ReferenceQueries } from '#/entities/reference';
+import { type IReferenceItem } from '#/entities/reference';
 import { MdiPencilIcon } from '#/shared/assets/icons';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import {
+  type FilterOptionsReferencesKey,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type {
   ReferencesType,
@@ -22,31 +25,35 @@ const EditReferenceModal: React.FC<{
   defaultData: IReferenceItem | null;
   onClose: () => void;
 }> = React.memo(({ type, defaultData, onClose }) => {
-  const queryData = useQuery(
-    ReferenceQueries.GetReferencesQuery<Record<string, string | number>[]>(
-      (referencesDependsUrls[type as ReferencesTypeWithDepUrls] || []).map(
-        url => url.url
-      ) || []
-    )
+  const dependsUrls = React.useMemo(
+    () => referencesDependsUrls[type as ReferencesTypeWithDepUrls] || [],
+    [type]
   );
+
+  const references = React.useMemo(
+    () => dependsUrls.map(item => item.url as FilterOptionsReferencesKey),
+    [dependsUrls]
+  );
+
+  const filterOptions = useFilterOptions(references);
+
   const mutation = useEditReferenceMutation(type, onClose, defaultData?.id);
 
   const fields = React.useMemo(
     () =>
       fieldsWithSelectItems({
-        data: queryData.data || [],
+        options: filterOptions.options,
         fields: referencesCEFields[type as ReferencesTypeWithMain],
         defaultData: transformData(defaultData),
-        dependsUrls:
-          referencesDependsUrls[type as ReferencesTypeWithDepUrls] || [],
+        dependsUrls,
       }),
-    [queryData.data, defaultData, type]
+    [defaultData, dependsUrls, filterOptions.options, type]
   );
 
   return (
     <CreateEditModal
       portal
-      isLoading={queryData.isLoading}
+      isLoading={filterOptions.isLoading}
       isPending={mutation.isPending}
       isSuccess={mutation.isSuccess}
       title={`Редактировать запись`}

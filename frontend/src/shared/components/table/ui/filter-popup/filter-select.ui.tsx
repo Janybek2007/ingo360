@@ -1,3 +1,4 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import React, {
   useCallback,
   useEffect,
@@ -14,6 +15,7 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
   ({ value, setValue, items }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const selectAllRef = useRef<HTMLInputElement>(null);
+    const listRef = useRef<HTMLDivElement>(null);
 
     const allSelected = useMemo(
       () => value.length === items.length,
@@ -51,6 +53,22 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
       setValue(allSelected ? [] : items);
     }, [allSelected, items, setValue]);
 
+    // eslint-disable-next-line react-hooks/incompatible-library
+    const rowVirtualizer = useVirtualizer({
+      count: filteredItems.length,
+      getScrollElement: () => listRef.current,
+      estimateSize: () => 40,
+      overscan: 8,
+      measureElement:
+        typeof window !== 'undefined' &&
+        navigator.userAgent.indexOf('Firefox') === -1
+          ? element => element?.getBoundingClientRect().height
+          : undefined,
+    });
+
+    const virtualRows = rowVirtualizer.getVirtualItems();
+    const totalSize = rowVirtualizer.getTotalSize();
+
     return (
       <div className="overflow-hiddens">
         {/* Поиск */}
@@ -65,7 +83,7 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
         </div>
 
         {/* Список */}
-        <div className="max-h-60 overflow-y-auto">
+        <div ref={listRef} className="max-h-60 overflow-y-auto">
           {/* Выбрать все */}
           <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 cursor-pointer select-none hover:bg-gray-100 transition-colors">
             <input
@@ -78,28 +96,38 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
             <span>Выбрать все</span>
           </label>
           {filteredItems.length > 0 ? (
-            filteredItems.map(item => {
-              const isSelected = value.some(v => v.value === item.value);
-              return (
-                <label
-                  key={item.value}
-                  className={cn(
-                    'flex items-center gap-2 px-3 py-2 text-sm rounded cursor-pointer select-none transition-colors',
-                    'hover:bg-blue-50'
-                  )}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => handleToggle(item)}
-                    className="w-4 h-4 accent-blue-500"
-                  />
-                  <span className="truncate flex-1 text-gray-700">
-                    {item.label}
-                  </span>
-                </label>
-              );
-            })
+            <div className="relative" style={{ height: totalSize }}>
+              {virtualRows.map(virtualRow => {
+                const item = filteredItems[virtualRow.index];
+
+                if (!item) return null;
+
+                const isSelected = value.some(v => v.value === item.value);
+
+                return (
+                  <label
+                    key={item.value}
+                    ref={rowVirtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    className={cn(
+                      'absolute left-0 top-0 w-full flex items-center gap-2 px-3 py-2 text-sm rounded cursor-pointer select-none transition-colors',
+                      'hover:bg-blue-50'
+                    )}
+                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleToggle(item)}
+                      className="w-4 h-4 accent-blue-500"
+                    />
+                    <span className="truncate flex-1 text-gray-700">
+                      {item.label}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
           ) : (
             <div className="px-3 py-6 text-sm text-gray-400 text-center">
               Ничего не найдено

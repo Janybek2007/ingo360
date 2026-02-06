@@ -1,4 +1,5 @@
-import type { IndicatorType } from '#/shared/types/global';
+import type { IndicatorType, ReplaceSeparators } from '#/shared/types/global';
+import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 
 import type { IUsedFilterItem } from '../used-filter';
 
@@ -60,37 +61,24 @@ export type DbFiltersProps = UseDbFiltersReturn &
     brandsMultiple?: boolean;
   };
 
-export interface FilterOptionItem {
-  id: number;
-  name: string;
-}
+export type FilterOptionsReferencesKey =
+  | 'companies_companies'
+  | ReferencesTypeWithMain;
 
-export interface FilterOptions {
-  value: string | number;
-  label: string;
-}
+export type FilterOptionItem = { id: number; name: string };
+export type FilterOptions = { value: string | number; label: string };
 
 export interface UseFilterOptionsConfig {
-  brands?: boolean;
-  groups?: boolean;
-  distributors?: boolean;
-  medicalFacilities?: boolean;
-  geoIndicators?: boolean;
-  segment?: boolean;
-  urls?: {
-    brands?: 'ims/filter-options/brand-name' | 'products/brands/filter-options';
-  };
+  references?: FilterOptionsReferencesKey[];
 }
 
-export interface UseFilterOptionsReturn {
+export type FilterOptionsKey = ReplaceSeparators<FilterOptionsReferencesKey>;
+export type FilterOptionsObject = Record<FilterOptionsKey, FilterOptions[]>;
+
+export type UseFilterOptionsReturn = {
   isLoading: boolean;
-  brands: FilterOptions[];
-  groups: FilterOptions[];
-  distributors: FilterOptions[];
-  medicalFacilities: FilterOptions[];
-  segments: FilterOptions[];
-  geoIndicators: FilterOptions[];
-}
+  options: FilterOptionsObject;
+};
 
 //
 export interface UseDbFiltersProps {

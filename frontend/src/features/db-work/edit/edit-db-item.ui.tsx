@@ -1,9 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
-import { DbQueries, type IDbItem } from '#/entities/db';
+import { type IDbItem } from '#/entities/db';
 import { MdiPencilIcon } from '#/shared/assets/icons';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import {
+  type FilterOptionsReferencesKey,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
@@ -18,30 +21,41 @@ const EditDbItemModal: React.FC<{
   type: DbType;
   defaultData: IDbItem;
 }> = React.memo(({ onClose, type, defaultData }) => {
-  const queryData = useQuery(
-    DbQueries.GetDbItemsQuery<Record<string, string | number>[]>(
-      ((dbItemDependsUrls[type] || []).map(url => url.url) as DbType[]) || []
-    )
+  const dependsUrls = React.useMemo(
+    () => dbItemDependsUrls[type as DbType] || [],
+    [type]
   );
+
+  const references = React.useMemo(
+    () =>
+      dependsUrls.map(item =>
+        item.url === 'companies'
+          ? 'companies_companies'
+          : (item.url as FilterOptionsReferencesKey)
+      ),
+    [dependsUrls]
+  );
+
+  const filterOptions = useFilterOptions(references);
 
   const mutation = useEditDbItemMutation(type, onClose, defaultData?.id);
 
   const fields = React.useMemo(
     () =>
       fieldsWithSelectItems({
-        data: queryData.data || [],
+        options: filterOptions.options,
         fields: dbItemCEFields[type],
-        dependsUrls: dbItemDependsUrls[type] || [],
+        dependsUrls,
         defaultData: transformData(defaultData),
       }),
-    [queryData.data, type, defaultData]
+    [dependsUrls, filterOptions.options, type, defaultData]
   );
 
   return (
     <CreateEditModal
       portal
       title="Редактирование записи"
-      isLoading={queryData.isLoading}
+      isLoading={filterOptions.isLoading}
       isPending={mutation.isPending}
       isSuccess={mutation.isSuccess}
       schema={dbItemContractWithType[type].optional()}

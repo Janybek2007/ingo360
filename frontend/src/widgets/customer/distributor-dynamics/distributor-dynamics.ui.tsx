@@ -34,14 +34,16 @@ const formatMoney = (value: number) => value.toLocaleString('ru-RU');
 
 export const DistributorDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const filterOptions = useFilterOptions({
-    distributors: true,
-  });
+  const filterOptions = useFilterOptions([
+    'products/brands',
+    'products/product-groups',
+    'clients/distributors',
+  ]);
 
   const filters = useDbFilters({
-    brandsOptions: filterOptions.brands,
-    groupsOptions: filterOptions.groups,
-    distributorsOptions: filterOptions.distributors,
+    brandsOptions: filterOptions.options.products_brands,
+    groupsOptions: filterOptions.options.products_product_groups,
+    distributorsOptions: filterOptions.options.clients_distributors,
     config: {
       indicator: { enabled: false },
       rowsCount: { enabled: false },

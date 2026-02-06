@@ -1,15 +1,12 @@
 import {
-  type ColumnFiltersState,
   type ColumnPinningState,
   getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useContext, useEffect, useRef } from 'react';
 
+import { FiltersContext } from '#/shared/context/filters';
 import { cn } from '#/shared/utils/cn';
 
 import { LucideAlertCircleIcon } from '../../assets/icons';
@@ -35,10 +32,13 @@ export const Table: React.FC<ITableProps> = React.memo(
     isViewFilter = true,
     isVirtualized = true,
   }) => {
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-      filters?.custom || []
-    );
+    const filt = useContext(FiltersContext);
+
+    const columnFilters = filt.filters || filters?.custom;
+    const setColumnFilters = filt.setFilters;
+
+    const sorting = filt.sorting;
+    const setSorting = filt.setSorting;
 
     const columnPinning = React.useMemo<ColumnPinningState>(() => {
       const leftPinnedColumns = columns
@@ -55,9 +55,11 @@ export const Table: React.FC<ITableProps> = React.memo(
     }, [columns]);
 
     useEffect(() => {
+      if (!filters?.custom) return;
+
       setSorting([]);
-      setColumnFilters(filters?.custom || []);
-    }, [data, columns, filters?.custom]);
+      setColumnFilters(filters.custom);
+    }, [filters?.custom, setColumnFilters, setSorting]);
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
@@ -67,8 +69,8 @@ export const Table: React.FC<ITableProps> = React.memo(
       onSortingChange: setSorting,
       onColumnFiltersChange: setColumnFilters,
       getCoreRowModel: getCoreRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
+      // getSortedRowModel: getSortedRowModel(),
+      // getFilteredRowModel: getFilteredRowModel(),
       columnResizeMode: 'onChange',
       defaultColumn: { size: 200, enableResizing: enableColumnResizing },
       enableColumnResizing,
@@ -101,14 +103,22 @@ export const Table: React.FC<ITableProps> = React.memo(
               setSorting,
             })
           : [],
-      [isViewFilter, columnFilters, sorting, columns, filters?.usedFilterItems]
+      [
+        isViewFilter,
+        columnFilters,
+        sorting,
+        columns,
+        filters?.usedFilterItems,
+        setColumnFilters,
+        setSorting,
+      ]
     );
 
     const handleResetFilters = React.useCallback(() => {
       setColumnFilters([]);
       setSorting([]);
       filters?.resetFilters();
-    }, [filters]);
+    }, [filters, setColumnFilters, setSorting]);
 
     return (
       <div className={cn('relative', className)}>

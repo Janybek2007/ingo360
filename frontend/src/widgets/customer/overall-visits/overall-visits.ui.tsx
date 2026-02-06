@@ -35,10 +35,10 @@ interface OverallVisitRow extends TDbItem {
 
 export const OverallVisits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const filterOptions = useFilterOptions({ brands: false });
+  const filterOptions = useFilterOptions(['products/product-groups']);
 
   const filters = useDbFilters({
-    groupsOptions: filterOptions.groups,
+    groupsOptions: filterOptions.options.products_product_groups,
     config: {
       brands: { enabled: false },
       rowsCount: { enabled: false },

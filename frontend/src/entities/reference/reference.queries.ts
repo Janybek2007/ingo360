@@ -2,13 +2,15 @@ import { queryOptions } from '@tanstack/react-query';
 import qs from 'qs';
 
 import { http } from '#/shared/api';
-import type { PaginationParams } from '#/shared/types/global';
 
-import type { IGetReferencesResponse } from './reference.types';
+import type {
+  IGetReferencesParams,
+  IGetReferencesResponse,
+} from './reference.types';
 
 export class ReferenceQueries {
   static queryKeys = {
-    getReferences: (urls: string[], options?: PaginationParams) => [
+    getReferences: (urls: string[], options?: IGetReferencesParams) => [
       'get-references',
       ...urls,
       options,
@@ -17,19 +19,29 @@ export class ReferenceQueries {
 
   static GetReferencesQuery<T = IGetReferencesResponse>(
     urls: string[],
-    options?: PaginationParams
+    options?: IGetReferencesParams
   ) {
+    const method = options?.method ?? 'GET';
+
     return queryOptions({
       queryKey: this.queryKeys.getReferences(urls, options),
       queryFn: () =>
         Promise.all(
-          urls.map(url =>
-            http
-              .get(url, {
-                searchParams: qs.stringify(options, { arrayFormat: 'comma' }),
-              })
-              .json<T>()
-          )
+          urls.map(url => {
+            const params =
+              method === 'GET'
+                ? {
+                    searchParams: qs.stringify(options, {
+                      arrayFormat: 'comma',
+                    }),
+                  }
+                : { json: options };
+
+            return http[method === 'GET' ? 'get' : 'post'](
+              url,
+              params
+            ).json<T>();
+          })
         ),
     });
   }

@@ -36,11 +36,14 @@ interface DynamicSecondarySalesRaw {
 
 export const DynamicSecondarySales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const filterOptions = useFilterOptions();
+  const filterOptions = useFilterOptions([
+    'products/brands',
+    'products/product-groups',
+  ]);
 
   const filters = useDbFilters({
-    brandsOptions: filterOptions.brands,
-    groupsOptions: filterOptions.groups,
+    brandsOptions: filterOptions.options.products_brands,
+    groupsOptions: filterOptions.options.products_product_groups,
     config: {
       indicator: { enabled: false },
       rowsCount: { enabled: false },

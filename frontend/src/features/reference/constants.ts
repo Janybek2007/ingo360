@@ -376,19 +376,21 @@ export const referencesDependsUrls: Record<
     { fieldName: 'country_id', url: 'geography/countries' },
   ],
   'geography/districts': [
-    { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'company_id', url: 'companies_companies' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },
     { fieldName: 'region_id', url: 'geography/regions' },
   ],
-  'products/product-groups': [{ fieldName: 'company_id', url: 'companies' }],
+  'products/product-groups': [
+    { fieldName: 'company_id', url: 'companies_companies' },
+  ],
   'products/brands': [
     { fieldName: 'promotion_type_id', url: 'products/promotion-types' },
-    { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'company_id', url: 'companies_companies' },
     { fieldName: 'product_group_id', url: 'products/product-groups' },
   ],
   'products/skus': [
     { fieldName: 'brand_id', url: 'products/brands' },
-    { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'company_id', url: 'companies_companies' },
     { fieldName: 'promotion_type_id', url: 'products/promotion-types' },
     { fieldName: 'product_group_id', url: 'products/product-groups' },
     { fieldName: 'dosage_form_id', url: 'products/dosage-forms' },
@@ -396,7 +398,7 @@ export const referencesDependsUrls: Record<
     { fieldName: 'segment_id', url: 'products/segments' },
   ],
   'employees/employees': [
-    { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'company_id', url: 'companies_companies' },
     { fieldName: 'position_id', url: 'employees/positions' },
     { fieldName: 'product_group_id', url: 'products/product-groups' },
     { fieldName: 'region_id', url: 'geography/regions' },
@@ -415,7 +417,7 @@ export const referencesDependsUrls: Record<
     { fieldName: 'product_group_id', url: 'products/product-groups' },
   ],
   'clients/pharmacies': [
-    { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'company_id', url: 'companies_companies' },
     { fieldName: 'geo_indicator', url: 'clients/geo-indicators' },
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },

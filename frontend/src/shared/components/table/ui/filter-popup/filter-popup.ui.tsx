@@ -23,6 +23,10 @@ export function FilterPopup({
   onClose,
   popupPosition,
 }: IFilterPopupProps) {
+  const [pendingSort, setPendingSort] = useState<SortDirection | false>(
+    column.getIsSorted() as SortDirection
+  );
+
   const colType = column.columnDef.filterType ?? 'string';
   const selectOptions = useMemo(
     () => column.columnDef.selectOptions ?? [],
@@ -86,6 +90,26 @@ export function FilterPopup({
     }
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
+  const applySorting = useCallback(() => {
+    const currentSort = column.getIsSorted() as SortDirection;
+
+    if (!pendingSort) {
+      if (currentSort) {
+        column.clearSorting();
+      }
+      return;
+    }
+
+    if (pendingSort === currentSort) return;
+
+    column.toggleSorting(pendingSort === 'desc');
+  }, [column, pendingSort]);
+
+  const applyFilterAndSorting = useCallback(() => {
+    applySorting();
+    applyFilter();
+  }, [applyFilter, applySorting]);
+
   if (popupPosition.x === 0 || popupPosition.y === 0) return null;
 
   return (
@@ -96,12 +120,9 @@ export function FilterPopup({
     >
       <div className="p-3 relative">
         <SortButtons
-          isSorted={column.getIsSorted() as SortDirection}
-          toggleSorting={column.toggleSorting}
-          resetSorting={() => {
-            column.clearSorting();
-            onClose();
-          }}
+          isSorted={pendingSort}
+          toggleSorting={asc => setPendingSort(!asc ? 'asc' : 'desc')}
+          resetSorting={() => setPendingSort(false)}
         />
 
         {column.columnDef.enableColumnFilter && (
@@ -133,7 +154,7 @@ export function FilterPopup({
         )}
 
         {/* Actions */}
-        <FilterActions onClose={onClose} onApply={applyFilter} />
+        <FilterActions onClose={onClose} onApply={applyFilterAndSorting} />
       </div>
 
       {/* Left Resize Handle */}

@@ -12,6 +12,7 @@ import {
 } from '#/features/db-work/publish';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { useFilterOptions } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
@@ -22,7 +23,7 @@ import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { transformHeaderKeys } from '#/shared/utils/transform';
 
-import { getDbWorkColumns } from './constants';
+import { getDbTypeDeps, getDbWorkColumns } from './constants';
 import type { IDbWorkProps } from './db-work.types';
 
 export const DbWork: React.FC<IDbWorkProps> = React.memo(
@@ -34,8 +35,15 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
     onGroupChange,
     ...props
   }) => {
+    const filterOptionsDeps = useMemo(() => getDbTypeDeps(current), [current]);
+    const filterOptions = useFilterOptions(filterOptionsDeps);
+
     const allColumns = useMemo((): ColumnDef<IDbItem>[] => {
-      const columns = getDbWorkColumns(current, currentData);
+      const columns = getDbWorkColumns(
+        current,
+        filterOptions.options,
+        currentData
+      );
 
       columns.push({
         id: 'actions',
@@ -57,7 +65,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
       });
 
       return columns;
-    }, [currentData, current]);
+    }, [filterOptions, current, currentData]);
 
     const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
       useColumnVisibility({

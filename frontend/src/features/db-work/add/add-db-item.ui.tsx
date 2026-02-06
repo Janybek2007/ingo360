@@ -1,8 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
-import { DbQueries } from '#/entities/db';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
+import {
+  type FilterOptionsReferencesKey,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { Button } from '#/shared/components/ui/button';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
@@ -14,29 +16,40 @@ import { useAddReferenceMutation } from './add-db-item.mutation';
 
 const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
   React.memo(({ onClose, type }) => {
-    const queryData = useQuery(
-      DbQueries.GetDbItemsQuery<Record<string, string | number>[]>(
-        ((dbItemDependsUrls[type] || []).map(url => url.url) as DbType[]) || []
-      )
+    const dependsUrls = React.useMemo(
+      () => dbItemDependsUrls[type as DbType] || [],
+      [type]
     );
+
+    const references = React.useMemo(
+      () =>
+        dependsUrls.map(item =>
+          item.url === 'companies'
+            ? 'companies_companies'
+            : (item.url as FilterOptionsReferencesKey)
+        ),
+      [dependsUrls]
+    );
+
+    const filterOptions = useFilterOptions(references);
 
     const mutation = useAddReferenceMutation(type, onClose);
 
     const fields = React.useMemo(
       () =>
         fieldsWithSelectItems({
-          data: queryData.data || [],
+          options: filterOptions.options,
           fields: dbItemCEFields[type],
-          dependsUrls: dbItemDependsUrls[type] || [],
+          dependsUrls,
         }),
-      [queryData.data, type]
+      [dependsUrls, filterOptions.options, type]
     );
 
     return (
       <CreateEditModal
         portal
         title="Добавление записи"
-        isLoading={queryData.isLoading}
+        isLoading={filterOptions.isLoading}
         isPending={mutation.isPending}
         isSuccess={mutation.isSuccess}
         schema={dbItemContractWithType[type]}

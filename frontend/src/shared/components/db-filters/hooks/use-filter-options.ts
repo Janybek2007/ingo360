@@ -1,22 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
+
 import { http } from '../../../api';
 import type {
   FilterOptionItem,
   FilterOptions,
-  UseFilterOptionsConfig,
+  FilterOptionsKey,
+  FilterOptionsObject,
+  FilterOptionsReferencesKey,
   UseFilterOptionsReturn,
 } from '../db-filters.types';
 
-const defaultUrls = {
-  brands: 'products/brands/filter-options',
-  groups: 'products/product-groups/filter-options',
-  distributors: 'clients/distributors/filter-options',
-  medicalFacilities: 'clients/medical-facilities/filter-options',
-  geoIndicators: 'clients/geo-indicators/filter-options',
-  segments: 'ims/filter-options/segment-name',
-};
+const DEFAULT_REFERENCES: ReferencesTypeWithMain[] = [
+  'products/brands',
+  'products/product-groups',
+];
 
 const transformToFilterOptions = (data?: FilterOptionItem[]): FilterOptions[] =>
   data?.map((item: FilterOptionItem | string) =>
@@ -26,104 +26,67 @@ const transformToFilterOptions = (data?: FilterOptionItem[]): FilterOptions[] =>
   ) || [];
 
 export const useFilterOptions = (
-  config: UseFilterOptionsConfig = {}
+  references: FilterOptionsReferencesKey[] = DEFAULT_REFERENCES,
+  scope?: FilterOptionsReferencesKey
 ): UseFilterOptionsReturn => {
-  const {
-    brands: brandsEnabled = true,
-    groups: groupsEnabled = true,
-    distributors: distributorsEnabled = false,
-    medicalFacilities: medicalFacilitiesEnabled = false,
-    geoIndicators: geoIndicatorsEnabled = false,
-    segment: segmentsEnabled = false,
-    urls = {},
-  } = config;
-
-  const brandsUrl = urls.brands || defaultUrls.brands;
-
-  const brandsQuery = useQuery({
-    queryKey: ['filter-options', 'brands'],
-    queryFn: () => http.get(brandsUrl).json<FilterOptionItem[]>(),
-    enabled: brandsEnabled,
-  });
-
-  const groupsQuery = useQuery({
-    queryKey: ['filter-options', 'product-groups'],
-    queryFn: () => http.get(defaultUrls.groups).json<FilterOptionItem[]>(),
-    enabled: groupsEnabled,
-  });
-
-  const distributorsQuery = useQuery({
-    queryKey: ['filter-options', 'distributors'],
-    queryFn: () =>
-      http.get(defaultUrls.distributors).json<FilterOptionItem[]>(),
-    enabled: distributorsEnabled,
-  });
-
-  const medicalFacilitiesQuery = useQuery({
-    queryKey: ['filter-options', 'medical-facilities'],
-    queryFn: () =>
-      http.get(defaultUrls.medicalFacilities).json<FilterOptionItem[]>(),
-    enabled: medicalFacilitiesEnabled,
-  });
-
-  const segmentsQuery = useQuery({
-    queryKey: ['filter-options', 'segments'],
-    queryFn: () => http.get(defaultUrls.segments).json<FilterOptionItem[]>(),
-    enabled: segmentsEnabled,
-  });
-
-  const geoIndicatorsQuery = useQuery({
-    queryKey: ['filter-options', 'geo-indicators'],
-    queryFn: () =>
-      http.get(defaultUrls.geoIndicators).json<FilterOptionItem[]>(),
-    enabled: geoIndicatorsEnabled,
-  });
-
-  const options = useMemo(
-    () => ({
-      brands: transformToFilterOptions(brandsQuery.data),
-      groups: transformToFilterOptions(groupsQuery.data),
-      distributors: transformToFilterOptions(distributorsQuery.data),
-      medicalFacilities: transformToFilterOptions(medicalFacilitiesQuery.data),
-      segments: transformToFilterOptions(segmentsQuery.data),
-      geoIndicators: transformToFilterOptions(geoIndicatorsQuery.data),
-    }),
-    [
-      brandsQuery.data,
-      groupsQuery.data,
-      distributorsQuery.data,
-      medicalFacilitiesQuery.data,
-      segmentsQuery.data,
-      geoIndicatorsQuery.data,
-    ]
+  const include = useMemo(
+    () => Array.from(new Set(references.map(ref => ref.replace(/[/-]/g, '_')))),
+    [references]
   );
 
-  const isLoading = useMemo(
-    () =>
-      (brandsEnabled && brandsQuery.isLoading) ||
-      (groupsEnabled && groupsQuery.isLoading) ||
-      (distributorsEnabled && distributorsQuery.isLoading) ||
-      (medicalFacilitiesEnabled && medicalFacilitiesQuery.isLoading) ||
-      (segmentsEnabled && segmentsQuery.isLoading) ||
-      (geoIndicatorsEnabled && geoIndicatorsQuery.isLoading),
-    [
-      brandsEnabled,
-      brandsQuery.isLoading,
-      groupsEnabled,
-      groupsQuery.isLoading,
-      distributorsEnabled,
-      distributorsQuery.isLoading,
-      medicalFacilitiesEnabled,
-      medicalFacilitiesQuery.isLoading,
-      segmentsEnabled,
-      segmentsQuery.isLoading,
-      geoIndicatorsEnabled,
-      geoIndicatorsQuery.isLoading,
-    ]
-  );
+  const scopes = useMemo(() => {
+    if (!scope) return {};
+
+    return Object.fromEntries(
+      include.map(key => [key, scope.replace(/[/-]/g, '_')])
+    );
+  }, [scope, include]);
+
+  const filterOptionsQuery = useQuery({
+    queryKey: ['filter-options', { include, scopes }],
+    enabled: include.length > 0,
+    queryFn: async () => {
+      const response = await http
+        .post('filter-options/grouped', {
+          json: {
+            references: include,
+            ...(scopes ? { scopes } : {}),
+          },
+        })
+        .json<Record<string, FilterOptionItem[]>>();
+
+      const entries = Object.entries(response).map(
+        ([includeKey, value]) =>
+          [includeKey as FilterOptionsKey, value] as const
+      );
+
+      return Object.fromEntries(entries) as Record<
+        FilterOptionsKey,
+        FilterOptionItem[]
+      >;
+    },
+  });
+
+  const options = useMemo<FilterOptionsObject>(() => {
+    const empty = Object.fromEntries(
+      include.map(key => [key, [] as FilterOptions[]])
+    );
+
+    if (!filterOptionsQuery.data) return empty as any as FilterOptionsObject;
+
+    return Object.entries(filterOptionsQuery.data).reduce(
+      (acc, [key, value]) => {
+        let val: FilterOptions[] = [{ value: 0, label: 'Не указано' }];
+        val.push(...transformToFilterOptions(value));
+        acc[key as FilterOptionsKey] = val;
+        return acc;
+      },
+      empty
+    ) as any as FilterOptionsObject;
+  }, [filterOptionsQuery.data, include]);
 
   return {
-    ...options,
-    isLoading,
+    options,
+    isLoading: filterOptionsQuery.isLoading,
   };
 };

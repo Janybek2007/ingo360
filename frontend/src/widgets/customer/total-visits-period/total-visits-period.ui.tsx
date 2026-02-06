@@ -1,3 +1,4 @@
+import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
@@ -13,6 +14,7 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns } from '#/shared/constants/common-columns';
+import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
@@ -22,10 +24,12 @@ interface OverallVisitRow extends TDbItem {
 }
 
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
-  const filterOptions = useFilterOptions({ brands: false });
+  const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const filterOptions = useFilterOptions(['products/product-groups']);
 
-  const filters = useDbFilters({
-    groupsOptions: filterOptions.groups,
+  const dbFilters = useDbFilters({
+    groupsOptions: filterOptions.options.products_product_groups,
     config: {
       indicator: { enabled: false },
       brands: { enabled: false },
@@ -42,11 +46,11 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-sum-for-period'],
       {
-        brand_ids: filters.brands,
-        product_group_ids: filters.groups,
-        limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
-        search: filters.search,
-        group_by_dimensions: filters.groupBy,
+        brand_ids: dbFilters.brands,
+        product_group_ids: dbFilters.groups,
+        limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
+        search: dbFilters.search,
+        group_by_dimensions: dbFilters.groupBy,
         enabled: !filterOptions.isLoading,
       }
     )
@@ -80,7 +84,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: filters.setGroupBy,
+      setGroupBy: dbFilters.setGroupBy,
       allowedGroupDimensions: [
         'pharmacy',
         'medical_facility',
@@ -99,7 +103,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       title="Количество визитов за выбранный период"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...filters} />
+          <DbFilters {...dbFilters} />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -132,16 +136,20 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         isLoading={queryData.isLoading}
         queryError={queryData.error}
       >
-        <Table
-          filters={{
-            usedFilterItems: filters.usedFilterItems,
-            resetFilters: filters.resetFilters,
-          }}
-          columns={columnsForTable}
-          data={visits}
-          maxHeight={560}
-          rounded="none"
-        />
+        <FiltersContext.Provider
+          value={{ filters, setFilters, sorting, setSorting }}
+        >
+          <Table
+            filters={{
+              usedFilterItems: dbFilters.usedFilterItems,
+              resetFilters: dbFilters.resetFilters,
+            }}
+            columns={columnsForTable}
+            data={visits}
+            maxHeight={560}
+            rounded="none"
+          />
+        </FiltersContext.Provider>
       </AsyncBoundary>
     </PageSection>
   );

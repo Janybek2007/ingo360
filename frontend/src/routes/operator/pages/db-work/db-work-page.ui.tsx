@@ -1,33 +1,49 @@
-import { useQuery } from '@tanstack/react-query';
+import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React from 'react';
 import useLocalStorageState from 'use-local-storage-state';
 
-import { DbQueries } from '#/entities/db';
+import { DbQueries, type IGetDBItemResponse } from '#/entities/db';
 import { Tabs } from '#/shared/components/ui/tabs';
+import { FiltersContext } from '#/shared/context/filters';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import type { DbType } from '#/shared/types/db.type';
 import { DbWork } from '#/widgets/operator/db-work';
 
 import { tabsItems } from './constants';
 
 const DbWorkPage: React.FC = () => {
+  const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [data, setData] = React.useState<IGetDBItemResponse>([]);
+
   const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
     defaultValue: 'sales_primary',
   });
+
   const [groupBy, setGroupBy] = React.useState<string[]>(() =>
     getDefaultGroupBy(current)
   );
 
-  const queryData = useQuery(
+  const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType], {
       limit: rowsCount === 'all' ? undefined : rowsCount,
       group_by_dimensions: groupBy,
     })
   );
 
-  const currentData = React.useMemo(() => {
-    return queryData.data ? queryData.data[0] : [];
-  }, [queryData.data]);
+  React.useEffect(() => {
+    setFilters([]);
+    setSorting([]);
+    setData([]);
+    setRowsCount('all');
+  }, [current]);
+
+  React.useEffect(() => {
+    if (queryData.isLoading || !queryData.data?.[0]) return;
+
+    setData(queryData.data[0]);
+  }, [queryData.data, queryData.isLoading]);
 
   return (
     <main>
@@ -39,17 +55,20 @@ const DbWorkPage: React.FC = () => {
           setGroupBy(getDefaultGroupBy(value));
         }}
       />
-
-      <DbWork
-        current={current.replace('_', '/') as DbType}
-        currentData={currentData}
-        rowsCount={rowsCount}
-        setRowsCount={setRowsCount}
-        groupBy={groupBy}
-        onGroupChange={setGroupBy}
-        isLoading={queryData.isLoading}
-        queryError={queryData.error}
-      />
+      <FiltersContext.Provider
+        value={{ filters, setFilters, sorting, setSorting }}
+      >
+        <DbWork
+          current={current.replace('_', '/') as DbType}
+          currentData={data}
+          rowsCount={rowsCount}
+          setRowsCount={setRowsCount}
+          groupBy={groupBy}
+          onGroupChange={setGroupBy}
+          isLoading={queryData.isLoading}
+          queryError={queryData.error}
+        />
+      </FiltersContext.Provider>
     </main>
   );
 };

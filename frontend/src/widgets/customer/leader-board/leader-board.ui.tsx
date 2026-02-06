@@ -1,10 +1,15 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+} from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { UsedFilter } from '#/shared/components/used-filter';
+import { FiltersContext } from '#/shared/context/filters';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import type { EntityRow } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
@@ -14,6 +19,9 @@ import type { LeaderboardProps } from './leader-board.types';
 
 export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
   ({ periodFilter, entities, isLoading, queryError }) => {
+    const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+    const [sorting, setSorting] = React.useState<SortingState>([]);
+
     const sectionStyle = useSectionStyle();
 
     const columns = useMemo<ColumnDef<EntityRow>[]>(
@@ -84,16 +92,20 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
               </div>
             ) : (
               <AsyncBoundary isLoading={isLoading} queryError={queryError}>
-                <Table
-                  isVirtualized={false}
-                  highlightRow={row =>
-                    row.is_user_company ? 'bg-yellow-100 font-bold' : ''
-                  }
-                  pinnedRow={row => row.is_user_company}
-                  columns={columns}
-                  data={entities}
-                  enableColumnResizing={false}
-                />
+                <FiltersContext.Provider
+                  value={{ filters, setFilters, sorting, setSorting }}
+                >
+                  <Table
+                    isVirtualized={false}
+                    highlightRow={row =>
+                      row.is_user_company ? 'bg-yellow-100 font-bold' : ''
+                    }
+                    pinnedRow={row => row.is_user_company}
+                    columns={columns}
+                    data={entities}
+                    enableColumnResizing={false}
+                  />
+                </FiltersContext.Provider>
               </AsyncBoundary>
             )}
           </div>

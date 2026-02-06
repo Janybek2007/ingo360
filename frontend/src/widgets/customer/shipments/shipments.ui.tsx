@@ -1,3 +1,4 @@
+import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
@@ -17,6 +18,7 @@ import {
   monthsPreset,
   totalPreset,
 } from '#/shared/constants/common-columns';
+import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
@@ -24,11 +26,17 @@ import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
 
 export const Shipments: React.FC = React.memo(() => {
-  const filterOptions = useFilterOptions();
+  const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const filters = useDbFilters({
-    brandsOptions: filterOptions.brands,
-    groupsOptions: filterOptions.groups,
+  const filterOptions = useFilterOptions([
+    'products/brands',
+    'products/product-groups',
+  ]);
+
+  const dbFilters = useDbFilters({
+    brandsOptions: filterOptions.options.products_brands,
+    groupsOptions: filterOptions.options.products_product_groups,
     config: {
       groupBy: {
         defaultValue:
@@ -41,11 +49,11 @@ export const Shipments: React.FC = React.memo(() => {
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/primary/reports/sales'], {
-      brand_ids: filters.brands,
-      product_group_ids: filters.groups,
-      limit: filters.rowsCount === 'all' ? undefined : filters.rowsCount,
-      search: filters.search,
-      group_by_dimensions: filters.groupBy,
+      brand_ids: dbFilters.brands,
+      product_group_ids: dbFilters.groups,
+      limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
+      search: dbFilters.search,
+      group_by_dimensions: dbFilters.groupBy,
       enabled: !filterOptions.isLoading,
       period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
@@ -66,27 +74,27 @@ export const Shipments: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset(filters.indicator, sales),
-    total: totalPreset(filters.indicator, { periods: filters.periods }),
+    months: monthsPreset(dbFilters.indicator, sales),
+    total: totalPreset(dbFilters.indicator, { periods: dbFilters.periods }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: filters.setGroupBy,
-      setPeriods: filters.setPeriods,
+      setGroupBy: dbFilters.setGroupBy,
+      setPeriods: dbFilters.setPeriods,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(sales, filters.indicator);
-  }, [sales, filters.indicator]);
+    return calcPeriodTotals(sales, dbFilters.indicator);
+  }, [sales, dbFilters.indicator]);
 
   return (
     <PageSection
       title="Первичные продажи"
       headerEnd={
         <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...filters} />
+          <DbFilters {...dbFilters} />
 
           <Select<true>
             value={visibleColumns}
@@ -111,7 +119,7 @@ export const Shipments: React.FC = React.memo(() => {
             }}
             hasTotal
             selectKeys={visibleColumns}
-            periodKey={filters.indicator}
+            periodKey={dbFilters.indicator}
             data={sales}
             fileName="Первичные продажи"
           />
@@ -122,19 +130,23 @@ export const Shipments: React.FC = React.memo(() => {
         isLoading={queryData.isLoading}
         queryError={queryData.error}
       >
-        <Table
-          key={filters.indicator}
-          filters={{
-            usedFilterItems: filters.usedFilterItems,
-            resetFilters: filters.resetFilters,
-          }}
-          columns={columnsForTable}
-          data={sales}
-          maxHeight={560}
-          // 5
-          rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
-          rounded="none"
-        />
+        <FiltersContext.Provider
+          value={{ filters, setFilters, sorting, setSorting }}
+        >
+          <Table
+            key={dbFilters.indicator}
+            filters={{
+              usedFilterItems: dbFilters.usedFilterItems,
+              resetFilters: dbFilters.resetFilters,
+            }}
+            columns={columnsForTable}
+            data={sales}
+            maxHeight={560}
+            // 5
+            rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
+            rounded="none"
+          />
+        </FiltersContext.Provider>
       </AsyncBoundary>
     </PageSection>
   );

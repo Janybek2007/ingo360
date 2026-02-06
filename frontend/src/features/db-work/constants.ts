@@ -284,7 +284,7 @@ export const dbItemDependsUrls: Record<
     { fieldName: 'medical_facility_id', url: 'clients/medical-facilities' },
   ],
   ims: [
-    { fieldName: 'company_id', url: 'companies' },
+    { fieldName: 'company_id', url: 'companies_companies' },
     { fieldName: 'brand_id', url: 'products/brands' },
     { fieldName: 'segment_id', url: 'products/segments' },
     { fieldName: 'dosage_id', url: 'products/dosages' },

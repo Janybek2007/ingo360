@@ -73,7 +73,7 @@ export interface IFilterPopupProps {
 }
 
 export interface ISortButtonsProps {
-  isSorted: SortDirection;
+  isSorted: SortDirection | false;
   toggleSorting: (asc: boolean) => void;
   resetSorting: VoidFunction;
 }

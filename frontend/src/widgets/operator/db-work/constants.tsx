@@ -1,6 +1,10 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import type { IDbItem } from '#/entities/db';
+import type {
+  FilterOptionsObject,
+  FilterOptionsReferencesKey,
+} from '#/shared/components/db-filters';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { allMonths } from '#/shared/constants/months';
 import type { DbType } from '#/shared/types/db.type';
@@ -12,7 +16,48 @@ import {
 } from '#/shared/utils/filter';
 import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
-export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
+export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
+  switch (type) {
+    case 'sales/primary':
+      return ['clients/distributors', 'products/brands', 'products/skus'];
+
+    case 'sales/secondary':
+    case 'sales/tertiary':
+      return [
+        'clients/pharmacies',
+        'clients/distributors',
+        'products/brands',
+        'products/skus',
+      ];
+
+    case 'visits':
+      return [
+        'clients/pharmacies',
+        'employees/employees',
+        'products/product-groups',
+        'clients/medical-facilities',
+        'clients/doctors',
+      ];
+
+    case 'ims':
+      return [
+        'companies_companies',
+        'products/brands',
+        'products/segments',
+        'products/dosages',
+        'products/dosage-forms',
+      ];
+
+    default:
+      return [];
+  }
+};
+
+export function getDbWorkColumns(
+  type: DbType,
+  filterOptions: FilterOptionsObject,
+  data: IDbItem[]
+) {
   const columns: ColumnDef<IDbItem>[] = [];
 
   if (type === 'sales/primary') {
@@ -25,13 +70,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       enableColumnFilter: true,
       meta: { groupDimension: 'distributor' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.distributor.name,
-          value: v.distributor.id,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.clients_distributors,
     });
   } else if (type === 'sales/secondary') {
     columns.push({
@@ -43,13 +82,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       enableColumnFilter: true,
       meta: { groupDimension: 'pharmacy' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.pharmacy?.name ?? 'Не указано',
-          value: v.pharmacy?.id ?? 0,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.clients_pharmacies,
     });
   } else if (type === 'sales/tertiary') {
     columns.push({
@@ -61,13 +94,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       enableColumnFilter: true,
       meta: { groupDimension: 'pharmacy' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.pharmacy?.name ?? 'Не указано',
-          value: v.pharmacy?.id ?? 0,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.clients_pharmacies,
     });
   }
   if (['sales/secondary', 'sales/tertiary'].includes(type)) {
@@ -82,15 +109,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       enableColumnFilter: true,
       meta: { groupDimension: 'distributor' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.pharmacy.distributor
-            ? v.pharmacy.distributor.name
-            : 'Не указано',
-          value: v.pharmacy.distributor ? v.pharmacy.distributor.id : 0,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.clients_distributors,
     });
   }
 
@@ -104,13 +123,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       enableColumnFilter: true,
       meta: { groupDimension: 'brand' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.sku.brand.name,
-          value: v.sku.brand.id,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.products_brands,
     });
 
     columns.push({
@@ -122,13 +135,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       enableColumnFilter: true,
       meta: { groupDimension: 'sku' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.sku.name,
-          value: v.sku.id,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.products_skus,
     });
 
     columns.push(...getYearMonthColumns(data));
@@ -145,13 +152,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       filterType: 'select',
       meta: { groupDimension: 'pharmacy' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.pharmacy?.name ?? 'Не указано',
-          value: v.pharmacy?.id ?? 0,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.clients_pharmacies,
     });
     columns.push({
       id: 'employee.id',
@@ -162,13 +163,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       filterType: 'select',
       meta: { groupDimension: 'employee' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.employee.full_name,
-          value: v.employee.id,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.employees_employees,
     });
     columns.push({
       id: 'product_group.id',
@@ -179,13 +174,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       filterType: 'select',
       meta: { groupDimension: 'product_group' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.product_group.name,
-          value: v.product_group.id,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.products_product_groups,
     });
     columns.push({
       id: 'medical_facility.id',
@@ -197,13 +186,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       filterType: 'select',
       meta: { groupDimension: 'medical_facility' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.medical_facility?.name || 'Не указано',
-          value: v.medical_facility?.id || 0,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.clients_medical_facilities,
     });
     columns.push({
       id: 'doctor.id',
@@ -215,13 +198,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterFn: selectFilter(),
       filterType: 'select',
       meta: { groupDimension: 'doctor' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.doctor?.name || 'Не указано',
-          value: v.doctor?.id || 0,
-        })),
-        ['value']
-      ),
+      selectOptions: filterOptions.clients_doctors,
     });
     columns.push({
       id: 'client_type',
@@ -251,10 +228,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
-      selectOptions: getUniqueItems(
-        data.map(v => ({ label: v.company, value: v.company })),
-        ['value']
-      ),
+      selectOptions: filterOptions.companies_companies,
     });
 
     columns.push({
@@ -265,31 +239,25 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
-      selectOptions: getUniqueItems(
-        data.map(v => ({ label: v.brand, value: v.brand })),
-        ['value']
-      ),
+      selectOptions: filterOptions.products_brands,
     });
 
     columns.push({
       id: 'segment',
       accessorKey: 'segment',
       header: columnHeaderNames.segment,
-      size: 150,
+      size: 180,
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,
-      selectOptions: getUniqueItems(
-        data.map(v => ({ label: v.segment, value: v.segment })),
-        ['value']
-      ),
+      selectOptions: filterOptions.products_segments,
     });
 
     columns.push({
       id: 'molecule',
       accessorKey: 'molecule',
       header: columnHeaderNames.molecule,
-      size: 150,
+      size: 180,
       filterType: 'string',
       filterFn: stringFilter(),
       enableColumnFilter: true,
@@ -299,20 +267,22 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'dosage',
       accessorKey: 'dosage',
       header: columnHeaderNames.dosage,
-      size: 120,
-      filterType: 'string',
-      filterFn: stringFilter(),
+      size: 150,
+      filterType: 'select',
+      filterFn: selectFilter(),
       enableColumnFilter: true,
+      selectOptions: filterOptions.products_dosages,
     });
 
     columns.push({
       id: 'dosage_form',
       accessorKey: 'dosage_form',
       header: columnHeaderNames.dosageForm,
-      size: 120,
-      filterType: 'string',
-      filterFn: stringFilter(),
+      size: 240,
+      filterType: 'select',
+      filterFn: selectFilter(),
       enableColumnFilter: true,
+      selectOptions: filterOptions.products_dosage_forms,
     });
 
     columns.push({
@@ -333,7 +303,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'amount',
       accessorKey: 'amount',
       header: columnHeaderNames.amount,
-      size: 120,
+      size: 140,
       filterType: 'number',
       filterFn: numberFilter(),
       enableColumnFilter: true,
@@ -343,7 +313,7 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       id: 'packages',
       accessorKey: 'packages',
       header: columnHeaderNames.packages,
-      size: 120,
+      size: 140,
       filterType: 'number',
       filterFn: numberFilter(),
       enableColumnFilter: true,
