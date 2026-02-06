@@ -106,6 +106,7 @@ export interface UseDbFiltersProps {
     geoIndicators?: { enabled?: boolean };
     segment?: { enabled?: boolean };
     search?: { enabled?: boolean };
+    groupBy?: { defaultValue?: string[] };
     indicator?: {
       enabled?: boolean;
       options?: Array<{ value: IndicatorType; label: string }>;

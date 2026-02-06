@@ -29,6 +29,12 @@ export const Shipments: React.FC = React.memo(() => {
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
+    config: {
+      groupBy: {
+        defaultValue:
+          'sku,brand,promotion_type,product_group,distributor'.split(','),
+      },
+    },
   });
 
   const periodFilter = usePeriodFilter();

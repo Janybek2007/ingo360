@@ -19,7 +19,7 @@ export interface IDbItem {
   //
   distributor: IDbName;
   sku: IDbName & { brand: IDbName };
-  pharmacy: IDbName;
+  pharmacy: IDbName & { distributor: IDbName };
   product_group: IDbName;
   employee: { id: number; full_name: string };
   doctor: null | IDbName;

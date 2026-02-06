@@ -10,7 +10,7 @@ export class ReferenceQueries {
   static queryKeys = {
     getReferences: (urls: string[], options?: PaginationParams) => [
       'get-references',
-      urls,
+      ...urls,
       options,
     ],
   };
@@ -24,7 +24,11 @@ export class ReferenceQueries {
       queryFn: () =>
         Promise.all(
           urls.map(url =>
-            http.get(url, { searchParams: qs.stringify(options) }).json<T>()
+            http
+              .get(url, {
+                searchParams: qs.stringify(options, { arrayFormat: 'comma' }),
+              })
+              .json<T>()
           )
         ),
     });

@@ -29,7 +29,9 @@ export const useDbFilters = ({
   const [indicator, setIndicator] = useState<IndicatorType>(indicatorDefault);
   const [periods, setPeriods] = useState<string[]>([]);
   const [rowsCount, setRowsCount] = useState<'all' | number>(rowsCountDefault);
-  const [groupBy, setGroupBy] = useState<string[]>([]);
+  const [groupBy, setGroupBy] = useState<string[]>(
+    config?.groupBy?.defaultValue ?? []
+  );
   const [search, setSearch] = useState('');
 
   const brandsMultiple = config?.brands?.multiple ?? true;

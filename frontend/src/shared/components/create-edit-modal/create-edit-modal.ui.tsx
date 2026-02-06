@@ -64,7 +64,6 @@ export const CreateEditModal = React.memo(
         reset();
       };
     }, [reset, fields, isSuccess]);
-    console.log(errors);
 
     const isDisabled = React.useMemo(() => {
       return isPending || !isDirty || isLoading;

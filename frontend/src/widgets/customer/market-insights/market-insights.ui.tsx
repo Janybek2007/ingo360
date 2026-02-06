@@ -34,6 +34,11 @@ export const MarketInsights: React.FC = React.memo(() => {
     config: {
       brands: { enabled: false },
       groups: { enabled: false },
+      groupBy: {
+        defaultValue: 'company,brand,segment,dosage_form,dosage,molecule'.split(
+          ','
+        ),
+      },
     },
   });
   const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);

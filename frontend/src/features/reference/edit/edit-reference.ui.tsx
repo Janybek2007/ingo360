@@ -31,7 +31,6 @@ const EditReferenceModal: React.FC<{
   );
   const mutation = useEditReferenceMutation(type, onClose, defaultData?.id);
 
-  console.log(queryData.data);
   const fields = React.useMemo(
     () =>
       fieldsWithSelectItems({
@@ -43,7 +42,6 @@ const EditReferenceModal: React.FC<{
       }),
     [queryData.data, defaultData, type]
   );
-  console.log(fields);
 
   return (
     <CreateEditModal

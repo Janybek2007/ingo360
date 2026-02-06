@@ -24,7 +24,12 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   const filters = useDbFilters({
     brandsOptions: filterOptions.brands,
     groupsOptions: filterOptions.groups,
-    config: { indicator: { enabled: false } },
+    config: {
+      indicator: { enabled: false },
+      groupBy: {
+        defaultValue: 'sku,brand,responsible_employee,product_group'.split(','),
+      },
+    },
   });
 
   const periodFilter = usePeriodFilter();

@@ -16,4 +16,10 @@ declare module '@tanstack/react-table' {
     period?: number;
     pinned?: 'left' | 'right';
   }
+
+  //
+  interface ColumnFilter {
+    id: string;
+    value: import('./table-filters.ts').TableFilterValue;
+  }
 }

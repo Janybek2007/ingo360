@@ -73,8 +73,9 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
   if (['sales/secondary', 'sales/tertiary'].includes(type)) {
     columns.push({
       id: 'distributor',
-      accessorKey: 'distributor.name',
-      accessorFn: row => (row.distributor ? row.distributor.name : '-'),
+      accessorKey: 'pharmacy.distributor.name',
+      accessorFn: row =>
+        row.pharmacy.distributor ? row.pharmacy.distributor.name : '-',
       header: columnHeaderNames.distributor,
       size: 150,
       filterType: 'select',
@@ -83,8 +84,10 @@ export function getDbWorkColumns(type: DbType, data: IDbItem[]) {
       meta: { groupDimension: 'distributor' },
       selectOptions: getUniqueItems(
         data.map(v => ({
-          label: v.distributor ? v.distributor.name : 'Не указано',
-          value: v.distributor ? v.distributor.id : 0,
+          label: v.pharmacy.distributor
+            ? v.pharmacy.distributor.name
+            : 'Не указано',
+          value: v.pharmacy.distributor ? v.pharmacy.distributor.id : 0,
         })),
         ['value']
       ),

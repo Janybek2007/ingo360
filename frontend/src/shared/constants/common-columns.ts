@@ -306,8 +306,10 @@ export const commonColumns = {
     size: 180,
     custom: {
       cell: ({ row }) => {
-        const date = new Date(row.original.created_at);
+        const date = new Date(row.original.created_at + 'Z');
+
         return new Intl.DateTimeFormat('ru-RU', {
+          timeZone: 'Asia/Bishkek',
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',

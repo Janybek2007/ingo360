@@ -29,6 +29,12 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     config: {
       indicator: { enabled: false },
       brands: { enabled: false },
+      groupBy: {
+        defaultValue:
+          'sku,brand,promotion_type,product_group,distributor,geo_indicator'.split(
+            ','
+          ),
+      },
     },
   });
 

@@ -11,11 +11,12 @@ import { tabsItems } from './constants';
 
 const DbWorkPage: React.FC = () => {
   const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
-  const [groupBy, setGroupBy] = React.useState<string[]>([]);
-
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
     defaultValue: 'sales_primary',
   });
+  const [groupBy, setGroupBy] = React.useState<string[]>(() =>
+    getDefaultGroupBy(current)
+  );
 
   const queryData = useQuery(
     DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType], {
@@ -30,7 +31,14 @@ const DbWorkPage: React.FC = () => {
 
   return (
     <main>
-      <Tabs items={tabsItems} defaultValue={current} saveCurrent={setCurrent} />
+      <Tabs
+        items={tabsItems}
+        defaultValue={current}
+        saveCurrent={value => {
+          setCurrent(value);
+          setGroupBy(getDefaultGroupBy(value));
+        }}
+      />
 
       <DbWork
         current={current.replace('_', '/') as DbType}
@@ -47,3 +55,26 @@ const DbWorkPage: React.FC = () => {
 };
 
 export default DbWorkPage;
+
+function getDefaultGroupBy(current: string) {
+  if (current === 'sales_primary') {
+    return ['distributor', 'brand', 'sku'];
+  }
+
+  if (['sales_secondary', 'sales_tertiary'].includes(current)) {
+    return ['distributor', 'brand', 'sku', 'pharmacy'];
+  }
+
+  if (current === 'visits') {
+    return [
+      'pharmacy',
+      'employee',
+      'product_group',
+      'medical_facility',
+      'doctor',
+      'client_type',
+    ];
+  }
+
+  return [];
+}

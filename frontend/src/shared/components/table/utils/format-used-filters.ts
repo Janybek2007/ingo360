@@ -5,16 +5,12 @@ import type {
 } from '@tanstack/react-table';
 
 import { filterItems } from '#/shared/constants/filter-items';
+import type {
+  TableFilterSelectValue,
+  TableFilterValue,
+} from '#/shared/types/table-filters';
 
 import type { IUsedFilterItem } from '../../used-filter';
-
-interface FilterValue {
-  header?: string;
-  colType?: 'string' | 'number' | 'select';
-  selectValues?: Array<{ label: string; value: string | number }>;
-  type?: string;
-  value?: string | number | (string | number)[];
-}
 
 interface FormatUsedFilterItemsParams {
   columnFilters: ColumnFiltersState;
@@ -59,7 +55,7 @@ const getSelectLabel = (
 };
 
 const formatFilterValue = (
-  filterValue: FilterValue,
+  filterValue: TableFilterValue,
   columnId: string,
   columns: Array<ColumnDef<any, unknown>>
 ): string => {
@@ -75,7 +71,7 @@ const formatFilterValue = (
       return `от ${filterValue.value[0]} до ${filterValue.value[1]}`;
     }
     const operatorLabel = getOperatorLabel(
-      filterValue.type!,
+      filterValue.type,
       filterValue.colType as 'string' | 'number'
     );
     return `${operatorLabel}: ${filterValue.value}`;
@@ -104,7 +100,7 @@ export const formatUsedFilterItems = ({
   columnFilters.forEach(filter => {
     const { id, value: filterValue } = filter as {
       id: string;
-      value: FilterValue;
+      value: TableFilterValue;
     };
     const header = filterValue?.header ?? getColumnHeader(id, columns);
 
@@ -135,14 +131,17 @@ export const formatUsedFilterItems = ({
               setColumnFilters(prev =>
                 prev
                   .map(f => {
-                    if (f.id === id && (f.value as FilterValue)?.selectValues) {
+                    if (
+                      f.id === id &&
+                      (f.value as TableFilterSelectValue)?.selectValues
+                    ) {
                       const updatedSelectValues = (
-                        f.value as FilterValue
+                        f.value as TableFilterSelectValue
                       ).selectValues?.filter(v => v.value !== item.value);
                       return {
                         ...f,
                         value: {
-                          ...(f.value as FilterValue),
+                          ...(f.value as TableFilterValue),
                           selectValues: updatedSelectValues,
                         },
                       };
@@ -150,7 +149,9 @@ export const formatUsedFilterItems = ({
                     return f;
                   })
                   .filter(
-                    f => (f.value as FilterValue)?.selectValues?.length ?? true
+                    f =>
+                      (f.value as TableFilterSelectValue)?.selectValues
+                        ?.length ?? true
                   )
               ),
           })),
@@ -167,14 +168,17 @@ export const formatUsedFilterItems = ({
           label: getSelectLabel(id, val, columns),
           value: `${id}-${val}`,
           onDelete: () =>
-            setColumnFilters(prev =>
-              prev
-                .map(f =>
-                  f.id === id && Array.isArray(f.value)
-                    ? { ...f, value: f.value.filter(v => v !== val) }
-                    : f
-                )
-                .filter(f => !Array.isArray(f.value) || f.value.length > 0)
+            setColumnFilters(
+              prev =>
+                prev
+                  .map(f =>
+                    f.id === id && Array.isArray(f.value)
+                      ? { ...f, value: f.value.filter(v => v !== val) }
+                      : f
+                  )
+                  .filter(
+                    f => !Array.isArray(f.value) || f.value.length > 0
+                  ) as ColumnFiltersState
             ),
         })),
       });

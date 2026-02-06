@@ -34,6 +34,12 @@ export const SecondarySales: React.FC = React.memo(() => {
     geoIndicatorsOptions: filterOptions.geoIndicators,
     config: {
       geoIndicators: { enabled: true },
+      groupBy: {
+        defaultValue:
+          'sku,brand,promotion_type,product_group,distributor,geo_indicator'.split(
+            ','
+          ),
+      },
     },
   });
 

@@ -30,7 +30,7 @@ export function toast({
         <div
           className={`${
             t.visible ? 'animate-custom-enter' : 'animate-custom-leave'
-          } max-w-sm w-full backdrop-blur-sm bg-white/95 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-xl pointer-events-auto border border-gray-100/50 overflow-hidden transition-all duration-300`}
+          } max-w-max w-full backdrop-blur-sm bg-white/95 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-xl pointer-events-auto border border-gray-100/50 overflow-hidden transition-all duration-300`}
         >
           {/* Индикатор типа */}
           <div
@@ -114,9 +114,13 @@ export function toast({
                   {message}
                 </p>
                 {description && (
-                  <p className="mt-1.5 text-sm text-gray-600 leading-none cursor-pointer hover:text-gray-800 transition-colors select-none block whitespace-pre-line">
+                  <button
+                    type="button"
+                    onClick={copyToClipboard}
+                    className="mt-1.5 text-sm text-left text-gray-600 leading-[130%] cursor-pointer hover:text-gray-800 transition-colors select-none block whitespace-pre-line"
+                  >
                     {description}
-                  </p>
+                  </button>
                 )}
                 <div className="mt-2 flex items-center gap-2">
                   <button

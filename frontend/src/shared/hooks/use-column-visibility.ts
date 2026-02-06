@@ -83,28 +83,29 @@ export function useColumnVisibility<T>({
       });
   }, [allColumns, ignore]);
 
-  useEffect(() => {
-    if (setGroupBy == null) return;
-    const groupDimensions = getGroupDimensions(
-      allColumns,
-      visibleColumns,
-      ignore
-    );
-    const filteredDimensions =
-      allowedGroupDimensions && allowedGroupDimensions.length > 0
-        ? groupDimensions.filter(dimension =>
-            allowedGroupDimensions.includes(dimension)
-          )
-        : groupDimensions;
-    setGroupBy(prev =>
-      arraysAreEqual(prev, filteredDimensions) ? prev : filteredDimensions
-    );
-  }, [allColumns, ignore, setGroupBy, visibleColumns, allowedGroupDimensions]);
-
   const setColumns = useCallback(
     (value: React.SetStateAction<string[]>) => {
       setVisibleColumns(prev => {
         const newColumns = typeof value === 'function' ? value(prev) : value;
+
+        if (setGroupBy) {
+          const groupDimensions = getGroupDimensions(
+            allColumns,
+            newColumns,
+            ignore
+          );
+          const filteredDimensions =
+            allowedGroupDimensions && allowedGroupDimensions.length > 0
+              ? groupDimensions.filter(dimension =>
+                  allowedGroupDimensions.includes(dimension)
+                )
+              : groupDimensions;
+          setGroupBy(prevGroup =>
+            arraysAreEqual(prevGroup, filteredDimensions)
+              ? prevGroup
+              : filteredDimensions
+          );
+        }
 
         if (setPeriods) {
           const periodColumns = newColumns.filter(id =>
@@ -129,7 +130,7 @@ export function useColumnVisibility<T>({
         return newColumns;
       });
     },
-    [setPeriods, allColumns]
+    [setPeriods, setGroupBy, allColumns, ignore, allowedGroupDimensions]
   );
 
   return {

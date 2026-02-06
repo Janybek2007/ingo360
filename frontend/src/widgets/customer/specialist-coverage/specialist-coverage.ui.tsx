@@ -25,6 +25,9 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
       brands: { enabled: false },
       groups: { enabled: false },
       indicator: { enabled: false },
+      groupBy: {
+        defaultValue: ''.split(','),
+      },
     },
   });
 

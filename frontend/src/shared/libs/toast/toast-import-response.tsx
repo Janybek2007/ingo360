@@ -35,6 +35,9 @@ const getDownloadFileName = (name: string) => {
 
 const getTotals = (response: TImportResponse) => [
   `Импортировано: ${response.imported}`,
+  `Добавлено: ${response.inserted}`,
+  `Обновлено: ${response.updated}`,
+  `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch}`,
   `Пропущено: ${response.skipped}`,
   `Всего: ${response.total}`,
 ];
@@ -169,6 +172,16 @@ const ModalContent = ({
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
             Импортировано: {response.imported}
+          </span>
+          <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
+            Добавлено: {response.inserted}
+          </span>
+          <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">
+            Обновлено: {response.updated}
+          </span>
+          <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-700">
+            Найдено дублей в файле (не загружены):{' '}
+            {response.deduplicated_in_batch}
           </span>
           <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
             Пропущено: {response.skipped}
