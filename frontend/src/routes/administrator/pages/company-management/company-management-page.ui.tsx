@@ -48,7 +48,7 @@ const CompanyManagementPage: React.FC = () => {
   }, [search, queryData.data]);
 
   const allColumns = useGenerateColumns<ICompanyItem>({
-    data: filteredData,
+    filterOptions: {},
     columns: [
       commonColumns.companyName(),
       commonColumns.imsName(),

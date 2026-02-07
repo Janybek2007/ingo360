@@ -230,21 +230,12 @@ export const commonColumns = {
       },
     },
   }),
-  userRole: (size = 280, roles?: any[], rolesObject?: any): CColumn<any> => ({
+  userRole: (size = 280): CColumn<any> => ({
     id: 'role',
     key: 'role',
     header: columnHeaderNames.role,
     size,
-    type: 'select',
-    custom: {
-      accessor: (row: any) => (rolesObject ? rolesObject[row.role] : row.role),
-      options: roles
-        ? roles.map(role => ({
-            label: rolesObject ? rolesObject[role] : role,
-            value: role,
-          }))
-        : undefined,
-    },
+    type: 'string',
   }),
   userEmail: (size = 280): CColumn<any> => ({
     id: 'email',
@@ -268,6 +259,7 @@ export const commonColumns = {
     header: columnHeaderNames.companyName,
     size,
     type: 'select',
+    optionKey: 'companies_companies',
     custom: {
       accessor: (row: any) => row.company?.name || 'Не указана',
       options: data

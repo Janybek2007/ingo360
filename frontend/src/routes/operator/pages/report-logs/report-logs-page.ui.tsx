@@ -21,7 +21,7 @@ const ReportLogsPage: React.FC = () => {
   } = useQuery(ReportLogsQueries.GetReportLogsQuery());
 
   const allColumns = useGenerateColumns({
-    data: reportLogs,
+    filterOptions: {},
     columns: [
       commonColumns.reportLogId(),
       commonColumns.reportLogUserFullName(),

@@ -60,7 +60,7 @@ export class UserQueries {
     });
   }
 
-  static GetCustomersQuery() {
+  static GetCustomersQuery(enabled = true) {
     return queryOptions({
       queryKey: this.queryKeys.getCustomers,
       queryFn: async () => {
@@ -72,6 +72,7 @@ export class UserQueries {
           role: this.buildUserRole(user),
         }));
       },
+      enabled,
     });
   }
 

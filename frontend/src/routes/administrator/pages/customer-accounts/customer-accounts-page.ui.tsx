@@ -7,6 +7,7 @@ import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
 import { LucidePlusIcon } from '#/shared/assets/icons';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { useFilterOptions } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { RowActions } from '#/shared/components/row-actions';
@@ -34,8 +35,11 @@ const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [editData, setEditData] = useState<CustomerRow | null>(null);
+  const filterOptions = useFilterOptions(['companies_companies']);
 
-  const customersQuery = useQuery(UserQueries.GetCustomersQuery());
+  const customersQuery = useQuery(
+    UserQueries.GetCustomersQuery(!filterOptions.isLoading)
+  );
 
   const filteredData = useMemo((): CustomerRow[] => {
     if (!customersQuery.data) return [];
@@ -59,7 +63,7 @@ const CustomerAccountsPage: React.FC = () => {
   }, [customersQuery.data, search]);
 
   const allColumns = useGenerateColumns<CustomerRow>({
-    data: filteredData,
+    filterOptions: filterOptions,
     columns: [
       commonColumns.userFullName(),
       commonColumns.customerPosition(),

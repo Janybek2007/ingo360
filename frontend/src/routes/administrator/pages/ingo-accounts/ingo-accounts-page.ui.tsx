@@ -14,7 +14,6 @@ import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { commonColumns } from '#/shared/constants/common-columns';
-import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
 import { FiltersContext } from '#/shared/context/filters';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
@@ -43,10 +42,10 @@ const IngoAccountsPage: React.FC = () => {
   }, [search, queryData.data]);
 
   const allColumns = useGenerateColumns<IUserItem>({
-    data: filteredData,
+    filterOptions: {},
     columns: [
       commonColumns.userFullName(),
-      commonColumns.userRole(280, ROLES.slice(0, 2), ROLES_OBJECT),
+      commonColumns.userRole(280),
       commonColumns.userEmail(),
       commonColumns.status(),
       {
