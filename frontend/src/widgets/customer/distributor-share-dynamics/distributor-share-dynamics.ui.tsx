@@ -54,7 +54,9 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
         group_by_dimensions: ['distributor'],
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+
         enabled: !filterOptions.isLoading,
+        method: 'POST',
       }
     )
   );

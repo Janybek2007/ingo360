@@ -4,11 +4,11 @@ import { http } from '#/shared/api';
 import type { ExtraDbType } from '#/shared/types/db.type';
 
 import type { IGetDBItemResponse, IGetDBItemsParams } from './db.types';
-import { BuildQueryString } from './utils';
+import { BuildOptions } from './utils';
 
 export class DbQueries {
   static queryKeys = {
-    getDbItems: (urls: ExtraDbType[], query?: string) => [
+    getDbItems: (urls: ExtraDbType[], query?: string | object) => [
       'get-db-items',
       ...urls,
       query,
@@ -17,20 +17,27 @@ export class DbQueries {
 
   static GetDbItemsQuery<T = IGetDBItemResponse>(
     urls: ExtraDbType[],
-    opt: IGetDBItemsParams = {}
+    opt: IGetDBItemsParams & {
+      enabled?: boolean;
+      method?: 'GET' | 'POST';
+    } = {}
   ) {
-    const options: IGetDBItemsParams = { enabled: true, method: 'GET', ...opt };
-    const queryString = BuildQueryString.build(options);
+    const { method = 'GET', ...options } = {
+      enabled: true,
+      ...opt,
+    };
+    const objectOrString = BuildOptions.build(options, method === 'GET');
+
     return queryOptions({
-      queryKey: this.queryKeys.getDbItems(urls, queryString),
+      queryKey: this.queryKeys.getDbItems(urls, objectOrString),
       queryFn: () =>
         Promise.all(
           urls.map(url => {
-            if (options.method === 'POST') {
-              return http.post(url, { json: options }).json<T>();
+            if (method === 'POST') {
+              return http.post(url, { json: objectOrString }).json<T>();
             }
 
-            return http.get(url, { searchParams: queryString }).json<T>();
+            return http.get(url, { searchParams: objectOrString }).json<T>();
           })
         ),
       enabled: options.enabled,

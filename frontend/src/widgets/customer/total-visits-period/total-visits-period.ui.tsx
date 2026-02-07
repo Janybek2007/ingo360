@@ -14,10 +14,15 @@ import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import {
+  transformColumnFiltersToPayload,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 interface OverallVisitRow extends TDbItem {
   employee_visits: 2;
@@ -26,6 +31,7 @@ interface OverallVisitRow extends TDbItem {
 export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
+
   const filterOptions = useFilterOptions(['products/product-groups']);
 
   const dbFilters = useDbFilters({
@@ -35,7 +41,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       brands: { enabled: false },
       groupBy: {
         defaultValue:
-          'sku,brand,promotion_type,product_group,distributor,geo_indicator'.split(
+          'pharmacy,medical_facility,employee,product_group,geo_indicator,speciality,doctor'.split(
             ','
           ),
       },
@@ -46,12 +52,20 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-sum-for-period'],
       {
-        brand_ids: dbFilters.brands,
-        product_group_ids: dbFilters.groups,
+        ...transformColumnFiltersToPayload(
+          filters,
+          COMMON_COLUMNS_FILTER_KEY_MAP,
+          { brand_ids: dbFilters.brands, product_group_ids: dbFilters.groups }
+        ),
+        ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+
+        group_by_dimensions: dbFilters.groupBy,
+
         limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
         search: dbFilters.search,
-        group_by_dimensions: dbFilters.groupBy,
+
         enabled: !filterOptions.isLoading,
+        method: 'POST',
       }
     )
   );
@@ -62,7 +76,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   );
 
   const allColumns = useGenerateColumns<OverallVisitRow>({
-    data: visits,
+    filterOptions: filterOptions.options,
     columns: [
       commonColumns.medical_facility(250),
       commonColumns.pharmacy(),

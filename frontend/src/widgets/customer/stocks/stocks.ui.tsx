@@ -18,12 +18,17 @@ import {
   monthsPreset,
   totalPreset,
 } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
+import {
+  transformColumnFiltersToPayload,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 export const Stocks: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
@@ -32,6 +37,9 @@ export const Stocks: React.FC = React.memo(() => {
   const filterOptions = useFilterOptions([
     'products/brands',
     'products/product-groups',
+    'products/skus',
+    'products/promotion-types',
+    'clients/distributors',
   ]);
 
   const dbFilters = useDbFilters({
@@ -51,14 +59,22 @@ export const Stocks: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/primary/reports/stock-levels'],
       {
-        brand_ids: dbFilters.brands,
-        product_group_ids: dbFilters.groups,
+        ...transformColumnFiltersToPayload(
+          filters,
+          COMMON_COLUMNS_FILTER_KEY_MAP,
+          { brand_ids: dbFilters.brands, product_group_ids: dbFilters.groups }
+        ),
+        ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+
         limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
         search: dbFilters.search,
+
         group_by_dimensions: dbFilters.groupBy,
-        enabled: !filterOptions.isLoading,
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
+
+        enabled: !filterOptions.isLoading,
+        method: 'POST',
       }
     )
   );
@@ -69,7 +85,7 @@ export const Stocks: React.FC = React.memo(() => {
   );
 
   const allColumns = useGenerateColumns<TDbItem>({
-    data: sales,
+    filterOptions: filterOptions.options,
     columns: [
       commonColumns.sku(),
       commonColumns.brand(),

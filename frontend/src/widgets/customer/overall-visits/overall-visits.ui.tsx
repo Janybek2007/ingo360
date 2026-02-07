@@ -46,6 +46,7 @@ export const OverallVisits: React.FC = React.memo(() => {
       search: { enabled: false },
     },
   });
+
   const periodFilter = usePeriodFilter();
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(

@@ -1,5 +1,9 @@
 import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
-import type { IndicatorType, PaginationParams } from '#/shared/types/global';
+import type {
+  IndicatorType,
+  PaginationParams,
+  SortDirection,
+} from '#/shared/types/global';
 import type { ISMGroupColumn } from '#/shared/types/ims';
 
 export interface IDbName {
@@ -97,6 +101,9 @@ export type TDbItem = {
 export type IGetDBItemResponse = IDbItem[];
 
 export interface IGetDBItemsParams extends PaginationParams {
+  sort_by?: string;
+  sort_order?: SortDirection;
+
   method?: 'GET' | 'POST';
   //
   years?: number[];
@@ -107,7 +114,7 @@ export interface IGetDBItemsParams extends PaginationParams {
   distributor_ids?: (string | number)[];
   product_group_ids?: (string | number)[];
   search?: string;
-  promo_type_id?: (string | number)[];
+  promo_type_ids?: (string | number)[];
   sku_ids?: (string | number)[];
   geo_indicators_ids?: (string | number)[];
   medical_facility_ids?: (string | number)[];

@@ -60,9 +60,12 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
       {
         brand_ids: filters.brands,
         product_group_ids: filters.groups,
+
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+
         enabled: !filterOptions.isLoading,
+        method: 'POST',
       }
     )
   );

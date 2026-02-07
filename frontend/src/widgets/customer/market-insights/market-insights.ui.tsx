@@ -14,6 +14,7 @@ import {
   commonColumns,
   marketInsightsDynamicPeriods,
 } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
@@ -21,6 +22,7 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { transformSortingToPayload } from '#/shared/utils/transform';
 
 interface MarketRow {
   brand: string;
@@ -50,11 +52,16 @@ export const MarketInsights: React.FC = React.memo(() => {
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {
+      ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+
       periods: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
+      group_by_dimensions: dbFilters.groupBy,
+
       limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
       search: dbFilters.search,
-      group_by_dimensions: dbFilters.groupBy,
+
+      method: 'POST',
     })
   );
 
@@ -85,7 +92,7 @@ export const MarketInsights: React.FC = React.memo(() => {
   }, [queryData.data, dbFilters.indicator]);
 
   const allColumns = useGenerateColumns({
-    data: metricData,
+    filterOptions: {},
     columns: [
       commonColumns.marketInsightsCompany(),
       commonColumns.marketInsightsBrand(),
@@ -162,7 +169,6 @@ export const MarketInsights: React.FC = React.memo(() => {
                   onDelete: periodFilter.onDelete,
                 },
               ]),
-              isView: dbFilters.usedFilterItems.length > 0,
             }}
             columns={columnsForTable}
             data={metricData}

@@ -19,7 +19,7 @@ export class ReferenceQueries {
 
   static GetReferencesQuery<T = IGetReferencesResponse>(
     urls: string[],
-    options?: IGetReferencesParams
+    options?: IGetReferencesParams & { method?: 'GET' | 'POST' }
   ) {
     const method = options?.method ?? 'GET';
 
@@ -28,19 +28,17 @@ export class ReferenceQueries {
       queryFn: () =>
         Promise.all(
           urls.map(url => {
-            const params =
-              method === 'GET'
-                ? {
-                    searchParams: qs.stringify(options, {
-                      arrayFormat: 'comma',
-                    }),
-                  }
-                : { json: options };
+            if (method === 'GET') {
+              return http
+                .get(url, {
+                  searchParams: qs.stringify(options, {
+                    arrayFormat: 'comma',
+                  }),
+                })
+                .json<T>();
+            }
 
-            return http[method === 'GET' ? 'get' : 'post'](
-              url,
-              params
-            ).json<T>();
+            return http.post(url, { json: options }).json<T>();
           })
         ),
     });

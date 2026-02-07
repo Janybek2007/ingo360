@@ -46,13 +46,35 @@ export function transformHeaderKeys<T extends Record<string, any>>(
   );
 }
 
-type TFilterPayloadValue = string | number;
+type TFilterPrimitive = string | number;
+type TFilterPayloadValue = TFilterPrimitive | TFilterPrimitive[];
+
+type TExtraDataMap = Record<string, TFilterPrimitive | TFilterPrimitive[]>;
 
 export const transformColumnFiltersToPayload = (
   columnFilters: ColumnFiltersState,
-  keyMap: Record<string, string> = {}
+  keyMap: Record<string, string> = {},
+  extraDataMap: TExtraDataMap = {}
 ): Record<string, TFilterPayloadValue> => {
-  return columnFilters.reduce<Record<string, TFilterPayloadValue>>(
+  const appendExtraDataIfArray = (
+    key: string,
+    value: TFilterPayloadValue
+  ): TFilterPayloadValue => {
+    if (!Array.isArray(value)) return value;
+
+    const extraData = extraDataMap[key];
+    if (extraData === undefined || extraData === null) return value;
+
+    if (Array.isArray(extraData)) {
+      value.push(...extraData);
+      return value;
+    }
+
+    value.push(extraData);
+    return value;
+  };
+
+  const payload = columnFilters.reduce<Record<string, TFilterPayloadValue>>(
     (acc, filter) => {
       const mappedKey = keyMap[filter.id] ?? filter.id;
 
@@ -64,9 +86,10 @@ export const transformColumnFiltersToPayload = (
         'selectValues' in rawValue &&
         Array.isArray(rawValue.selectValues)
       ) {
-        acc[mappedKey] = rawValue.selectValues
-          .map(item => item.value)
-          .join(',');
+        acc[mappedKey] = appendExtraDataIfArray(
+          mappedKey,
+          rawValue.selectValues.map(item => item.value)
+        );
         return acc;
       }
 
@@ -81,13 +104,34 @@ export const transformColumnFiltersToPayload = (
       }
 
       if (typeof rawValue === 'string' || typeof rawValue === 'number') {
-        acc[mappedKey] = rawValue;
+        acc[mappedKey] = rawValue as TFilterPayloadValue;
       }
 
       return acc;
     },
     {}
   );
+
+  Object.entries(extraDataMap).forEach(([key, extraData]) => {
+    if (extraData === undefined || extraData === null) return;
+
+    if (!(key in payload)) {
+      payload[key] = Array.isArray(extraData) ? [...extraData] : extraData;
+      return;
+    }
+
+    const currentValue = payload[key];
+
+    if (Array.isArray(currentValue)) {
+      if (Array.isArray(extraData)) {
+        currentValue.push(...extraData);
+      } else {
+        currentValue.push(extraData);
+      }
+    }
+  });
+
+  return payload;
 };
 
 export const transformSortingToPayload = (
@@ -100,7 +144,7 @@ export const transformSortingToPayload = (
   const sortBy = keyMap[first.id] ?? first.id;
 
   return {
-    sort_by: sortBy,
+    sort_by: sortBy.replace('_ids', ''),
     sort_order: first.desc ? 'DESC' : 'ASC',
   };
 };

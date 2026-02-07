@@ -7,7 +7,7 @@ import {
   ReferenceQueries,
 } from '#/entities/reference';
 import { Tabs } from '#/shared/components/ui/tabs';
-import { REFERENCE_WORK_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
+import { WORK_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import type { ReferencesType } from '#/shared/types/references.type';
@@ -32,11 +32,8 @@ const ReferenceWorkPage: React.FC = () => {
   const queryData = useKeepQuery(
     ReferenceQueries.GetReferencesQuery([current], {
       limit: rowsCount === 'all' ? undefined : rowsCount,
-      filters: transformColumnFiltersToPayload(
-        filters,
-        REFERENCE_WORK_FILTER_KEY_MAP
-      ),
-      ...transformSortingToPayload(sorting, REFERENCE_WORK_FILTER_KEY_MAP),
+      ...transformColumnFiltersToPayload(filters, WORK_FILTER_KEY_MAP),
+      ...transformSortingToPayload(sorting, WORK_FILTER_KEY_MAP),
       method: 'POST',
     })
   );

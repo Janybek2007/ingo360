@@ -3,12 +3,16 @@ import type { ColumnDef, ColumnDefBase } from '@tanstack/react-table';
 import { useMemo } from 'react';
 
 import { numberFilter, selectFilter } from '#/shared/utils/filter';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
+import type {
+  FilterOptionsKey,
+  FilterOptionsObject,
+} from '../components/db-filters';
 
 export interface CColumn<TData> {
   id: string;
   key?: keyof TData;
   header: string;
+  optionKey?: FilterOptionsKey;
   type?: ColumnDefBase<TData>['filterType'];
   size?: number;
   pinned?: boolean;
@@ -23,7 +27,7 @@ export interface CColumn<TData> {
 }
 
 interface UseGenerateColumnsProps<TData> {
-  data: TData[];
+  filterOptions: FilterOptionsObject | {};
   columns: (CColumn<TData> | string)[];
   months?: {
     periods: string[];
@@ -74,7 +78,7 @@ const CellValue = ({
 };
 
 export const useGenerateColumns = <TData extends Record<string, any>>({
-  data,
+  filterOptions,
   columns,
   months,
   total,
@@ -124,17 +128,14 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
 
           if (col.custom?.options) {
             column.selectOptions = col.custom.options;
-          } else if (col.key) {
-            // Авто-генерация из данных
-            const idKey =
-              `${String(col.key).replace('_name', '_id')}` as keyof TData;
-            column.selectOptions = getUniqueItems(
-              data.map(item => ({
-                value: item[idKey] ?? 0,
-                label: item[col.key!] ?? 'Не указан',
-              })),
-              ['value']
-            );
+          } else if (
+            col.key &&
+            col.optionKey &&
+            col.optionKey in filterOptions
+          ) {
+            column.selectOptions = (filterOptions as FilterOptionsObject)?.[
+              col.optionKey
+            ];
           }
         } else if (col.type === 'number') {
           column.filterFn = numberFilter();
@@ -228,5 +229,5 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
     }
 
     return result;
-  }, [data, columns, months, total]);
+  }, [filterOptions, columns, months, total]);
 };

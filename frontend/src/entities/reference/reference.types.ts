@@ -34,8 +34,6 @@ export interface IReferenceItem extends IItem {
 export type IGetReferencesResponse = IReferenceItem[];
 
 export type IGetReferencesParams = {
-  filters?: Record<string, string | number>;
   sort_by?: string;
   sort_order?: SortDirection;
-  method?: 'GET' | 'POST';
 } & PaginationParams;

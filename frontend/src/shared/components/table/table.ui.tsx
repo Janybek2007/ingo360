@@ -119,7 +119,6 @@ export const Table: React.FC<ITableProps> = React.memo(
       setSorting([]);
       filters?.resetFilters();
     }, [filters, setColumnFilters, setSorting]);
-
     return (
       <div className={cn('relative', className)}>
         {(filters || columnFilters.length > 0 || sorting.length > 0) &&

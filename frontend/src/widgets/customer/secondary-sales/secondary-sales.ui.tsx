@@ -18,12 +18,17 @@ import {
   monthsPreset,
   totalPreset,
 } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
+import {
+  transformColumnFiltersToPayload,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 export const SecondarySales: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
@@ -32,6 +37,9 @@ export const SecondarySales: React.FC = React.memo(() => {
   const filterOptions = useFilterOptions([
     'products/brands',
     'products/product-groups',
+    'products/skus',
+    'products/promotion-types',
+    'clients/distributors',
     'clients/geo-indicators',
   ]);
 
@@ -54,15 +62,27 @@ export const SecondarySales: React.FC = React.memo(() => {
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/secondary/reports/sales'], {
-      brand_ids: dbFilters.brands,
-      product_group_ids: dbFilters.groups,
+      ...transformColumnFiltersToPayload(
+        filters,
+        COMMON_COLUMNS_FILTER_KEY_MAP,
+        {
+          brand_ids: dbFilters.brands,
+          product_group_ids: dbFilters.groups,
+          geo_indicator_ids: dbFilters.geoIndicators,
+        }
+      ),
+      ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+
       limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
-      geo_indicators_ids: dbFilters.geoIndicators,
       search: dbFilters.search,
+
       group_by_dimensions: dbFilters.groupBy,
-      enabled: !filterOptions.isLoading,
       period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
+
+      enabled: !filterOptions.isLoading,
+
+      method: 'POST',
     })
   );
 
@@ -72,7 +92,7 @@ export const SecondarySales: React.FC = React.memo(() => {
   );
 
   const allColumns = useGenerateColumns<TDbItem>({
-    data: sales,
+    filterOptions: filterOptions.options,
     columns: [
       commonColumns.sku(),
       commonColumns.brand(),

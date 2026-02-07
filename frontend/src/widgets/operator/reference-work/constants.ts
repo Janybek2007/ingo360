@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import React from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
 import type {
@@ -46,6 +45,7 @@ export function getReferenceTypeDeps(
         'products/dosage-forms',
         'products/dosages',
         'products/segments',
+        'clients/geo-indicators',
       ];
 
     case 'employees/employees':
@@ -353,7 +353,7 @@ export function getReferenceWorkColumns(
           id: 'promotion_type.id',
           accessorKey: 'promotion_type.name',
           accessorFn: item => item.promotion_type?.name ?? '-',
-          header: columnHeaderNames.brand,
+          header: columnHeaderNames.promotion,
           size: 200,
           enableColumnFilter: true,
           filterFn: selectFilter(),
@@ -516,14 +516,10 @@ export function getReferenceWorkColumns(
           accessorFn: item => item.geo_indicator?.name ?? '-',
           size: 200,
           enableColumnFilter: true,
-          filterFn: stringFilter(),
-          filterType: 'string',
-          cell: ({ row }) =>
-            React.createElement(
-              'span',
-              { title: row.original.geo_indicator?.name || '-' },
-              row.original.geo_indicator?.name || '-'
-            ),
+          filterFn: selectFilter(),
+          filterType: 'select',
+          cell: ({ row }) => row.original.geo_indicator?.name || '-',
+          selectOptions: filterOptions.clients_geo_indicators,
         },
         {
           id: 'district.id',
@@ -681,12 +677,7 @@ export function getReferenceWorkColumns(
           enableColumnFilter: true,
           filterFn: selectFilter(),
           filterType: 'select',
-          cell: ({ row }) =>
-            React.createElement(
-              'span',
-              { title: row.original.geo_indicator?.name || '-' },
-              row.original.geo_indicator?.name || '-'
-            ),
+          cell: ({ row }) => row.original.geo_indicator?.name || '-',
           selectOptions: filterOptions.clients_geo_indicators,
         },
         {

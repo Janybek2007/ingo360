@@ -6,6 +6,7 @@ export const commonColumns = {
   sku: (pinned = true): CColumn<any> => ({
     id: 'sku_id',
     key: 'sku_name',
+    optionKey: 'products_skus',
     header: columnHeaderNames.sku,
     size: 350,
     type: 'select',
@@ -15,6 +16,7 @@ export const commonColumns = {
   brand: (): CColumn<any> => ({
     id: 'brand_id',
     key: 'brand_name',
+    optionKey: 'products_brands',
     header: columnHeaderNames.brand,
     size: 150,
     type: 'select',
@@ -23,6 +25,7 @@ export const commonColumns = {
   promotion: (): CColumn<any> => ({
     id: 'promotion_type_id',
     key: 'promotion_type_name',
+    optionKey: 'products_promotion_types',
     header: columnHeaderNames.promotion,
     size: 200,
     type: 'select',
@@ -31,6 +34,7 @@ export const commonColumns = {
   group: (key = 'product_group_name'): CColumn<any> => ({
     id: 'product_group_id',
     key,
+    optionKey: 'products_product_groups',
     header: columnHeaderNames.group,
     size: 150,
     type: 'select',
@@ -42,6 +46,7 @@ export const commonColumns = {
   responsible_employee: (): CColumn<any> => ({
     id: 'responsible_employee_id',
     key: 'responsible_employee_name',
+    optionKey: 'employees_employees',
     header: columnHeaderNames.responsibleEmployee,
     size: 260,
     type: 'select',
@@ -51,6 +56,7 @@ export const commonColumns = {
   segment: (): CColumn<any> => ({
     id: 'segment_id',
     key: 'segment_name',
+    optionKey: 'products_segments',
     header: columnHeaderNames.segment,
     size: 200,
     type: 'select',
@@ -59,6 +65,7 @@ export const commonColumns = {
   distributor: (): CColumn<any> => ({
     id: 'distributor_id',
     key: 'distributor_name',
+    optionKey: 'clients_distributors',
     header: columnHeaderNames.distributor,
     size: 150,
     type: 'select',
@@ -70,6 +77,7 @@ export const commonColumns = {
   indicator: (): CColumn<any> => ({
     id: 'indicator_id',
     key: 'indicator_name',
+    optionKey: 'clients_geo_indicators',
     header: columnHeaderNames.indicator,
     size: 150,
     type: 'select',
@@ -81,6 +89,7 @@ export const commonColumns = {
   geo_indicator: (): CColumn<any> => ({
     id: 'geo_indicator_id',
     key: 'geo_indicator_name',
+    optionKey: 'clients_geo_indicators',
     header: columnHeaderNames.geoIndicator,
     size: 150,
     type: 'select',
@@ -92,6 +101,7 @@ export const commonColumns = {
   pharmacy: (): CColumn<any> => ({
     id: 'pharmacy_id',
     key: 'pharmacy',
+    optionKey: 'clients_pharmacies',
     header: columnHeaderNames.pharmacy,
     size: 300,
     type: 'select',
@@ -103,6 +113,7 @@ export const commonColumns = {
   medical_facility: (size = 150): CColumn<any> => ({
     id: 'medical_facility_id',
     key: 'medical_facility',
+    optionKey: 'clients_medical_facilities',
     header: columnHeaderNames.medicalFacility,
     size,
     type: 'select',
@@ -114,6 +125,7 @@ export const commonColumns = {
   employee: (): CColumn<any> => ({
     id: 'employee_id',
     key: 'employee',
+    optionKey: 'employees_employees',
     header: columnHeaderNames.employee,
     type: 'select',
     groupDimension: 'employee',
@@ -124,6 +136,7 @@ export const commonColumns = {
   year: (): CColumn<any> => ({
     id: 'year',
     key: 'year',
+    optionKey: 'employees_employees',
     header: columnHeaderNames.year,
     size: 140,
     type: 'number',
@@ -323,6 +336,7 @@ export const commonColumns = {
   specialistCoverageMedicalFacility: (): CColumn<any> => ({
     id: 'medical_facility_id',
     key: 'medical_facility_name',
+    optionKey: 'clients_medical_facilities',
     header: columnHeaderNames.medicalFacility,
     size: 224,
     type: 'select',
@@ -333,6 +347,7 @@ export const commonColumns = {
   specialistCoverageDoctor: (): CColumn<any> => ({
     id: 'doctor_id',
     key: 'doctor_name',
+    optionKey: 'clients_doctors',
     header: columnHeaderNames.doctor,
     size: 224,
     type: 'select',
@@ -343,6 +358,7 @@ export const commonColumns = {
   specialistCoverageSpeciality: (): CColumn<any> => ({
     id: 'speciality_id',
     key: 'speciality_name',
+    optionKey: 'clients_specialities',
     header: columnHeaderNames.speciality,
     size: 230,
     type: 'select',
@@ -381,37 +397,37 @@ export const commonColumns = {
     id: 'company',
     key: 'company',
     header: columnHeaderNames.companyName,
-    type: 'select',
+    type: 'string',
   }),
   marketInsightsBrand: (): CColumn<any> => ({
     id: 'brand',
     key: 'brand',
     header: columnHeaderNames.brand,
-    type: 'select',
+    type: 'string',
   }),
   marketInsightsSegment: (): CColumn<any> => ({
     id: 'segment',
     key: 'segment',
     header: columnHeaderNames.segment,
-    type: 'select',
+    type: 'string',
   }),
   marketInsightsDosageForm: (): CColumn<any> => ({
     id: 'dosage_form',
     key: 'dosage_form',
     header: columnHeaderNames.dosageForm,
-    type: 'select',
+    type: 'string',
   }),
   marketInsightsDosage: (): CColumn<any> => ({
     id: 'dosage',
     key: 'dosage',
     header: columnHeaderNames.dosage,
-    type: 'select',
+    type: 'string',
   }),
   marketMolecule: (): CColumn<any> => ({
     id: 'molecule',
     key: 'molecule',
     header: columnHeaderNames.molecule,
-    type: 'select',
+    type: 'string',
   }),
 };
 

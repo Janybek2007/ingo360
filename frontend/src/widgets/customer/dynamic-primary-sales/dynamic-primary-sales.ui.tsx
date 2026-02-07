@@ -51,10 +51,12 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(
         ['sales/primary/reports/chart'],
         {
+          period_values: periodFilter.selectedValues,
+          group_by_period: periodFilter.period,
           brand_ids: filters.brands,
           product_group_ids: filters.groups,
-          group_by_period: periodFilter.period,
-          period_values: periodFilter.selectedValues,
+
+          method: 'POST',
           enabled: !filterOptions.isLoading,
         }
       )

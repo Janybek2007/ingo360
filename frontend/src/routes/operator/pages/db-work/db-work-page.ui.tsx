@@ -4,9 +4,14 @@ import useLocalStorageState from 'use-local-storage-state';
 
 import { DbQueries, type IGetDBItemResponse } from '#/entities/db';
 import { Tabs } from '#/shared/components/ui/tabs';
+import { WORK_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import type { DbType } from '#/shared/types/db.type';
+import {
+  transformColumnFiltersToPayload,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 import { DbWork } from '#/widgets/operator/db-work';
 
 import { tabsItems } from './constants';
@@ -29,6 +34,9 @@ const DbWorkPage: React.FC = () => {
     DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType], {
       limit: rowsCount === 'all' ? undefined : rowsCount,
       group_by_dimensions: groupBy,
+      ...transformColumnFiltersToPayload(filters, WORK_FILTER_KEY_MAP),
+      ...transformSortingToPayload(sorting, WORK_FILTER_KEY_MAP),
+      method: 'POST',
     })
   );
 

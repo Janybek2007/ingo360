@@ -39,6 +39,8 @@ export const DynamicSales: React.FC = React.memo(() => {
       {
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+
+        method: 'POST',
       }
     )
   );

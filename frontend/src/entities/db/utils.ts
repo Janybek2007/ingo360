@@ -4,8 +4,8 @@ import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 
 import type { IGetDBItemsParams } from './db.types';
 
-export class BuildQueryString {
-  static build(params?: IGetDBItemsParams) {
+export class BuildOptions {
+  static build(params?: IGetDBItemsParams, asQuery = true) {
     let p: Record<string, any> = params || {};
     if (params?.group_by_period && Number(params?.periods?.length) > 0) {
       p = {
@@ -40,7 +40,8 @@ export class BuildQueryString {
     p.group_by_dimensions = [...new Set(p.group_by_dimensions || [])];
     delete p.period_values;
     delete p.enabled;
-    return qs.stringify(p, { arrayFormat: 'repeat' });
+    if (asQuery) return qs.stringify(p, { arrayFormat: 'repeat' });
+    return p;
   }
   private static buildTypePeriod(type_period: UsePeriodType) {
     switch (type_period) {
@@ -89,11 +90,7 @@ export class BuildQueryString {
   private static parsePeriodValues(
     values: string[],
     groupByPeriod: UsePeriodType
-  ): {
-    years: string[];
-    quarters: string[];
-    months: string[];
-  } {
+  ) {
     const years: string[] = [];
     const quarters: string[] = [];
     const months: string[] = [];

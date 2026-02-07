@@ -3,17 +3,26 @@ import React from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
-import { DbFilters, useDbFilters } from '#/shared/components/db-filters';
+import {
+  DbFilters,
+  useDbFilters,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
 import { commonColumns } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import {
+  transformColumnFiltersToPayload,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 interface CoverageRow extends TDbItem {
   coverage_percentage: number;
@@ -25,13 +34,19 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
+  const filterOptions = useFilterOptions([
+    'clients/medical-facilities',
+    'clients/doctors',
+    'clients/specialities',
+  ]);
+
   const dbFilters = useDbFilters({
     config: {
       brands: { enabled: false },
       groups: { enabled: false },
       indicator: { enabled: false },
       groupBy: {
-        defaultValue: ''.split(','),
+        defaultValue: 'medical_facility,speciality,doctor'.split(','),
       },
     },
   });
@@ -40,9 +55,19 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<CoverageRow[]>(
       ['visits/reports/doctors-with-visits-by-specialty'],
       {
+        ...transformColumnFiltersToPayload(
+          filters,
+          COMMON_COLUMNS_FILTER_KEY_MAP
+        ),
+        ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+
         limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
         search: dbFilters.search,
+
         group_by_dimensions: dbFilters.groupBy,
+
+        enabled: !filterOptions.isLoading,
+        method: 'POST',
       }
     )
   );
@@ -52,7 +77,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   );
 
   const allColumns = useGenerateColumns({
-    data: visits,
+    filterOptions: filterOptions.options,
     columns: [
       commonColumns.specialistCoverageMedicalFacility(),
       commonColumns.specialistCoverageDoctor(),

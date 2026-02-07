@@ -22,13 +22,26 @@ interface FormatUsedFilterItemsParams {
 }
 
 const getColumnHeader = (
-  id: string,
-  columns: Array<ColumnDef<any>>
+  columnId: string,
+  columns: ColumnDef<any, any>[]
 ): string => {
-  const column = columns.find(
-    c => c.id === id.replace('_', '.') || c.accessorKey === id.replace('_', '.')
-  );
-  return typeof column?.header === 'string' ? column.header : id;
+  const column = columns.find(col => {
+    if (col.id === columnId) return true;
+
+    if (typeof col.accessorKey === 'string') {
+      return col.accessorKey === columnId;
+    }
+
+    return false;
+  });
+
+  if (!column) return columnId;
+
+  if (typeof column.header === 'string') {
+    return column.header;
+  }
+
+  return column.id ?? columnId;
 };
 
 const getOperatorLabel = (
