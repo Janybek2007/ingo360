@@ -67,13 +67,13 @@ const DbWorkPage: React.FC = () => {
         value={{ filters, setFilters, sorting, setSorting }}
       >
         <DbWork
-          current={current.replace('_', '/') as DbType}
+          current={current}
           currentData={data}
           rowsCount={rowsCount}
           setRowsCount={setRowsCount}
           groupBy={groupBy}
           onGroupChange={setGroupBy}
-          isLoading={queryData.isLoading}
+          isLoading={queryData.isFetching}
           queryError={queryData.error}
         />
       </FiltersContext.Provider>

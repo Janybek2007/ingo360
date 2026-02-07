@@ -34,23 +34,15 @@ export const useFilterOptions = (
     [references]
   );
 
-  const scopes = useMemo(() => {
-    if (!scope) return {};
-
-    return Object.fromEntries(
-      include.map(key => [key, scope.replace(/[/-]/g, '_')])
-    );
-  }, [scope, include]);
-
   const filterOptionsQuery = useQuery({
-    queryKey: ['filter-options', { include, scopes }],
+    queryKey: ['filter-options', { include, scope }],
     enabled: include.length > 0,
     queryFn: async () => {
       const response = await http
         .post('filter-options/grouped', {
           json: {
             references: include,
-            ...(scopes ? { scopes } : {}),
+            ...(scope ? { scope: scope.replace(/[/-]/g, '_') } : {}),
           },
         })
         .json<Record<string, FilterOptionItem[]>>();

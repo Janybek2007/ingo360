@@ -40,13 +40,7 @@ export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
       ];
 
     case 'ims':
-      return [
-        'companies_companies',
-        'products/brands',
-        'products/segments',
-        'products/dosages',
-        'products/dosage-forms',
-      ];
+      return [];
 
     default:
       return [];
@@ -149,6 +143,7 @@ export function getDbWorkColumns(
       accessorFn: row => row.pharmacy?.name || '-',
       header: columnHeaderNames.pharmacy,
       enableColumnFilter: true,
+      size: 260,
       filterFn: selectFilter(),
       filterType: 'select',
       meta: { groupDimension: 'pharmacy' },
@@ -158,7 +153,7 @@ export function getDbWorkColumns(
       id: 'employee.id',
       accessorKey: 'employee.full_name',
       header: columnHeaderNames.employee,
-      size: 100,
+      size: 260,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -169,7 +164,7 @@ export function getDbWorkColumns(
       id: 'product_group.id',
       accessorKey: 'product_group.name',
       header: columnHeaderNames.group,
-      size: 100,
+      size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -193,7 +188,7 @@ export function getDbWorkColumns(
       accessorKey: 'doctor.name',
       cell: ({ row }) => row.original.doctor?.name || '-',
       header: columnHeaderNames.doctor,
-      size: 100,
+      size: 200,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -204,7 +199,7 @@ export function getDbWorkColumns(
       id: 'client_type',
       accessorKey: 'client_type',
       header: columnHeaderNames.client,
-      size: 100,
+      size: 160,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -225,10 +220,9 @@ export function getDbWorkColumns(
       accessorKey: 'company',
       header: columnHeaderNames.companyName,
       size: 200,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'string',
+      filterFn: stringFilter(),
       enableColumnFilter: true,
-      selectOptions: filterOptions.companies_companies,
     });
 
     columns.push({
@@ -236,10 +230,9 @@ export function getDbWorkColumns(
       accessorKey: 'brand',
       header: columnHeaderNames.brand,
       size: 200,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'string',
+      filterFn: stringFilter(),
       enableColumnFilter: true,
-      selectOptions: filterOptions.products_brands,
     });
 
     columns.push({
@@ -247,10 +240,9 @@ export function getDbWorkColumns(
       accessorKey: 'segment',
       header: columnHeaderNames.segment,
       size: 180,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'string',
+      filterFn: stringFilter(),
       enableColumnFilter: true,
-      selectOptions: filterOptions.products_segments,
     });
 
     columns.push({
@@ -268,10 +260,9 @@ export function getDbWorkColumns(
       accessorKey: 'dosage',
       header: columnHeaderNames.dosage,
       size: 150,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'string',
+      filterFn: stringFilter(),
       enableColumnFilter: true,
-      selectOptions: filterOptions.products_dosages,
     });
 
     columns.push({
@@ -279,10 +270,9 @@ export function getDbWorkColumns(
       accessorKey: 'dosage_form',
       header: columnHeaderNames.dosageForm,
       size: 240,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'string',
+      filterFn: stringFilter(),
       enableColumnFilter: true,
-      selectOptions: filterOptions.products_dosage_forms,
     });
 
     columns.push({
@@ -387,7 +377,7 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
       accessorKey: 'month',
       header: columnHeaderNames.month,
       cell: ({ row }) => allMonths[Number(row.original.month) - 1],
-      size: 100,
+      size: 120,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -399,7 +389,7 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
     {
       accessorKey: 'year',
       header: columnHeaderNames.year,
-      size: 100,
+      size: 120,
       filterType: 'select',
       filterFn: selectFilter(),
       enableColumnFilter: true,

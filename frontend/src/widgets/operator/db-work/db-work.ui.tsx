@@ -12,7 +12,10 @@ import {
 } from '#/features/db-work/publish';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
-import { useFilterOptions } from '#/shared/components/db-filters';
+import {
+  type FilterOptionsReferencesKey,
+  useFilterOptions,
+} from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
@@ -20,6 +23,7 @@ import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
+import type { DbType } from '#/shared/types/db.type';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { transformHeaderKeys } from '#/shared/utils/transform';
 
@@ -28,15 +32,19 @@ import type { IDbWorkProps } from './db-work.types';
 
 export const DbWork: React.FC<IDbWorkProps> = React.memo(
   ({
-    current,
+    current: currentType,
     currentData,
     rowsCount,
     setRowsCount,
     onGroupChange,
     ...props
   }) => {
+    const current = currentType.replace('_', '/') as DbType;
     const filterOptionsDeps = useMemo(() => getDbTypeDeps(current), [current]);
-    const filterOptions = useFilterOptions(filterOptionsDeps);
+    const filterOptions = useFilterOptions(
+      filterOptionsDeps,
+      currentType as FilterOptionsReferencesKey
+    );
 
     const allColumns = useMemo((): ColumnDef<IDbItem>[] => {
       const columns = getDbWorkColumns(

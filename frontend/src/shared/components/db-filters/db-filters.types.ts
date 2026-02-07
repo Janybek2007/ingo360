@@ -1,3 +1,4 @@
+import type { DbType } from '#/shared/types/db.type';
 import type { IndicatorType, ReplaceSeparators } from '#/shared/types/global';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 
@@ -63,7 +64,8 @@ export type DbFiltersProps = UseDbFiltersReturn &
 
 export type FilterOptionsReferencesKey =
   | 'companies_companies'
-  | ReferencesTypeWithMain;
+  | ReferencesTypeWithMain
+  | ReplaceSeparators<DbType>;
 
 export type FilterOptionItem = { id: number; name: string };
 export type FilterOptions = { value: string | number; label: string };

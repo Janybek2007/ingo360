@@ -283,7 +283,7 @@ export const commonColumns = {
     id: 'user_full_name',
     header: columnHeaderNames.fullName,
     size: 200,
-    type: 'select',
+    type: 'string',
     custom: {
       accessor: (row: any) =>
         `${row.user_last_name} ${row.user_first_name}`.trim() || '-',
@@ -294,7 +294,7 @@ export const commonColumns = {
     key: 'target_table',
     header: columnHeaderNames.targetTable,
     size: 180,
-    type: 'select',
+    type: 'string',
   }),
   reportLogRecordsCount: (): CColumn<any> => ({
     id: 'records_count',

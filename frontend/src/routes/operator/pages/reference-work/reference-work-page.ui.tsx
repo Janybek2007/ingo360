@@ -66,7 +66,7 @@ const ReferenceWorkPage: React.FC = () => {
           current={current as ReferencesType}
           rowsCount={rowsCount}
           setRowsCount={setRowsCount}
-          isLoading={queryData.isLoading}
+          isLoading={queryData.isFetching}
           queryError={queryData.error}
         />{' '}
       </FiltersContext.Provider>
