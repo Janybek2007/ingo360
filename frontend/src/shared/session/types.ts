@@ -1,5 +1,7 @@
 import type { GetUserResponse, UserAccess } from '#/entities/user';
 
+import type { TImportResponse } from '../types/global';
+
 export interface ISessionContext {
   user: GetUserResponse | null;
   isLoading: boolean;
@@ -8,10 +10,7 @@ export interface ISessionContext {
   setIsWelcomeShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export interface CheckSessionProps {
-  children: React.ReactNode;
-}
-
+//
 export type NotificationType =
   | 'token_invalidated'
   | 'account_deactivated'
@@ -21,5 +20,13 @@ export type NotificationType =
 export type NotificationMessage = {
   type: NotificationType;
   message: string;
-  access_type?: 'primary' | 'secondary' | 'tertiary' | 'visits' | 'market';
+  access_type: 'primary' | 'secondary' | 'tertiary' | 'visits' | 'market';
 };
+
+export type ImportStatusMessage =
+  | { not_found: true }
+  | {
+      type: 'import_status';
+      task_id: string;
+      result: { file_name: string; import_result: TImportResponse };
+    };

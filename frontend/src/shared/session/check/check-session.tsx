@@ -5,9 +5,10 @@ import { useRouter } from '../../hooks/use-router';
 import { roleAccess, routePaths } from '../../router';
 import type { SessionRole } from '../../types';
 import { useSession } from '../session.context';
-import type { CheckSessionProps } from '../types';
 
-export const CheckSession: React.FC<CheckSessionProps> = ({ children }) => {
+export const CheckSession: React.FC<React.PropsWithChildren> = ({
+  children,
+}) => {
   const { user, isLoading } = useSession();
   const { pathname } = useLocation();
   const { navigate } = useRouter();

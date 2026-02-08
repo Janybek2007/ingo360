@@ -2,20 +2,14 @@ import { toast as tt } from 'react-hot-toast';
 
 import { LucideXIcon } from '#/shared/assets/icons';
 
-type ToastType = 'success' | 'error' | 'warning';
-
-interface ToastProps {
-  message: string;
-  description?: string;
-  type?: ToastType;
-  duration?: number;
-}
+import type { ToastProps } from './toast.types';
 
 export function toast({
   message,
   description,
   type = 'success',
   duration = Infinity,
+  onAfterClose,
 }: ToastProps) {
   tt.custom(
     t => {
@@ -136,7 +130,10 @@ export function toast({
 
               {/* Кнопка закрытия */}
               <button
-                onClick={() => tt.dismiss(t.id, t.toasterId)}
+                onClick={() => {
+                  tt.dismiss(t.id, t.toasterId);
+                  onAfterClose?.();
+                }}
                 className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200 -mr-1 -mt-1"
                 title="Закрыть"
               >

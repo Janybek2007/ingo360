@@ -1,6 +1,6 @@
 /* @react-compiler-disable */
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { toast as tt } from 'react-hot-toast';
 
@@ -8,25 +8,10 @@ import { Modal } from '#/shared/components/ui/modal';
 import type { TImportResponse } from '#/shared/types/global';
 
 import { toast } from './toast';
-
-interface ToastImportResponseProps {
-  response: TImportResponse;
-  fileName?: string;
-  duration?: number;
-}
-
-interface ModalContentProps {
-  response: TImportResponse;
-  errorItems: ImportErrorItem[];
-  onCopyErrors: () => void;
-  onDownloadErrors: () => void;
-}
-
-interface ImportErrorItem {
-  label: string;
-  rows: number[];
-  missing: string[];
-}
+import type {
+  ModalContentProps,
+  ToastImportResponseProps,
+} from './toast.types.ts';
 
 const getDownloadFileName = (name: string) => {
   const baseName = name.replace(/\.[^/.]+$/, '');
@@ -36,9 +21,9 @@ const getDownloadFileName = (name: string) => {
 const getTotals = (response: TImportResponse) =>
   [
     `Импортировано: ${response.imported}`,
-    response.inserted && `Добавлено: ${response.inserted}`,
-    response.updated && `Обновлено: ${response.updated}`,
-    response.deduplicated_in_batch &&
+    !!response.inserted && `Добавлено: ${response.inserted}`,
+    !!response.updated && `Обновлено: ${response.updated}`,
+    !!response.deduplicated_in_batch &&
       `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch}`,
     `Пропущено: ${response.skipped}`,
     `Всего: ${response.total}`,
@@ -51,71 +36,30 @@ const formatSkipped = (records: TImportResponse['skipped_records']) =>
     missing: record.missing,
   }));
 
-const getUniqueMissing = (records: TImportResponse['skipped_records']) => {
-  const uniqueMap = new Map<string, string>();
-
-  records.forEach(record => {
-    const key = record.missing.join(', ');
-
-    if (!uniqueMap.has(key)) {
-      uniqueMap.set(key, key);
-    }
-  });
-
-  return Array.from(uniqueMap.values());
-};
-
 export function toastImportResponse({
   response,
   fileName = 'import',
   duration,
+  onAfterClose,
 }: ToastImportResponseProps) {
   const totals = getTotals(response);
   const hasErrors = response.skipped_records.length > 0;
-  const uniqueMissing = getUniqueMissing(response.skipped_records);
   const errorItems = formatSkipped(response.skipped_records);
-  const errorCount = uniqueMissing.length;
+  const errorCount = errorItems.length;
 
   const shortDescription = [...totals, hasErrors ? `Ошибки: ${errorCount}` : '']
     .filter(Boolean)
     .join('\n');
 
   if (hasErrors) {
-    const copyErrors = () => {
-      const text = uniqueMissing
-        .map(missing => `Отсутствует ${missing}`)
-        .join('\n');
-
-      navigator.clipboard.writeText(text);
-    };
-
-    const downloadErrors = () => {
-      const downloadName = getDownloadFileName(fileName);
-      const rawLines = uniqueMissing.length
-        ? uniqueMissing.map(missing => `- Отсутствует ${missing}`)
-        : ['- Ошибки не найдены'];
-
-      const content = [`Файл: ${fileName}`, '', 'Ошибки:', ...rawLines].join(
-        '\n'
-      );
-
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = downloadName;
-      link.click();
-      URL.revokeObjectURL(url);
-    };
-
     openModal(
       'Импорт завершен с ошибками',
       <ModalContent
         response={response}
         errorItems={errorItems}
-        onCopyErrors={copyErrors}
-        onDownloadErrors={downloadErrors}
-      />
+        fileName={fileName}
+      />,
+      onAfterClose
     );
     return;
   }
@@ -125,23 +69,53 @@ export function toastImportResponse({
     description: shortDescription,
     type: 'success',
     duration,
+    onAfterClose: onAfterClose,
   });
 }
 
 const ModalContent = ({
   response,
   errorItems,
-  onCopyErrors,
-  onDownloadErrors,
+  fileName,
 }: ModalContentProps) => {
-  const uniqueMissing = getUniqueMissing(
-    errorItems.map(item => ({ row: item.rows[0], missing: item.missing }))
-  );
   const listRef = useRef<HTMLDivElement>(null);
+
+  const onCopyErrors = React.useCallback(() => {
+    const text = errorItems
+      .map(
+        item =>
+          `row-${item.rows.join(', ')}: отсутствует ${item.missing.join(', ')}`
+      )
+      .join('\n');
+
+    navigator.clipboard.writeText(text);
+  }, [errorItems]);
+
+  const onDownloadErrors = React.useCallback(() => {
+    const downloadName = getDownloadFileName(fileName);
+    const rawLines = errorItems.length
+      ? errorItems.map(
+          item =>
+            `- row-${item.rows.join(', ')}: отсутствует ${item.missing.join(', ')}`
+        )
+      : ['- Ошибки не найдены'];
+
+    const content = [`Файл: ${fileName}`, '', 'Ошибки:', ...rawLines].join(
+      '\n'
+    );
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = downloadName;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [errorItems, fileName]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
-    count: uniqueMissing.length,
+    count: errorItems.length,
     getScrollElement: () => listRef.current,
     estimateSize: () => 104,
     overscan: 6,
@@ -164,7 +138,7 @@ const ModalContent = ({
               Результат импорта
             </p>
             <h3 className="mt-1 text-base font-semibold text-slate-800">
-              Сводка по файлу импорта
+              Сводка по файлу импорта | {fileName}
             </h3>
           </div>
           <div className="inline-flex items-center gap-2 rounded-full bg-rose-50 px-2.5 py-1 text-[0.65rem] font-semibold text-rose-600">
@@ -175,17 +149,17 @@ const ModalContent = ({
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
             Импортировано: {response.imported}
           </span>
-          {response.inserted && (
+          {!!response.inserted && (
             <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
               Добавлено: {response.inserted}
             </span>
           )}
-          {response.updated && (
+          {!!response.updated && (
             <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">
               Обновлено: {response.updated}
             </span>
           )}
-          {response.deduplicated_in_batch && (
+          {!!response.deduplicated_in_batch && (
             <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-700">
               Найдено дублей в файле (не загружены):{' '}
               {response.deduplicated_in_batch}
@@ -238,13 +212,13 @@ const ModalContent = ({
             style={{ height: totalSize }}
           >
             {virtualRows.map(virtualRow => {
-              const missing = uniqueMissing[virtualRow.index];
+              const item = errorItems[virtualRow.index];
 
-              if (!missing) return null;
+              if (!item) return null;
 
               return (
                 <li
-                  key={missing}
+                  key={item.label}
                   ref={rowVirtualizer.measureElement}
                   data-index={virtualRow.index}
                   className="absolute left-0 top-0 w-full pb-2"
@@ -252,9 +226,11 @@ const ModalContent = ({
                 >
                   <div className="rounded-xl border border-rose-100 bg-white/80 px-4 py-3 shadow-sm">
                     <p className="text-xs font-semibold text-slate-600">
-                      Отсутствует
+                      {item.label}
                     </p>
-                    <p className="mt-1 text-sm text-slate-700">{missing}</p>
+                    <p className="mt-1 text-sm text-slate-700">
+                      Отсутствует {item.missing.join(', ')}
+                    </p>
                   </div>
                 </li>
               );
@@ -266,13 +242,20 @@ const ModalContent = ({
   );
 };
 
-const openModal = (title: string, content: string | React.ReactNode) => {
+const openModal = (
+  title: string,
+  content: string | React.ReactNode,
+  onAfterClose?: VoidFunction
+) => {
   tt.custom(
     newToast =>
       createPortal(
         <Modal
           title={title}
-          onClose={() => tt.dismiss(newToast.id, newToast.toasterId)}
+          onClose={() => {
+            tt.dismiss(newToast.id, newToast.toasterId);
+            onAfterClose?.();
+          }}
           classNames={{
             body: 'md:min-w-[60rem] md:max-w-[80rem] min-w-[90dvw] max-w-[90dvw]',
             root: `toast-modal-${newToast.id}`,
