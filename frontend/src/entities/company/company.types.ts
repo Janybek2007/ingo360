@@ -1,3 +1,5 @@
+import type { PaginationParams, SortParams } from '#/shared/types/global';
+
 export interface ICompanyItem {
   id: number;
   name: string;
@@ -15,4 +17,9 @@ export interface ICompanyItem {
   address: string;
 }
 
-export type GetCompanyResponse = ICompanyItem[];
+export type GetCompaniesResponse = ICompanyItem[];
+
+export type GetCompaniesParams = {
+  search?: string;
+} & PaginationParams &
+  SortParams;

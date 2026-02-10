@@ -10,18 +10,20 @@ import {
   PublishButton,
   PublishUnpublishedButton,
 } from '#/features/db-work/publish';
+import {
+  ExportToExcelButton,
+  type ExportToExcelUrl,
+} from '#/features/export-excel';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
 } from '#/shared/components/db-filters';
-import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
-import { allMonths } from '#/shared/constants/months';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import type { DbType } from '#/shared/types/db.type';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -116,18 +118,12 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                   menu: 'min-w-[11.25rem]  w-max right-0',
                 }}
               />
-              <ExportToExcelButton
-                formatHeader={transformHeaderKeys(columnsForTable, [
-                  'published',
-                ])}
-                selectKeys={visibleColumns.filter(
-                  v => !['actions'].includes(v)
-                )}
-                transform={(row: IDbItem) => ({
-                  ...row,
-                  month: allMonths[Number(row.month) - 1],
-                })}
-                data={tableData}
+              <ExportToExcelButton<IDbItem>
+                headerMap={transformHeaderKeys(columnsForTable)}
+                url={`/${current}` as ExportToExcelUrl}
+                booleanMap={{
+                  published: ['Не опубликовано', 'Опубликовано'],
+                }}
                 fileName={`Данные ${findCurrentTab(tabsItems, current.replace('/', '_'))?.tab.label}`}
               />
               {!['visits', 'ims'].includes(current) && (

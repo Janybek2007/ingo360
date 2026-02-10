@@ -2,7 +2,7 @@ import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 import type {
   IndicatorType,
   PaginationParams,
-  SortDirection,
+  SortParams,
 } from '#/shared/types/global';
 import type { ISMGroupColumn } from '#/shared/types/ims';
 
@@ -100,31 +100,29 @@ export type TDbItem = {
 
 export type IGetDBItemResponse = IDbItem[];
 
-export interface IGetDBItemsParams extends PaginationParams {
-  sort_by?: string;
-  sort_order?: SortDirection;
-
-  method?: 'GET' | 'POST';
-  //
-  years?: number[];
-  months?: number[];
-  quarters?: number[];
-  //
-  brand_ids?: (string | number)[];
-  distributor_ids?: (string | number)[];
-  product_group_ids?: (string | number)[];
-  search?: string;
-  promo_type_ids?: (string | number)[];
-  sku_ids?: (string | number)[];
-  geo_indicators_ids?: (string | number)[];
-  medical_facility_ids?: (string | number)[];
-  group_by_period?: UsePeriodType;
-  period_values?: string[];
-  periods?: string[];
-  group_column?: ISMGroupColumn;
-  group_by_dimensions?: string[];
-  indicator?: string;
-  enabled?: boolean;
-  segment_name?: string;
-  brand_name?: string;
-}
+export type IGetDBItemsParams = PaginationParams &
+  SortParams & {
+    method?: 'GET' | 'POST';
+    //
+    years?: number[];
+    months?: number[];
+    quarters?: number[];
+    //
+    brand_ids?: (string | number)[];
+    distributor_ids?: (string | number)[];
+    product_group_ids?: (string | number)[];
+    search?: string;
+    promo_type_ids?: (string | number)[];
+    sku_ids?: (string | number)[];
+    geo_indicators_ids?: (string | number)[];
+    medical_facility_ids?: (string | number)[];
+    group_by_period?: UsePeriodType;
+    period_values?: string[];
+    periods?: string[];
+    group_column?: ISMGroupColumn;
+    group_by_dimensions?: string[];
+    indicator?: string;
+    enabled?: boolean;
+    segment_name?: string;
+    brand_name?: string;
+  };

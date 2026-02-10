@@ -1,6 +1,7 @@
 import type { CColumn } from '../hooks/use-generate-columns';
 import { columnHeaderNames } from './column-header-names';
 import { allMonths } from './months';
+import { ROLES_OBJECT } from './roles_statuses';
 
 export const commonColumns = {
   sku: (pinned = true): CColumn<any> => ({
@@ -213,7 +214,8 @@ export const commonColumns = {
     size,
   }),
   userFullName: (size = 280): CColumn<any> => ({
-    id: 'fullName',
+    id: 'full_name',
+    key: 'full_name',
     header: columnHeaderNames.fullName,
     size,
     type: 'string',
@@ -236,6 +238,15 @@ export const commonColumns = {
     header: columnHeaderNames.role,
     size,
     type: 'string',
+    custom: {
+      accessor(row) {
+        return row.is_admin
+          ? ROLES_OBJECT.administrator
+          : row.is_operator
+            ? ROLES_OBJECT.operator
+            : '';
+      },
+    },
   }),
   userEmail: (size = 280): CColumn<any> => ({
     id: 'email',
@@ -254,22 +265,15 @@ export const commonColumns = {
         (row as { position?: string }).position || 'Не указана',
     },
   }),
-  customerCompany: (size = 290, data?: any[]): CColumn<any> => ({
-    id: 'companyName',
+  customerCompany: (size = 290): CColumn<any> => ({
+    id: 'company_id',
+    key: 'company.name',
     header: columnHeaderNames.companyName,
     size,
     type: 'select',
     optionKey: 'companies_companies',
     custom: {
       accessor: (row: any) => row.company?.name || 'Не указана',
-      options: data
-        ? Array.from(
-            new Set(data.map(item => item.company?.name || 'Не указана'))
-          ).map(company => ({
-            label: company,
-            value: company,
-          }))
-        : undefined,
     },
   }),
   // Report Logs columns
@@ -281,6 +285,7 @@ export const commonColumns = {
   }),
   reportLogUserFullName: (): CColumn<any> => ({
     id: 'user_full_name',
+    key: 'user_full_name',
     header: columnHeaderNames.fullName,
     size: 200,
     type: 'string',

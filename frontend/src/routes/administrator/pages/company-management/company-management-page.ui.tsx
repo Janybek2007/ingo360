@@ -1,25 +1,29 @@
-import { useQuery } from '@tanstack/react-query';
 import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { CompanyQueries, type ICompanyItem } from '#/entities/company';
 import { AccessCompanyModal } from '#/features/company/access';
 import { AddCompanyModal } from '#/features/company/add';
 import { EditCompanyModal } from '#/features/company/edit';
+import { ExportToExcelButton } from '#/features/export-excel';
 import { LucidePlusIcon } from '#/shared/assets/icons';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
-import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { commonColumns } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { filterBySearch } from '#/shared/utils/search';
-import { transformHeaderKeys } from '#/shared/utils/transform';
+import {
+  transformColumnFiltersToPayload,
+  transformHeaderKeys,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 const CompanyManagementPage: React.FC = () => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
@@ -30,22 +34,16 @@ const CompanyManagementPage: React.FC = () => {
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [openAccess, setOpenAccess] = useState(false);
   const [selectData, setSelectData] = useState<ICompanyItem | null>(null);
-  const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
-
-  const filteredData = useMemo(() => {
-    const data = queryData.data || [];
-    if (!search.trim()) return data;
-
-    return filterBySearch<ICompanyItem>(data, search, [
-      'name',
-      'ims_name',
-      'contract_number',
-      'active_users_limit',
-      'active_users',
-      'contract_end_date',
-      'is_active',
-    ]);
-  }, [search, queryData.data]);
+  const queryData = useKeepQuery(
+    CompanyQueries.GetCompaniesQuery({
+      search,
+      ...transformColumnFiltersToPayload(
+        filters,
+        COMMON_COLUMNS_FILTER_KEY_MAP
+      ),
+      ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+    })
+  );
 
   const allColumns = useGenerateColumns<ICompanyItem>({
     filterOptions: {},
@@ -109,11 +107,11 @@ const CompanyManagementPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton
-              formatHeader={transformHeaderKeys(allColumns)}
-              selectKeys={Object.keys(transformHeaderKeys(allColumns))}
-              data={filteredData}
+            <ExportToExcelButton<ICompanyItem>
+              headerMap={transformHeaderKeys(allColumns)}
+              url="/companies"
               fileName="Компании"
+              booleanMap={{ is_active: ['Неактивный', 'Активный'] }}
             />
             <Button
               onClick={() => set('create')}
@@ -134,7 +132,7 @@ const CompanyManagementPage: React.FC = () => {
           >
             <Table
               columns={allColumns}
-              data={filteredData}
+              data={queryData.data ?? []}
               maxHeight={700}
               rounded="none"
             />

@@ -1,4 +1,4 @@
-import type { PaginationParams, SortDirection } from '#/shared/types/global';
+import type { PaginationParams, SortParams } from '#/shared/types/global';
 
 export interface IItem {
   name: string;
@@ -33,7 +33,4 @@ export interface IReferenceItem extends IItem {
 
 export type IGetReferencesResponse = IReferenceItem[];
 
-export type IGetReferencesParams = {
-  sort_by?: string;
-  sort_order?: SortDirection;
-} & PaginationParams;
+export type IGetReferencesParams = SortParams & PaginationParams;

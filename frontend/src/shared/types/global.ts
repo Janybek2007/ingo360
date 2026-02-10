@@ -15,6 +15,10 @@ export interface PaginationParams {
   limit?: number;
   offset?: number;
 }
+export interface SortParams {
+  sort_order?: SortDirection;
+  sort_by?: string;
+}
 
 export interface TImportSkippedRecord {
   row: number;

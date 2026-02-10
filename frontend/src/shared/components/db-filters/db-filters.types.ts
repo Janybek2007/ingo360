@@ -64,6 +64,7 @@ export type DbFiltersProps = UseDbFiltersReturn &
 
 export type FilterOptionsReferencesKey =
   | 'companies_companies'
+  | 'clients_clients'
   | ReferencesTypeWithMain
   | ReplaceSeparators<DbType>;
 

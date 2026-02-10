@@ -192,7 +192,10 @@ export class ExcelExporter<T extends object> {
     const dataArray = [
       headers,
       ...finalData.map(item =>
-        headers.map(header => item[header] || this.emptyValue)
+        headers.map(header => {
+          const v = item[header];
+          return v === undefined || v === null ? this.emptyValue : v;
+        })
       ),
     ];
 

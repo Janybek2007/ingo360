@@ -1,25 +1,29 @@
-import { useQuery } from '@tanstack/react-query';
 import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { type IUserItem, UserQueries } from '#/entities/user';
 import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
+import { ExportToExcelButton } from '#/features/export-excel';
 import { LucidePlusIcon } from '#/shared/assets/icons';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { useFilterOptions } from '#/shared/components/db-filters';
-import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { commonColumns } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
+import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { filterBySearch } from '#/shared/utils/search';
-import { transformHeaderKeys } from '#/shared/utils/transform';
+import {
+  transformColumnFiltersToPayload,
+  transformHeaderKeys,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 interface CustomerRow extends IUserItem {
   fullName: string;
@@ -35,39 +39,29 @@ const CustomerAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [editData, setEditData] = useState<CustomerRow | null>(null);
-  const filterOptions = useFilterOptions(['companies_companies']);
-
-  const customersQuery = useQuery(
-    UserQueries.GetCustomersQuery(!filterOptions.isLoading)
+  const filterOptions = useFilterOptions(
+    ['companies_companies'],
+    'clients_clients'
   );
 
-  const filteredData = useMemo((): CustomerRow[] => {
-    if (!customersQuery.data) return [];
-
-    const normalized = customersQuery.data.map((customer: IUserItem) => ({
-      ...customer,
-      fullName:
-        `${customer.last_name} ${customer.first_name} ${customer.patronymic || ''}`.trim(),
-      position: (customer as { position?: string }).position || 'Не указано',
-      companyName: customer.company?.name || 'Не указано',
-    })) as CustomerRow[];
-
-    return filterBySearch<CustomerRow>(normalized, search, [
-      'first_name',
-      'last_name',
-      'patronymic',
-      'position',
-      'email',
-      'role',
-    ]);
-  }, [customersQuery.data, search]);
+  const customersQuery = useKeepQuery(
+    UserQueries.GetCustomersQuery({
+      enabled: !filterOptions.isLoading,
+      search,
+      ...transformColumnFiltersToPayload(
+        filters,
+        COMMON_COLUMNS_FILTER_KEY_MAP
+      ),
+      ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+    })
+  );
 
   const allColumns = useGenerateColumns<CustomerRow>({
-    filterOptions: filterOptions,
+    filterOptions: filterOptions.options,
     columns: [
       commonColumns.userFullName(),
       commonColumns.customerPosition(),
-      commonColumns.customerCompany(290, customersQuery.data || []),
+      commonColumns.customerCompany(290),
       commonColumns.userEmail(),
       commonColumns.status(150, 'is_active'),
       {
@@ -106,11 +100,12 @@ const CustomerAccountsPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton
-              formatHeader={transformHeaderKeys(allColumns)}
-              selectKeys={Object.keys(transformHeaderKeys(allColumns))}
-              data={filteredData}
-              fileName="Аккаунты клиентов"
+            <ExportToExcelButton<CustomerRow>
+              headerMap={transformHeaderKeys(allColumns)}
+              url="/users/clients"
+              fieldsMap={{ full_name: '{first_name} {last_name}' }}
+              booleanMap={{ is_active: ['Неактивный', 'Активный'] }}
+              fileName="Учетные записи Клиентов"
             />
             <Button
               onClick={() => set('create')}
@@ -131,7 +126,7 @@ const CustomerAccountsPage: React.FC = () => {
           >
             <Table
               columns={allColumns}
-              data={filteredData}
+              data={customersQuery.data || []}
               maxHeight={700}
               rounded="none"
             />

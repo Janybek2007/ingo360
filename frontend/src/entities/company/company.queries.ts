@@ -1,19 +1,26 @@
 import { queryOptions } from '@tanstack/react-query';
+import qs from 'qs';
 
 import { http } from '#/shared/api';
 
-import type { GetCompanyResponse } from './company.types';
+import type { GetCompaniesParams, GetCompaniesResponse } from './company.types';
 
 export class CompanyQueries {
   static queryKeys = {
-    getCompanies: ['get-companies'],
+    getCompanies: (params: GetCompaniesParams) => ['get-companies', params],
   };
 
-  static GetCompaniesQuery() {
+  static GetCompaniesQuery(params: GetCompaniesParams) {
     return queryOptions({
-      queryKey: this.queryKeys.getCompanies,
+      queryKey: this.queryKeys.getCompanies(params),
       queryFn: async () => {
-        const response = await http.get('companies').json<GetCompanyResponse>();
+        const response = await http
+          .get('companies', {
+            searchParams: qs.stringify(params, {
+              arrayFormat: 'comma',
+            }),
+          })
+          .json<GetCompaniesResponse>();
         return response;
       },
     });

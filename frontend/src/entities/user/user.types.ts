@@ -1,5 +1,6 @@
 import type { TCompanyAccessContract } from '#/features/company/company.contract';
 import type { SessionRole } from '#/shared/types';
+import type { PaginationParams, SortParams } from '#/shared/types/global';
 
 export type UserAccess = TCompanyAccessContract;
 
@@ -29,3 +30,8 @@ export interface IUserItem {
 
 export type GetUserResponse = IUserItem;
 export type GetUsersResponse = GetUserResponse[];
+
+export type GetUsersParams = {
+  search?: string;
+} & PaginationParams &
+  SortParams;

@@ -67,6 +67,7 @@ export default [
       ],
       'no-undef': ['error', { typeof: true }],
       '@typescript-eslint/no-explicit-any': 'off',
+      'import/no-unresolved': 'off',
     },
     settings: {
       react: {

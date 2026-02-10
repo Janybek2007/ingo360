@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { type ReportLog, ReportLogsQueries } from '#/entities/report-logs';
+import { ExportToExcelButton } from '#/features/export-excel';
 import { DeleteReportLogWrapper } from '#/features/report-log/delete';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
-import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
@@ -63,9 +63,11 @@ const ReportLogsPage: React.FC = () => {
               classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
             <ExportToExcelButton
-              formatHeader={transformHeaderKeys(columnsForTable, ['published'])}
-              selectKeys={visibleColumns.filter(id => ['ignore'].includes(id))}
-              data={tableData}
+              headerMap={transformHeaderKeys(columnsForTable, ['published'])}
+              url="/import_logs"
+              fieldsMap={{
+                user_full_name: '{user_last_name} {user_first_name}',
+              }}
               fileName="Журнал отчетов"
             />
           </div>

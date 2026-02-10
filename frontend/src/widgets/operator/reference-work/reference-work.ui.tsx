@@ -2,6 +2,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
+import { ExportToExcelButton } from '#/features/export-excel';
+import type { ExportToExcelUrl } from '#/features/export-excel/export-excel.types';
 import { AddReferenceWrapper } from '#/features/reference/add';
 import { DeleteReferenceWrapper } from '#/features/reference/delete';
 import { EditReferenceWrapper } from '#/features/reference/edit';
@@ -12,7 +14,6 @@ import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
 } from '#/shared/components/db-filters';
-import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
@@ -96,12 +97,9 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                   menuItem: 'pr-10',
                 }}
               />
-              <ExportToExcelButton
-                formatHeader={transformHeaderKeys(columnsForTable)}
-                selectKeys={visibleColumns.filter(
-                  v => !['actions'].includes(v)
-                )}
-                data={currentData}
+              <ExportToExcelButton<IReferenceItem>
+                headerMap={transformHeaderKeys(columnsForTable)}
+                url={`/${current}` as ExportToExcelUrl}
                 fileName={`Справочные данные ${findCurrentTab(tabsItems, current)?.subItem?.label}`}
               />
               <ImportReferenceButton type={current} />

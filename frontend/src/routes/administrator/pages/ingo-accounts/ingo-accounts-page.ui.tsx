@@ -1,24 +1,29 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { type IUserItem, UserQueries } from '#/entities/user';
+import { ExportToExcelButton } from '#/features/export-excel';
 import { AddUserModal } from '#/features/users/add';
 import { EditUserModal } from '#/features/users/edit';
 import { LucidePlusIcon } from '#/shared/assets/icons';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
-import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { RowActions } from '#/shared/components/row-actions';
 import { SearchInput } from '#/shared/components/search-input';
 import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { commonColumns } from '#/shared/constants/common-columns';
+import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
+import { ROLES_OBJECT } from '#/shared/constants/roles_statuses';
 import { FiltersContext } from '#/shared/context/filters';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
-import { filterBySearch } from '#/shared/utils/search';
-import { transformHeaderKeys } from '#/shared/utils/transform';
+import {
+  transformColumnFiltersToPayload,
+  transformHeaderKeys,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 const IngoAccountsPage: React.FC = () => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
@@ -27,19 +32,16 @@ const IngoAccountsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [open, { set, clear }] = useStringState(['create', 'edit']);
   const [editData, setEditData] = useState<IUserItem | null>(null);
-  const queryData = useQuery(UserQueries.GetAdminOperatorsQuery());
-
-  const filteredData = useMemo(() => {
-    if (!queryData.data) return [];
-
-    return filterBySearch<IUserItem>(queryData.data, search, [
-      'first_name',
-      'last_name',
-      'patronymic',
-      'email',
-      'role',
-    ]);
-  }, [search, queryData.data]);
+  const queryData = useQuery(
+    UserQueries.GetAdminOperatorsQuery({
+      search,
+      ...transformColumnFiltersToPayload(
+        filters,
+        COMMON_COLUMNS_FILTER_KEY_MAP
+      ),
+      ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+    })
+  );
 
   const allColumns = useGenerateColumns<IUserItem>({
     filterOptions: {},
@@ -84,10 +86,17 @@ const IngoAccountsPage: React.FC = () => {
         headerEnd={
           <div className="flex items-center gap-4 relative z-100">
             <SearchInput saveValue={setSearch} />
-            <ExportToExcelButton
-              formatHeader={transformHeaderKeys(allColumns)}
-              selectKeys={Object.keys(transformHeaderKeys(allColumns))}
-              data={filteredData}
+            <ExportToExcelButton<IUserItem>
+              headerMap={transformHeaderKeys(allColumns)}
+              url="/users/admins-operators"
+              fieldsMap={{ full_name: '{first_name} {last_name}' }}
+              booleanMap={{ is_active: ['Неактивный', 'Активный'] }}
+              customMap={{
+                role: {
+                  is_operator: ROLES_OBJECT.operator,
+                  is_admin: ROLES_OBJECT.administrator,
+                },
+              }}
               fileName="Учетные записи INDIGO"
             />
             <Button
@@ -109,7 +118,7 @@ const IngoAccountsPage: React.FC = () => {
           >
             <Table
               columns={allColumns}
-              data={filteredData}
+              data={queryData.data ?? []}
               maxHeight={700}
               rounded="none"
             />

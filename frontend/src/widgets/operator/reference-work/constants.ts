@@ -510,8 +510,8 @@ export function getReferenceWorkColumns(
           selectOptions: filterOptions.geography_settlements,
         },
         {
-          id: 'geo_indicator',
-          accessorKey: 'geo_indicator',
+          id: 'geo_indicator.id',
+          accessorKey: 'geo_indicator.name',
           header: columnHeaderNames.geo_indicator,
           accessorFn: item => item.geo_indicator?.name ?? '-',
           size: 200,
@@ -669,8 +669,8 @@ export function getReferenceWorkColumns(
           selectOptions: filterOptions.geography_districts,
         },
         {
-          id: 'geo_indicator',
-          accessorKey: 'geo_indicator',
+          id: 'geo_indicator.id',
+          accessorKey: 'geo_indicator.name',
           header: columnHeaderNames.geo_indicator,
           accessorFn: item => item.geo_indicator?.name ?? '-',
           size: 200,
