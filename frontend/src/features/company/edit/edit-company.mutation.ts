@@ -43,7 +43,7 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
     },
     async onSuccess() {
       queryClient.refetchQueries({
-        queryKey: CompanyQueries.queryKeys.getCompanies,
+        queryKey: CompanyQueries.queryKeys.getCompanies({}),
       });
 
       onClose();

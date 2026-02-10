@@ -23,7 +23,7 @@ export const useAddCompanyMutation = (onClose: VoidFunction) => {
     },
     async onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: CompanyQueries.queryKeys.getCompanies,
+        queryKey: CompanyQueries.queryKeys.getCompanies({}),
       });
       onClose();
       toast({

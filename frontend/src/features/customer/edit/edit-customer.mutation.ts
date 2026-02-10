@@ -47,7 +47,7 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
     },
     async onSuccess(data) {
       queryClient.setQueryData<IUserItem[]>(
-        UserQueries.queryKeys.getCustomers,
+        UserQueries.queryKeys.getCustomers({}),
         old => {
           if (!old) return [data];
           return old.map(user => (user.id === data.id ? data : user));

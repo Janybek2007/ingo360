@@ -28,7 +28,7 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
     },
     async onSuccess() {
       await queryClient.refetchQueries({
-        queryKey: UserQueries.queryKeys.getAdminOperators,
+        queryKey: UserQueries.queryKeys.getAdminOperators({}),
       });
 
       onClose();

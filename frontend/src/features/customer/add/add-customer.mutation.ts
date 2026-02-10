@@ -25,7 +25,7 @@ export const useAddCustomerMutation = (onClose: VoidFunction) => {
     },
     async onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: UserQueries.queryKeys.getCustomers,
+        queryKey: UserQueries.queryKeys.getCustomers({}),
       });
       onClose();
       toast({

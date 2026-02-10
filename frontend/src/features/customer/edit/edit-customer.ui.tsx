@@ -18,7 +18,7 @@ export const EditCustomerModal: React.FC<{
   customerData?: IUserItem & { id: number };
 }> = React.memo(({ onClose, customerData }) => {
   const mutation = useEditCustomerMutation(onClose);
-  const companiesQuery = useQuery(CompanyQueries.GetCompaniesQuery());
+  const companiesQuery = useQuery(CompanyQueries.GetCompaniesQuery({}));
 
   const handleSubmit = async (data: TAddCustomerContract) => {
     if (customerData?.id) {

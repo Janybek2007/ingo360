@@ -13,7 +13,7 @@ import { useAddCustomerMutation } from './add-customer.mutation';
 
 export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
   ({ onClose }) => {
-    const queryData = useQuery(CompanyQueries.GetCompaniesQuery());
+    const queryData = useQuery(CompanyQueries.GetCompaniesQuery({}));
 
     const mutation = useAddCustomerMutation(onClose);
 

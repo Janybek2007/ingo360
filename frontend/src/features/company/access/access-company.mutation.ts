@@ -32,7 +32,7 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
       onClose();
 
       queryClient.invalidateQueries({
-        queryKey: CompanyQueries.queryKeys.getCompanies,
+        queryKey: CompanyQueries.queryKeys.getCompanies({}),
       });
 
       setTimeout(() => {
