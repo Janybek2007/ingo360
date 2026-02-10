@@ -2,13 +2,13 @@ import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
+import { ExportToExcelButton } from '#/features/export-excel';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
   useFilterOptions,
 } from '#/shared/components/db-filters';
-import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
@@ -124,8 +124,8 @@ export const Shipments: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton
-            formatHeader={{
+          <ExportToExcelButton<TDbItem>
+            headerMap={{
               sku_name: columnHeaderNames.sku,
               brand_name: columnHeaderNames.brand,
               promotion_type_name: columnHeaderNames.promotion,
@@ -133,10 +133,7 @@ export const Shipments: React.FC = React.memo(() => {
               product_group_name: columnHeaderNames.productGroup,
               total: columnHeaderNames.total,
             }}
-            hasTotal
-            selectKeys={visibleColumns}
-            periodKey={dbFilters.indicator}
-            data={sales}
+            url="/primary/reports/sales"
             fileName="Первичные продажи"
           />
         </div>

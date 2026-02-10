@@ -10,7 +10,7 @@ export class BuildOptions {
     if (params?.group_by_period && Number(params?.periods?.length) > 0) {
       p = {
         ...params,
-        type_period: this.buildTypePeriod(params.group_by_period),
+        group_by_period: this.buildTypePeriod(params.group_by_period),
         periods: this.parsePeriods(
           params?.periods || [],
           params!.group_by_period
@@ -43,8 +43,8 @@ export class BuildOptions {
     if (asQuery) return qs.stringify(p, { arrayFormat: 'repeat' });
     return p;
   }
-  private static buildTypePeriod(type_period: UsePeriodType) {
-    switch (type_period) {
+  private static buildTypePeriod(group_by_period: UsePeriodType) {
+    switch (group_by_period) {
       case 'mat':
         return 'MAT';
       case 'ytd':
@@ -58,18 +58,21 @@ export class BuildOptions {
     }
   }
 
-  private static parsePeriods(periods: string[], type_period: UsePeriodType) {
+  private static parsePeriods(
+    periods: string[],
+    group_by_period: UsePeriodType
+  ) {
     return periods
       .filter(period => {
-        if (type_period === 'year') {
+        if (group_by_period === 'year') {
           return !period.includes('-') || period.startsWith('year-');
         }
-        return period.startsWith(`${type_period}-`);
+        return period.startsWith(`${group_by_period}-`);
       })
       .map(period => {
         const parts = period.split('-'); // ["quarter", "2025", "1"]
 
-        if (type_period === 'year') {
+        if (group_by_period === 'year') {
           const year = period.replace('year-', '');
           return year.slice(-2);
         }
@@ -77,7 +80,7 @@ export class BuildOptions {
         const year = parts[1]; // "2025"
         const value = parts[2]; // "1"
 
-        if (type_period === 'quarter') {
+        if (group_by_period === 'quarter') {
           // q1-25
           return `q${Number(value)}-${year.slice(-2)}`;
         }

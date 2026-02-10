@@ -49,11 +49,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
     );
 
     const allColumns = useMemo((): ColumnDef<IDbItem>[] => {
-      const columns = getDbWorkColumns(
-        current,
-        filterOptions.options,
-        currentData
-      );
+      const columns = getDbWorkColumns(current, filterOptions.options);
 
       columns.push({
         id: 'actions',
@@ -75,7 +71,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
       });
 
       return columns;
-    }, [filterOptions, current, currentData]);
+    }, [filterOptions, current]);
 
     const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
       useColumnVisibility({
@@ -119,7 +115,7 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 }}
               />
               <ExportToExcelButton<IDbItem>
-                headerMap={transformHeaderKeys(columnsForTable)}
+                headerMap={transformHeaderKeys(allColumns)}
                 url={`/${current}` as ExportToExcelUrl}
                 booleanMap={{
                   published: ['Не опубликовано', 'Опубликовано'],

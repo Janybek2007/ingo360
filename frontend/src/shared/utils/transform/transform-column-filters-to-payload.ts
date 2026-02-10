@@ -1,7 +1,11 @@
-// Полный вариант с фильтрацией null/undefined (и опционально пустых значений)
-// + исправлен баг в appendExtraDataIfArray (у тебя там условие было наоборот)
-
 import type { ColumnFiltersState } from '@tanstack/react-table';
+
+import type {
+  TableFilterNumberValue,
+  TableFilterSelectValue,
+  TableFilterStringValue,
+  TableFilterValue,
+} from '#/shared/types/table-filters';
 
 export type TFilterPayloadValue =
   | string
@@ -12,39 +16,37 @@ export type TFilterPayloadValue =
   | Array<string | number | boolean | null | undefined>;
 
 export type TExtraDataMap = Record<string, TFilterPayloadValue>;
+
 const isNullish = (v: unknown): v is null | undefined =>
   v === null || v === undefined;
-
-const isEmptyString = (v: unknown) => typeof v === 'string' && v.trim() === '';
-
-const isNaNNumber = (v: unknown) => typeof v === 'number' && Number.isNaN(v);
 
 const cleanValue = (
   value: TFilterPayloadValue
 ): TFilterPayloadValue | undefined => {
-  // null/undefined
-  if (isNullish(value)) return undefined;
-
-  // string
-  if (isEmptyString(value)) return undefined;
-
-  // number
-  if (isNaNNumber(value)) return undefined;
-
-  // array
   if (Array.isArray(value)) {
-    const cleaned = value
-      .filter(v => !isNullish(v))
-      .filter(v => !isEmptyString(v))
-      .filter(v => !isNaNNumber(v));
-
-    if (cleaned.length === 0) return undefined;
-
-    return cleaned as TFilterPayloadValue;
+    const cleaned = value.filter(v => !isNullish(v));
+    return cleaned.length ? cleaned : undefined;
   }
-
-  return value;
+  return isNullish(value) ? undefined : value;
 };
+
+const isSelectFilter = (v: any): v is TableFilterSelectValue =>
+  v &&
+  typeof v === 'object' &&
+  v.colType === 'select' &&
+  Array.isArray(v.selectValues);
+
+const isStringFilter = (v: any): v is TableFilterStringValue =>
+  v &&
+  typeof v === 'object' &&
+  v.colType === 'string' &&
+  typeof v.type === 'string';
+
+const isNumberFilter = (v: any): v is TableFilterNumberValue =>
+  v &&
+  typeof v === 'object' &&
+  v.colType === 'number' &&
+  typeof v.type === 'string';
 
 export const transformColumnFiltersToPayload = (
   columnFilters: ColumnFiltersState,
@@ -58,32 +60,23 @@ export const transformColumnFiltersToPayload = (
     if (!Array.isArray(value)) return value;
 
     const extraData = extraDataMap[key];
-
     if (extraData === undefined || extraData === null) return value;
 
-    if (Array.isArray(extraData)) {
-      value.push(...extraData);
-      return value;
-    }
+    if (Array.isArray(extraData)) value.push(...extraData);
+    else value.push(extraData);
 
-    value.push(extraData);
     return value;
   };
 
   const payload = columnFilters.reduce<Record<string, TFilterPayloadValue>>(
     (acc, filter) => {
       const mappedKey = keyMap[filter.id] ?? filter.id;
-      const rawValue: any = filter.value;
+      const rawValue = filter.value as TableFilterValue;
 
-      // 1) selectValues: [{value: ...}]
-      if (
-        rawValue &&
-        typeof rawValue === 'object' &&
-        'selectValues' in rawValue &&
-        Array.isArray(rawValue.selectValues)
-      ) {
+      // ✅ select: [values]
+      if (isSelectFilter(rawValue)) {
         const arr = rawValue.selectValues.map(
-          (item: any) => item.value
+          i => i.value
         ) as TFilterPayloadValue;
         const withExtra = appendExtraDataIfArray(mappedKey, arr);
         const cleaned = cleanValue(withExtra);
@@ -91,28 +84,29 @@ export const transformColumnFiltersToPayload = (
         return acc;
       }
 
-      // 2) value: { value: ... }
-      if (
-        rawValue &&
-        typeof rawValue === 'object' &&
-        'value' in rawValue &&
-        rawValue.value !== undefined
-      ) {
-        const cleaned = cleanValue(rawValue.value as TFilterPayloadValue);
-        if (cleaned !== undefined) acc[mappedKey] = cleaned;
+      // ✅ string/number: "type:value"
+      if (isStringFilter(rawValue)) {
+        const v = rawValue.value?.trim();
+        if (!v) return acc; // пустые строки не отправляем
+        acc[mappedKey] = `${rawValue.type}:${v}`;
         return acc;
       }
 
-      // 3) primitives
-      if (
-        typeof rawValue === 'string' ||
-        typeof rawValue === 'number' ||
-        typeof rawValue === 'boolean' ||
-        rawValue === null ||
-        rawValue === undefined
-      ) {
-        const cleaned = cleanValue(rawValue as TFilterPayloadValue);
-        if (cleaned !== undefined) acc[mappedKey] = cleaned;
+      if (isNumberFilter(rawValue)) {
+        const v = rawValue.value;
+
+        // between -> "between:min,max"
+        if (rawValue.type === 'between') {
+          const [a, b] = v as [number, number];
+          if (isNullish(a) || isNullish(b)) return acc;
+          acc[mappedKey] = `between:${a},${b}`;
+          return acc;
+        }
+
+        // остальные -> ">=:10"
+        if (isNullish(v) || Number.isNaN(v as any)) return acc;
+        acc[mappedKey] = `${rawValue.type}:${v}`;
+        return acc;
       }
 
       return acc;
@@ -128,6 +122,7 @@ export const transformColumnFiltersToPayload = (
     if (count > 1) delete payload[key];
   };
 
+  // merge extraDataMap
   Object.entries(extraDataMap).forEach(([key, extraData]) => {
     const cleanedExtra = cleanValue(extraData);
     if (cleanedExtra === undefined) return;
@@ -160,6 +155,7 @@ export const transformColumnFiltersToPayload = (
 
   removeIfDuplicated('is_active');
 
+  // финальная зачистка
   Object.keys(payload).forEach(k => {
     const cleaned = cleanValue(payload[k]);
     if (cleaned === undefined) delete payload[k];

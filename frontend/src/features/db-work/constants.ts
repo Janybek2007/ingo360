@@ -154,6 +154,11 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
         name: 'client_type',
         label: 'Тип клиента',
         placeholder: 'Введите тип клиента',
+        type: 'select',
+        selectItems: [
+          { label: 'Аптека', value: 'Аптека' },
+          { label: 'Врач', value: 'Врач' },
+        ],
       },
       {
         name: 'client_category_id',

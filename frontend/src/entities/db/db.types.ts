@@ -26,8 +26,8 @@ export interface IDbItem {
   pharmacy: IDbName & { distributor: IDbName };
   product_group: IDbName;
   employee: { id: number; full_name: string };
-  doctor: null | IDbName;
-  client_type: string;
+  doctor: null | (IDbName & { full_name: string });
+  client_type: 'Аптека' | 'Врач';
   medical_facility: null | IDbName;
   //
   company: string;

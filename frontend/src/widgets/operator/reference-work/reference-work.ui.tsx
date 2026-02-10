@@ -1,4 +1,4 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
@@ -98,7 +98,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
                 }}
               />
               <ExportToExcelButton<IReferenceItem>
-                headerMap={transformHeaderKeys(columnsForTable)}
+                headerMap={transformHeaderKeys(allColumns)}
                 url={`/${current}` as ExportToExcelUrl}
                 fileName={`Справочные данные ${findCurrentTab(tabsItems, current)?.subItem?.label}`}
               />

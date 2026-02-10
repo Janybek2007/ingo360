@@ -14,7 +14,6 @@ import {
   selectFilter,
   stringFilter,
 } from '#/shared/utils/filter';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
 export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
   switch (type) {
@@ -49,8 +48,7 @@ export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
 
 export function getDbWorkColumns(
   type: DbType,
-  filterOptions: FilterOptionsObject,
-  data: IDbItem[]
+  filterOptions: FilterOptionsObject
 ) {
   const columns: ColumnDef<IDbItem>[] = [];
 
@@ -132,8 +130,8 @@ export function getDbWorkColumns(
       selectOptions: filterOptions.products_skus,
     });
 
-    columns.push(...getYearMonthColumns(data));
-    columns.push(...getSalesColumns(data, type));
+    columns.push(...getYearMonthColumns());
+    columns.push(...getSalesColumns(type));
   }
 
   if (type === 'visits') {
@@ -184,11 +182,14 @@ export function getDbWorkColumns(
       selectOptions: filterOptions.clients_medical_facilities,
     });
     columns.push({
-      id: 'doctor.id',
-      accessorKey: 'doctor.name',
-      cell: ({ row }) => row.original.doctor?.name || '-',
-      header: columnHeaderNames.doctor,
-      size: 200,
+      id: 'doctor_or_pharmacy',
+      accessorKey: 'doctor_or_pharmacy',
+      cell: ({ row }) =>
+        row.original.client_type == 'Врач'
+          ? row.original.doctor?.full_name || '-'
+          : row.original.pharmacy?.name || '-',
+      header: columnHeaderNames.nameOfDoctorOrPharmacy,
+      size: 260,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
@@ -198,21 +199,18 @@ export function getDbWorkColumns(
     columns.push({
       id: 'client_type',
       accessorKey: 'client_type',
-      header: columnHeaderNames.client,
+      header: columnHeaderNames.clientType,
       size: 160,
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
+      selectOptions: [
+        { label: 'Аптека', value: 'pharmacy' },
+        { label: 'Врач', value: 'doctor' },
+      ],
       meta: { groupDimension: 'client_type' },
-      selectOptions: getUniqueItems(
-        data.map(v => ({
-          label: v.client_type,
-          value: v.client_type,
-        })),
-        ['value']
-      ),
     });
-    columns.push(...getYearMonthColumns(data));
+    columns.push(...getYearMonthColumns());
   }
   if (type === 'ims') {
     columns.push({
@@ -280,13 +278,9 @@ export function getDbWorkColumns(
       accessorKey: 'period',
       header: columnHeaderNames.period,
       size: 160,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'string',
+      filterFn: stringFilter(),
       enableColumnFilter: true,
-      selectOptions: getUniqueItems(
-        data.map(v => ({ label: v.period, value: v.period })),
-        ['value']
-      ),
     });
 
     columns.push({
@@ -313,23 +307,16 @@ export function getDbWorkColumns(
   return columns;
 }
 
-function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
+function getSalesColumns(type: DbType): ColumnDef<IDbItem>[] {
   return [
     type !== 'sales/primary' && {
       id: 'indicator',
       accessorKey: 'indicator',
       header: columnHeaderNames.indicator,
       size: 180,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'string',
+      filterFn: stringFilter(),
       enableColumnFilter: true,
-      selectOptions: getUniqueItems(
-        data.map(data => ({
-          label: data.indicator,
-          value: data.indicator,
-        })),
-        ['value']
-      ),
     },
     {
       accessorKey: 'packages',
@@ -371,7 +358,7 @@ function getSalesColumns(data: IDbItem[], type: DbType): ColumnDef<IDbItem>[] {
   ].filter(Boolean) as ColumnDef<IDbItem>[];
 }
 
-function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
+function getYearMonthColumns(): ColumnDef<IDbItem>[] {
   return [
     {
       accessorKey: 'month',
@@ -390,16 +377,9 @@ function getYearMonthColumns(data: IDbItem[]): ColumnDef<IDbItem>[] {
       accessorKey: 'year',
       header: columnHeaderNames.year,
       size: 120,
-      filterType: 'select',
-      filterFn: selectFilter(),
+      filterType: 'number',
+      filterFn: numberFilter(),
       enableColumnFilter: true,
-      selectOptions: getUniqueItems(
-        data.map(data => ({
-          label: data.year.toString(),
-          value: data.year,
-        })),
-        ['value']
-      ),
     },
   ];
 }

@@ -1,4 +1,5 @@
 export const columnHeaderNames = {
+  nameOfDoctorOrPharmacy: 'Наименование врача или аптеки',
   geo_indicator: 'Индикатор',
   distrbutorAndNetwork: 'Дистрибьютор/Сеть',
   category: 'Категория',
@@ -18,7 +19,7 @@ export const columnHeaderNames = {
   skuProduct: 'Продукт',
   brand: 'Бренд',
   promotion: 'Тип промоции',
-  client: 'Тип клиента',
+  clientType: 'Тип клиента',
   group: 'Группа',
   productGroup: 'Группа товара',
   responsibleEmployee: 'Ответственный сотрудник',
