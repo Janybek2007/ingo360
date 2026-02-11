@@ -4,7 +4,7 @@ import type { HTTPError } from 'ky';
 import { ReportLogsQueries } from '#/entities/report-logs';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 import { getResponseError } from '#/shared/utils/get-error';
 
 export const useDeleteReportLogMutation = () => {

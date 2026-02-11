@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { ReferenceQueries } from '#/entities/reference';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
-import { toastImportResponse } from '#/shared/libs/toast/toast-import-response';
+import { toastImportResponse } from '#/shared/libs/toast/toasts/toast-import-response';
 import type { TImportResponse } from '#/shared/types/global';
 import type { ReferencesType } from '#/shared/types/references.type';
 

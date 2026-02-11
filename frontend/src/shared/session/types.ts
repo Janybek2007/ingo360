@@ -15,18 +15,39 @@ export type NotificationType =
   | 'token_invalidated'
   | 'account_deactivated'
   | 'company_deactivated'
-  | 'company_access_revoked';
+  | 'company_access_revoked'
+  | 'excel_imported'
+  | 'excel_exported'
+  | 'get_tasks';
+
+type TaskStatus = 'completed' | 'pending' | 'failed';
 
 export type NotificationMessage = {
   type: NotificationType;
   message: string;
   access_type: 'primary' | 'secondary' | 'tertiary' | 'visits' | 'market';
-};
-
-export type ImportStatusMessage =
-  | { not_found: true }
-  | {
-      type: 'import_status';
-      task_id: string;
-      result: { file_name: string; import_result: TImportResponse };
+  //
+  status: 'completed' | 'pending' | 'failed';
+  task_id: string;
+  result: {
+    file_name: string;
+    import_result: TImportResponse;
+    file_size_bytes: number | null;
+    created_at: string;
+  };
+  //
+  count: number;
+  tasks: Array<{
+    task_id: string;
+    id: number;
+    status: TaskStatus;
+    file_name: string | null;
+    created_at: string;
+    result?: {
+      file_name: string;
+      import_result: TImportResponse;
     };
+    task_type: 'export' | 'import';
+    file_size_bytes?: number | null;
+  }>;
+};

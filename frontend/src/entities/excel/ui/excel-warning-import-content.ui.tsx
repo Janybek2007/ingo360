@@ -1,79 +1,14 @@
-/* @react-compiler-disable */
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { toast as tt } from 'react-hot-toast';
 
-import { Modal } from '#/shared/components/ui/modal';
-import type { TImportResponse } from '#/shared/types/global';
-
-import { toast } from './toast';
-import type {
-  ModalContentProps,
-  ToastImportResponseProps,
-} from './toast.types.ts';
+import type { ModalContentProps } from '../excel.types';
 
 const getDownloadFileName = (name: string) => {
   const baseName = name.replace(/\.[^/.]+$/, '');
   return `${baseName || 'import'}-errors.txt`;
 };
 
-const getTotals = (response: TImportResponse) =>
-  [
-    `Импортировано: ${response.imported}`,
-    !!response.inserted && `Добавлено: ${response.inserted}`,
-    !!response.updated && `Обновлено: ${response.updated}`,
-    !!response.deduplicated_in_batch &&
-      `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch}`,
-    `Пропущено: ${response.skipped}`,
-    `Всего: ${response.total}`,
-  ].filter(Boolean);
-
-const formatSkipped = (records: TImportResponse['skipped_records']) =>
-  records.map(record => ({
-    label: `row-${record.row}`,
-    rows: [record.row],
-    missing: record.missing,
-  }));
-
-export function toastImportResponse({
-  response,
-  fileName = 'import',
-  duration,
-  onAfterClose,
-}: ToastImportResponseProps) {
-  const totals = getTotals(response);
-  const hasErrors = response.skipped_records.length > 0;
-  const errorItems = formatSkipped(response.skipped_records);
-  const errorCount = errorItems.length;
-
-  const shortDescription = [...totals, hasErrors ? `Ошибки: ${errorCount}` : '']
-    .filter(Boolean)
-    .join('\n');
-
-  if (hasErrors) {
-    openModal(
-      'Импорт завершен с ошибками',
-      <ModalContent
-        response={response}
-        errorItems={errorItems}
-        fileName={fileName}
-      />,
-      onAfterClose
-    );
-    return;
-  }
-
-  toast({
-    message: 'Файл успешно импортирован',
-    description: shortDescription,
-    type: 'success',
-    duration,
-    onAfterClose: onAfterClose,
-  });
-}
-
-const ModalContent = ({
+export const ExcelWarningImportContent = ({
   response,
   errorItems,
   fileName,
@@ -146,6 +81,9 @@ const ModalContent = ({
           </div>
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">
+            Файл: {fileName || 'export.xlsx'}
+          </span>
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
             Импортировано: {response.imported}
           </span>
@@ -239,40 +177,5 @@ const ModalContent = ({
         </div>
       </div>
     </div>
-  );
-};
-
-const openModal = (
-  title: string,
-  content: string | React.ReactNode,
-  onAfterClose?: VoidFunction
-) => {
-  tt.custom(
-    newToast =>
-      createPortal(
-        <Modal
-          title={title}
-          onClose={() => {
-            tt.dismiss(newToast.id, newToast.toasterId);
-            onAfterClose?.();
-          }}
-          classNames={{
-            body: 'md:min-w-[60rem] md:max-w-[80rem] min-w-[90dvw] max-w-[90dvw]',
-            root: `toast-modal-${newToast.id}`,
-          }}
-        >
-          {typeof content === 'string' ? (
-            <div className="max-h-[60vh] overflow-y-auto pr-2">
-              <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
-                {content}
-              </div>
-            </div>
-          ) : (
-            <div className="max-h-[60vh] overflow-hidden pr-2">{content}</div>
-          )}
-        </Modal>,
-        document.body
-      ),
-    { duration: Infinity }
   );
 };

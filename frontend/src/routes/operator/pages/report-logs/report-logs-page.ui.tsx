@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { type ReportLog, ReportLogsQueries } from '#/entities/report-logs';
-import { ExportToExcelButton } from '#/features/export-excel';
+import { ExportToExcelButton } from '#/features/excel/export';
 import { DeleteReportLogWrapper } from '#/features/report-log/delete';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';

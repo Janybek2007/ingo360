@@ -1,4 +1,5 @@
 import type { CColumn } from '../hooks/use-generate-columns';
+import { formatDateInUTC } from '../utils/format_date_in_utc';
 import { columnHeaderNames } from './column-header-names';
 import { allMonths } from './months';
 import { ROLES_OBJECT } from './roles_statuses';
@@ -316,16 +317,7 @@ export const commonColumns = {
     size: 180,
     custom: {
       cell: ({ row }) => {
-        const date = new Date(row.original.created_at + 'Z');
-
-        return new Intl.DateTimeFormat('ru-RU', {
-          timeZone: 'Asia/Bishkek',
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }).format(date);
+        return formatDateInUTC(row.original.created_at);
       },
     },
   }),

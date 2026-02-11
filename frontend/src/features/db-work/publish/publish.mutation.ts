@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 import type { DbType } from '#/shared/types/db.type';
 
 export const usePublishMutation = (type: DbType, currentStatus: boolean) => {

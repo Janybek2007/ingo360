@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { UserQueries } from '#/entities/user';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 import { TokenUtils } from '#/shared/utils/token-utils';
 
 import { queryClient } from '../../libs/react-query';
@@ -13,15 +13,13 @@ export const useNotifications = (isWelcome = false) => {
   const token = TokenUtils.getToken();
   const endpoint = token ? `/ws/notifications?token=${token}` : null;
 
-  const { lastMessage, disconnect } = useSocket(
-    endpoint ?? '',
-    Boolean(endpoint)
-  );
+  const { lastMessage, disconnect, send } =
+    useSocket<NotificationMessage | null>(endpoint ?? '', Boolean(endpoint));
 
   useEffect(() => {
     if (isWelcome) return;
 
-    const msg = lastMessage as NotificationMessage | null;
+    const msg = lastMessage;
     if (!msg || !msg.type) return;
 
     if (notificationsTypes.includes(msg.type)) {
@@ -40,5 +38,7 @@ export const useNotifications = (isWelcome = false) => {
 
   return {
     lastMessage,
+    disconnect,
+    send,
   };
 };

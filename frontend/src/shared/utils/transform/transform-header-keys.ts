@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 
 export function transformHeaderKeys<T extends Record<string, any>>(
   columns: ColumnDef<T>[],
-  ignores: (keyof T)[] = []
+  ignores: (keyof T | 'actions')[] = ['actions']
 ): Record<keyof T, string> {
   return columns.reduce(
     (acc, column) => {

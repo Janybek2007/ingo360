@@ -5,7 +5,7 @@ import { CompanyQueries, type ICompanyItem } from '#/entities/company';
 import { AccessCompanyModal } from '#/features/company/access';
 import { AddCompanyModal } from '#/features/company/add';
 import { EditCompanyModal } from '#/features/company/edit';
-import { ExportToExcelButton } from '#/features/export-excel';
+import { ExportToExcelButton } from '#/features/excel/export';
 import { LucidePlusIcon } from '#/shared/assets/icons';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';

@@ -5,7 +5,7 @@ import { UserQueries } from '#/entities/user';
 
 import { WelcomeMessage } from '../components/welcome-message';
 import { useViewportEffect } from '../hooks/use-viewport-effect';
-import { useImportStatusCheck } from './hooks/use-import-status-check';
+import { useExcelStatusCheck } from './hooks/use-excel-status-check';
 import { useNotifications } from './hooks/use-notifications';
 import { useUserAccess } from './hooks/use-user-access';
 import { SessionContext } from './session.context';
@@ -16,10 +16,10 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
 }) => {
   const { data, isLoading } = useQuery(UserQueries.GetUserQuery());
   const [isWelcomeShown, setIsWelcomeShown] = useState(false);
-  const { lastMessage } = useNotifications(isWelcomeShown);
+  const { lastMessage, disconnect, send } = useNotifications(isWelcomeShown);
   const userAccess = useUserAccess(lastMessage, data);
 
-  useImportStatusCheck(data);
+  useExcelStatusCheck(data, lastMessage, send, disconnect);
 
   useViewportEffect();
 

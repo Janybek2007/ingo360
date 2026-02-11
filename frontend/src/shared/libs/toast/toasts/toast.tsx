@@ -2,14 +2,15 @@ import { toast as tt } from 'react-hot-toast';
 
 import { LucideXIcon } from '#/shared/assets/icons';
 
-import type { ToastProps } from './toast.types';
+import type { ToastProps } from '../toast.types';
 
 export function toast({
   message,
   description,
   type = 'success',
   duration = Infinity,
-  onAfterClose,
+  actionLabel,
+  onAction,
 }: ToastProps) {
   tt.custom(
     t => {
@@ -125,15 +126,25 @@ export function toast({
                   >
                     Скопировать
                   </button>
+                  {actionLabel && onAction && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onAction();
+                        tt.dismiss(t.id, t.toasterId);
+                      }}
+                      className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+                      title={actionLabel}
+                    >
+                      {actionLabel}
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Кнопка закрытия */}
               <button
-                onClick={() => {
-                  tt.dismiss(t.id, t.toasterId);
-                  onAfterClose?.();
-                }}
+                onClick={() => tt.dismiss(t.id, t.toasterId)}
                 className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200 -mr-1 -mt-1"
                 title="Закрыть"
               >

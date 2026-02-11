@@ -2,18 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { FULL_API_SOCKET_URL } from '#/shared/constants/environment';
 
-interface UseSocketResult {
+interface UseSocketResult<T = any | string | null> {
   connected: boolean;
 
-  lastMessage: any | string | null;
+  lastMessage: T;
   send: (data: string | Record<string, unknown>) => void;
   disconnect: () => void;
 }
 
-export const useSocket = (
+export const useSocket = <T = any | string | null>(
   endpoint: string,
   isConnect = true
-): UseSocketResult => {
+): UseSocketResult<T> => {
   const wsRef = useRef<WebSocket | null>(null);
   const fullURL = FULL_API_SOCKET_URL + endpoint;
 

@@ -13,7 +13,7 @@ import {
 import {
   ExportToExcelButton,
   type ExportToExcelUrl,
-} from '#/features/export-excel';
+} from '#/features/excel/export';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
@@ -115,7 +115,10 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
                 }}
               />
               <ExportToExcelButton<IDbItem>
-                headerMap={transformHeaderKeys(allColumns)}
+                headerMap={transformHeaderKeys(allColumns, [
+                  'actions',
+                  'published',
+                ])}
                 url={`/${current}` as ExportToExcelUrl}
                 booleanMap={{
                   published: ['Не опубликовано', 'Опубликовано'],

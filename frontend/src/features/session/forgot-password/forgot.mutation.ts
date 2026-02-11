@@ -4,7 +4,7 @@ import type { HTTPError } from 'ky';
 import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 
 import {
   ForgotPasswordContract,

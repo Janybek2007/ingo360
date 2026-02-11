@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { http } from '#/shared/api';
+import { toast } from '#/shared/libs/toast/toasts';
 
 import type {
   ExportToExcelButtonProps,
@@ -12,24 +13,13 @@ export type ExportExcelPayload = Pick<
   'fileName' | 'headerMap' | 'fieldsMap' | 'booleanMap' | 'customMap'
 >;
 
-const buildFileName = (name?: string) => `${name || 'export'}.xlsx`;
-
-const downloadBlob = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
-};
-
 export const useExportExcelMutation = (url: ExportToExcelUrl) => {
   return useMutation({
     mutationKey: ['export-to-excel', url],
     mutationFn: async (payload: ExportExcelPayload) => {
-      const response = await http.post(`${url.slice(1)}/export-excel`, {
+      const response = await http.post<{
+        task_id: string;
+      }>(`${url.slice(1)}/export-excel`, {
         json: {
           file_name: payload.fileName || 'export',
           header_map: payload.headerMap,
@@ -39,9 +29,14 @@ export const useExportExcelMutation = (url: ExportToExcelUrl) => {
         },
       });
 
-      const blob = await response.blob();
-      downloadBlob(blob, buildFileName(payload.fileName));
-      return true;
+      if ((await response.json()).task_id) {
+        toast({
+          message: 'Файл в процессе формирования',
+          description: 'Мы оповестим вас, когда файл будет готов.',
+          duration: 6000,
+        });
+      }
+      return response;
     },
   });
 };

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import { http } from '#/shared/api';
 import { useRouter } from '#/shared/hooks/use-router';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 import { routePaths } from '#/shared/router';
 import { getResponseError } from '#/shared/utils/get-error';
 

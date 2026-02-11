@@ -2,7 +2,7 @@ import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
-import { ExportToExcelButton } from '#/features/export-excel';
+import { ExportToExcelButton } from '#/features/excel/export';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,

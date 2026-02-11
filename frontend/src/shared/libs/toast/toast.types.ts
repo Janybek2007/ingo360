@@ -10,13 +10,21 @@ export interface ToastImportResponseProps {
   response: TImportResponse;
   fileName?: string;
   duration?: number;
-  onAfterClose?: VoidFunction;
+  onRemoveTask?: VoidFunction;
 }
 
 export interface ModalContentProps {
   response: TImportResponse;
   errorItems: ImportErrorItem[];
   fileName: string;
+}
+
+export interface ToastExportResponseProps {
+  taskId: string;
+  fileName?: string;
+  fileSizeBytes?: number | null;
+  duration?: number;
+  onRemoveTask?: VoidFunction;
 }
 
 type ToastType = 'success' | 'error' | 'warning';
@@ -26,5 +34,6 @@ export interface ToastProps {
   description?: string;
   type?: ToastType;
   duration?: number;
-  onAfterClose?: VoidFunction;
+  actionLabel?: string;
+  onAction?: VoidFunction;
 }

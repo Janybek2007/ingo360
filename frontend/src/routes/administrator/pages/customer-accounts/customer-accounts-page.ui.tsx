@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { type IUserItem, UserQueries } from '#/entities/user';
 import { AddCustomerModal } from '#/features/customer/add';
 import { EditCustomerModal } from '#/features/customer/edit';
-import { ExportToExcelButton } from '#/features/export-excel';
+import { ExportToExcelButton } from '#/features/excel/export';
 import { LucidePlusIcon } from '#/shared/assets/icons';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { useFilterOptions } from '#/shared/components/db-filters';

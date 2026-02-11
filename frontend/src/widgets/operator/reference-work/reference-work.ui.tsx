@@ -2,8 +2,8 @@ import { type ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import type { IReferenceItem } from '#/entities/reference';
-import { ExportToExcelButton } from '#/features/export-excel';
-import type { ExportToExcelUrl } from '#/features/export-excel/export-excel.types';
+import { ExportToExcelButton } from '#/features/excel/export';
+import type { ExportToExcelUrl } from '#/features/excel/export/export-excel.types';
 import { AddReferenceWrapper } from '#/features/reference/add';
 import { DeleteReferenceWrapper } from '#/features/reference/delete';
 import { EditReferenceWrapper } from '#/features/reference/edit';

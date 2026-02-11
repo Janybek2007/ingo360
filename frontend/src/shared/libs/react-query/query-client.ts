@@ -2,7 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 import { getResponseError } from '#/shared/utils/get-error';
 
-import { toast } from '../toast/toast';
+import { toast } from '../toast/toasts';
 
 export const QueryOnError = async (error: any) => {
   try {

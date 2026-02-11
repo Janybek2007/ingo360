@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { CompanyQueries } from '#/entities/company';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 
 import {
   AccessCompanyContract,

@@ -5,7 +5,7 @@ import { CompanyQueries } from '#/entities/company';
 import type { IUserItem } from '#/entities/user';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 
 import {
   EditCustomerContract,

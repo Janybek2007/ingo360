@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { HTTPError } from 'ky';
 
 import { http } from '#/shared/api';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 import { getResponseError } from '#/shared/utils/get-error';
 
 import {

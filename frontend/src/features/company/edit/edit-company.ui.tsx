@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { ICompanyItem } from '#/entities/company';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 
 import {
   EditCompanyContract,

@@ -3,7 +3,7 @@ import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React, { useState } from 'react';
 
 import { type IUserItem, UserQueries } from '#/entities/user';
-import { ExportToExcelButton } from '#/features/export-excel';
+import { ExportToExcelButton } from '#/features/excel/export';
 import { AddUserModal } from '#/features/users/add';
 import { EditUserModal } from '#/features/users/edit';
 import { LucidePlusIcon } from '#/shared/assets/icons';

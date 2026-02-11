@@ -8,7 +8,7 @@ import {
 } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient } from '#/shared/libs/react-query';
-import { toast } from '#/shared/libs/toast/toast';
+import { toast } from '#/shared/libs/toast/toasts';
 import { getResponseError } from '#/shared/utils/get-error';
 
 import {
