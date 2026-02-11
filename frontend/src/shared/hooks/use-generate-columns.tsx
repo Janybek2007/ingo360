@@ -165,6 +165,7 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
       months.periods.forEach((period, i) => {
         result.push({
           id: period,
+          accessorKey: period,
           period: i + 1,
           accessorFn: row => months.getValue(row, period),
           header: period,

@@ -21,6 +21,7 @@ export type ExportToExcelButtonProps<T extends object> = {
   booleanMap?: Record<string, [string, string]>;
   // customMap?: { role: { is_admin: 'administrator'; is_operator: 'operator' } };
   customMap?: Partial<Record<keyof T, Record<string, string>>>;
+  isPeriod?: boolean;
   url: ExportToExcelUrl;
 };
 

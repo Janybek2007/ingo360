@@ -55,7 +55,9 @@ export const OverallVisits: React.FC = React.memo(() => {
         product_group_ids: filters.groups,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
+
         enabled: !filterOptions.isLoading,
+        method: 'POST',
       }
     )
   );

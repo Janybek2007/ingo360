@@ -26,7 +26,12 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProps> = React.memo(
     const countQuery = useKeepQuery(
       DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
         ['visits/reports/doctors-by-specialty'],
-        { method: 'POST', medical_facility_ids: medicalFacilityIds, enabled }
+        {
+          medical_facility_ids: medicalFacilityIds,
+
+          enabled,
+          method: 'POST',
+        }
       )
     );
 

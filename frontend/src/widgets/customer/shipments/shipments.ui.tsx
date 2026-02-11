@@ -2,13 +2,13 @@ import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { DbQueries, type TDbItem } from '#/entities/db';
-import { ExportToExcelButton } from '#/features/excel/export';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
   useFilterOptions,
 } from '#/shared/components/db-filters';
+import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
@@ -104,7 +104,6 @@ export const Shipments: React.FC = React.memo(() => {
   const { monthTotals, grandTotal } = useMemo(() => {
     return calcPeriodTotals(sales, dbFilters.indicator);
   }, [sales, dbFilters.indicator]);
-
   return (
     <PageSection
       title="Первичные продажи"
@@ -124,8 +123,8 @@ export const Shipments: React.FC = React.memo(() => {
               menu: 'min-w-[11.25rem] right-0',
             }}
           />
-          <ExportToExcelButton<TDbItem>
-            headerMap={{
+          <ExportToExcelButton
+            formatHeader={{
               sku_name: columnHeaderNames.sku,
               brand_name: columnHeaderNames.brand,
               promotion_type_name: columnHeaderNames.promotion,
@@ -133,7 +132,10 @@ export const Shipments: React.FC = React.memo(() => {
               product_group_name: columnHeaderNames.productGroup,
               total: columnHeaderNames.total,
             }}
-            url="/primary/reports/sales"
+            hasTotal
+            selectKeys={visibleColumns}
+            periodKey={dbFilters.indicator}
+            data={sales}
             fileName="Первичные продажи"
           />
         </div>

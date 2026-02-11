@@ -32,7 +32,16 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const filterOptions = useFilterOptions(['products/product-groups']);
+  const filterOptions = useFilterOptions(
+    [
+      'products/product-groups',
+      'clients/pharmacies',
+      'clients/medical-facilities',
+      'clients/geo-indicators',
+      'employees/employees',
+    ],
+    'visits'
+  );
 
   const dbFilters = useDbFilters({
     groupsOptions: filterOptions.options.products_product_groups,
@@ -41,7 +50,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       brands: { enabled: false },
       groupBy: {
         defaultValue:
-          'pharmacy,medical_facility,employee,product_group,geo_indicator,speciality,doctor'.split(
+          'pharmacy,medical_facility,employee,product_group,geo_indicator'.split(
             ','
           ),
       },

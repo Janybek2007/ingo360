@@ -45,11 +45,13 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
 
     const queryData = useKeepQuery(
       DbQueries.GetDbItemsQuery<TopMetricsRow>(['ims/reports/top'], {
-        periods: periodFilter.selectedValues,
+        period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
         group_column: isMarketDevelopmentPage ? activeTab : 'company',
         segment_name: filters.segment ?? undefined,
         brand_name: String(filters.brands[0]) ?? undefined,
+        //
+        method: 'POST',
       })
     );
     const metricData = React.useMemo(() => {

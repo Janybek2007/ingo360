@@ -142,6 +142,9 @@ export const commonColumns = {
     header: columnHeaderNames.year,
     size: 140,
     type: 'number',
+    custom: {
+      cell: ({ row }) => row.original.year ?? '-',
+    },
   }),
   month: (): CColumn<any> => ({
     id: 'month',
@@ -150,7 +153,7 @@ export const commonColumns = {
     size: 140,
     type: 'select',
     custom: {
-      cell: ({ row }) => allMonths[row.original.month - 1],
+      cell: ({ row }) => allMonths[row.original.month - 1] ?? '-',
       options: allMonths.map((month, i) => ({
         label: month,
         value: i + 1,
@@ -438,28 +441,25 @@ export const marketInsightsDynamicPeriods = (data: any[]): CColumn<any>[] => {
 
   // ---- Parsing ----
   const parsePeriod = (key: string) => {
-    // новый формат: YYYY-MM
+    // month: YYYY-MM
     if (/^\d{4}-\d{2}$/.test(key)) {
       const [year, month] = key.split('-').map(Number);
       return { type: 'month' as const, year, order: month };
     }
 
-    // квартал: q1-25
-    if (key.startsWith('q')) {
-      const [, rest] = key.split('q');
-      const [q, yy] = rest.split('-').map(Number);
-      return { type: 'quarter' as const, year: 2000 + yy, order: q };
+    // quarter: YYYY-QN
+    if (/^\d{4}-Q\d{1}$/.test(key)) {
+      const [yearPart, quarterPart] = key.split('-Q');
+      return {
+        type: 'quarter' as const,
+        year: Number(yearPart),
+        order: Number(quarterPart),
+      };
     }
 
-    // месяц старого формата: 1-25
-    if (/^\d{1,2}-\d{2}$/.test(key)) {
-      const [m, yy] = key.split('-').map(Number);
-      return { type: 'month' as const, year: 2000 + yy, order: m };
-    }
-
-    // год: "25"
-    if (/^\d{2}$/.test(key)) {
-      return { type: 'year' as const, year: 2000 + Number(key), order: 1 };
+    // year: YYYY
+    if (/^\d{4}$/.test(key)) {
+      return { type: 'year' as const, year: Number(key), order: 1 };
     }
 
     return { type: 'unknown' as const, year: 0, order: 0 };

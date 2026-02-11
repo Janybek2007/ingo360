@@ -10,7 +10,12 @@ import type {
 
 export type ExportExcelPayload = Pick<
   ExportToExcelButtonProps<any>,
-  'fileName' | 'headerMap' | 'fieldsMap' | 'booleanMap' | 'customMap'
+  | 'fileName'
+  | 'headerMap'
+  | 'fieldsMap'
+  | 'booleanMap'
+  | 'customMap'
+  | 'isPeriod'
 >;
 
 export const useExportExcelMutation = (url: ExportToExcelUrl) => {
@@ -26,6 +31,7 @@ export const useExportExcelMutation = (url: ExportToExcelUrl) => {
           fields_map: payload.fieldsMap || {},
           boolean_map: payload.booleanMap || {},
           custom_map: payload.customMap || {},
+          is_period: payload.isPeriod || false,
         },
       });
 

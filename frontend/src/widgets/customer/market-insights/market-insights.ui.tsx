@@ -54,7 +54,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {
       ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-      periods: periodFilter.selectedValues,
+      period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
       group_by_dimensions: dbFilters.groupBy,
 
@@ -82,9 +82,15 @@ export const MarketInsights: React.FC = React.memo(() => {
           } else {
             newRow[newKey] = value;
           }
-        } else {
-          newRow[key] = value;
+          return;
         }
+
+        if (typeof value === 'object' && value !== null) {
+          newRow[key] = value[dbFilters.indicator as 'amount'];
+          return;
+        }
+
+        newRow[key] = value;
       });
 
       return newRow;

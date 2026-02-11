@@ -8,8 +8,17 @@ import type { ExportToExcelButtonProps } from './export-excel.types';
 const ExportToExcelComponent = <T extends object>(
   props: ExportToExcelButtonProps<T>
 ) => {
-  const { url, fileName, headerMap, fieldsMap, booleanMap, customMap } = props;
+  const {
+    url,
+    fileName,
+    headerMap,
+    fieldsMap,
+    booleanMap,
+    customMap,
+    isPeriod = false,
+  } = props;
   const { mutate, isPending } = useExportExcelMutation(url);
+
   const handleExport = React.useCallback(() => {
     if (!headerMap) return;
 
@@ -19,8 +28,9 @@ const ExportToExcelComponent = <T extends object>(
       fieldsMap,
       booleanMap,
       customMap,
+      isPeriod,
     });
-  }, [booleanMap, customMap, fieldsMap, fileName, headerMap, mutate]);
+  }, [booleanMap, customMap, fieldsMap, fileName, headerMap, isPeriod, mutate]);
 
   return (
     <button
