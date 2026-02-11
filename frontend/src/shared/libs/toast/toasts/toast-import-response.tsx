@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { toast as tt } from 'react-hot-toast';
 
-import { ExcelWarningImportContent } from '#/entities/excel/ui/excel-warning-import-content.ui.tsx';
+import { ExcelWarningImportContent } from '#/entities/excel';
 import { Modal } from '#/shared/components/ui/modal';
 import type { TImportResponse } from '#/shared/types/global';
 
