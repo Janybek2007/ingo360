@@ -54,11 +54,6 @@ export const useExcelStatusCheck = (
             });
           },
         });
-        toastImportResponse({
-          response: message.result.import_result,
-          fileName: message.result.file_name,
-          onRemoveTask: () => removeTask(message.task_id),
-        });
         return;
       }
 

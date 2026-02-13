@@ -12,10 +12,10 @@ import { toast } from './toast.tsx';
 const getTotals = (response: TImportResponse) =>
   [
     `Импортировано: ${response.imported}`,
-    !!response.inserted && `Добавлено: ${response.inserted}`,
-    !!response.updated && `Обновлено: ${response.updated}`,
-    !!response.deduplicated_in_batch &&
-      `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch}`,
+    response.inserted !== null && `Добавлено: ${response.inserted ?? 0}`,
+    response.updated !== null && `Обновлено: ${response.updated ?? 0}`,
+    response.deduplicated_in_batch !== null &&
+      `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch ?? 0}`,
     `Пропущено: ${response.skipped}`,
     `Всего: ${response.total}`,
   ].filter(Boolean);

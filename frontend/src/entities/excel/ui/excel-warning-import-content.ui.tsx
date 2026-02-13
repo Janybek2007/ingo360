@@ -87,20 +87,20 @@ export const ExcelWarningImportContent = ({
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
             Импортировано: {response.imported}
           </span>
-          {!!response.inserted && (
+          {response.inserted !== null && (
             <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
-              Добавлено: {response.inserted}
+              Добавлено: {response.inserted ?? 0}
             </span>
           )}
-          {!!response.updated && (
+          {response.updated !== null && (
             <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">
-              Обновлено: {response.updated}
+              Обновлено: {response.updated ?? 0}
             </span>
           )}
-          {!!response.deduplicated_in_batch && (
+          {response.deduplicated_in_batch !== null && (
             <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-700">
               Найдено дублей в файле (не загружены):{' '}
-              {response.deduplicated_in_batch}
+              {response.deduplicated_in_batch ?? 0}
             </span>
           )}
           <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
