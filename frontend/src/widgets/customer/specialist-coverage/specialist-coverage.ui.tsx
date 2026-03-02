@@ -92,6 +92,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       setGroupBy: dbFilters.setGroupBy,
+      allowedGroupDimensions: ['medical_facility', 'speciality', 'doctor'],
     });
 
   return (

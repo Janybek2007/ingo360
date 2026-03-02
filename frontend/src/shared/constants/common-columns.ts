@@ -332,6 +332,7 @@ export const commonColumns = {
     header: columnHeaderNames.medicalFacility,
     size: 224,
     type: 'select',
+    groupDimension: 'medical_facility',
     custom: {
       accessor: (row: any) => row.medical_facility_name || '-',
     },
@@ -343,6 +344,7 @@ export const commonColumns = {
     header: columnHeaderNames.doctor,
     size: 224,
     type: 'select',
+    groupDimension: 'doctor',
     custom: {
       accessor: (row: any) => row.doctor_name || '-',
     },
@@ -354,6 +356,7 @@ export const commonColumns = {
     header: columnHeaderNames.speciality,
     size: 230,
     type: 'select',
+    groupDimension: 'speciality',
     custom: {
       accessor: (row: any) => row.speciality_name || '-',
     },

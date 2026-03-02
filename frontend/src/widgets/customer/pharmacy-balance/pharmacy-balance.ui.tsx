@@ -20,6 +20,7 @@ import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import type { ExtraDbType } from '#/shared/types/db.type';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -51,7 +52,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(
-      ['sales/tertiary/reports/low-stock-pharmacies'],
+      ['sales/tertiary/reports/stock' as ExtraDbType],
       {
         ...transformColumnFiltersToPayload(
           filters,
@@ -63,7 +64,16 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
         search: dbFilters.search,
 
-        group_by_dimensions: dbFilters.groupBy,
+        group_by_dimensions: dbFilters.groupBy.filter(dimension =>
+          [
+            'sku',
+            'brand',
+            'promotion_type',
+            'product_group',
+            'distributor',
+            'geo_indicator',
+          ].includes(dimension)
+        ),
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
 

@@ -21,7 +21,7 @@ export type ExtraDbType =
   | 'sales/tertiary/reports/sales'
   | 'sales/tertiary/reports/chart'
   | 'sales/tertiary/reports/numeric-distribution'
-  | 'sales/tertiary/reports/low-stock-pharmacies'
+  | 'sales/tertiary/reports/stock'
   | 'visits/reports/doctors-by-specialty'
   | 'visits/reports/doctors-with-visits-by-specialty'
   | 'visits/reports/visits-sum-for-period'

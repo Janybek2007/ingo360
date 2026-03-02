@@ -38,7 +38,7 @@ type AllowedExportUrls =
   | '/secondary/reports/sales'
   | '/tertiary/reports/sales'
   | '/tertiary/reports/numeric-distribution'
-  | '/tertiary/reports/low-stock-pharmacies'
+  | '/tertiary/reports/stock'
   | '/ims/reports/table'
   | '/visits/reports/visits-sum-for-period'
   | '/reports/doctors-with-visits-by-specialty'
