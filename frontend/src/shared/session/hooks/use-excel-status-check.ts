@@ -106,6 +106,7 @@ export const useExcelStatusCheck = (
                 .join('\n'),
               type: 'success',
               actionLabel: 'Открыть',
+              onClose: () => removeTask(task.task_id),
               onAction: () => {
                 toastImportResponse({
                   response: task.result?.import_result ?? {
@@ -139,6 +140,7 @@ export const useExcelStatusCheck = (
                 .join('\n'),
               type: 'success',
               actionLabel: 'Открыть',
+              onClose: () => removeTask(task.task_id),
               onAction: () => {
                 toastExportResponse({
                   taskId: task.task_id,
