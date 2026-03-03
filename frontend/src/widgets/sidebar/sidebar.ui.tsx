@@ -2,11 +2,13 @@ import React from 'react';
 import { Link } from 'react-router';
 import useLocalStorageState from 'use-local-storage-state';
 
+import { LogoutButton } from '#/features/session/logout';
 import { Assets } from '#/shared/assets';
 import {
   LucideArrowIcon,
   SidebarNavigationsIcons,
 } from '#/shared/assets/icons';
+import { Modal } from '#/shared/components/ui/modal';
 import { roleNavigations } from '#/shared/constants/role-navigations';
 import { useActivePath } from '#/shared/hooks/use-active-path';
 import { roleAccess, routePaths } from '#/shared/router';
@@ -50,6 +52,8 @@ export const Sidebar: React.FC = React.memo(() => {
   const toggleCollapse = React.useCallback(() => {
     setIsCollapsed(prev => !prev);
   }, [setIsCollapsed]);
+
+  const [helpModalOpen, setHelpModalOpen] = React.useState(false);
 
   return (
     <aside
@@ -132,6 +136,107 @@ export const Sidebar: React.FC = React.memo(() => {
               </Link>
             ))}
       </nav>
+
+      <div className="mt-auto pt-4 border-t border-gray-200 flex flex-col gap-1">
+        <Link
+          to={routePaths.profile}
+          className={cn(
+            'p-3 transition-colors flex items-center gap-2 rounded-full',
+            isCollapsed ? 'w-10 h-10 justify-center' : 'w-full',
+            isActive(routePaths.profile)
+              ? 'bg-primary text-white font-semibold'
+              : 'hover:bg-primary/10 text-gray-800'
+          )}
+          title="Аккаунт"
+        >
+          <span
+            className={cn(
+              isActive(routePaths.profile) ? 'text-white' : 'text-[#94A3B8]'
+            )}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-[1.25rem]"
+            >
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          {!isCollapsed && (
+            <span className="ls-base font-normal text-base leading-[1.375rem]">
+              Аккаунт
+            </span>
+          )}
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setHelpModalOpen(true)}
+          className={cn(
+            'p-3 transition-colors flex items-center gap-2 rounded-full w-full text-left',
+            isCollapsed ? 'w-10 h-10 justify-center' : '',
+            'hover:bg-primary/10 text-gray-800'
+          )}
+          title="Помощь"
+        >
+          <span className="text-[#94A3B8]">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-[1.25rem]"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <path d="M12 17h.01" />
+            </svg>
+          </span>
+          {!isCollapsed && (
+            <span className="ls-base font-normal text-base leading-[1.375rem]">
+              Помощь
+            </span>
+          )}
+        </button>
+
+        <div className={cn(isCollapsed ? 'flex justify-center' : '')}>
+          <LogoutButton
+            className={cn(
+              'w-full py-[0.625rem] px-3 rounded-full text-medium',
+              'flex items-center gap-2 [&_svg]:size-[1rem] [&_span]:text-sm',
+              'hover:bg-primary/10 text-gray-800',
+              isCollapsed && 'w-10 h-10 justify-center [&_span]:hidden'
+            )}
+          />
+        </div>
+      </div>
+
+      {helpModalOpen && (
+        <Modal
+          title="Помощь"
+          onClose={() => setHelpModalOpen(false)}
+          classNames={{
+            body: 'w-[250px] h-[250px] min-w-[250px] min-h-[250px] flex flex-col',
+          }}
+        >
+          <p className="text-gray-700 flex-1 flex items-center justify-center text-center">
+            Страница помощи в разработке, скоро
+          </p>
+        </Modal>
+      )}
     </aside>
   );
 });
