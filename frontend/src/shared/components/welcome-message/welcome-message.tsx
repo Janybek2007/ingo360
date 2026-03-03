@@ -2,84 +2,97 @@ import React from 'react';
 
 import { useSession } from '#/shared/session';
 
-export const WelcomeMessage: React.FC = () => {
-  const { user, setIsWelcomeShown } = useSession();
+const STAR_PATH =
+  'M12 2l3.09 6.26L22 9.27l-5.18 4.37 2.09 6.54L12 17.77l-6.91 2.91 2.09-6.54L2 9.27l6.91-1.01L12 2z';
 
-  const getRoleText = React.useCallback((role: string) => {
-    const roles: Record<string, string> = {
-      administrator: 'администратор',
-      operator: 'оператор',
-      customer: 'пользователь',
-    };
-    return roles[role] || role;
+const DISPERSE_TRANSFORMS = [
+  'translate(-120vw, -80vh) scale(0.3)',
+  'translate(120vw, -80vh) scale(0.3)',
+  'translate(-120vw, 80vh) scale(0.3)',
+  'translate(120vw, 80vh) scale(0.3)',
+  'translate(0, -100vh) scale(0.2)',
+];
+
+export const WelcomeMessage: React.FC = React.memo(() => {
+  const { setIsWelcomeShown } = useSession();
+  const [phase, setPhase] = React.useState<'stars' | 'modal'>('stars');
+
+  React.useEffect(() => {
+    const disperseTimer = setTimeout(() => {
+      setPhase('modal');
+    }, 3000);
+
+    return () => clearTimeout(disperseTimer);
   }, []);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
+    if (phase !== 'modal') return;
+
+    const closeTimer = setTimeout(() => {
       setIsWelcomeShown(false);
-    }, 5000);
+    }, 1500);
 
-    return () => clearTimeout(timer);
-  }, [setIsWelcomeShown]);
-
-  if (!user) return null;
-
-  const fullName = [user.last_name, user.first_name, user.patronymic]
-    .filter(Boolean)
-    .join(' ');
+    return () => clearTimeout(closeTimer);
+  }, [phase, setIsWelcomeShown]);
 
   return (
-    <div className="fixed bottom-4 right-4 w-[90dvw] md:w-[30rem] z-[10000]">
-      <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 w-full border-l-4 border-blue-500">
-        <button
-          onClick={() => setIsWelcomeShown(false)}
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
-          aria-label="Закрыть"
-        >
-          <svg
-            className="w-4 h-4 md:w-5 md:h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center"
+      aria-hidden="true"
+    >
+      {/* Stars overlay (0-3s) */}
+      <div
+        className={`absolute inset-0 flex items-center justify-center bg-white/95 ${
+          phase === 'modal' ? 'opacity-0 pointer-events-none' : ''
+        }`}
+        style={{
+          transition: phase === 'modal' ? 'opacity 0.3s ease-out' : undefined,
+        }}
+      >
+        {/* 5 stars in circle, rotating 360° together (2.5s), then disperse (0.5s) */}
+        <div className="relative w-40 h-40 welcome-star-rotate">
+          {[0, 1, 2, 3, 4].map(i => {
+            const angle = (i * 360) / 5 - 90;
+            const radius = 48;
+            const x = 50 + radius * Math.cos((angle * Math.PI) / 180);
+            const y = 50 + radius * Math.sin((angle * Math.PI) / 180);
 
-        <div className="flex items-start space-x-4 w-full">
-          <div className="flex-shrink-0">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center">
+            return (
               <svg
-                className="w-5 h-5 md:w-6 md:h-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
+                key={i}
+                className="absolute w-10 h-10 welcome-star-disperse"
+                style={{
+                  left: `calc(${x}% - 1.25rem)`,
+                  top: `calc(${y}% - 1.25rem)`,
+                  ['--disperse-transform' as string]: DISPERSE_TRANSFORMS[i],
+                }}
                 viewBox="0 0 24 24"
+                fill="currentColor"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                />
+                <path d={STAR_PATH} className="text-primary" />
               </svg>
-            </div>
-          </div>
+            );
+          })}
+        </div>
+      </div>
 
-          <div className="flex-1 w-full">
-            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
-              Добро пожаловать {getRoleText(user.role)}!
-            </h3>
-            <p className="text-gray-700 mb-2 text-sm md:text-base">
-              <span className="font-medium">{fullName}</span>
+      {/* Welcome modal (3s-4.5s) */}
+      {phase === 'modal' && (
+        <div className="fixed inset-0 flex items-center justify-center z-[10001]">
+          <div className="absolute inset-0 bg-black/30" />
+          <div
+            className="relative z-10 w-[250px] h-[250px] bg-white rounded-2xl p-6 flex flex-col items-center justify-center shadow-xl animate-fade-in"
+            role="dialog"
+            aria-label="Добро пожаловать"
+          >
+            <p className="text-gray-800 text-center text-lg font-medium">
+              Добро пожаловать
             </p>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
-};
+});
+
+WelcomeMessage.displayName = 'WelcomeMessage';
