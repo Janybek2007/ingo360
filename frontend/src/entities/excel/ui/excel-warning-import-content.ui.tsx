@@ -87,17 +87,17 @@ export const ExcelWarningImportContent = ({
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
             Импортировано: {response.imported}
           </span>
-          {response.inserted !== null && (
+          {!!response.inserted && (
             <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
               Добавлено: {response.inserted ?? 0}
             </span>
           )}
-          {response.updated !== null && (
+          {!!response.updated && (
             <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">
               Обновлено: {response.updated ?? 0}
             </span>
           )}
-          {response.deduplicated_in_batch !== null && (
+          {!!response.deduplicated_in_batch && (
             <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-700">
               Найдено дублей в файле (не загружены):{' '}
               {response.deduplicated_in_batch ?? 0}

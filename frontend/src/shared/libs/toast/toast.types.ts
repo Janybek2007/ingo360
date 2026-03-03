@@ -36,4 +36,5 @@ export interface ToastProps {
   duration?: number;
   actionLabel?: string;
   onAction?: VoidFunction;
+  onClose?: VoidFunction;
 }

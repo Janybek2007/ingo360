@@ -11,6 +11,7 @@ export function toast({
   duration = Infinity,
   actionLabel,
   onAction,
+  onClose,
 }: ToastProps) {
   tt.custom(
     t => {
@@ -144,7 +145,10 @@ export function toast({
 
               {/* Кнопка закрытия */}
               <button
-                onClick={() => tt.dismiss(t.id, t.toasterId)}
+                onClick={() => {
+                  tt.dismiss(t.id, t.toasterId);
+                  onClose?.();
+                }}
                 className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200 -mr-1 -mt-1"
                 title="Закрыть"
               >

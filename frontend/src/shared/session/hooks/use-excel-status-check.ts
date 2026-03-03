@@ -53,6 +53,7 @@ export const useExcelStatusCheck = (
               onRemoveTask: () => removeTask(message.task_id),
             });
           },
+          onClose: () => removeTask(message.task_id),
         });
         return;
       }
@@ -80,6 +81,7 @@ export const useExcelStatusCheck = (
               onRemoveTask: () => removeTask(message.task_id),
             });
           },
+          onClose: () => removeTask(message.task_id),
         });
 
         return;
