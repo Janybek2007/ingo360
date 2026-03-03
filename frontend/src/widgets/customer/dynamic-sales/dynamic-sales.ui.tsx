@@ -174,6 +174,7 @@ export const DynamicSales: React.FC = React.memo(() => {
                   return label;
                 }}
                 formatter={(value, name) => {
+                  if (value == null) return null;
                   const label =
                     name === 'primaryValue' ? 'Первичные ' : 'Вторичные ';
                   return [value.toLocaleString('ru-RU'), `${label} продажи`];

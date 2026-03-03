@@ -83,6 +83,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
               return item.fullLabel;
             }}
             formatter={(value, name) => {
+              if (value == null) return null;
               const label =
                 name === 'remains'
                   ? 'Остаток'

@@ -75,6 +75,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
               return label;
             }}
             formatter={value => {
+              if (value == null) return null;
               return [value.toLocaleString('ru-RU'), 'Первичные продажи'];
             }}
           />

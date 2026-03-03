@@ -164,20 +164,33 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                   }
                   return label;
                 }}
-                formatter={(value: number, name: string, props: any) => {
-                  const dataKey = props.dataKey;
-                  const originalValue = props.payload._original?.[dataKey];
+                formatter={(value, name, props) => {
+                  const dataKey =
+                    typeof props?.dataKey === 'string'
+                      ? props.dataKey
+                      : undefined;
+                  const originalValue =
+                    dataKey != null && props?.payload?._original
+                      ? (props.payload._original as Record<string, unknown>)[
+                          dataKey
+                        ]
+                      : undefined;
                   const displayValue =
                     originalValue !== undefined ? originalValue : value;
 
-                  if (displayValue === 0 || displayValue === undefined) {
+                  if (
+                    displayValue === 0 ||
+                    displayValue === undefined ||
+                    displayValue === null
+                  ) {
                     return null;
                   }
 
+                  const numValue = Number(displayValue);
                   const formattedValue =
-                    Math.abs(displayValue) < 0.01 && displayValue !== 0
-                      ? displayValue.toFixed(3)
-                      : Math.round(displayValue * 100) / 100;
+                    Math.abs(numValue) < 0.01 && numValue !== 0
+                      ? numValue.toFixed(3)
+                      : Math.round(numValue * 100) / 100;
                   return [`${formattedValue}%`, name];
                 }}
               />
