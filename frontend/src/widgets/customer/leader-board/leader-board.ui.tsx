@@ -6,6 +6,7 @@ import type {
 import React, { useMemo } from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { NoImsPlaceholder } from '#/shared/components/no-ims-placeholder';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { UsedFilter } from '#/shared/components/used-filter';
@@ -18,7 +19,7 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import type { LeaderboardProps } from './leader-board.types';
 
 export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
-  ({ periodFilter, entities, isLoading, queryError }) => {
+  ({ periodFilter, entities, isLoading, queryError, noImsPlaceholder }) => {
     const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
     const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -89,6 +90,10 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
                 <p className="p-10 text-center text-gray-500">
                   Пожалуйста, выберите период для отображения данных рейтинга.
                 </p>
+              </div>
+            ) : noImsPlaceholder ? (
+              <div className="my-8">
+                <NoImsPlaceholder />
               </div>
             ) : (
               <AsyncBoundary isLoading={isLoading} queryError={queryError}>

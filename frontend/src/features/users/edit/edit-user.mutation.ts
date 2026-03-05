@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { type IUserItem, UserQueries } from '#/entities/user';
+import { type IUserItem } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
@@ -38,15 +38,10 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
 
       return response.json<IUserItem>();
     },
-    async onSuccess(data) {
-      queryClient.setQueryData<IUserItem[]>(
-        UserQueries.queryKeys.getAdminOperators({}),
-        old => {
-          if (!old) return [data];
-          return old.map(user => (user.id === data.id ? data : user));
-        }
-      );
-
+    async onSuccess() {
+      await queryClient.invalidateQueries({
+        queryKey: ['get-admin-operators'],
+      });
       onClose();
       toast({
         message: 'Пользователь успешно обновлен',

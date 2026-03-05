@@ -7,12 +7,14 @@ import React, { useMemo } from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { DbFilters } from '#/shared/components/db-filters';
+import { NoImsPlaceholder } from '#/shared/components/no-ims-placeholder';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { FiltersContext } from '#/shared/context/filters';
+import { useNoImsPlaceholder } from '#/shared/hooks/use-no-ims-placeholder';
 import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -32,12 +34,14 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
       entities,
       isLoading,
       queryError,
+      noImsPlaceholder,
       activeTab,
       setActiveTab,
       filters: dbFilters,
     }) => {
       const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
       const [sorting, setSorting] = React.useState<SortingState>([]);
+      const showNoImsHere = useNoImsPlaceholder(queryError);
 
       const columns = useMemo<ColumnDef<EntityRow>[]>(
         () => [
@@ -144,6 +148,10 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                   <p className="p-10 text-center text-gray-500">
                     Пожалуйста, выберите период для отображения данных рейтинга.
                   </p>
+                </div>
+              ) : noImsPlaceholder || showNoImsHere ? (
+                <div className="my-8">
+                  <NoImsPlaceholder />
                 </div>
               ) : (
                 <AsyncBoundary isLoading={isLoading} queryError={queryError}>

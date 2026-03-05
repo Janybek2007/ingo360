@@ -4,6 +4,7 @@ import { DbQueries } from '#/entities/db';
 import { useDbFilters } from '#/shared/components/db-filters';
 import { LazySection } from '#/shared/components/lazy-section';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { useNoImsPlaceholder } from '#/shared/hooks/use-no-ims-placeholder';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import type { ISMGroupColumn } from '#/shared/types/ims';
 
@@ -58,6 +59,8 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
       return queryData.data ? queryData.data[0] : null;
     }, [queryData.data]);
 
+    const showNoImsPlaceholder = useNoImsPlaceholder(queryData.error);
+
     React.useEffect(() => {
       if (queryData.isLoading || !queryData.data) return;
       const data = queryData.data[0];
@@ -80,7 +83,8 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
               filters={filters}
               periodFilter={periodFilter}
               isLoading={queryData.isLoading || queryData.isFetching}
-              queryError={queryData.error}
+              queryError={showNoImsPlaceholder ? undefined : queryData.error}
+              noImsPlaceholder={showNoImsPlaceholder}
               entities={metricData?.entities ?? []}
               activeTab={activeTab}
               setActiveTab={v => {
@@ -94,7 +98,8 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
             <LeaderBoard
               periodFilter={periodFilter}
               isLoading={queryData.isLoading}
-              queryError={queryData.error}
+              queryError={showNoImsPlaceholder ? undefined : queryData.error}
+              noImsPlaceholder={showNoImsPlaceholder}
               entities={metricData?.entities ?? []}
             />
           </LazySection>
@@ -103,7 +108,8 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
           <IMSMetrics
             metricData={metricData?.metrics}
             isLoading={queryData.isLoading}
-            queryError={queryData.error}
+            queryError={showNoImsPlaceholder ? undefined : queryData.error}
+            noImsPlaceholder={showNoImsPlaceholder}
             periodFilter={{
               period: periodFilter.period,
               selectedValues: periodFilter.selectedValues,

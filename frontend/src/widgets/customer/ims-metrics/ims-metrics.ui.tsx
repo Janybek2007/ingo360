@@ -1,13 +1,14 @@
 import React from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { NoImsPlaceholder } from '#/shared/components/no-ims-placeholder';
 import { PageSection } from '#/shared/components/page-section';
 
 import { metrics } from './constants';
 import type { IMSMetricsProps } from './ims-metrics.types';
 
 export const IMSMetrics: React.FC<IMSMetricsProps> = React.memo(
-  ({ periodFilter, metricData, isLoading, queryError }) => {
+  ({ periodFilter, metricData, isLoading, queryError, noImsPlaceholder }) => {
     return (
       <section className={isLoading ? '' : 'grid grid-cols-3 gap-6 mt-6'}>
         {periodFilter.selectedValues.length === 0 ? (
@@ -16,6 +17,12 @@ export const IMSMetrics: React.FC<IMSMetricsProps> = React.memo(
               <p className="p-10 text-center text-gray-500">
                 Пожалуйста, выберите период для отображения данных рейтинга.
               </p>
+            </div>
+          </PageSection>
+        ) : noImsPlaceholder ? (
+          <PageSection>
+            <div className="my-8">
+              <NoImsPlaceholder />
             </div>
           </PageSection>
         ) : (

@@ -6,4 +6,5 @@ export interface IMSMetricsProps {
   metricData: IMSMetricsRow | undefined;
   isLoading?: boolean;
   queryError?: Error | null;
+  noImsPlaceholder?: boolean;
 }
