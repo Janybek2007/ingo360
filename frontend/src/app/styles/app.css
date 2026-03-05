@@ -145,3 +145,48 @@ button {
 *::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* Welcome animation: stars rotation 360° */
+@keyframes welcome-star-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Welcome animation: disperse stars to corners with blur */
+@keyframes welcome-star-disperse {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: var(--disperse-transform);
+    opacity: 0;
+    filter: blur(12px);
+  }
+}
+
+.welcome-star-rotate {
+  animation: welcome-star-rotate 2.5s ease-in-out forwards;
+}
+
+.welcome-star-disperse {
+  animation: welcome-star-disperse 0.5s ease-out 2.5s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
