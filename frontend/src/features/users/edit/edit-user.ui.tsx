@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { IUserItem } from '#/entities/user';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
+import { ROLES_OBJECT } from '#/shared/constants/roles_statuses';
 
 import { EditUserContract, type TAddUserContract } from '../users.contracts';
 import { useEditUserMutation } from './edit-user.mutation';
@@ -60,7 +60,7 @@ export const EditUserModal: React.FC<{
             name: 'role',
             placeholder: 'Выберите роль',
             defaultValue: userData?.role || 'operator',
-            selectItems: ROLES.map(role => ({
+            selectItems: (['administrator', 'operator'] as const).map(role => ({
               label: ROLES_OBJECT[role],
               value: role,
             })),

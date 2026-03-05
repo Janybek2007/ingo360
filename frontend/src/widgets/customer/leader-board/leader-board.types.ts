@@ -5,5 +5,6 @@ export interface LeaderboardProps {
   entities: EntityRow[];
   isLoading?: boolean;
   queryError?: Error | null;
+  noImsPlaceholder?: boolean;
   periodFilter: UsePeriodFilterReturn;
 }

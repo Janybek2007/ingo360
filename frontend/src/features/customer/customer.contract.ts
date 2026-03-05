@@ -17,7 +17,6 @@ export const EditCustomerContract = z.object({
   is_active: z.boolean().optional(),
   is_superuser: z.boolean().optional(),
   is_verified: z.boolean().optional(),
-  role: z.enum(['customer', 'operator', 'administrator']).optional(),
   company_id: z.number().optional(),
 });
 
