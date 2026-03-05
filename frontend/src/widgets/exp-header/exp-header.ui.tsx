@@ -1,13 +1,13 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
 
 import { SolarUserLinearIcon } from '#/shared/assets/icons';
+import { useRouter } from '#/shared/hooks/use-router';
 import { routePaths } from '#/shared/router';
 
 import { Notifications } from './ui/notifications.ui';
 
 export const ExpHeader: React.FC = React.memo(() => {
-  const navigate = useNavigate();
+  const { navigate } = useRouter();
 
   return (
     <header

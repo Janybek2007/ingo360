@@ -9,7 +9,6 @@ import { DeleteReferenceWrapper } from '#/features/reference/delete';
 import { EditReferenceWrapper } from '#/features/reference/edit';
 import { ImportReferenceButton } from '#/features/reference/import';
 import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
-import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
@@ -27,7 +26,15 @@ import { getReferenceTypeDeps, getReferenceWorkColumns } from './constants';
 import type { IReferenceWorkProps } from './reference-work.types';
 
 const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
-  ({ currentData, current, rowsCount, setRowsCount, ...props }) => {
+  ({
+    currentData,
+    current,
+    rowsCount,
+    setRowsCount,
+    boundary,
+    pagination,
+    defaultLimit,
+  }) => {
     const references = useMemo(
       () => getReferenceTypeDeps(current as ReferencesTypeWithMain),
       [current]
@@ -72,11 +79,11 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
           title={findCurrentTab(tabsItems, current)?.subItem?.label}
           headerEnd={
             <div className="flex items-center gap-4 relative z-100">
-              <Select<false, typeof rowsCount>
+              <Select<false, number>
                 value={rowsCount}
                 setValue={setRowsCount}
                 items={[
-                  { value: 'all', label: 'Все' },
+                  { value: defaultLimit, label: `${defaultLimit}` },
                   { value: 1000, label: '1000' },
                   { value: 5000, label: '5000' },
                   { value: 10_000, label: '10000' },
@@ -107,29 +114,30 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
             </div>
           }
         >
-          <AsyncBoundary {...props}>
+          {boundary(
             <Table
               columns={columnsForTable}
               data={currentData}
               filters={{
                 resetFilters: () => {
-                  setRowsCount('all');
+                  setRowsCount(defaultLimit);
                 },
                 usedFilterItems: getUsedFilterItems([
-                  rowsCount !== 'all' && {
+                  rowsCount !== defaultLimit && {
                     value: rowsCount,
                     getLabelFromValue(value) {
                       return 'Строки: '.concat(value.toString());
                     },
                     items: [],
-                    onDelete: () => setRowsCount('all'),
+                    onDelete: () => setRowsCount(defaultLimit),
                   },
                 ]),
               }}
-              maxHeight={530}
+              maxHeight={600}
               rounded="none"
             />
-          </AsyncBoundary>
+          )}
+          {pagination}
         </PageSection>
       </>
     );

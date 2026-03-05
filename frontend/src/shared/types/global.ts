@@ -15,6 +15,14 @@ export interface PaginationParams {
   limit?: number;
   offset?: number;
 }
+
+export interface PaginationResponse<T = any> {
+  hasNext: boolean;
+  hasPrev: boolean;
+  result: T;
+  count: number;
+}
+
 export interface SortParams {
   sort_order?: SortDirection;
   sort_by?: string;

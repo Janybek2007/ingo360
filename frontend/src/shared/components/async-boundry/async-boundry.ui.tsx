@@ -66,5 +66,5 @@ const DefaultError = React.memo(
   )
 );
 
-DefaultFallback.displayName = 'DefaultFallback';
-DefaultError.displayName = 'DefaultError';
+DefaultFallback.displayName = '_DefaultFallback_';
+DefaultError.displayName = '_DefaultError_';

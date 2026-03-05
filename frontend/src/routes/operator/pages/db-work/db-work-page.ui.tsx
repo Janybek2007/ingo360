@@ -3,11 +3,15 @@ import React from 'react';
 import useLocalStorageState from 'use-local-storage-state';
 
 import { DbQueries, type IGetDBItemResponse } from '#/entities/db';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { Pagination } from '#/shared/components/pagination';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { WORK_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { usePagination } from '#/shared/hooks/usePagination';
 import type { DbType } from '#/shared/types/db.type';
+import type { PaginationResponse } from '#/shared/types/global';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -16,42 +20,71 @@ import { DbWork } from '#/widgets/operator/db-work';
 
 import { tabsItems } from './constants';
 
+const DEFAULT_LIMIT = 500;
+const DEFAULT_DATA = {
+  hasNext: false,
+  hasPrev: false,
+  result: [],
+  count: 0,
+};
+
 const DbWorkPage: React.FC = () => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [data, setData] = React.useState<IGetDBItemResponse>([]);
+  const { setLimit, ...pagination } = usePagination({
+    defaultLimit: DEFAULT_LIMIT,
+    defaultOffset: 0,
+  });
 
-  const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
+  const [data, setData] =
+    React.useState<PaginationResponse<IGetDBItemResponse>>(DEFAULT_DATA);
   const [current, setCurrent] = useLocalStorageState('db-work-tab', {
     defaultValue: 'sales_primary',
   });
-
   const [groupBy, setGroupBy] = React.useState<string[]>(() =>
     getDefaultGroupBy(current)
   );
 
+  const prevCurrentRef = React.useRef(current);
+  const tabChangingRef = React.useRef(false);
+
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery([current.replace('_', '/') as DbType], {
-      limit: rowsCount === 'all' ? undefined : rowsCount,
-      group_by_dimensions: groupBy,
-      ...transformColumnFiltersToPayload(filters, WORK_FILTER_KEY_MAP),
-      ...transformSortingToPayload(sorting, WORK_FILTER_KEY_MAP),
-      method: 'POST',
-    })
+    DbQueries.GetDbItemsQuery<PaginationResponse<IGetDBItemResponse>>(
+      [current.replace('_', '/') as DbType],
+      {
+        limit: pagination.limit,
+        offset: pagination.offset,
+        group_by_dimensions: groupBy,
+        ...transformColumnFiltersToPayload(filters, WORK_FILTER_KEY_MAP),
+        ...transformSortingToPayload(sorting, WORK_FILTER_KEY_MAP),
+        method: 'POST',
+      }
+    )
   );
+
+  if (prevCurrentRef.current !== current) {
+    prevCurrentRef.current = current;
+    tabChangingRef.current = true;
+  }
+
+  if (tabChangingRef.current && !queryData.isFetching) {
+    tabChangingRef.current = false;
+  }
+
+  const isTabChange = tabChangingRef.current;
 
   React.useEffect(() => {
     setFilters([]);
     setSorting([]);
-    setData([]);
-    setRowsCount('all');
-  }, [current]);
+    setData(DEFAULT_DATA);
+    setLimit(DEFAULT_LIMIT);
+  }, [current, setLimit]);
 
   React.useEffect(() => {
-    if (queryData.isLoading || !queryData.data?.[0]) return;
-
+    if (queryData.isFetching || queryData.isLoading || !queryData.data?.[0])
+      return;
     setData(queryData.data[0]);
-  }, [queryData.data, queryData.isLoading]);
+  }, [queryData.data, queryData.isFetching, queryData.isLoading]);
 
   return (
     <main>
@@ -68,13 +101,34 @@ const DbWorkPage: React.FC = () => {
       >
         <DbWork
           current={current}
-          currentData={data}
-          rowsCount={rowsCount}
-          setRowsCount={setRowsCount}
-          groupBy={groupBy}
+          defaultLimit={DEFAULT_LIMIT}
+          currentData={data.result}
+          rowsCount={pagination.limit}
+          setRowsCount={setLimit}
           onGroupChange={setGroupBy}
-          isLoading={queryData.isFetching}
-          queryError={queryData.error}
+          boundary={children => (
+            <AsyncBoundary
+              isLoading={
+                isTabChange ? queryData.isFetching : queryData.isLoading
+              }
+              queryError={queryData.error}
+            >
+              {children}
+            </AsyncBoundary>
+          )}
+          pagination={
+            data.count > pagination.limit && (
+              <Pagination
+                hasNext={data.hasNext}
+                hasPrev={data.hasPrev}
+                count={data.count}
+                limit={pagination.limit}
+                offset={pagination.offset}
+                onNext={pagination.next}
+                onPrev={pagination.prev}
+              />
+            )
+          }
         />
       </FiltersContext.Provider>
     </main>

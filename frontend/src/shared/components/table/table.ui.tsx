@@ -119,6 +119,7 @@ export const Table: React.FC<ITableProps> = React.memo(
       setSorting([]);
       filters?.resetFilters();
     }, [filters, setColumnFilters, setSorting]);
+
     return (
       <div className={cn('relative', className)}>
         {(filters || columnFilters.length > 0 || sorting.length > 0) &&
@@ -142,7 +143,7 @@ export const Table: React.FC<ITableProps> = React.memo(
           )}
           style={{ maxHeight, minHeight, position: 'relative', zIndex: 1 }}
         >
-          {table.getRowModel().rows.length === 0 ? (
+          {data.length === 0 ? (
             <DefaultEmpty />
           ) : (
             <table

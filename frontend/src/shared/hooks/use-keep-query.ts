@@ -8,7 +8,6 @@ import {
 import { useEffect } from 'react';
 
 let fetchingCount = 0;
-let prevCursor: string | null = null;
 
 export function useKeepQuery<
   TQueryFnData = unknown,
@@ -29,15 +28,14 @@ export function useKeepQuery<
     fetchingCount += 1;
 
     if (fetchingCount === 1) {
-      prevCursor = document.body.style.cursor || '';
-      document.body.style.cursor = 'wait'; // или 'wait'
+      document.body.classList.add('wait-cursor');
     }
 
     return () => {
       fetchingCount = Math.max(0, fetchingCount - 1);
+
       if (fetchingCount === 0) {
-        document.body.style.cursor = prevCursor ?? '';
-        prevCursor = null;
+        document.body.classList.remove('wait-cursor');
       }
     };
   }, [queryData.isFetching]);

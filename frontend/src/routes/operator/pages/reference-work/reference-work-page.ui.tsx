@@ -6,10 +6,14 @@ import {
   type IGetReferencesResponse,
   ReferenceQueries,
 } from '#/entities/reference';
+import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { Pagination } from '#/shared/components/pagination';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { WORK_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { usePagination } from '#/shared/hooks/usePagination';
+import type { PaginationResponse } from '#/shared/types/global';
 import type { ReferencesType } from '#/shared/types/references.type';
 import {
   transformColumnFiltersToPayload,
@@ -19,31 +23,60 @@ import { ReferenceWork } from '#/widgets/operator/reference-work';
 
 import { tabsItems } from './constants';
 
+const DEFAULT_LIMIT = 500;
+const DEFAULT_DATA = {
+  hasNext: false,
+  hasPrev: false,
+  result: [],
+  count: 0,
+};
+
 const ReferenceWorkPage: React.FC = () => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [data, setData] = React.useState<IGetReferencesResponse>([]);
+  const { setLimit, ...pagination } = usePagination({
+    defaultLimit: DEFAULT_LIMIT,
+    defaultOffset: 0,
+  });
 
+  const [data, setData] =
+    React.useState<PaginationResponse<IGetReferencesResponse>>(DEFAULT_DATA);
   const [current, setCurrent] = useLocalStorageState('reference-work-tab', {
     defaultValue: 'geography/countries',
   });
-  const [rowsCount, setRowsCount] = React.useState<'all' | number>('all');
+
+  const prevCurrentRef = React.useRef(current);
+  const tabChangingRef = React.useRef(false);
 
   const queryData = useKeepQuery(
-    ReferenceQueries.GetReferencesQuery([current], {
-      limit: rowsCount === 'all' ? undefined : rowsCount,
+    ReferenceQueries.GetReferencesQuery<
+      PaginationResponse<IGetReferencesResponse>
+    >([current], {
+      limit: pagination.limit,
+      offset: pagination.offset,
       ...transformColumnFiltersToPayload(filters, WORK_FILTER_KEY_MAP),
       ...transformSortingToPayload(sorting, WORK_FILTER_KEY_MAP),
       method: 'POST',
     })
   );
 
+  if (prevCurrentRef.current !== current) {
+    prevCurrentRef.current = current;
+    tabChangingRef.current = true;
+  }
+
+  if (tabChangingRef.current && !queryData.isFetching) {
+    tabChangingRef.current = false;
+  }
+
+  const isTabChange = tabChangingRef.current;
+
   React.useEffect(() => {
     setFilters([]);
     setSorting([]);
-    setData([]);
-    setRowsCount('all');
-  }, [current]);
+    setData(DEFAULT_DATA);
+    setLimit(DEFAULT_LIMIT);
+  }, [current, setLimit]);
 
   React.useEffect(() => {
     if (queryData.isLoading || !queryData.data?.[0]) return;
@@ -62,12 +95,34 @@ const ReferenceWorkPage: React.FC = () => {
         value={{ filters, setFilters, sorting, setSorting }}
       >
         <ReferenceWork
-          currentData={data}
+          defaultLimit={DEFAULT_LIMIT}
+          currentData={data.result}
           current={current as ReferencesType}
-          rowsCount={rowsCount}
-          setRowsCount={setRowsCount}
-          isLoading={queryData.isFetching}
-          queryError={queryData.error}
+          rowsCount={pagination.limit}
+          setRowsCount={setLimit}
+          boundary={children => (
+            <AsyncBoundary
+              isLoading={
+                isTabChange ? queryData.isFetching : queryData.isLoading
+              }
+              queryError={queryData.error}
+            >
+              {children}
+            </AsyncBoundary>
+          )}
+          pagination={
+            data.count > pagination.limit && (
+              <Pagination
+                hasNext={data.hasNext}
+                hasPrev={data.hasPrev}
+                count={data.count}
+                limit={pagination.limit}
+                offset={pagination.offset}
+                onNext={pagination.next}
+                onPrev={pagination.prev}
+              />
+            )
+          }
         />{' '}
       </FiltersContext.Provider>
     </main>

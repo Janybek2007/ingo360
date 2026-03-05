@@ -15,7 +15,6 @@ import {
   type ExportToExcelUrl,
 } from '#/features/excel/export';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
-import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
@@ -39,7 +38,9 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
     rowsCount,
     setRowsCount,
     onGroupChange,
-    ...props
+    boundary,
+    pagination,
+    defaultLimit,
   }) => {
     const current = currentType.replace('_', '/') as DbType;
     const filterOptionsDeps = useMemo(() => getDbTypeDeps(current), [current]);
@@ -90,11 +91,11 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
           }
           headerEnd={
             <div className="flex items-center gap-4 relative z-100">
-              <Select<false, typeof rowsCount>
+              <Select<false, number>
                 value={rowsCount}
                 setValue={value => setRowsCount(value)}
                 items={[
-                  { value: 'all', label: 'Все' },
+                  { value: defaultLimit, label: `${defaultLimit}` },
                   { value: 1000, label: '1000' },
                   { value: 5000, label: '5000' },
                   { value: 10_000, label: '10000' },
@@ -137,29 +138,30 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
             </div>
           }
         >
-          <AsyncBoundary {...props}>
+          {boundary(
             <Table
               columns={columnsForTable}
               data={tableData}
               filters={{
                 resetFilters: () => {
-                  setRowsCount('all');
+                  setRowsCount(defaultLimit);
                 },
                 usedFilterItems: getUsedFilterItems([
-                  rowsCount !== 'all' && {
+                  rowsCount !== defaultLimit && {
                     value: rowsCount,
                     getLabelFromValue(value) {
                       return 'Строки: '.concat(value.toString());
                     },
                     items: [],
-                    onDelete: () => setRowsCount('all'),
+                    onDelete: () => setRowsCount(defaultLimit),
                   },
                 ]),
               }}
-              maxHeight={550}
+              maxHeight={630}
               rounded="none"
             />
-          </AsyncBoundary>
+          )}
+          {pagination}
         </PageSection>
       </>
     );
