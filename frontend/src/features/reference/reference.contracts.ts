@@ -17,14 +17,14 @@ export const referenceContractWithType: Record<
 > = {
   'geography/countries': NameSchema,
   'geography/settlements': NameSchema.extend({
-    region_id: RequiredNumber('Выберите регион'),
+    region_id: RequiredNumber('Выберите область'),
   }),
   'geography/regions': NameSchema.extend({
     country_id: RequiredNumber('Выберите страну'),
   }),
   'geography/districts': NameSchema.extend({
     settlement_id: RequiredNumber('Выберите населённый пункт'),
-    region_id: RequiredNumber('Выберите регион'),
+    region_id: RequiredNumber('Выберите область'),
     company_id: RequiredNumber('Выберите компанию'),
   }),
   'products/product-groups': NameSchema.extend({
@@ -32,9 +32,10 @@ export const referenceContractWithType: Record<
   }),
   'products/promotion-types': NameSchema,
   'products/brands': NameSchema.extend({
-    company_id: RequiredNumber('Выберите компанию'),
+    ims_name: z.string().optional(),
     promotion_type_id: RequiredNumber('Выберите акцию'),
     product_group_id: RequiredNumber('Выберите группу'),
+    company_id: RequiredNumber('Выберите компанию'),
   }),
   'products/dosages': NameSchema,
   'products/dosage-forms': NameSchema,
@@ -45,16 +46,16 @@ export const referenceContractWithType: Record<
     promotion_type_id: RequiredNumber('Выберите акцию'),
     product_group_id: RequiredNumber('Выберите группу'),
     dosage_form_id: RequiredNumber('Выберите форму'),
-    dosage_id: RequiredNumber('Выберите дозировку'),
-    segment_id: RequiredNumber('Выберите сегмент'),
+    dosage_id: z.number().optional(),
+    segment_id: z.number().optional(),
   }),
   'employees/positions': NameSchema,
   'employees/employees': FullNameSchema.extend({
     company_id: RequiredNumber('Выберите компанию'),
     position_id: RequiredNumber('Выберите должность'),
     product_group_id: RequiredNumber('Выберите группу'),
-    region_id: RequiredNumber('Выберите регион'),
-    district_id: RequiredNumber('Выберите район'),
+    region_id: RequiredNumber('Выберите область'),
+    district_id: z.number().optional(),
   }),
   'clients/distributors': NameSchema,
   'clients/geo-indicators': NameSchema,
@@ -66,24 +67,21 @@ export const referenceContractWithType: Record<
   'clients/specialities': NameSchema,
   'clients/client-categories': NameSchema,
   'clients/doctors': FullNameSchema.extend({
-    responsible_employee_id: RequiredNumber(
-      'Выберите ответственного сотрудника'
-    ),
+    responsible_employee_id: z.number().optional(),
     medical_facility_id: RequiredNumber('Выберите ЛПУ'),
     speciality_id: RequiredNumber('Выберите специализацию'),
-    client_category_id: RequiredNumber('Выберите категорию'),
+    client_category_id: z.number().optional(),
     product_group_id: RequiredNumber('Выберите группу'),
   }),
   'clients/pharmacies': NameSchema.extend({
-    geo_indicator: z.string().min(1, 'Выберите показатель'),
+    geo_indicator: z.string().optional(),
     company_id: RequiredNumber('Выберите компанию'),
-    distributor_id: RequiredNumber('Выберите дистрибьютор/сеть'),
-    responsible_employee_id: RequiredNumber(
-      'Выберите ответственного сотрудника'
-    ),
-    settlement_id: RequiredNumber('Выберите населённый пункт'),
-    district_id: RequiredNumber('Выберите район'),
-    client_category_id: RequiredNumber('Выберите категорию'),
+    distributor_id: z.number().optional(),
+    region_id: z.number().optional(),
+    responsible_employee_id: z.number().optional(),
+    settlement_id: z.number().optional(),
+    district_id: z.number().optional(),
+    client_category_id: z.number().optional(),
     product_group_id: RequiredNumber('Выберите группу'),
   }),
 };

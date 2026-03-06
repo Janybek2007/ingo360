@@ -78,6 +78,7 @@ export function getReferenceTypeDeps(
         'clients/medical-facilities',
         'clients/specialities',
         'clients/client-categories',
+        'products/product-groups',
       ];
     }
 
@@ -550,7 +551,7 @@ export function getReferenceWorkColumns(
         {
           accessorKey: 'full_name',
           header: columnHeaderNames.fullName,
-          size: 200,
+          size: 260,
           enableColumnFilter: true,
           filterFn: stringFilter(),
           filterType: 'string',
@@ -560,7 +561,7 @@ export function getReferenceWorkColumns(
           accessorKey: 'responsible_employee.full_name',
           accessorFn: item => item.responsible_employee?.full_name ?? '-',
           header: columnHeaderNames.responsibleEmployee,
-          size: 200,
+          size: 240,
           enableColumnFilter: true,
           filterFn: selectFilter(),
           filterType: 'select',
@@ -571,7 +572,7 @@ export function getReferenceWorkColumns(
           accessorKey: 'medical_facility.name',
           accessorFn: item => item.medical_facility?.name ?? '-',
           header: columnHeaderNames.medicalFacility,
-          size: 200,
+          size: 300,
           enableColumnFilter: true,
           filterFn: selectFilter(),
           filterType: 'select',
@@ -593,11 +594,22 @@ export function getReferenceWorkColumns(
           accessorKey: 'client_category.name',
           accessorFn: item => item.client_category?.name ?? '-',
           header: columnHeaderNames.category,
-          size: 200,
+          size: 140,
           enableColumnFilter: true,
           filterFn: selectFilter(),
           filterType: 'select',
           selectOptions: filterOptions.clients_client_categories,
+        },
+        {
+          id: 'product_group.id',
+          accessorKey: 'product_group.name',
+          accessorFn: item => item.product_group?.name ?? '-',
+          header: columnHeaderNames.productGroup,
+          size: 150,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.products_product_groups,
         }
       );
       break;

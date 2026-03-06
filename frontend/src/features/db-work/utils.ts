@@ -85,12 +85,10 @@ export const updateDbCache = (
   for (const query of queryClient
     .getQueryCache()
     .findAll({ queryKey: ['get-db-items'] })) {
-    const [, urls, options] = query.queryKey as [
-      string,
-      DbType[],
-      IGetDBItemsParams | undefined,
-    ];
-    if (!Array.isArray(urls) || !urls.includes(type)) continue;
+    const [, ...rest] = query.queryKey;
+    const options = rest.at(-1) as IGetDBItemsParams | undefined;
+    const urls = rest.slice(0, -1) as DbType[];
+    if (!urls.includes(type)) continue;
 
     const existing = query.state.data as
       | PaginationResponse<IDbItem[]>[]

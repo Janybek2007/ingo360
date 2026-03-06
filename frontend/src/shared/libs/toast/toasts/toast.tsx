@@ -107,7 +107,7 @@ export function toast({
 
       return (
         <div
-          className={`${t.visible ? 'animate-custom-enter' : 'animate-custom-leave'} pointer-events-auto w-full max-w-max overflow-hidden rounded-xl border border-gray-100/50 bg-white/95 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-all duration-300`}
+          className={`${t.visible ? 'animate-custom-enter' : 'animate-custom-leave'} pointer-events-auto w-full max-w-125 overflow-hidden rounded-xl border border-gray-100/50 bg-white/95 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-all duration-300`}
         >
           <div className={`h-1 w-full ${getIndicatorClass(type, isSuccess)}`} />
 
@@ -127,7 +127,7 @@ export function toast({
                   <button
                     type="button"
                     onClick={copyToClipboard}
-                    className="mt-1.5 block cursor-pointer text-left text-sm leading-[130%] whitespace-pre-line text-gray-600 transition-colors select-none hover:text-gray-800"
+                    className="mt-1.5 block cursor-pointer text-left text-sm leading-[130%] font-medium whitespace-pre-line text-gray-600 transition-colors select-none hover:text-gray-800"
                   >
                     {description}
                   </button>

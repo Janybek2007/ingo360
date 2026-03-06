@@ -96,10 +96,10 @@ export const ExcelWarningImportContent = ({
               Обновлено: {response.updated ?? 0}
             </span>
           )}
-          {!!response.deduplicated_in_batch && (
+          {!!response.deduplicated && (
             <span className="rounded-full bg-violet-50 px-2.5 py-1 text-violet-700">
-              Найдено дублей в файле (не загружены):{' '}
-              {response.deduplicated_in_batch ?? 0}
+              Найдено дублей в файле/базе (не загружены):{' '}
+              {response.deduplicated ?? 0}
             </span>
           )}
           <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">

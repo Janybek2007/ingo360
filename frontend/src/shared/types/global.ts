@@ -39,6 +39,6 @@ export interface TImportResponse {
   imported: number;
   inserted: number;
   updated: number;
-  deduplicated_in_batch: number;
+  deduplicated: number;
   skipped_records: TImportSkippedRecord[];
 }

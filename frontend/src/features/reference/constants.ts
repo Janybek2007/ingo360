@@ -324,6 +324,12 @@ export const referencesCEFields: Record<
         type: 'select',
       },
       {
+        name: 'region_id',
+        label: 'Область',
+        placeholder: 'Выберите область',
+        type: 'select',
+      },
+      {
         name: 'responsible_employee_id',
         label: 'Ответственный сотрудник',
         placeholder: 'Выберите ответственного сотрудника',
@@ -422,6 +428,7 @@ export const referencesDependsUrls: Record<
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },
+    { fieldName: 'region_id', url: 'geography/regions' },
     { fieldName: 'district_id', url: 'geography/districts' },
     { fieldName: 'product_group_id', url: 'products/product-groups' },
     { fieldName: 'client_category_id', url: 'clients/client-categories' },

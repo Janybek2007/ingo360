@@ -8,16 +8,16 @@ import type {
   IGetReferencesResponse,
 } from './reference.types';
 
-export const ReferenceQueries = {
-  queryKeys: {
+export class ReferenceQueries {
+  static readonly queryKeys = {
     getReferences: (urls: string[], options?: IGetReferencesParameters) => [
       'get-references',
       ...urls,
       options,
     ],
-  },
+  };
 
-  GetReferencesQuery<T = IGetReferencesResponse>(
+  static GetReferencesQuery<T = IGetReferencesResponse>(
     urls: string[],
     options?: IGetReferencesParameters & { method?: 'GET' | 'POST' }
   ) {
@@ -42,5 +42,5 @@ export const ReferenceQueries = {
           })
         ),
     });
-  },
-};
+  }
+}

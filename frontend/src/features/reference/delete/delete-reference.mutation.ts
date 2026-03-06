@@ -28,7 +28,10 @@ export const useDeleteReferenceMutation = (
     onSuccess: async () => {
       updateReferencesCache(type, (data, { urls }) => {
         const targetIndex = urls.indexOf(type);
-        if (targetIndex === -1) return data;
+
+        if (targetIndex === -1) {
+          return data;
+        }
 
         data[targetIndex] = (data[targetIndex] || []).filter(
           item => item.id !== id

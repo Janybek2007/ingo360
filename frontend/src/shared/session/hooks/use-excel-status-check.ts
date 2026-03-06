@@ -22,10 +22,9 @@ export const useExcelStatusCheck = (
   );
 
   useEffect(() => {
-    if (user?.role !== 'operator') return;
+    if (['administrator', 'operator'].includes(user?.role ?? '')) return;
     if (!lastMessage) return;
     if ('status' in lastMessage && lastMessage.status === 'pending') return;
-
     handleMessage(lastMessage, removeTask);
   }, [disconnect, lastMessage, removeTask, send, user?.role]);
 
@@ -111,7 +110,6 @@ const handleMessage = (
   removeTask: (id: string) => void
 ) => {
   if (!('type' in message)) return;
-
   switch (message.type) {
     case 'excel_imported': {
       if ('result' in message && message.result?.import_result != null) {

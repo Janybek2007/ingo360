@@ -14,8 +14,8 @@ const getTotals = (response: TImportResponse) =>
     `Импортировано: ${response.imported}`,
     !!response.inserted && `Добавлено: ${response.inserted ?? 0}`,
     !!response.updated && `Обновлено: ${response.updated ?? 0}`,
-    !!response.deduplicated_in_batch &&
-      `Найдено дублей в файле (не загружены): ${response.deduplicated_in_batch ?? 0}`,
+    !!response.deduplicated &&
+      `Найдено дублей в файле/базе (не загружены): ${response.deduplicated ?? 0}`,
     `Пропущено: ${response.skipped}`,
     `Всего: ${response.total}`,
   ].filter(Boolean);
@@ -74,7 +74,10 @@ const openModal = (
       createPortal(
         <Modal
           title={title}
-          onClose={() => tt.dismiss(newToast.id, newToast.toasterId)}
+          onClose={() => {
+            onRemoveTask?.();
+            tt.dismiss(newToast.id, newToast.toasterId);
+          }}
           classNames={{
             body: 'md:min-w-[60rem] md:max-w-[80rem] min-w-[90dvw] max-w-[90dvw]',
             root: `toast-modal-${newToast.id}`,
@@ -89,18 +92,6 @@ const openModal = (
           ) : (
             <div className="max-h-[60vh] overflow-hidden pr-2">{content}</div>
           )}
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              onClick={() => {
-                onRemoveTask?.();
-                tt.dismiss(newToast.id, newToast.toasterId);
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:bg-slate-100"
-            >
-              Закрыть задачу
-            </button>
-          </div>
         </Modal>,
         document.body
       ),
