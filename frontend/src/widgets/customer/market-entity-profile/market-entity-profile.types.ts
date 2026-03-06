@@ -6,6 +6,7 @@ export interface MarketEntityProfileProps {
   entities: EntityRow[];
   isLoading?: boolean;
   queryError?: Error | null;
+  noImsPlaceholder?: boolean;
   periodFilter: UsePeriodFilterReturn;
   activeTab: ISMGroupColumn;
   setActiveTab: React.Dispatch<React.SetStateAction<ISMGroupColumn>>;

@@ -1,6 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
@@ -27,10 +26,9 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
       return response.json<TAddUserResponse>();
     },
     async onSuccess() {
-      await queryClient.refetchQueries({
-        queryKey: UserQueries.queryKeys.getAdminOperators({}),
+      await queryClient.invalidateQueries({
+        queryKey: ['get-admin-operators'],
       });
-
       onClose();
       toast({
         message: 'Пользователь успешно добавлен',

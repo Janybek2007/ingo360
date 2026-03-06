@@ -4,7 +4,6 @@ import React from 'react';
 import { CompanyQueries } from '#/entities/company';
 import type { IUserItem } from '#/entities/user';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles';
 import { toast } from '#/shared/libs/toast/toasts';
 
 import {
@@ -101,17 +100,6 @@ export const EditCustomerModal: React.FC<{
           defaultValue: (customerData as { position?: string })?.position || '',
         },
         [
-          {
-            label: 'Роль',
-            type: 'select',
-            name: 'role',
-            placeholder: 'Выберите роль',
-            defaultValue: customerData?.role || 'customer',
-            selectItems: ROLES.map(role => ({
-              label: ROLES_OBJECT[role],
-              value: role,
-            })),
-          },
           {
             label: 'Статус',
             name: 'is_active',

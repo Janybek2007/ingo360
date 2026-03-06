@@ -6,6 +6,7 @@ import type {
 import React, { useMemo } from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
+import { NoImsPlaceholder } from '#/shared/components/no-ims-placeholder';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { UsedFilter } from '#/shared/components/used-filter';
@@ -18,7 +19,7 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import type { LeaderboardProps as LeaderboardProperties } from './leader-board.types';
 
 export const LeaderBoard: React.FC<LeaderboardProperties> = React.memo(
-  ({ periodFilter, entities, isLoading, queryError }) => {
+  ({ periodFilter, entities, isLoading, queryError, noImsPlaceholder }) => {
     const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
     const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -41,6 +42,43 @@ export const LeaderBoard: React.FC<LeaderboardProperties> = React.memo(
       ],
       []
     );
+
+    const tableContent = (() => {
+      if (periodFilter.selectedValues.length === 0) {
+        return (
+          <div className="my-32">
+            <p className="p-10 text-center text-gray-500">
+              Пожалуйста, выберите период для отображения данных рейтинга.
+            </p>
+          </div>
+        );
+      }
+      if (noImsPlaceholder) {
+        return (
+          <div className="my-8">
+            <NoImsPlaceholder />
+          </div>
+        );
+      }
+      return (
+        <AsyncBoundary isLoading={isLoading} queryError={queryError}>
+          <FiltersContext.Provider
+            value={{ filters, setFilters, sorting, setSorting }}
+          >
+            <Table
+              isVirtualized={false}
+              highlightRow={row =>
+                row.is_user_company ? 'bg-yellow-100 font-bold' : ''
+              }
+              pinnedRow={row => row.is_user_company}
+              columns={columns}
+              data={entities}
+              enableColumnResizing={false}
+            />
+          </FiltersContext.Provider>
+        </AsyncBoundary>
+      );
+    })();
 
     return (
       <section
@@ -83,32 +121,7 @@ export const LeaderBoard: React.FC<LeaderboardProperties> = React.memo(
             </div>
             <div></div>
           </div>
-          <div className="w-full overflow-hidden">
-            {periodFilter.selectedValues.length === 0 ? (
-              <div className="my-32">
-                <p className="p-10 text-center text-gray-500">
-                  Пожалуйста, выберите период для отображения данных рейтинга.
-                </p>
-              </div>
-            ) : (
-              <AsyncBoundary isLoading={isLoading} queryError={queryError}>
-                <FiltersContext.Provider
-                  value={{ filters, setFilters, sorting, setSorting }}
-                >
-                  <Table
-                    isVirtualized={false}
-                    highlightRow={row =>
-                      row.is_user_company ? 'bg-yellow-100 font-bold' : ''
-                    }
-                    pinnedRow={row => row.is_user_company}
-                    columns={columns}
-                    data={entities}
-                    enableColumnResizing={false}
-                  />
-                </FiltersContext.Provider>
-              </AsyncBoundary>
-            )}
-          </div>
+          <div className="w-full overflow-hidden">{tableContent}</div>;
         </div>
       </section>
     );

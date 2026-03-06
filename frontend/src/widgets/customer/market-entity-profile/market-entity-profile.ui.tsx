@@ -7,12 +7,14 @@ import React, { useMemo } from 'react';
 
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { DbFilters } from '#/shared/components/db-filters';
+import { NoImsPlaceholder } from '#/shared/components/no-ims-placeholder';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Tabs } from '#/shared/components/ui/tabs';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { FiltersContext } from '#/shared/context/filters';
+import { useNoImsPlaceholder } from '#/shared/hooks/use-no-ims-placeholder';
 import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -32,12 +34,14 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
       entities,
       isLoading,
       queryError,
+      noImsPlaceholder,
       activeTab,
       setActiveTab,
       filters: databaseFilters,
     }) => {
       const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
       const [sorting, setSorting] = React.useState<SortingState>([]);
+      const showNoImsHere = useNoImsPlaceholder(queryError);
 
       const activeTabHeader = activeTab == 'brand' ? 'Бренд' : 'Сегмент';
       const activeTabText = activeTab === 'brand' ? 'брендов' : 'сегментов';
@@ -69,6 +73,47 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
         ],
         [activeTab, activeTabHeader]
       );
+
+      const tableContent = (() => {
+        if (periodFilter.selectedValues.length === 0) {
+          return (
+            <div className="my-32">
+              <p className="p-10 text-center text-gray-500">
+                Пожалуйста, выберите период для отображения данных рейтинга.
+              </p>
+            </div>
+          );
+        }
+        if (noImsPlaceholder || showNoImsHere) {
+          return (
+            <div className="my-8">
+              <NoImsPlaceholder />
+            </div>
+          );
+        }
+        return (
+          <AsyncBoundary isLoading={isLoading} queryError={queryError}>
+            <FiltersContext.Provider
+              value={{ filters, setFilters, sorting, setSorting }}
+            >
+              <Table
+                isVirtualized={false}
+                highlightRow={row =>
+                  row.is_user_company || row.is_user_entity
+                    ? 'bg-yellow-100 font-bold'
+                    : ''
+                }
+                isViewFilter={false}
+                pinnedRow={row => row.is_user_company || row.is_user_entity}
+                columns={columns}
+                data={entities}
+                enableColumnResizing={false}
+                maxHeight={400}
+              />
+            </FiltersContext.Provider>
+          </AsyncBoundary>
+        );
+      })();
 
       return (
         <PageSection
@@ -131,39 +176,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               </div>
               <div></div>
             </div>
-            <div className="w-full overflow-hidden">
-              {periodFilter.selectedValues.length === 0 ? (
-                <div className="my-32">
-                  <p className="p-10 text-center text-gray-500">
-                    Пожалуйста, выберите период для отображения данных рейтинга.
-                  </p>
-                </div>
-              ) : (
-                <AsyncBoundary isLoading={isLoading} queryError={queryError}>
-                  <FiltersContext.Provider
-                    value={{ filters, setFilters, sorting, setSorting }}
-                  >
-                    <Table
-                      isVirtualized={false}
-                      highlightRow={row =>
-                        row.is_user_company || row.is_user_entity
-                          ? 'bg-yellow-100 font-bold'
-                          : ''
-                      }
-                      // isVirtualized={false}
-                      isViewFilter={false}
-                      pinnedRow={row =>
-                        row.is_user_company || row.is_user_entity
-                      }
-                      columns={columns}
-                      data={entities}
-                      enableColumnResizing={false}
-                      maxHeight={400}
-                    />
-                  </FiltersContext.Provider>
-                </AsyncBoundary>
-              )}
-            </div>
+            <div className="w-full overflow-hidden">{tableContent}</div>;
           </div>
         </PageSection>
       );
