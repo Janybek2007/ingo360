@@ -1,5 +1,6 @@
 import type { IReferenceItem } from '#/entities/reference';
 import { queryClient } from '#/shared/libs/react-query';
+import type { PaginationResponse } from '#/shared/types/global';
 import type { ReferencesType } from '#/shared/types/references.type';
 
 export const updateReferencesCache = (
@@ -19,12 +20,21 @@ export const updateReferencesCache = (
     ];
     if (!Array.isArray(urls) || !urls.includes(type)) continue;
 
-    const existing = query.state.data as IReferenceItem[][] | undefined;
+    const existing = query.state.data as
+      | PaginationResponse<IReferenceItem[]>[]
+      | undefined;
     const normalized = urls.map((_, index) =>
-      existing && Array.isArray(existing[index]) ? [...existing[index]] : []
+      existing?.[index]?.result && Array.isArray(existing[index].result)
+        ? [...existing[index].result]
+        : []
     );
 
     const next = updater(normalized, { urls, options });
-    queryClient.setQueryData(query.queryKey, next);
+    queryClient.setQueryData(
+      query.queryKey,
+      existing
+        ? existing.map((p, i) => ({ ...p, result: next[i] ?? [] }))
+        : next
+    );
   }
 };

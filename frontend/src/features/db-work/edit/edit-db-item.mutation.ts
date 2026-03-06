@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 
 import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
-import { QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
 import type { DbType } from '#/shared/types/db.type';
 
@@ -62,6 +61,5 @@ export const useEditDbItemMutation = (
         duration: 8000, // 8 seconds
       });
     },
-    onError: QueryOnError,
   });
 };

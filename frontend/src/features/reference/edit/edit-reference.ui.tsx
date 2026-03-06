@@ -58,6 +58,7 @@ const EditReferenceModal: React.FC<{
       isSuccess={mutation.isSuccess}
       title={`Редактировать запись`}
       fields={fields}
+      error={mutation.error}
       schema={referenceContractWithType[type as ReferencesTypeWithMain]}
       onClose={onClose}
       onSubmit={mutation.mutateAsync}
@@ -86,7 +87,7 @@ export const EditReferenceWrapper: React.FC<{
         title="Редактировать"
         onClick={toggle}
       >
-        <MdiPencilIcon className="size-[1.125rem]" />
+        <MdiPencilIcon className="size-4.5" />
       </button>
     </>
   );

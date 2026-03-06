@@ -55,6 +55,7 @@ const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
         isLoading={filterOptions.isLoading}
         isPending={mutation.isPending}
         isSuccess={mutation.isSuccess}
+        error={mutation.error}
         schema={databaseItemContractWithType[type]}
         fields={fields}
         onSubmit={mutation.mutateAsync}

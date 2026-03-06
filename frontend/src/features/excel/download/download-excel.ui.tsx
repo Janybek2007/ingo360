@@ -48,7 +48,10 @@ export const DownloadExcelModalContent: React.FC<DownloadExcelModalContentProper
     return (
       <Modal
         title="Файл готов"
-        onClose={onClose}
+        onClose={() => {
+          onClose();
+          onRemoveTask?.();
+        }}
         classNames={{
           body: 'md:min-w-[40rem] md:max-w-[60rem] min-w-[70dvw] max-w-[70dvw]',
         }}
@@ -98,7 +101,10 @@ export const DownloadExcelModalContent: React.FC<DownloadExcelModalContentProper
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={() => {
+                    onClose();
+                    onRemoveTask?.();
+                  }}
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:bg-slate-100"
                 >
                   Закрыть
@@ -115,13 +121,6 @@ export const DownloadExcelModalContent: React.FC<DownloadExcelModalContentProper
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onRemoveTask}
-            className="ml-auto flex items-center justify-end gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:bg-slate-100"
-          >
-            Закрыть задачу
-          </button>
         </div>
       </Modal>
     );

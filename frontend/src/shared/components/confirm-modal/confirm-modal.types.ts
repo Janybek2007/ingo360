@@ -8,4 +8,5 @@ export interface IConfirmModalProps extends React.PropsWithChildren {
   onCancel?: VoidFunction;
   onClose: VoidFunction;
   disabled?: boolean;
+  error?: any;
 }

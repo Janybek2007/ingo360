@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from '#/shared/utils/cn';
+import { getResponseError } from '#/shared/utils/get-error';
 
 import { Modal } from '../ui/modal';
 import type { IConfirmModalProps as IConfirmModalProperties } from './confirm-modal.types';
@@ -18,7 +19,10 @@ export const ConfirmModal: React.FC<IConfirmModalProperties> = React.memo(
     onClose,
     confirmAs = 'primary',
     disabled = false,
+    error,
   }) => {
+    const [apiError, setApiError] = React.useState(null);
+
     const handleConfirm = React.useCallback(() => {
       onConfirm();
     }, [onConfirm]);
@@ -27,6 +31,22 @@ export const ConfirmModal: React.FC<IConfirmModalProperties> = React.memo(
       onCancel?.();
       onClose();
     }, [onCancel, onClose]);
+
+    React.useEffect(() => {
+      if (!error) return;
+      const _try = async () => {
+        const responseError = error?.response;
+        const fallbackMessage = error?.message || 'Неизвестная ошибка';
+        const data = responseError
+          ? await getResponseError(responseError)
+          : fallbackMessage;
+        setApiError(data);
+      };
+      _try();
+      return () => {
+        setApiError(null);
+      };
+    }, [error]);
 
     const confirmButtonClassName = React.useMemo(() => {
       const baseClasses =
@@ -55,6 +75,12 @@ export const ConfirmModal: React.FC<IConfirmModalProperties> = React.memo(
           )}
           {children && <div className="mt-3 md:mt-4">{children}</div>}
         </div>
+
+        {apiError && (
+          <div className="mt-3 rounded-lg border-2 border-red-300 bg-red-50 px-3 py-2 text-base text-red-700">
+            {apiError}
+          </div>
+        )}
 
         <div className="mt-4 flex justify-end gap-3 md:mt-6">
           <button

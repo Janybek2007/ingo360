@@ -61,6 +61,7 @@ const EditDbItemModal: React.FC<{
       isLoading={filterOptions.isLoading}
       isPending={mutation.isPending}
       isSuccess={mutation.isSuccess}
+      error={mutation.error}
       schema={databaseItemContractWithType[type].optional()}
       fields={fields}
       onSubmit={mutation.mutateAsync}
@@ -91,7 +92,7 @@ export const EditDbItemWrapper: React.FC<{
         title="Редактировать"
         onClick={toggle}
       >
-        <MdiPencilIcon className="size-[1.125rem]" />
+        <MdiPencilIcon className="size-4.5" />
       </button>
     </>
   );

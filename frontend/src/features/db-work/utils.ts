@@ -1,6 +1,7 @@
 import type { IDbItem, IGetDBItemsParams } from '#/entities/db';
 import { queryClient } from '#/shared/libs/react-query';
 import type { DbType } from '#/shared/types/db.type';
+import type { PaginationResponse } from '#/shared/types/global';
 
 const cloneDbData = (urls: DbType[], data?: IDbItem[][]): IDbItem[][] => {
   return urls.map((_, index) =>
@@ -91,10 +92,20 @@ export const updateDbCache = (
     ];
     if (!Array.isArray(urls) || !urls.includes(type)) continue;
 
-    const existing = query.state.data as IDbItem[][] | undefined;
-    const normalized = cloneDbData(urls, existing);
+    const existing = query.state.data as
+      | PaginationResponse<IDbItem[]>[]
+      | undefined;
+    const normalized = cloneDbData(
+      urls,
+      existing?.map(p => p.result)
+    );
 
     const next = updater(normalized, { urls, options });
-    queryClient.setQueryData(query.queryKey, next);
+    queryClient.setQueryData(
+      query.queryKey,
+      existing
+        ? existing.map((p, i) => ({ ...p, result: next[i] ?? [] }))
+        : next
+    );
   }
 };

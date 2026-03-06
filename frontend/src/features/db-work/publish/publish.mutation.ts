@@ -5,6 +5,7 @@ import { http } from '#/shared/api';
 import { queryClient, QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
 import type { DbType } from '#/shared/types/db.type';
+import type { PaginationResponse } from '#/shared/types/global';
 
 export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
   return useMutation({
@@ -28,7 +29,7 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
             );
           },
         },
-        (oldData: IDbItem[][] | undefined) => {
+        (oldData: PaginationResponse<IDbItem[]>[] | undefined) => {
           if (!oldData) return oldData;
 
           return updateOldData(oldData, updatedItems);
@@ -45,12 +46,13 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
 };
 
 function updateOldData(
-  oldData: IDbItem[][],
+  oldData: PaginationResponse<IDbItem[]>[],
   updatedItems: Pick<IDbItem, 'id' | 'published'>[]
-): IDbItem[][] {
-  return oldData.map(innerArray =>
-    innerArray.map(item => updateItem(item, updatedItems))
-  );
+): PaginationResponse<IDbItem[]>[] {
+  return oldData.map(page => ({
+    ...page,
+    result: page.result.map(item => updateItem(item, updatedItems)),
+  }));
 }
 
 function updateItem(

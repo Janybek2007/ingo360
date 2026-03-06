@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { http } from '#/shared/api';
+import { QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
 
 import type {
@@ -46,5 +47,6 @@ export const useExportExcelMutation = (url: ExportToExcelUrl) => {
       }
       return response;
     },
+    onError: QueryOnError,
   });
 };

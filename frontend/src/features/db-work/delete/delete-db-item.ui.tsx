@@ -29,6 +29,7 @@ export const DeleteDbItemWrapper: React.FC<{
             message="Вы действительно хотите удалить эту запись?"
             confirmAs="danger"
             disabled={mutation.isPending}
+            error={mutation.error}
             confirmText={mutation.isPending ? 'Удаление...' : 'Удалить'}
             onConfirm={mutation.mutateAsync}
           />
@@ -39,7 +40,7 @@ export const DeleteDbItemWrapper: React.FC<{
           title="Удалить"
           onClick={toggle}
         >
-          <MdiDeleteIcon className="size-[1.125rem]" />
+          <MdiDeleteIcon className="size-4.5" />
         </button>
       </>
     );
