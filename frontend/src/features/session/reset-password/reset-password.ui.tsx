@@ -11,7 +11,7 @@ export const ResetPasswordForm: React.FC<{ token: string | null }> = React.memo(
       useResetPasswordMutation(token);
     return (
       <form onSubmit={onSubmit}>
-        <div className="flex flex-col gap-5 mt-8 mb-3">
+        <div className="mt-8 mb-3 flex flex-col gap-5">
           <FormField
             name="password"
             label="Новый пароль"
@@ -32,18 +32,18 @@ export const ResetPasswordForm: React.FC<{ token: string | null }> = React.memo(
           />
         </div>
         {(errors.root || errors.token) && (
-          <div className="text-red-500 mb-5">
+          <div className="mb-5 text-red-500">
             {(errors.root || errors.token)?.message}
           </div>
         )}
-        <div className="flex justify-end mt-8">
+        <div className="mt-8 flex justify-end">
           <Button
             color="primary"
             wFull
             type="submit"
             roundedFull
             disabled={status === 'pending'}
-            className="flex items-center justify-center py-4 text-xl leading-7 align-middle w-[14.375rem] h-[3.125rem] text-1xl"
+            className="text-1xl flex h-[3.125rem] w-[14.375rem] items-center justify-center py-4 align-middle text-xl leading-7"
           >
             {status === 'pending' ? 'Отправка...' : 'Отправить'}
           </Button>

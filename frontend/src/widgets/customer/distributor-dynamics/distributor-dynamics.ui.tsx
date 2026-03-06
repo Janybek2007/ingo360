@@ -83,10 +83,10 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       ['value']
     ).filter(v => Boolean(v.value));
 
-    return uniqueDistributors.map(dist => ({
-      id: dist.value,
-      name: dist.label,
-      color: stringToColor(dist.label),
+    return uniqueDistributors.map(distribution => ({
+      id: distribution.value,
+      name: distribution.label,
+      color: stringToColor(distribution.label),
     }));
   }, [sales]);
 
@@ -159,7 +159,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
         isLoading={queryData.isLoading}
         queryError={queryData.error}
       >
-        <div className="space-y-4 relative">
+        <div className="relative space-y-4">
           <UsedFilter
             usedFilterItems={filters.usedFilterItems}
             resetFilters={resetFilters}
@@ -190,7 +190,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
           />
           <div className="font-inter">
             {distributors.length === 0 ? (
-              <div className="text-center text-gray-500 py-60">
+              <div className="py-60 text-center text-gray-500">
                 Дистрибьюторы не выбраны
               </div>
             ) : (
@@ -205,7 +205,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                   dataKey="label"
                   axisLine={false}
                   tickMargin={20}
-                  className="text-[#474B4E] font-normal text-base leading-full"
+                  className="leading-full text-base font-normal text-[#474B4E]"
                   padding={{ left: 55, right: 20 }}
                 />
                 <YAxis
@@ -214,7 +214,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                   axisLine={false}
                   hide
                   tickLine={false}
-                  className="text-[#474B4E] font-normal text-base leading-full"
+                  className="leading-full text-base font-normal text-[#474B4E]"
                   tickMargin={10}
                   tickFormatter={formatMoney}
                 />
@@ -226,8 +226,8 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                       return null;
 
                     return (
-                      <div className="bg-white rounded-md px-3 py-2 shadow-lg border border-gray-200">
-                        <div className="text-xs text-gray-500 font-medium mb-2">
+                      <div className="rounded-md border border-gray-200 bg-white px-3 py-2 shadow-lg">
+                        <div className="mb-2 text-xs font-medium text-gray-500">
                           {label}
                         </div>
                         <div className="space-y-1">
@@ -243,7 +243,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                                 className="flex items-center gap-2"
                               >
                                 <span
-                                  className="w-2 h-2 rounded-full"
+                                  className="h-2 w-2 rounded-full"
                                   style={{ backgroundColor: entry.color }}
                                 />
                                 <span className="text-sm font-semibold text-gray-800">
@@ -275,7 +275,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
                       <LabelList
                         dataKey={d.name}
                         position="top"
-                        className="font-inter text-xs hidden"
+                        className="font-inter hidden text-xs"
                         formatter={value => {
                           if (value === undefined || value === null) return '';
                           return Number(value).toLocaleString('ru-RU');

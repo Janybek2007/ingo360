@@ -4,7 +4,6 @@ export { LoadingIcon } from './all/loading-twotone-loop.ui';
 export { LucideAlertCircleIcon } from './all/lucide-alert-circle.ui';
 export { LucideArrowIcon } from './all/lucide-arrow.ui';
 export { LucideCheckIcon } from './all/lucide-check.ui';
-export { LucideEllipsisVerticalIcon } from './all/lucide-ellipsis-vertical.ui';
 export { LucideEyeIcon } from './all/lucide-eye.ui';
 export { LucideFilterIcon } from './all/lucide-filter.ui';
 export { LucidMinusIcon } from './all/lucide-minus.ui';
@@ -19,4 +18,3 @@ export { MslAdminPanelSettingsRounded } from './all/msl-admin-panel-settings-rou
 export { MyNauiLogoutIcon } from './all/mynaui-logout.ui';
 export { SidebarNavigationsIcons } from './all/sidebar-navigations.ui';
 export { SolarUserLinearIcon } from './all/solar-user-linear.ui';
-export type { IStaticIconProps } from './types';

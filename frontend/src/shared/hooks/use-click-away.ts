@@ -2,16 +2,16 @@ import React, { useRef } from 'react';
 
 export const useClickAway = <T = HTMLElement>(
   callback: VoidFunction,
-  ref?: React.RefObject<T>
+  reference?: React.RefObject<T>
 ) => {
-  const internalRef = useRef<T>(null);
-  const _ref = ref ? ref : internalRef;
+  const internalReference = useRef<T>(null);
+  const _reference = reference ?? internalReference;
 
   React.useEffect(() => {
     const handleClick = (event: MouseEvent) => {
       if (
-        _ref.current &&
-        !(_ref.current as unknown as HTMLDivElement).contains(
+        _reference.current &&
+        !(_reference.current as unknown as HTMLDivElement).contains(
           event.target as Node
         )
       ) {
@@ -24,7 +24,7 @@ export const useClickAway = <T = HTMLElement>(
     return () => {
       document.removeEventListener('mousedown', handleClick);
     };
-  }, [_ref, callback]);
+  }, [_reference, callback]);
 
-  return _ref;
+  return _reference;
 };

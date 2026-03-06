@@ -7,7 +7,7 @@ import { useImportReferenceMutation } from './import-reference.mutation';
 
 export const ImportReferenceButton: React.FC<{ type: ReferencesType }> =
   React.memo(({ type }) => {
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const fileInputReference = React.useRef<HTMLInputElement>(null);
     const { mutate, isPending } = useImportReferenceMutation(type);
 
     const handleFileChange = React.useCallback(
@@ -15,8 +15,8 @@ export const ImportReferenceButton: React.FC<{ type: ReferencesType }> =
         const file = event.target.files?.[0];
         if (file) {
           mutate(file);
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+          if (fileInputReference.current) {
+            fileInputReference.current.value = '';
           }
         }
       },
@@ -24,20 +24,20 @@ export const ImportReferenceButton: React.FC<{ type: ReferencesType }> =
     );
 
     const handleButtonClick = React.useCallback(() => {
-      fileInputRef.current?.click();
+      fileInputReference.current?.click();
     }, []);
 
     return (
       <>
         <Button
-          className="px-4 py-2 rounded-full"
+          className="rounded-full px-4 py-2"
           onClick={handleButtonClick}
           disabled={isPending}
         >
           {isPending ? 'Импортируем...' : 'Импорт из файла'}
         </Button>
         <input
-          ref={fileInputRef}
+          ref={fileInputReference}
           id="importFile"
           type="file"
           accept=".xlsx,.xls"

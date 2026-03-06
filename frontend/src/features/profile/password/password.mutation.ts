@@ -39,8 +39,8 @@ export const useUpdatePasswordMutation = () => {
           description: data || 'Произошла ошибка при обновлении пароля',
           type: 'error',
         });
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
+      } catch (error_) {
+        console.error('Ошибка разбора ответа', error_);
         toast({
           message: 'Произошла ошибка при обновлении пароля',
           type: 'error',

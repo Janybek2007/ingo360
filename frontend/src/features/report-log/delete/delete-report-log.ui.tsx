@@ -18,7 +18,7 @@ export const DeleteReportLogWrapper: React.FC<{ log: ReportLog }> = React.memo(
         <button
           type="button"
           onClick={toggle}
-          className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-full p-1.5 text-red-400 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
           title="Удалить"
         >
           <MdiDeleteIcon className="size-[1.125rem]" />

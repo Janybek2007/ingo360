@@ -73,7 +73,7 @@ export const OverallVisits: React.FC = React.memo(() => {
 
   const chartData = useMemo(() => {
     return visits
-      .sort(PeriodSorting.sortByPeriod(periodFilter.period))
+      .toSorted(PeriodSorting.sortByPeriod(periodFilter.period))
       .map(item => {
         const parsed = parsePeriodData(item.period, periodFilter.period);
 
@@ -86,7 +86,7 @@ export const OverallVisits: React.FC = React.memo(() => {
   }, [visits, periodFilter.period]);
 
   const chartAxis = useMemo(
-    () => calculateChartAxis(chartData, ['value'], 10000),
+    () => calculateChartAxis(chartData, ['value'], 10_000),
     [chartData]
   );
 
@@ -132,7 +132,7 @@ export const OverallVisits: React.FC = React.memo(() => {
                 dataKey="label"
                 axisLine={false}
                 tickMargin={20}
-                className="text-base text-[#474B4E] leading-full font-normal"
+                className="leading-full text-base font-normal text-[#474B4E]"
                 padding={{ left: 55, right: 30 }}
               />
 
@@ -142,7 +142,7 @@ export const OverallVisits: React.FC = React.memo(() => {
                 axisLine={false}
                 tickLine={false}
                 hide
-                className="text-base text-[#474B4E] leading-full font-normal"
+                className="leading-full text-base font-normal text-[#474B4E]"
                 tickMargin={20}
                 tickFormatter={value => Number(value).toLocaleString('ru-RU')}
               />

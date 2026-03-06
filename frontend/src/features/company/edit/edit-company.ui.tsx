@@ -21,16 +21,18 @@ export const EditCompanyModal: React.FC<{
       const newLimit = Number(
         (data as { active_users_limit?: number }).active_users_limit
       );
-      if (Number.isFinite(newLimit) && newLimit > 0) {
-        if (companyData.active_users > newLimit) {
-          toast({
-            message:
-              'Лимит не может быть меньше количества активных пользователей',
-            type: 'warning',
-            duration: 8000, // 8 seconds
-          });
-          return;
-        }
+      if (
+        Number.isFinite(newLimit) &&
+        newLimit > 0 &&
+        companyData.active_users > newLimit
+      ) {
+        toast({
+          message:
+            'Лимит не может быть меньше количества активных пользователей',
+          type: 'warning',
+          duration: 8000, // 8 seconds
+        });
+        return;
       }
 
       await mutation.mutateAsync({

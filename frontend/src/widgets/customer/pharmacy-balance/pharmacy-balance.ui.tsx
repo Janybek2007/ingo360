@@ -45,7 +45,7 @@ function normalizePharmacyStockRows(
     if (mm) return `${mm[1]}-${mm[2]}`;
     const month = monthKeyRegex.exec(key);
     if (month) {
-      const m = parseInt(month[2], 10);
+      const m = Number.parseInt(month[2], 10);
       return m >= 1 && m <= 12
         ? `${month[1]}-${String(m).padStart(2, '0')}`
         : null;
@@ -66,7 +66,7 @@ function normalizePharmacyStockRows(
       if (
         p &&
         typeof (p as Record<string, number>).packages === 'number' &&
-        (p as Record<string, number>).total_packages === undefined
+        (p as Record<string, number>).total_packages
       ) {
         (p as Record<string, number>)[INDICATOR_KEY] = (
           p as Record<string, number>
@@ -78,10 +78,10 @@ function normalizePharmacyStockRows(
       if (key === 'periods_data') continue;
       const normalized = toYYYYMM(key);
       if (!normalized) continue;
-      const val = (row as Record<string, unknown>)[key];
-      if (typeof val !== 'number') continue;
+      const value = (row as Record<string, unknown>)[key];
+      if (typeof value !== 'number') continue;
       if (!out.periods_data[normalized]) out.periods_data[normalized] = {};
-      out.periods_data[normalized][INDICATOR_KEY] = val;
+      out.periods_data[normalized][INDICATOR_KEY] = value;
     }
 
     return out;
@@ -99,7 +99,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     'employees/employees',
   ]);
 
-  const dbFilters = useDbFilters({
+  const databaseFilters = useDbFilters({
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
     config: {
@@ -119,14 +119,20 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         ...transformColumnFiltersToPayload(
           filters,
           COMMON_COLUMNS_FILTER_KEY_MAP,
-          { brand_ids: dbFilters.brands, product_group_ids: dbFilters.groups }
+          {
+            brand_ids: databaseFilters.brands,
+            product_group_ids: databaseFilters.groups,
+          }
         ),
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-        limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
-        search: dbFilters.search,
+        limit:
+          databaseFilters.rowsCount === 'all'
+            ? undefined
+            : databaseFilters.rowsCount,
+        search: databaseFilters.search,
 
-        group_by_dimensions: dbFilters.groupBy.filter(dimension =>
+        group_by_dimensions: databaseFilters.groupBy.filter(dimension =>
           [
             'sku',
             'brand',
@@ -170,7 +176,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: dbFilters.setGroupBy,
+      setGroupBy: databaseFilters.setGroupBy,
     });
 
   const { monthTotals, grandTotal } = useMemo(
@@ -182,8 +188,8 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     <PageSection
       title="Остаток по аптекам"
       headerEnd={
-        <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...dbFilters} />
+        <div className="relative z-100 flex items-center gap-4">
+          <DbFilters {...databaseFilters} />
 
           <Select<true>
             value={visibleColumns}
@@ -224,8 +230,8 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         >
           <Table
             filters={{
-              usedFilterItems: dbFilters.usedFilterItems,
-              resetFilters: dbFilters.resetFilters,
+              usedFilterItems: databaseFilters.usedFilterItems,
+              resetFilters: databaseFilters.resetFilters,
             }}
             columns={columnsForTable}
             data={normalizedSales}

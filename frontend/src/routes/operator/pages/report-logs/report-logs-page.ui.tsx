@@ -33,7 +33,7 @@ const ReportLogsPage: React.FC = () => {
         header: 'Действия',
         size: 60,
         custom: {
-          cell: ({ row }: any) => <DeleteReportLogWrapper log={row.original} />,
+          cell: ({ row }) => <DeleteReportLogWrapper log={row.original} />,
         },
       },
     ],
@@ -51,7 +51,7 @@ const ReportLogsPage: React.FC = () => {
       <PageSection
         title="Отчеты"
         headerEnd={
-          <div className="flex items-center gap-4 relative z-100">
+          <div className="relative z-100 flex items-center gap-4">
             <Select<true>
               value={visibleColumns}
               setValue={setVisibleColumns}

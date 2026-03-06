@@ -11,7 +11,7 @@ import { LucideFilterIcon } from '#/shared/assets/icons';
 import { filterItems } from '#/shared/constants/filter-items';
 import { getPopupStyle } from '#/shared/utils/get-popup-style';
 
-import type { IFilterPopupProps } from '../../table.types';
+import type { IFilterPopupProps as IFilterPopupProperties } from '../../table.types';
 import { useFilterPopup } from '../../utils/use-filter-popup';
 import { FilterActions } from './filter-actions.ui';
 import { FilterInput } from './filter-input.ui';
@@ -22,7 +22,7 @@ export function FilterPopup({
   column,
   onClose,
   popupPosition,
-}: IFilterPopupProps) {
+}: Readonly<IFilterPopupProperties>) {
   const [pendingSort, setPendingSort] = useState<SortDirection | false>(
     column.getIsSorted() as SortDirection
   );
@@ -46,13 +46,15 @@ export function FilterPopup({
 
   const [width, setWidth] = useState(350);
   const [isResizing, setIsResizing] = useState(false);
-  const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
+  const resizeReference = useRef<{ startX: number; startWidth: number } | null>(
+    null
+  );
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       setIsResizing(true);
-      resizeRef.current = {
+      resizeReference.current = {
         startX: e.clientX,
         startWidth: width,
       };
@@ -62,12 +64,12 @@ export function FilterPopup({
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (!isResizing || !resizeRef.current) return;
+      if (!isResizing || !resizeReference.current) return;
 
-      const deltaX = e.clientX - resizeRef.current.startX;
+      const deltaX = e.clientX - resizeReference.current.startX;
       const newWidth = Math.max(
         250,
-        Math.min(600, resizeRef.current.startWidth + deltaX)
+        Math.min(600, resizeReference.current.startWidth + deltaX)
       );
       setWidth(newWidth);
     },
@@ -76,7 +78,7 @@ export function FilterPopup({
 
   const handleMouseUp = useCallback(() => {
     setIsResizing(false);
-    resizeRef.current = null;
+    resizeReference.current = null;
   }, []);
 
   useEffect(() => {
@@ -116,18 +118,18 @@ export function FilterPopup({
     <div
       ref={contentRef}
       style={{ ...getPopupStyle(popupPosition), width: `${width}px` }}
-      className="absolute z-50 font-inter bg-white border border-gray-300 rounded-sm shadow-xl p-0 mt-1 select-none"
+      className="font-inter absolute z-50 mt-1 rounded-sm border border-gray-300 bg-white p-0 shadow-xl select-none"
     >
-      <div className="p-3 relative">
+      <div className="relative p-3">
         <SortButtons
           isSorted={pendingSort}
-          toggleSorting={asc => setPendingSort(!asc ? 'asc' : 'desc')}
+          toggleSorting={asc => setPendingSort(asc ? 'desc' : 'asc')}
           resetSorting={() => setPendingSort(false)}
         />
 
         {column.columnDef.enableColumnFilter && (
           <div className="mb-3">
-            <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+            <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-700">
               <LucideFilterIcon className="size-[1rem]" />
               Фильтр
             </h4>
@@ -162,7 +164,7 @@ export function FilterPopup({
         role="button"
         tabIndex={0}
         onMouseDown={handleMouseDown}
-        className="absolute left-0 top-0 w-1 h-full cursor-ew-resize bg-transparent hover:bg-blue-500/20 transition-colors"
+        className="absolute top-0 left-0 h-full w-1 cursor-ew-resize bg-transparent transition-colors hover:bg-blue-500/20"
         aria-label="Изменить размер слева"
       />
 
@@ -171,7 +173,7 @@ export function FilterPopup({
         role="button"
         tabIndex={0}
         onMouseDown={handleMouseDown}
-        className="absolute right-0 top-0 w-1 h-full cursor-ew-resize bg-transparent hover:bg-blue-500/20 transition-colors"
+        className="absolute top-0 right-0 h-full w-1 cursor-ew-resize bg-transparent transition-colors hover:bg-blue-500/20"
         aria-label="Изменить размер справа"
       />
     </div>

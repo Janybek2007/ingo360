@@ -42,7 +42,7 @@ export const Inventory: React.FC = React.memo(() => {
     'clients/distributors',
   ]);
 
-  const dbFilters = useDbFilters({
+  const databaseFilters = useDbFilters({
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
     config: {
@@ -63,14 +63,20 @@ export const Inventory: React.FC = React.memo(() => {
         ...transformColumnFiltersToPayload(
           filters,
           COMMON_COLUMNS_FILTER_KEY_MAP,
-          { brand_ids: dbFilters.brands, product_group_ids: dbFilters.groups }
+          {
+            brand_ids: databaseFilters.brands,
+            product_group_ids: databaseFilters.groups,
+          }
         ),
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-        limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
-        search: dbFilters.search,
+        limit:
+          databaseFilters.rowsCount === 'all'
+            ? undefined
+            : databaseFilters.rowsCount,
+        search: databaseFilters.search,
 
-        group_by_dimensions: dbFilters.groupBy,
+        group_by_dimensions: databaseFilters.groupBy,
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
 
@@ -101,7 +107,7 @@ export const Inventory: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: dbFilters.setGroupBy,
+      setGroupBy: databaseFilters.setGroupBy,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
@@ -112,8 +118,8 @@ export const Inventory: React.FC = React.memo(() => {
     <PageSection
       title="Товарный запас"
       headerEnd={
-        <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...dbFilters} />
+        <div className="relative z-100 flex items-center gap-4">
+          <DbFilters {...databaseFilters} />
 
           <Select<true>
             value={visibleColumns}
@@ -154,10 +160,10 @@ export const Inventory: React.FC = React.memo(() => {
           value={{ filters, setFilters, sorting, setSorting }}
         >
           <Table
-            key={dbFilters.indicator}
+            key={databaseFilters.indicator}
             filters={{
-              usedFilterItems: dbFilters.usedFilterItems,
-              resetFilters: dbFilters.resetFilters,
+              usedFilterItems: databaseFilters.usedFilterItems,
+              resetFilters: databaseFilters.resetFilters,
             }}
             columns={columnsForTable}
             data={sales}

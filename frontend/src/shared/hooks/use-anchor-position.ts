@@ -35,7 +35,7 @@ export function useAnchorPosition(): {
     const winW = window.innerWidth;
     const winH = window.innerHeight;
 
-    let clickArea: TClickArea = 'center';
+    let clickArea: TClickArea;
 
     if (clientY < winH / 2) {
       clickArea = clientX < winW / 2 ? 'top-left' : 'top-right';

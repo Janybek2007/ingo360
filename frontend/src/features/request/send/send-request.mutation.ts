@@ -44,14 +44,14 @@ export const useSendRequestMutation = (callback?: VoidFunction) => {
           type: 'manual',
           message: data,
         });
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
+      } catch (error_) {
+        console.error('Ошибка разбора ответа', error_);
       }
     },
   });
 
-  const onSubmit = handleSubmit(async vars => {
-    await mutateAsync(vars);
+  const onSubmit = handleSubmit(async variables => {
+    await mutateAsync(variables);
   });
 
   return {

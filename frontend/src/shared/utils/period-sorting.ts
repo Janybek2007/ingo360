@@ -50,9 +50,9 @@ export class PeriodSorting {
 
     // QUARTER: "2023-Q1"
     if (periodType === 'quarter') {
-      const [yearStr, qStr] = period.split('-');
-      const year = Number(yearStr);
-      const quarter = Number(qStr.replace('Q', ''));
+      const [yearString, qString] = period.split('-');
+      const year = Number(yearString);
+      const quarter = Number(qString.replace('Q', ''));
       return year * 4 + quarter;
     }
 

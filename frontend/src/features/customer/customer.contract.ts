@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const AddCustomerContract = z.object({
-  email: z.string().email('Неверный email'),
+  email: z.email('Неверный email'),
   first_name: z.string().min(1, 'Поле обязательно'),
   last_name: z.string().min(1, 'Поле обязательно'),
   position: z.string().min(1, 'Поле обязательно'),
@@ -9,7 +9,7 @@ export const AddCustomerContract = z.object({
 });
 
 export const EditCustomerContract = z.object({
-  email: z.string().email('Неверный email').optional(),
+  email: z.email('Неверный email').optional(),
   password: z.string().optional(),
   first_name: z.string().optional(),
   last_name: z.string().optional(),
@@ -22,4 +22,3 @@ export const EditCustomerContract = z.object({
 });
 
 export type TAddCustomerContract = z.infer<typeof AddCustomerContract>;
-export type TEditCustomerContract = z.infer<typeof EditCustomerContract>;

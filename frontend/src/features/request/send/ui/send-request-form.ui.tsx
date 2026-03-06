@@ -36,21 +36,21 @@ export const SendRequestForm: React.FC<{ onClose: VoidFunction }> = React.memo(
           />
 
           {errors.root && (
-            <div className="text-red-500 mb-5">{errors.root.message}</div>
+            <div className="mb-5 text-red-500">{errors.root.message}</div>
           )}
-          <div className="flex items-center justify-end gap-3 mt-8">
+          <div className="mt-8 flex items-center justify-end gap-3">
             <Button
               disabled={status === 'pending'}
               type="button"
               onClick={onClose}
-              className="py-4 px-8 rounded-full"
+              className="rounded-full px-8 py-4"
               color="default"
             >
               Отмена
             </Button>
             <Button
               disabled={status === 'pending'}
-              className="py-4 px-13 rounded-full"
+              className="rounded-full px-13 py-4"
               color="primary"
               type="submit"
             >

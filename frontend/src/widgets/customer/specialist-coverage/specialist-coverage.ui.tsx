@@ -40,7 +40,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     'clients/specialities',
   ]);
 
-  const dbFilters = useDbFilters({
+  const databaseFilters = useDbFilters({
     config: {
       brands: { enabled: false },
       groups: { enabled: false },
@@ -61,10 +61,13 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         ),
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-        limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
-        search: dbFilters.search,
+        limit:
+          databaseFilters.rowsCount === 'all'
+            ? undefined
+            : databaseFilters.rowsCount,
+        search: databaseFilters.search,
 
-        group_by_dimensions: dbFilters.groupBy,
+        group_by_dimensions: databaseFilters.groupBy,
 
         enabled: !filterOptions.isLoading,
         method: 'POST',
@@ -91,7 +94,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: dbFilters.setGroupBy,
+      setGroupBy: databaseFilters.setGroupBy,
       allowedGroupDimensions: ['medical_facility', 'speciality', 'doctor'],
     });
 
@@ -99,8 +102,8 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     <PageSection
       title="Охват специалистов"
       headerEnd={
-        <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...dbFilters} />
+        <div className="relative z-100 flex items-center gap-4">
+          <DbFilters {...databaseFilters} />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -136,8 +139,8 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         >
           <Table
             filters={{
-              usedFilterItems: dbFilters.usedFilterItems,
-              resetFilters: dbFilters.resetFilters,
+              usedFilterItems: databaseFilters.usedFilterItems,
+              resetFilters: databaseFilters.resetFilters,
             }}
             columns={columnsForTable}
             data={visits}

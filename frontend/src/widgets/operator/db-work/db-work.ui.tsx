@@ -28,10 +28,13 @@ import type { DbType } from '#/shared/types/db.type';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { transformHeaderKeys } from '#/shared/utils/transform';
 
-import { getDbTypeDeps, getDbWorkColumns } from './constants';
-import type { IDbWorkProps } from './db-work.types';
+import {
+  getDbTypeDeps as getDatabaseTypeDeps,
+  getDbWorkColumns as getDatabaseWorkColumns,
+} from './constants';
+import type { IDbWorkProps as IDatabaseWorkProperties } from './db-work.types';
 
-export const DbWork: React.FC<IDbWorkProps> = React.memo(
+export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
   ({
     current: currentType,
     currentData,
@@ -43,14 +46,17 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
     defaultLimit,
   }) => {
     const current = currentType.replace('_', '/') as DbType;
-    const filterOptionsDeps = useMemo(() => getDbTypeDeps(current), [current]);
+    const filterOptionsDeps = useMemo(
+      () => getDatabaseTypeDeps(current),
+      [current]
+    );
     const filterOptions = useFilterOptions(
       filterOptionsDeps,
       currentType as FilterOptionsReferencesKey
     );
 
     const allColumns = useMemo((): ColumnDef<IDbItem>[] => {
-      const columns = getDbWorkColumns(current, filterOptions.options);
+      const columns = getDatabaseWorkColumns(current, filterOptions.options);
 
       columns.push({
         id: 'actions',
@@ -90,10 +96,10 @@ export const DbWork: React.FC<IDbWorkProps> = React.memo(
             findCurrentTab(tabsItems, current.replace('/', '_'))?.tab.label
           }
           headerEnd={
-            <div className="flex items-center gap-4 relative z-100">
+            <div className="relative z-100 flex items-center gap-4">
               <Select<false, number>
                 value={rowsCount}
-                setValue={value => setRowsCount(value)}
+                setValue={setRowsCount}
                 items={[
                   { value: defaultLimit, label: `${defaultLimit}` },
                   { value: 1000, label: '1000' },

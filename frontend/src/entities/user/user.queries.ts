@@ -7,19 +7,22 @@ import { TokenUtils } from '#/shared/utils/token-utils';
 
 import type {
   GetUserResponse,
-  GetUsersParams,
+  GetUsersParams as GetUsersParameters,
   GetUsersResponse,
 } from './user.types';
 
 export class UserQueries {
-  static queryKeys = {
+  static readonly queryKeys = {
     getUser: ['get-user'],
     getUsers: ['get-users'],
-    getAdminOperators: (params: GetUsersParams) => [
+    getAdminOperators: (parameters: GetUsersParameters) => [
       'get-admin-operators',
-      params,
+      parameters,
     ],
-    getCustomers: (params: GetUsersParams) => ['get-customers', params],
+    getCustomers: (parameters: GetUsersParameters) => [
+      'get-customers',
+      parameters,
+    ],
   };
 
   static GetUserQuery() {
@@ -32,9 +35,9 @@ export class UserQueries {
             ...response,
             role: this.buildUserRole(response),
           };
-        } catch (err) {
+        } catch (error) {
           TokenUtils.clearToken();
-          throw err;
+          throw error;
         }
       },
     });
@@ -53,13 +56,13 @@ export class UserQueries {
     });
   }
 
-  static GetAdminOperatorsQuery(params: GetUsersParams) {
+  static GetAdminOperatorsQuery(parameters: GetUsersParameters) {
     return queryOptions({
-      queryKey: this.queryKeys.getAdminOperators(params),
+      queryKey: this.queryKeys.getAdminOperators(parameters),
       queryFn: async () => {
         const response = await http
           .get('users/admins-operators', {
-            searchParams: qs.stringify(params, {
+            searchParams: qs.stringify(parameters, {
               arrayFormat: 'repeat',
             }),
           })
@@ -73,24 +76,27 @@ export class UserQueries {
   }
 
   static GetCustomersQuery(
-    params: GetUsersParams & { enabled: boolean } = { enabled: true }
+    parameters?: GetUsersParameters & { enabled?: boolean }
   ) {
+    const opts = { enabled: true, ...parameters };
+
     return queryOptions({
-      queryKey: this.queryKeys.getCustomers(params),
+      queryKey: this.queryKeys.getCustomers(opts),
       queryFn: async () => {
         const response = await http
           .get('users/clients', {
-            searchParams: qs.stringify(params, {
+            searchParams: qs.stringify(opts, {
               arrayFormat: 'repeat',
             }),
           })
           .json<GetUsersResponse>();
+
         return response.map(user => ({
           ...user,
           role: this.buildUserRole(user),
         }));
       },
-      enabled: params.enabled,
+      enabled: opts.enabled,
     });
   }
 

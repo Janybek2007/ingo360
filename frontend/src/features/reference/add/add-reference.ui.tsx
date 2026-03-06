@@ -54,6 +54,7 @@ const AddReferenceModal: React.FC<{
       isSuccess={mutation.isSuccess}
       title={`Добавить запись`}
       fields={fields}
+      error={mutation.error}
       schema={referenceContractWithType[type as ReferencesTypeWithMain]}
       onClose={onClose}
       onSubmit={mutation.mutateAsync}
@@ -69,7 +70,7 @@ export const AddReferenceWrapper: React.FC<{
   return (
     <>
       {open && <AddReferenceModal onClose={() => set(false)} type={type} />}
-      <Button className="px-4 py-2 rounded-full" onClick={toggle}>
+      <Button className="rounded-full px-4 py-2" onClick={toggle}>
         Добавить запись
       </Button>
     </>

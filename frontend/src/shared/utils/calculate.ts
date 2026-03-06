@@ -3,17 +3,17 @@ import type { TDbItem } from '#/entities/db';
 export const calculateChartAxis = <T extends Record<string, unknown>>(
   data: T[],
   keys: (keyof T)[],
-  scale: number = 100000
+  scale: number = 100_000
 ): { domain: [number, number]; ticks: number[] } => {
   const allValues: number[] = [];
-  data.forEach(item => {
-    keys.forEach(key => {
+  for (const item of data) {
+    for (const key of keys) {
       const value = item[key];
       if (typeof value === 'number') {
         allValues.push(value);
       }
-    });
-  });
+    }
+  }
 
   if (allValues.length === 0) {
     return { domain: [0, 100], ticks: [0, 25, 50, 75, 100] };
@@ -30,8 +30,10 @@ export const calculateChartAxis = <T extends Record<string, unknown>>(
   // Создаём тики с шагом
   const step = maxWithPadding / 7;
   const ticks: number[] = [];
-  for (let i = 0; i <= 7; i++) {
-    ticks.push((Math.round((minValue + step * i) / scale / 10) * scale) / 10);
+  for (let index = 0; index <= 7; index++) {
+    ticks.push(
+      (Math.round((minValue + step * index) / scale / 10) * scale) / 10
+    );
   }
 
   return {
@@ -51,14 +53,14 @@ export function calcPeriodTotals<T extends TDbItem>(
     if (!periodsData) continue;
 
     for (const [periodKey, value] of Object.entries<any>(periodsData)) {
-      const val = value?.[indicator];
-      if (typeof val !== 'number') continue;
+      const value_ = value?.[indicator];
+      if (typeof value_ !== 'number') continue;
 
-      totalsByMonth[periodKey] = (totalsByMonth[periodKey] || 0) + val;
+      totalsByMonth[periodKey] = (totalsByMonth[periodKey] || 0) + value_;
     }
   }
 
-  const monthTotals: number[] = Array(12).fill(0);
+  const monthTotals: number[] = Array.from({ length: 12 }).fill(0) as number[];
   for (const [key, value] of Object.entries(totalsByMonth)) {
     const monthIndex = Number(key.split('-')[1]) - 1;
     if (monthIndex >= 0 && monthIndex < 12) {
@@ -67,7 +69,7 @@ export function calcPeriodTotals<T extends TDbItem>(
   }
 
   const grandTotal = Object.values(totalsByMonth).reduce(
-    (sum, val) => sum + val,
+    (sum, value) => sum + value,
     0
   );
 

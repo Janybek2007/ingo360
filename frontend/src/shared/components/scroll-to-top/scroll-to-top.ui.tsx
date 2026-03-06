@@ -8,31 +8,28 @@ const SCROLL_THRESHOLD = 200;
 
 type ScrollTarget = Window | HTMLElement;
 
+const isWindow = (target: ScrollTarget): target is Window =>
+  target instanceof Window;
+
 export const ScrollToTopButton: React.FC = React.memo(() => {
   const location = useLocation();
   const [isVisible, setIsVisible] = React.useState(false);
-  const targetsRef = React.useRef<ScrollTarget[]>([]);
+  const targetsReference = React.useRef<ScrollTarget[]>([]);
 
   const getScrollTargets = React.useCallback((): ScrollTarget[] => {
-    if (typeof window === 'undefined') return [];
-
-    const targets = new Set<ScrollTarget>();
-    targets.add(window);
+    const targets = new Set<ScrollTarget>([globalThis as unknown as Window]);
 
     const selector = 'main, [data-scroll-container], [data-scrollable="true"]';
-    document
-      .querySelectorAll(selector)
-      .forEach(el => targets.add(el as HTMLElement));
+    for (const element of document.querySelectorAll(selector))
+      targets.add(element as HTMLElement);
 
-    return Array.from(targets);
+    return [...targets];
   }, []);
 
   React.useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-
     const handleVisibility = () => {
-      const hasScrolled = targetsRef.current.some(target => {
-        if (target === window) {
+      const hasScrolled = targetsReference.current.some(target => {
+        if (isWindow(target)) {
           return window.scrollY > SCROLL_THRESHOLD;
         }
         return (target as HTMLElement).scrollTop > SCROLL_THRESHOLD;
@@ -42,8 +39,8 @@ export const ScrollToTopButton: React.FC = React.memo(() => {
     };
 
     const detachListeners = () => {
-      targetsRef.current.forEach(target => {
-        if (target === window) {
+      for (const target of targetsReference.current) {
+        if (isWindow(target)) {
           window.removeEventListener('scroll', handleVisibility);
         } else {
           (target as HTMLElement).removeEventListener(
@@ -51,20 +48,20 @@ export const ScrollToTopButton: React.FC = React.memo(() => {
             handleVisibility
           );
         }
-      });
+      }
     };
 
-    targetsRef.current = getScrollTargets();
+    targetsReference.current = getScrollTargets();
 
-    targetsRef.current.forEach(target => {
-      if (target === window) {
+    for (const target of targetsReference.current) {
+      if (isWindow(target)) {
         window.addEventListener('scroll', handleVisibility, { passive: true });
       } else {
         (target as HTMLElement).addEventListener('scroll', handleVisibility, {
           passive: true,
         });
       }
-    });
+    }
 
     handleVisibility();
 
@@ -74,15 +71,13 @@ export const ScrollToTopButton: React.FC = React.memo(() => {
   }, [getScrollTargets, location.pathname]);
 
   const handleClick = React.useCallback(() => {
-    if (typeof window === 'undefined') return;
-
-    targetsRef.current.forEach(target => {
-      if (target === window) {
+    for (const target of targetsReference.current) {
+      if (isWindow(target)) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         (target as HTMLElement).scrollTo({ top: 0, behavior: 'smooth' });
       }
-    });
+    }
   }, []);
 
   return (
@@ -94,13 +89,13 @@ export const ScrollToTopButton: React.FC = React.memo(() => {
         'fixed right-6 bottom-6 z-[999]',
         'flex items-center justify-center',
         'rounded-full bg-black text-white shadow-lg',
-        'w-12 h-12 transition-all duration-200',
+        'h-12 w-12 transition-all duration-200',
         isVisible
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 translate-y-3 pointer-events-none'
+          ? 'translate-y-0 opacity-100'
+          : 'pointer-events-none translate-y-3 opacity-0'
       )}
     >
-      <LucideArrowIcon type="arrow-up" className="w-5 h-5" />
+      <LucideArrowIcon type="arrow-up" className="h-5 w-5" />
     </button>
   );
 });

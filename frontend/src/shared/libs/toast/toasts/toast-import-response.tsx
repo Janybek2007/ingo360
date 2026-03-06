@@ -6,7 +6,7 @@ import { ExcelWarningImportContent } from '#/entities/excel';
 import { Modal } from '#/shared/components/ui/modal';
 import type { TImportResponse } from '#/shared/types/global';
 
-import type { ToastImportResponseProps } from '../toast.types.ts';
+import type { ToastImportResponseProps as ToastImportResponseProperties } from '../toast.types.ts';
 import { toast } from './toast.tsx';
 
 const getTotals = (response: TImportResponse) =>
@@ -32,7 +32,7 @@ export function toastImportResponse({
   fileName = 'import',
   duration,
   onRemoveTask,
-}: ToastImportResponseProps) {
+}: ToastImportResponseProperties) {
   const totals = getTotals(response);
   const hasErrors = response.skipped_records.length > 0;
   const errorItems = formatSkipped(response.skipped_records);
@@ -82,7 +82,7 @@ const openModal = (
         >
           {typeof content === 'string' ? (
             <div className="max-h-[60vh] overflow-y-auto pr-2">
-              <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-600">
                 {content}
               </div>
             </div>
@@ -96,7 +96,7 @@ const openModal = (
                 onRemoveTask?.();
                 tt.dismiss(newToast.id, newToast.toasterId);
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 active:bg-slate-100 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:bg-slate-100"
             >
               Закрыть задачу
             </button>

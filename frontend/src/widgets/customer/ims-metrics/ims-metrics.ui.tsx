@@ -4,12 +4,12 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import { PageSection } from '#/shared/components/page-section';
 
 import { metrics } from './constants';
-import type { IMSMetricsProps } from './ims-metrics.types';
+import type { IMSMetricsProps as IMSMetricsProperties } from './ims-metrics.types';
 
-export const IMSMetrics: React.FC<IMSMetricsProps> = React.memo(
+export const IMSMetrics: React.FC<IMSMetricsProperties> = React.memo(
   ({ periodFilter, metricData, isLoading, queryError }) => {
     return (
-      <section className={isLoading ? '' : 'grid grid-cols-3 gap-6 mt-6'}>
+      <section className={isLoading ? '' : 'mt-6 grid grid-cols-3 gap-6'}>
         {periodFilter.selectedValues.length === 0 ? (
           <PageSection>
             <div className="my-32">
@@ -21,20 +21,20 @@ export const IMSMetrics: React.FC<IMSMetricsProps> = React.memo(
         ) : (
           <AsyncBoundary queryError={queryError} isLoading={isLoading}>
             {metricData &&
-              metrics.map((card, i) => (
+              metrics.map((card, index) => (
                 <div
-                  key={`${card.key}-${i}-key`}
+                  key={`${card.key}-${index}-key`}
                   style={{ background: card.fill }}
-                  className="rounded-2xl py-14 opacity-100 flex flex-col items-center gap-4.5 justify-center text-[#131313]"
+                  className="flex flex-col items-center justify-center gap-4.5 rounded-2xl py-14 text-[#131313] opacity-100"
                 >
-                  <h3 className="font-medium text-[2rem] leading-full text-center tracking-[-0.02em]">
+                  <h3 className="leading-full text-center text-[2rem] font-medium tracking-[-0.02em]">
                     {card.text(
                       typeof metricData[card.key] === 'string'
                         ? metricData[card.key]
                         : Number(metricData[card.key] || 0)
                     )}
                   </h3>
-                  <p className="font-inter font-normal text-base leading-full text-center tracking-[-0.002em]">
+                  <p className="font-inter leading-full text-center text-base font-normal tracking-[-0.002em]">
                     {card.subText}
                   </p>
                 </div>

@@ -15,7 +15,7 @@ import { Table } from '#/shared/components/table';
 import { Button } from '#/shared/components/ui/button';
 import { commonColumns } from '#/shared/constants/common-columns';
 import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
-import { ROLES_OBJECT } from '#/shared/constants/roles_statuses';
+import { ROLES_OBJECT } from '#/shared/constants/roles';
 import { FiltersContext } from '#/shared/context/filters';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useStringState } from '#/shared/hooks/use-string-state';
@@ -55,14 +55,14 @@ const IngoAccountsPage: React.FC = () => {
         header: 'Действия',
         size: 120,
         custom: {
-          cell(props) {
+          cell(properties) {
             return (
               <RowActions
                 items={[
                   {
                     type: 'edit',
                     onSelect: () => {
-                      setEditData(props.row.original);
+                      setEditData(properties.row.original);
                       setTimeout(() => set('edit'), 0);
                     },
                   },
@@ -84,7 +84,7 @@ const IngoAccountsPage: React.FC = () => {
       <PageSection
         title="Учетные записи INDIGO"
         headerEnd={
-          <div className="flex items-center gap-4 relative z-100">
+          <div className="relative z-100 flex items-center gap-4">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton<IUserItem>
               headerMap={transformHeaderKeys(allColumns)}
@@ -101,7 +101,7 @@ const IngoAccountsPage: React.FC = () => {
             />
             <Button
               onClick={() => set('create')}
-              className="px-3 py-2 rounded-full flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full px-3 py-2"
             >
               <LucidePlusIcon className="size-6" />
               Добавить пользователя

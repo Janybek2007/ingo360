@@ -13,12 +13,6 @@ export interface ToastImportResponseProps {
   onRemoveTask?: VoidFunction;
 }
 
-export interface ModalContentProps {
-  response: TImportResponse;
-  errorItems: ImportErrorItem[];
-  fileName: string;
-}
-
 export interface ToastExportResponseProps {
   taskId: string;
   fileName?: string;

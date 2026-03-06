@@ -3,7 +3,7 @@ import { toast as tt } from 'react-hot-toast';
 
 import { DownloadExcelModalContent } from '#/features/excel/download';
 
-import type { ToastExportResponseProps } from '../toast.types.ts';
+import type { ToastExportResponseProps as ToastExportResponseProperties } from '../toast.types.ts';
 
 export function toastExportResponse({
   taskId,
@@ -11,7 +11,7 @@ export function toastExportResponse({
   fileSizeBytes,
   duration,
   onRemoveTask,
-}: ToastExportResponseProps) {
+}: ToastExportResponseProperties) {
   tt.custom(
     newToast =>
       createPortal(

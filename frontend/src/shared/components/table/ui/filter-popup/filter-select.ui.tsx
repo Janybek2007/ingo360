@@ -9,13 +9,13 @@ import React, {
 
 import { cn } from '#/shared/utils/cn';
 
-import type { IFilterSelectProps } from '../../table.types';
+import type { IFilterSelectProps as IFilterSelectProperties } from '../../table.types';
 
-export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
+export const FilterSelect: React.FC<IFilterSelectProperties> = React.memo(
   ({ value, setValue, items }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const selectAllRef = useRef<HTMLInputElement>(null);
-    const listRef = useRef<HTMLDivElement>(null);
+    const selectAllReference = useRef<HTMLInputElement>(null);
+    const listReference = useRef<HTMLDivElement>(null);
 
     const allSelected = useMemo(
       () => value.length === items.length,
@@ -27,8 +27,8 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
     );
 
     useEffect(() => {
-      if (selectAllRef.current)
-        selectAllRef.current.indeterminate = someSelected;
+      if (selectAllReference.current)
+        selectAllReference.current.indeterminate = someSelected;
     }, [someSelected]);
 
     const filteredItems = useMemo(() => {
@@ -56,14 +56,12 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
     // eslint-disable-next-line react-hooks/incompatible-library
     const rowVirtualizer = useVirtualizer({
       count: filteredItems.length,
-      getScrollElement: () => listRef.current,
+      getScrollElement: () => listReference.current,
       estimateSize: () => 40,
       overscan: 8,
-      measureElement:
-        typeof window !== 'undefined' &&
-        navigator.userAgent.indexOf('Firefox') === -1
-          ? element => element?.getBoundingClientRect().height
-          : undefined,
+      measureElement: navigator.userAgent.includes('Firefox')
+        ? element => element?.getBoundingClientRect().height
+        : undefined,
     });
 
     const virtualRows = rowVirtualizer.getVirtualItems();
@@ -72,26 +70,26 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
     return (
       <div className="overflow-hiddens">
         {/* Поиск */}
-        <div className="p-1 border-b border-gray-200">
+        <div className="border-b border-gray-200 p-1">
           <input
             type="text"
             placeholder="Поиск..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full rounded-md border border-gray-300 px-2.5 py-2 text-sm transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           />
         </div>
 
         {/* Список */}
-        <div ref={listRef} className="max-h-60 overflow-y-auto">
+        <div ref={listReference} className="max-h-60 overflow-y-auto">
           {/* Выбрать все */}
-          <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 cursor-pointer select-none hover:bg-gray-100 transition-colors">
+          <label className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 transition-colors select-none hover:bg-gray-100">
             <input
               type="checkbox"
-              ref={selectAllRef}
+              ref={selectAllReference}
               checked={allSelected}
               onChange={handleToggleAll}
-              className="w-4 h-4 cursor-pointer accent-blue-500"
+              className="h-4 w-4 cursor-pointer accent-blue-500"
             />
             <span>Выбрать все</span>
           </label>
@@ -110,7 +108,7 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
                     ref={rowVirtualizer.measureElement}
                     data-index={virtualRow.index}
                     className={cn(
-                      'absolute left-0 top-0 w-full flex items-center gap-2 px-3 py-2 text-sm rounded cursor-pointer select-none transition-colors',
+                      'absolute top-0 left-0 flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-sm transition-colors select-none',
                       'hover:bg-blue-50'
                     )}
                     style={{ transform: `translateY(${virtualRow.start}px)` }}
@@ -119,9 +117,9 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleToggle(item)}
-                      className="w-4 h-4 accent-blue-500"
+                      className="h-4 w-4 accent-blue-500"
                     />
-                    <span className="truncate flex-1 text-gray-700">
+                    <span className="flex-1 truncate text-gray-700">
                       {item.label}
                     </span>
                   </label>
@@ -129,7 +127,7 @@ export const FilterSelect: React.FC<IFilterSelectProps> = React.memo(
               })}
             </div>
           ) : (
-            <div className="px-3 py-6 text-sm text-gray-400 text-center">
+            <div className="px-3 py-6 text-center text-sm text-gray-400">
               Ничего не найдено
             </div>
           )}

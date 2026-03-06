@@ -28,7 +28,7 @@ export const useSize: UseSizeType = (_element, options = {}): Size => {
   const resolveElement = (): HTMLElement | Window | null => {
     if (typeof document === 'undefined') return null;
 
-    if (!_element) return window;
+    if (!_element) return globalThis as unknown as Window;
 
     if (typeof _element === 'string') {
       return document.querySelector(_element) as HTMLElement | null;
@@ -52,9 +52,6 @@ export const useSize: UseSizeType = (_element, options = {}): Size => {
   });
 
   useEffect(() => {
-    if (typeof document === 'undefined' || typeof window === 'undefined')
-      return;
-
     const element = resolveElement();
     if (!element) return;
 
@@ -71,9 +68,12 @@ export const useSize: UseSizeType = (_element, options = {}): Size => {
       };
 
       // обновляем состояние только если реально изменилось
-      setSize(prev => {
-        if (prev.width === newSize.width && prev.height === newSize.height) {
-          return prev;
+      setSize(previous => {
+        if (
+          previous.width === newSize.width &&
+          previous.height === newSize.height
+        ) {
+          return previous;
         }
         return newSize;
       });
@@ -87,14 +87,13 @@ export const useSize: UseSizeType = (_element, options = {}): Size => {
     window.addEventListener('resize', updateSize);
 
     let resizeObserver: ResizeObserver | null = null;
-    if (element !== window && 'ResizeObserver' in window) {
-      resizeObserver = new ResizeObserver(updateSize);
-      resizeObserver.observe(element as HTMLElement);
+    if ('ResizeObserver' in globalThis && element instanceof HTMLElement) {
+      const resizeObserver = new ResizeObserver(updateSize);
+      resizeObserver.observe(element);
     }
-
     return () => {
       window.removeEventListener('resize', updateSize);
-      if (resizeObserver) resizeObserver.disconnect();
+      if (resizeObserver) (resizeObserver as ResizeObserver)?.disconnect();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

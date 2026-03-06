@@ -4,24 +4,24 @@ import { useClickAway } from '#/shared/hooks/use-click-away';
 import { cn } from '#/shared/utils/cn';
 
 import { LucideXIcon } from '../../../assets/icons';
-import type { IModalProps } from './modal.types';
+import type { IModalProps as IModalProperties } from './modal.types';
 
-const Modal: React.FC<IModalProps> = React.memo(
+const Modal: React.FC<IModalProperties> = React.memo(
   ({ title, children, onClose, classNames, closeOnOverlayClick = true }) => {
-    const contentRef = useClickAway<HTMLDivElement>(
+    const contentReference = useClickAway<HTMLDivElement>(
       () => closeOnOverlayClick && onClose()
     );
     return (
-      <div className={cn('fixed inset-0 flexCenter z-[300]', classNames?.root)}>
+      <div className={cn('flexCenter fixed inset-0 z-[300]', classNames?.root)}>
         <div className="overlay"></div>
         <div
           className={cn(
-            'relative z-[290] p-6 bg-white rounded-2xl',
+            'relative z-[290] rounded-2xl bg-white p-6',
             classNames?.body
           )}
-          ref={contentRef}
+          ref={contentReference}
         >
-          <div className={'flex items-center justify-between mb-6'}>
+          <div className={'mb-6 flex items-center justify-between'}>
             <div className="flex flex-col gap-0.5">
               <h4 className="font-inter text-2xl leading-[100%] font-semibold">
                 {title}
@@ -29,7 +29,7 @@ const Modal: React.FC<IModalProps> = React.memo(
             </div>
             <button
               onClick={onClose}
-              className="size-8 rounded-full bg-[#EDEDED] text-[#818181] flexCenter"
+              className="flexCenter size-8 rounded-full bg-[#EDEDED] text-[#818181]"
             >
               <LucideXIcon className="size-[1.25rem]" />
             </button>

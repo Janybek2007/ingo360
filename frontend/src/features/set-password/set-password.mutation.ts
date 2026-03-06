@@ -54,8 +54,8 @@ export const useSetPasswordMutation = (token: string | null) => {
           type: 'manual',
           message,
         });
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
+      } catch (error_) {
+        console.error('Ошибка разбора ответа', error_);
       }
     },
   });

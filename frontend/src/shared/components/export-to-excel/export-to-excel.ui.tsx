@@ -2,29 +2,29 @@ import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import type { ExportToExcelProps } from './export-to-excel.types';
+import type { ExportToExcelProps as ExportToExcelProperties } from './export-to-excel.types';
 import { ExcelExporter } from './utils';
 
 const ExportToExcelComponent = <T extends object>(
-  props: ExportToExcelProps<T>
+  properties: ExportToExcelProperties<T>
 ) => {
   const handleExport = React.useCallback(() => {
-    const exporter = new ExcelExporter(props);
+    const exporter = new ExcelExporter(properties);
     exporter.export();
-  }, [props]);
+  }, [properties]);
 
   return (
     <button
       onClick={handleExport}
       className={cn(
-        'border border-gray-300 rounded-lg gap-2 px-3 py-2',
-        'text-left bg-white hover:border-gray-400',
-        'flex items-center justify-center cursor-pointer transition-colors'
+        'gap-2 rounded-lg border border-gray-300 px-3 py-2',
+        'bg-white text-left hover:border-gray-400',
+        'flex cursor-pointer items-center justify-center transition-colors'
       )}
     >
       <span
         className={cn(
-          'text-nowrap overflow-hidden text-ellipsis max-w-full leading-full'
+          'leading-full max-w-full overflow-hidden text-nowrap text-ellipsis'
         )}
       >
         Выгрузить в Excel
@@ -36,7 +36,7 @@ const ExportToExcelComponent = <T extends object>(
 export const ExportToExcel = React.memo(ExportToExcelComponent) as <
   T extends object,
 >(
-  props: ExportToExcelProps<T>
+  properties: ExportToExcelProperties<T>
 ) => React.JSX.Element;
 
 (

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ROLES } from '#/shared/constants/roles_statuses';
+import { ROLES } from '#/shared/constants/roles';
 
 export const AddUserContract = z.object({
   email: z.email('Неверный email'),
@@ -20,4 +20,3 @@ export const EditUserContract = z.object({
 });
 
 export type TAddUserContract = z.infer<typeof AddUserContract>;
-export type TEditUserContract = z.infer<typeof EditUserContract>;

@@ -8,6 +8,8 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import path from 'path';
+import unicorn from 'eslint-plugin-unicorn';
+import sonarjs from 'eslint-plugin-sonarjs';
 
 export default [
   {
@@ -45,6 +47,8 @@ export default [
       import: importPlugin,
       'simple-import-sort': simpleImportSort,
       '@typescript-eslint': tsPlugin,
+      unicorn,
+      sonarjs,
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
@@ -53,6 +57,8 @@ export default [
       ...importPlugin.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
       ...prettierConfig.rules,
+      ...unicorn.configs.recommended.rules,
+      ...sonarjs.configs.recommended.rules,
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
       'import/first': 'error',
@@ -68,6 +74,19 @@ export default [
       'no-undef': ['error', { typeof: true }],
       '@typescript-eslint/no-explicit-any': 'off',
       'import/no-unresolved': 'off',
+
+      'unicorn/prefer-optional-catch-binding': 'error',
+      'unicorn/consistent-function-scoping': 'warn',
+      'unicorn/no-array-reduce': 'off',
+      'unicorn/no-null': 'off',
+
+      'sonarjs/cognitive-complexity': ['warn', 15],
+      'sonarjs/no-duplicate-string': 'off',
+      'unicorn/prevent-abbreviations': 'off',
+      'sonarjs/no-identical-functions': 'warn',
+      'sonarjs/no-small-switch': 'off',
+      'sonarjs/function-return-type': 'off',
+      'sonarjs/no-hardcoded-passwords': 'off',
     },
     settings: {
       react: {

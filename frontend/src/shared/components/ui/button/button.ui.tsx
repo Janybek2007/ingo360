@@ -2,9 +2,9 @@ import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import type { IButtonProps } from './button.types';
+import type { IButtonProps as IButtonProperties } from './button.types';
 
-const Button: React.FC<IButtonProps> = React.memo(
+const Button: React.FC<IButtonProperties> = React.memo(
   ({
     children,
     color = 'primary',

@@ -2,7 +2,7 @@ import { routePaths } from '#/shared/router';
 
 import type { SessionRole } from '../types';
 
-export interface INavigationItem {
+interface INavigationItem {
   href: string;
   label: string;
 }

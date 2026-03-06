@@ -14,14 +14,14 @@ import { calculateChartAxis } from '#/shared/utils/calculate';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
 import { PeriodSorting } from '#/shared/utils/period-sorting';
 
-import type { DynamicPrimarySalesAsLineProps } from '../dynamic-primary-sales.types';
+import type { DynamicPrimarySalesAsLineProps as DynamicPrimarySalesAsLineProperties } from '../dynamic-primary-sales.types';
 
-export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps> =
+export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProperties> =
   React.memo(({ sales, period, indicator }) => {
     const sectionStyle = useSectionStyle();
 
     const rawData = useMemo(() => {
-      return sales.sort(PeriodSorting.sortByPeriod(period)).map(item => {
+      return sales.toSorted(PeriodSorting.sortByPeriod(period)).map(item => {
         const parsed = parsePeriodData(item.period, period);
 
         return {
@@ -52,7 +52,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
             dataKey="label"
             axisLine={false}
             tickMargin={20}
-            className="text-base text-[#474B4E] leading-full font-normal"
+            className="leading-full text-base font-normal text-[#474B4E]"
             padding={{ left: 55, right: 30 }}
           />
 
@@ -62,7 +62,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProps>
             axisLine={false}
             tickLine={false}
             hide
-            className="text-base font-normal text-[#474B4E] leading-full"
+            className="leading-full text-base font-normal text-[#474B4E]"
             tickMargin={20}
             tickFormatter={value => Number(value).toLocaleString('ru-RU')}
           />

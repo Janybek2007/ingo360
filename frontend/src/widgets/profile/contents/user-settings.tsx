@@ -6,7 +6,7 @@ import { Tabs } from '#/shared/components/ui/tabs';
 
 export const UserSettings: React.FC = React.memo(() => {
   return (
-    <div className="w-full h-max bg-white p-8 rounded-2xl">
+    <div className="h-max w-full rounded-2xl bg-white p-8">
       <div className="flex flex-col gap-4">
         <h2 className="text-2xl">Настройки аккаунта</h2>
       </div>
@@ -24,10 +24,12 @@ export const UserSettings: React.FC = React.memo(() => {
       >
         {({ current }) => {
           switch (current) {
-            case 'personal-data':
+            case 'personal-data': {
               return <ProfilePersonalData />;
-            case 'password':
+            }
+            case 'password': {
               return <ProfilePassword />;
+            }
           }
         }}
       </Tabs>

@@ -12,9 +12,12 @@ import type { DbType } from '#/shared/types/db.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
 import { transformData } from '#/shared/utils/transform';
 
-import { dbItemCEFields, dbItemDependsUrls } from '../constants';
-import { dbItemContractWithType } from '../db-item.contracts';
-import { useEditDbItemMutation } from './edit-db-item.mutation';
+import {
+  dbItemCEFields as databaseItemCEFields,
+  dbItemDependsUrls as databaseItemDependsUrls,
+} from '../constants';
+import { dbItemContractWithType as databaseItemContractWithType } from '../db-item.contracts';
+import { useEditDbItemMutation as useEditDatabaseItemMutation } from './edit-db-item.mutation';
 
 const EditDbItemModal: React.FC<{
   onClose: VoidFunction;
@@ -22,7 +25,7 @@ const EditDbItemModal: React.FC<{
   defaultData: IDbItem;
 }> = React.memo(({ onClose, type, defaultData }) => {
   const dependsUrls = React.useMemo(
-    () => dbItemDependsUrls[type as DbType] || [],
+    () => databaseItemDependsUrls[type as DbType] || [],
     [type]
   );
 
@@ -38,13 +41,13 @@ const EditDbItemModal: React.FC<{
 
   const filterOptions = useFilterOptions(references);
 
-  const mutation = useEditDbItemMutation(type, onClose, defaultData?.id);
+  const mutation = useEditDatabaseItemMutation(type, onClose, defaultData?.id);
 
   const fields = React.useMemo(
     () =>
       fieldsWithSelectItems({
         options: filterOptions.options,
-        fields: dbItemCEFields[type],
+        fields: databaseItemCEFields[type],
         dependsUrls,
         defaultData: transformData(defaultData),
       }),
@@ -58,7 +61,7 @@ const EditDbItemModal: React.FC<{
       isLoading={filterOptions.isLoading}
       isPending={mutation.isPending}
       isSuccess={mutation.isSuccess}
-      schema={dbItemContractWithType[type].optional()}
+      schema={databaseItemContractWithType[type].optional()}
       fields={fields}
       onSubmit={mutation.mutateAsync}
       onClose={onClose}
@@ -84,7 +87,7 @@ export const EditDbItemWrapper: React.FC<{
 
       <button
         type="button"
-        className="p-1.5 rounded-full text-blue-400 hover:bg-blue-100 transition"
+        className="rounded-full p-1.5 text-blue-400 transition hover:bg-blue-100"
         title="Редактировать"
         onClick={toggle}
       >

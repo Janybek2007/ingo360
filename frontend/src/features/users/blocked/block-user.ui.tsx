@@ -56,7 +56,7 @@ export const BlockUserWrapper: React.FC<{
             : 'bg-blue-50 text-blue-600 hover:bg-blue-100 active:bg-blue-200'
         )}
       >
-        {!user.is_active ? 'Разблокировать' : 'Заблокировать'}
+        {user.is_active ? 'Заблокировать' : 'Разблокировать'}
       </button>
     </>
   );

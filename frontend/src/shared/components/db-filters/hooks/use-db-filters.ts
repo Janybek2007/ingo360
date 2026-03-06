@@ -5,8 +5,8 @@ import type { IndicatorType } from '#/shared/types/global';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
 import type {
-  UseDbFiltersProps,
-  UseDbFiltersReturn,
+  UseDbFiltersProps as UseDatabaseFiltersProperties,
+  UseDbFiltersReturn as UseDatabaseFiltersReturn,
 } from '../db-filters.types';
 
 export const useDbFilters = ({
@@ -16,7 +16,7 @@ export const useDbFilters = ({
   geoIndicatorsOptions = [],
   segmentsOptions = [],
   config,
-}: UseDbFiltersProps): UseDbFiltersReturn => {
+}: UseDatabaseFiltersProperties): UseDatabaseFiltersReturn => {
   const indicatorDefault = config?.indicator?.defaultValue || 'amount';
   const rowsCountDefault = config?.rowsCount?.defaultValue || 'all';
 
@@ -53,7 +53,7 @@ export const useDbFilters = ({
         { value: 100, label: '100' },
         { value: 1000, label: '1000' },
         { value: 5000, label: '5000' },
-        { value: 10000, label: '10000' },
+        { value: 10_000, label: '10000' },
       ],
     };
   }, [
@@ -67,111 +67,82 @@ export const useDbFilters = ({
 
   // Used filter items
   const usedFilterItems = useMemo((): IUsedFilterItem[] => {
-    let usedFilterItems = getUsedFilterItems([
+    const items = getUsedFilterItems([
       rowsCount !== 'all' && {
         value: rowsCount,
-        getLabelFromValue(value) {
-          return 'Строки: '.concat(value.toString());
-        },
+        getLabelFromValue: (value: string | number) => `Строки: ${value}`,
         items: [],
         onDelete: () => setRowsCount('all'),
       },
     ]);
+
     if (brands.length > 0 && brandsMultiple) {
-      usedFilterItems.push({
+      items.push({
         label: 'Бренды: ',
         value: 'brand-roots',
         onDelete: () => setBrands([]),
-        subItems: brands.map(brandId => {
-          const brand = options.brands.find(b => b.value === brandId);
-          return {
-            label: brand?.label || '',
-            value: brandId as string,
-            onDelete: () => {
-              setBrands(prev => prev.filter(b => b !== brandId));
-            },
-          };
-        }),
+        subItems: buildSubItems(brands, options.brands, setBrands),
       });
     } else if (brands.length > 0 && !brandsMultiple) {
-      usedFilterItems.push({
+      items.push({
         label: `Бренд: ${brands[0]}`,
         value: brands[0],
         onDelete: () => setBrands([]),
       });
     }
+
     if (groups.length > 0) {
-      usedFilterItems.push({
+      items.push({
         label: 'Группы: ',
         value: 'group-roots',
         onDelete: () => setGroups([]),
-        subItems: groups.map(groupId => {
-          const group = options.groups.find(g => g.value === groupId);
-          return {
-            label: group?.label || '',
-            value: groupId as string,
-            onDelete: () => {
-              setGroups(prev => prev.filter(g => g !== groupId));
-            },
-          };
-        }),
+        subItems: buildSubItems(groups, options.groups, setGroups),
       });
     }
+
     if (distributors.length > 0) {
-      usedFilterItems.push({
+      items.push({
         label: 'Дистрибьюторы: ',
         value: 'distributor-roots',
         onDelete: () => setDistributors([]),
-        subItems: distributors.map(distributorId => {
-          const distributor = options.distributors.find(
-            d => d.value === distributorId
-          );
-          return {
-            label: distributor?.label || '',
-            value: distributorId as string,
-            onDelete: () => {
-              setDistributors(prev => prev.filter(d => d !== distributorId));
-            },
-          };
-        }),
+        subItems: buildSubItems(
+          distributors,
+          options.distributors,
+          setDistributors
+        ),
       });
     }
 
     if (geoIndicators.length > 0) {
-      usedFilterItems.push({
+      items.push({
         label: 'Геоиндикаторы: ',
         value: 'geo-indicator-roots',
         onDelete: () => setGeoIndicators([]),
-        subItems: geoIndicators.map(geoIndicatorId => {
-          const geoIndicator = options.geoIndicators.find(
-            g => g.value === geoIndicatorId
-          );
-          return {
-            label: geoIndicator?.label || '',
-            value: geoIndicatorId as string,
-            onDelete: () => {
-              setGeoIndicators(prev => prev.filter(g => g !== geoIndicatorId));
-            },
-          };
-        }),
+        subItems: buildSubItems(
+          geoIndicators,
+          options.geoIndicators,
+          setGeoIndicators
+        ),
       });
     }
+
     if (segment) {
-      usedFilterItems.push({
+      items.push({
         label: `Сегмент: ${segment}`,
         value: segment,
         onDelete: () => setSegment(null),
       });
     }
+
     if (search.trim().length > 0) {
-      usedFilterItems.push({
+      items.push({
         label: `Поиск: "${search.trim()}"`,
         value: 'search',
         onDelete: () => setSearch(''),
       });
     }
 
-    return usedFilterItems;
+    return items;
   }, [
     rowsCount,
     brandsMultiple,
@@ -262,3 +233,24 @@ export const useDbFilters = ({
     },
   };
 };
+
+// ─── На уровне модуля, вне хука ──────────────────────────────────────────────
+
+const removeById =
+  (
+    id: string | number,
+    setter: React.Dispatch<React.SetStateAction<(string | number)[]>>
+  ) =>
+  () =>
+    setter(previous => previous.filter(item => item !== id));
+
+const buildSubItems = (
+  ids: (string | number)[],
+  options: Array<{ value: string | number; label: string }>,
+  setter: React.Dispatch<React.SetStateAction<(string | number)[]>>
+): IUsedFilterItem[] =>
+  ids.map(id => ({
+    label: options.find(o => o.value === id)?.label ?? '',
+    value: id as string,
+    onDelete: removeById(id, setter),
+  }));

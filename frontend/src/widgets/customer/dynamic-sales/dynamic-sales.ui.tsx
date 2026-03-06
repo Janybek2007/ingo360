@@ -23,7 +23,7 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
 import { PeriodSorting } from '#/shared/utils/period-sorting';
 
-export type DynamicPrimarySalesData = {
+type DynamicPrimarySalesData = {
   period: string;
   sales_amount: number;
   sales: number;
@@ -61,15 +61,15 @@ export const DynamicSales: React.FC = React.memo(() => {
       { period: string; primaryValue: number; secondaryValue: number }
     >();
 
-    primarySales.forEach(item => {
+    for (const item of primarySales) {
       dataMap.set(item.period, {
         period: item.period,
         primaryValue: item.sales_amount,
         secondaryValue: 0,
       });
-    });
+    }
 
-    secondarySales.forEach(item => {
+    for (const item of secondarySales) {
       const existing = dataMap.get(item.period);
 
       if (existing) {
@@ -81,9 +81,9 @@ export const DynamicSales: React.FC = React.memo(() => {
           secondaryValue: item.sales,
         });
       }
-    });
+    }
 
-    return Array.from(dataMap.values()).sort((a, b) => {
+    return [...dataMap.values()].toSorted((a, b) => {
       return a.period.localeCompare(b.period);
     });
   }, [primarySales, secondarySales]);
@@ -94,7 +94,7 @@ export const DynamicSales: React.FC = React.memo(() => {
 
   const data = useMemo(() => {
     return rawData
-      .sort(PeriodSorting.sortByPeriod(periodFilter.period))
+      .toSorted(PeriodSorting.sortByPeriod(periodFilter.period))
       .map(item => {
         const parsed = parsePeriodData(item.period, periodFilter.period);
 
@@ -153,7 +153,7 @@ export const DynamicSales: React.FC = React.memo(() => {
                 dataKey="label"
                 axisLine={false}
                 tickMargin={20}
-                className="text-base text-[#474B4E] leading-full font-normal"
+                className="leading-full text-base font-normal text-[#474B4E]"
                 padding={{ left: 55, right: 30 }}
               />
               <YAxis
@@ -162,7 +162,7 @@ export const DynamicSales: React.FC = React.memo(() => {
                 axisLine={false}
                 tickLine={false}
                 hide
-                className="text-base font-normal text-[#474B4E] leading-full"
+                className="leading-full text-base font-normal text-[#474B4E]"
                 tickMargin={20}
                 tickFormatter={value => Number(value).toLocaleString('ru-RU')}
               />

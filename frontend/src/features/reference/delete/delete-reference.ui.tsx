@@ -30,7 +30,7 @@ export const DeleteReferenceWrapper: React.FC<{
       )}
       <button
         type="button"
-        className="p-1.5 rounded-full text-red-400 hover:bg-red-100 transition"
+        className="rounded-full p-1.5 text-red-400 transition hover:bg-red-100"
         title="Удалить"
         onClick={toggle}
       >

@@ -82,7 +82,7 @@ export const EditReferenceWrapper: React.FC<{
       )}
       <button
         type="button"
-        className="p-1.5 rounded-full text-blue-400 hover:bg-blue-100 transition"
+        className="rounded-full p-1.5 text-blue-400 transition hover:bg-blue-100"
         title="Редактировать"
         onClick={toggle}
       >

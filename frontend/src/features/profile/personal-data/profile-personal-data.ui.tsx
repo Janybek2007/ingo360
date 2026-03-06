@@ -59,7 +59,7 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
         <p className="text-sm text-[#6B7280]">{user?.email}</p>
       </div>
 
-      <div className="flex gap-5 mt-8">
+      <div className="mt-8 flex gap-5">
         <div className="w-full">
           <FormField
             register={register('first_name')}
@@ -82,7 +82,7 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
         </div>
       </div>
 
-      <div className="flex gap-5 mt-8">
+      <div className="mt-8 flex gap-5">
         <div className="w-full">
           <FormField
             register={register('email')}
@@ -95,19 +95,19 @@ export const ProfilePersonalData: React.FC = React.memo(() => {
         </div>
       </div>
 
-      <div className="flex gap-5 mt-9">
+      <div className="mt-9 flex gap-5">
         <button
           type="button"
           onClick={handleCancel}
           disabled={updatePersonalDataMutation.isPending}
-          className="bg-gray-200 py-3 px-6 rounded-3xl disabled:opacity-50"
+          className="rounded-3xl bg-gray-200 px-6 py-3 disabled:opacity-50"
         >
           Отменить
         </button>
         <button
           type="submit"
           disabled={updatePersonalDataMutation.isPending || !isDirty}
-          className="bg-black text-white py-3 px-6 rounded-3xl disabled:opacity-60"
+          className="rounded-3xl bg-black px-6 py-3 text-white disabled:opacity-60"
         >
           {updatePersonalDataMutation.isPending ? 'Сохранение...' : 'Сохранить'}
         </button>

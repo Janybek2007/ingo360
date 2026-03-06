@@ -2,9 +2,9 @@ import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import type { ITabsProps } from './tabs.types';
+import type { ITabsProps as ITabsProperties } from './tabs.types';
 
-export const Tabs: React.FC<ITabsProps> = React.memo(
+export const Tabs: React.FC<ITabsProperties> = React.memo(
   ({ items, children, classNames, defaultValue, saveCurrent }) => {
     const getInitialValue = React.useCallback(() => {
       if (defaultValue) return defaultValue;
@@ -45,26 +45,26 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
     return (
       <div
         className={cn(
-          'flex flex-col gap-6 items-start w-full font-roboto',
+          'font-roboto flex w-full flex-col items-start gap-6',
           classNames?.root
         )}
       >
         <div
           className={cn(
-            'flex flex-col gap-2 px-4 py-[0.875rem] w-full',
-            'bg-white rounded-2xl',
+            'flex w-full flex-col gap-2 px-4 py-[0.875rem]',
+            'rounded-2xl bg-white',
             classNames?.tabs
           )}
         >
           <div className="flex items-center gap-3">
-            {items.map((t, i) => {
+            {items.map((t, index) => {
               const isActive = mainCurrent === t.value;
               return (
                 <button
-                  key={`${t.value}-${i}-key`}
+                  key={`${t.value}-${index}-key`}
                   className={cn(
-                    'font-normal text-sm leading-[150%] text-black',
-                    'border border-transparent px-3 py-2 rounded-full',
+                    'text-sm leading-[150%] font-normal text-black',
+                    'rounded-full border border-transparent px-3 py-2',
                     'transition-all duration-300 ease-in-out',
                     'hover:bg-primary/10',
                     isActive && 'border-primary bg-primary/10',
@@ -88,14 +88,14 @@ export const Tabs: React.FC<ITabsProps> = React.memo(
             >
               {items
                 .find(item => item.value === mainCurrent)
-                ?.subItems?.map((subTab, i) => {
+                ?.subItems?.map((subTab, index) => {
                   const isSubTabActive = subCurrent === subTab.value;
                   return (
                     <button
-                      key={`${subTab.value}-${i}-subkey`}
+                      key={`${subTab.value}-${index}-subkey`}
                       className={cn(
-                        'font-normal text-sm leading-[150%] text-black',
-                        'border border-transparent px-2 py-1 rounded-full',
+                        'text-sm leading-[150%] font-normal text-black',
+                        'rounded-full border border-transparent px-2 py-1',
                         'transition-all duration-300 ease-in-out',
                         'hover:bg-primary/10',
                         isSubTabActive && 'border-primary bg-primary/10',

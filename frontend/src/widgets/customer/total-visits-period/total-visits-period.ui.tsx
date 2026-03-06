@@ -43,7 +43,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     'visits'
   );
 
-  const dbFilters = useDbFilters({
+  const databaseFilters = useDbFilters({
     groupsOptions: filterOptions.options.products_product_groups,
     config: {
       indicator: { enabled: false },
@@ -64,14 +64,20 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         ...transformColumnFiltersToPayload(
           filters,
           COMMON_COLUMNS_FILTER_KEY_MAP,
-          { brand_ids: dbFilters.brands, product_group_ids: dbFilters.groups }
+          {
+            brand_ids: databaseFilters.brands,
+            product_group_ids: databaseFilters.groups,
+          }
         ),
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-        group_by_dimensions: dbFilters.groupBy,
+        group_by_dimensions: databaseFilters.groupBy,
 
-        limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
-        search: dbFilters.search,
+        limit:
+          databaseFilters.rowsCount === 'all'
+            ? undefined
+            : databaseFilters.rowsCount,
+        search: databaseFilters.search,
 
         enabled: !filterOptions.isLoading,
         method: 'POST',
@@ -107,7 +113,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: dbFilters.setGroupBy,
+      setGroupBy: databaseFilters.setGroupBy,
       allowedGroupDimensions: [
         'pharmacy',
         'medical_facility',
@@ -125,8 +131,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     <PageSection
       title="Количество визитов за выбранный период"
       headerEnd={
-        <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...dbFilters} />
+        <div className="relative z-100 flex items-center gap-4">
+          <DbFilters {...databaseFilters} />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -164,8 +170,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         >
           <Table
             filters={{
-              usedFilterItems: dbFilters.usedFilterItems,
-              resetFilters: dbFilters.resetFilters,
+              usedFilterItems: databaseFilters.usedFilterItems,
+              resetFilters: databaseFilters.resetFilters,
             }}
             columns={columnsForTable}
             data={visits}

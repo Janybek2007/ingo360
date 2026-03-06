@@ -32,7 +32,7 @@ export const PeriodFilters: React.FC<PeriodFiltersProps> = React.memo(
     const isMulti = !['mat', 'ytd'].includes(period) && isMultiple;
 
     return (
-      <div className="flex gap-4 relative z-60">
+      <div className="relative z-60 flex gap-4">
         <Select<false, UsePeriodType>
           triggerText={'Выберите период'}
           changeTriggerText

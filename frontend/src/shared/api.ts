@@ -1,7 +1,7 @@
 import ky from 'ky';
 
 import { FULL_API_URL } from './constants/environment';
-import { TokenUtils } from './utils/token-utils';
+import { TokenUtils as TokenUtilities } from './utils/token-utils';
 
 const http = ky.create({
   prefixUrl: FULL_API_URL,
@@ -18,7 +18,7 @@ const http = ky.create({
           request.headers.set('Content-Type', 'application/json');
         }
 
-        const token = TokenUtils.getToken();
+        const token = TokenUtilities.getToken();
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`);
         }

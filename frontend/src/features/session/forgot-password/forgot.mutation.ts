@@ -23,10 +23,10 @@ export const useForgotMutation = () => {
 
   const { status, mutateAsync } = useMutation({
     mutationKey: ['session-forgot-password'],
-    mutationFn: async (vars: TForgotPasswordContract) => {
+    mutationFn: async (variables: TForgotPasswordContract) => {
       const response = await http.post('auth/forgot-password', {
         json: {
-          email: vars.email,
+          email: variables.email,
         },
       });
       return response;
@@ -47,8 +47,8 @@ export const useForgotMutation = () => {
             message: 'Электронная почта не найдена',
           });
         }
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
+      } catch (error_) {
+        console.error('Ошибка разбора ответа', error_);
       }
     },
   });

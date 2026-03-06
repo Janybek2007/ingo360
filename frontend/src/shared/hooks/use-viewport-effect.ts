@@ -10,16 +10,25 @@ export const useViewportEffect = () => {
   const scale = useDpr();
 
   React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-
     const root = document.documentElement;
 
-    if (scale === 1.25) {
-      root.style.setProperty('font-size', '75%');
-    } else if (scale === 1.125) {
-      root.style.setProperty('font-size', '80%');
-    } else if (scale === 1) {
-      root.style.setProperty('font-size', '85%');
+    switch (scale) {
+      case 1.25: {
+        root.style.setProperty('font-size', '75%');
+
+        break;
+      }
+      case 1.125: {
+        root.style.setProperty('font-size', '80%');
+
+        break;
+      }
+      case 1: {
+        root.style.setProperty('font-size', '85%');
+
+        break;
+      }
+      // No default
     }
 
     if (expHeaderSize) {

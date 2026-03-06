@@ -9,7 +9,7 @@ import { Tabs } from '#/shared/components/ui/tabs';
 import { WORK_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { usePagination } from '#/shared/hooks/usePagination';
+import { usePagination } from '#/shared/hooks/use-pagination';
 import type { DbType } from '#/shared/types/db.type';
 import type { PaginationResponse } from '#/shared/types/global';
 import {
@@ -28,7 +28,7 @@ const DEFAULT_DATA = {
   count: 0,
 };
 
-const DbWorkPage: React.FC = () => {
+const DatabaseWorkPage: React.FC = () => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const { setLimit, ...pagination } = usePagination({
@@ -45,8 +45,8 @@ const DbWorkPage: React.FC = () => {
     getDefaultGroupBy(current)
   );
 
-  const prevCurrentRef = React.useRef(current);
-  const tabChangingRef = React.useRef(false);
+  const previousCurrentReference = React.useRef(current);
+  const tabChangingReference = React.useRef(false);
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<PaginationResponse<IGetDBItemResponse>>(
@@ -62,16 +62,16 @@ const DbWorkPage: React.FC = () => {
     )
   );
 
-  if (prevCurrentRef.current !== current) {
-    prevCurrentRef.current = current;
-    tabChangingRef.current = true;
+  if (previousCurrentReference.current !== current) {
+    previousCurrentReference.current = current;
+    tabChangingReference.current = true;
   }
 
-  if (tabChangingRef.current && !queryData.isFetching) {
-    tabChangingRef.current = false;
+  if (tabChangingReference.current && !queryData.isFetching) {
+    tabChangingReference.current = false;
   }
 
-  const isTabChange = tabChangingRef.current;
+  const isTabChange = tabChangingReference.current;
 
   React.useEffect(() => {
     setFilters([]);
@@ -135,7 +135,7 @@ const DbWorkPage: React.FC = () => {
   );
 };
 
-export default DbWorkPage;
+export default DatabaseWorkPage;
 
 function getDefaultGroupBy(current: string) {
   if (current === 'sales_primary') {

@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 
-export interface UsePaginationProps {
+interface UsePaginationProperties {
   defaultLimit: number;
   defaultOffset: number;
 }
 
-export function usePagination(props: UsePaginationProps) {
-  const [limit, setLimit] = useState(props.defaultLimit);
-  const [offset, setOffset] = useState(props.defaultOffset);
+export function usePagination(properties: UsePaginationProperties) {
+  const [limit, setLimit] = useState(properties.defaultLimit);
+  const [offset, setOffset] = useState(properties.defaultOffset);
 
   const next = React.useCallback(() => {
-    setOffset(prev => prev + limit);
+    setOffset(previous => previous + limit);
   }, [limit]);
 
-  const prev = React.useCallback(() => {
-    setOffset(prev => Math.max(0, prev - limit));
+  const previous = React.useCallback(() => {
+    setOffset(previous_ => Math.max(0, previous_ - limit));
   }, [limit]);
 
   const goTo = React.useCallback((newOffset: number) => {
@@ -33,7 +33,7 @@ export function usePagination(props: UsePaginationProps) {
     limit,
     offset,
     next,
-    prev,
+    prev: previous,
     goTo,
     setLimit: changeLimit,
   };

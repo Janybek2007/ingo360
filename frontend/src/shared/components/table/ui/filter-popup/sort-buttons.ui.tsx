@@ -3,15 +3,15 @@ import React from 'react';
 import { LucideArrowIcon, LucideXIcon } from '#/shared/assets/icons';
 import { cn } from '#/shared/utils/cn';
 
-import type { ISortButtonsProps } from '../../table.types';
+import type { ISortButtonsProps as ISortButtonsProperties } from '../../table.types';
 
-export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
+export const SortButtons: React.FC<ISortButtonsProperties> = React.memo(
   ({ isSorted, toggleSorting, resetSorting }) => (
     <div className="mb-3">
-      <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-700">
         <LucideArrowIcon
           type="arrow-up-down"
-          className="text-gray-500 size-3.5"
+          className="size-3.5 text-gray-500"
         />
         Сортировка
       </h4>
@@ -19,10 +19,10 @@ export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
         <button
           type="button"
           className={cn(
-            'flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 text-xs font-medium rounded-sm border transition-colors',
+            'flex flex-1 items-center justify-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs font-medium transition-colors',
             isSorted === 'asc'
-              ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
-              : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+              ? 'border-blue-500 bg-blue-500 text-white shadow-sm'
+              : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
           )}
           onClick={() => toggleSorting(false)}
         >
@@ -32,10 +32,10 @@ export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
         <button
           type="button"
           className={cn(
-            'flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 text-xs font-medium rounded-sm border transition-colors',
+            'flex flex-1 items-center justify-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs font-medium transition-colors',
             isSorted === 'desc'
-              ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
-              : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+              ? 'border-blue-500 bg-blue-500 text-white shadow-sm'
+              : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
           )}
           onClick={() => toggleSorting(true)}
         >
@@ -45,7 +45,7 @@ export const SortButtons: React.FC<ISortButtonsProps> = React.memo(
         {isSorted && (
           <button
             type="button"
-            className="p-1.5 text-gray-600 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 hover:border-gray-400 transition-colors"
+            className="rounded-sm border border-gray-300 bg-white p-1.5 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-50"
             onClick={resetSorting}
             title="Сбросить сортировку"
           >

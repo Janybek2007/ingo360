@@ -28,7 +28,7 @@ const VisitActivityPage: React.FC = () => {
         classNames={{ content: 'w-full' }}
       >
         {({ current }) => (
-          <div className="space-y-6 w-full">
+          <div className="w-full space-y-6">
             {current === 'analysis_visits' && (
               <>
                 <LazySection>

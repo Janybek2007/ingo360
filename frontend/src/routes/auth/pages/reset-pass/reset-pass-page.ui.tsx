@@ -17,23 +17,23 @@ const ResetPassPage: React.FC = () => {
     }
   }, [sp, navigate]);
   return (
-    <div className="h-screen font-inter">
-      <section className="h-full mx-auto flex items-center justify-center">
+    <div className="font-inter h-screen">
+      <section className="mx-auto flex h-full items-center justify-center">
         <div className="absolute top-16 left-[7.5rem]">
           <img
             src={Assets.Logo}
             alt="Logo Asset"
-            className="w-[9.75rem] h-[3.5rem]"
+            className="h-[3.5rem] w-[9.75rem]"
           />
         </div>
         <div>
           <div className="flex items-center justify-center">
-            <div className="w-[31.25rem] bg-white p-8 rounded-2xl">
+            <div className="w-[31.25rem] rounded-2xl bg-white p-8">
               <div className="flex flex-col gap-[0.875rem]">
-                <h2 className="text-xl font-medium leading-full text-[#1B1C1F]">
+                <h2 className="leading-full text-xl font-medium text-[#1B1C1F]">
                   Сбросить пароль
                 </h2>
-                <p className="text-[#000000DE] font-normal text-sm leading-[143%] tracking-[0.009375rem]">
+                <p className="text-sm leading-[143%] font-normal tracking-[0.009375rem] text-[#000000DE]">
                   Введите новый пароль.
                 </p>
               </div>
@@ -43,8 +43,8 @@ const ResetPassPage: React.FC = () => {
           <Link
             to={routePaths.auth.login}
             className={cn(
-              'flexCenter mt-7 font-roboto font-normal text-sm text-[#000000DE]',
-              'leading-[143%] tracking-[0.009375rem] gap-[0.375rem]'
+              'flexCenter font-roboto mt-7 text-sm font-normal text-[#000000DE]',
+              'gap-[0.375rem] leading-[143%] tracking-[0.009375rem]'
             )}
           >
             <AnchorLeftIcon />

@@ -32,8 +32,8 @@ export const useDeleteReportLogMutation = () => {
           type: 'error',
           duration: 8000, // 8 seconds
         });
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
+      } catch (error_) {
+        console.error('Ошибка разбора ответа', error_);
         toast({
           message: 'Ошибка при удалении лога отчета',
           type: 'error',

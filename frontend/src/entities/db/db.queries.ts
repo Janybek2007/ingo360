@@ -4,11 +4,14 @@ import qs from 'qs';
 import { http } from '#/shared/api';
 import type { ExtraDbType } from '#/shared/types/db.type';
 
-import type { IGetDBItemResponse, IGetDBItemsParams } from './db.types';
+import type {
+  IGetDBItemResponse,
+  IGetDBItemsParams as IGetDBItemsParameters,
+} from './db.types';
 
 export class DbQueries {
-  static queryKeys = {
-    getDbItems: (urls: ExtraDbType[], query?: string | object) => [
+  static readonly queryKeys = {
+    getDbItems: (urls: ExtraDbType[], query?: object) => [
       'get-db-items',
       ...urls,
       query,
@@ -17,7 +20,7 @@ export class DbQueries {
 
   static GetDbItemsQuery<T = IGetDBItemResponse>(
     urls: ExtraDbType[],
-    opt: IGetDBItemsParams & {
+    opt: IGetDBItemsParameters & {
       enabled?: boolean;
       method?: 'GET' | 'POST';
     } = {}
@@ -26,33 +29,36 @@ export class DbQueries {
       enabled: true,
       ...opt,
     };
-    const objectOrString = this.buildOptions(options, method === 'GET');
+    const object = this.buildOptions(options);
 
     return queryOptions({
-      queryKey: this.queryKeys.getDbItems(urls, objectOrString),
+      queryKey: this.queryKeys.getDbItems(urls, object),
       queryFn: () =>
         Promise.all(
           urls.map(url => {
             if (method === 'POST') {
-              return http.post(url, { json: objectOrString }).json<T>();
+              return http.post(url, { json: object }).json<T>();
             }
 
-            return http.get(url, { searchParams: objectOrString }).json<T>();
+            return http
+              .get(url, {
+                searchParams: qs.stringify(object, { arrayFormat: 'repeat' }),
+              })
+              .json<T>();
           })
         ),
       enabled: options.enabled,
     });
   }
 
-  private static buildOptions(params?: IGetDBItemsParams, asQuery = true) {
-    let p: Record<string, any> = params || {};
-    if (params && params?.search?.trim() !== '') {
-      p.search = params.search?.trim();
-    } else p.search = undefined;
+  private static buildOptions(
+    parameters?: IGetDBItemsParameters
+  ): Record<string, any> {
+    let p: Record<string, any> = parameters || {};
+    p.search = parameters?.search?.trim() || undefined;
     p.group_by_dimensions = [...new Set(p.group_by_dimensions || [])];
-    // delete p.period_values;
     delete p.enabled;
-    if (asQuery) return qs.stringify(p, { arrayFormat: 'repeat' });
+
     return p;
   }
 }

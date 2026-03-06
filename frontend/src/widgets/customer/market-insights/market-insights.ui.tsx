@@ -37,7 +37,7 @@ export const MarketInsights: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const dbFilters = useDbFilters({
+  const databaseFilters = useDbFilters({
     config: {
       brands: { enabled: false },
       groups: { enabled: false },
@@ -56,10 +56,13 @@ export const MarketInsights: React.FC = React.memo(() => {
 
       period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
-      group_by_dimensions: dbFilters.groupBy,
+      group_by_dimensions: databaseFilters.groupBy,
 
-      limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
-      search: dbFilters.search,
+      limit:
+        databaseFilters.rowsCount === 'all'
+          ? undefined
+          : databaseFilters.rowsCount,
+      search: databaseFilters.search,
 
       method: 'POST',
     })
@@ -71,31 +74,30 @@ export const MarketInsights: React.FC = React.memo(() => {
     return queryData.data[0].map(row => {
       const newRow: Record<string, any> = {};
 
-      Object.entries(row).forEach(([key, value]) => {
-        const match = key.match(/^(\d{1,2})-(\d{2})$/);
+      for (const [key, value] of Object.entries(row)) {
+        const match = /^(\d{1,2})-(\d{2})$/.exec(key);
         if (match) {
           const month = match[1].padStart(2, '0');
           const year = `20${match[2]}`;
           const newKey = `${year}-${month}`;
-          if (typeof value == 'object') {
-            newRow[newKey] = value[dbFilters.indicator as 'amount'];
-          } else {
-            newRow[newKey] = value;
-          }
-          return;
+          newRow[newKey] =
+            typeof value == 'object'
+              ? value[databaseFilters.indicator as 'amount']
+              : value;
+          continue;
         }
 
-        if (typeof value === 'object' && value !== null) {
-          newRow[key] = value[dbFilters.indicator as 'amount'];
-          return;
+        if (typeof value === 'object' && Boolean(value)) {
+          newRow[key] = value[databaseFilters.indicator as 'amount'];
+          continue;
         }
 
         newRow[key] = value;
-      });
+      }
 
       return newRow;
     });
-  }, [queryData.data, dbFilters.indicator]);
+  }, [queryData.data, databaseFilters.indicator]);
 
   const allColumns = useGenerateColumns({
     filterOptions: {},
@@ -114,15 +116,15 @@ export const MarketInsights: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['actions'],
-      setGroupBy: dbFilters.setGroupBy,
+      setGroupBy: databaseFilters.setGroupBy,
     });
 
   return (
     <PageSection
       title="Данные по рынкам"
       headerEnd={
-        <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...dbFilters}>
+        <div className="relative z-100 flex items-center gap-4">
+          <DbFilters {...databaseFilters}>
             <PeriodFilters {...periodFilter} />
           </DbFilters>
           <Select<true>
@@ -162,9 +164,9 @@ export const MarketInsights: React.FC = React.memo(() => {
         >
           <Table
             filters={{
-              usedFilterItems: dbFilters.usedFilterItems,
+              usedFilterItems: databaseFilters.usedFilterItems,
               resetFilters: () => {
-                dbFilters.resetFilters();
+                databaseFilters.resetFilters();
                 periodFilter.onReset();
               },
               isViewPeriods: periodFilter.isView,

@@ -21,7 +21,7 @@ export const ForgotPasswordForm: React.FC = React.memo(() => {
       </div>
 
       {errors.root && (
-        <div className="text-red-500 mb-5">{errors.root.message}</div>
+        <div className="mb-5 text-red-500">{errors.root.message}</div>
       )}
       <div className="flex justify-end">
         <Button
@@ -30,7 +30,7 @@ export const ForgotPasswordForm: React.FC = React.memo(() => {
           type="submit"
           roundedFull
           disabled={status === 'pending'}
-          className="flex items-center justify-center py-4 text-xl leading-7 align-middle w-[14.375rem] h-[3.125rem] text-1xl"
+          className="text-1xl flex h-[3.125rem] w-[14.375rem] items-center justify-center py-4 align-middle text-xl leading-7"
           ariaLabel=""
         >
           {status === 'pending' ? 'Отправка...' : 'Отправить'}

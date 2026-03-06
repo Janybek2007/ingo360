@@ -50,7 +50,7 @@ export const Sidebar: React.FC = React.memo(() => {
   }, [user, userAccess, baseNavigations]);
 
   const toggleCollapse = React.useCallback(() => {
-    setIsCollapsed(prev => !prev);
+    setIsCollapsed(previous => !previous);
   }, [setIsCollapsed]);
 
   const [helpModalOpen, setHelpModalOpen] = React.useState(false);
@@ -59,10 +59,10 @@ export const Sidebar: React.FC = React.memo(() => {
     <aside
       id="sidebar"
       className={cn(
-        'border-l border-r border-c3 bg-white h-screen py-8 flex flex-col',
+        'border-c3 flex h-screen flex-col border-r border-l bg-white py-8',
         isCollapsed
-          ? 'min-w-[4.5rem] max-w-[4.5rem] px-3'
-          : 'min-w-[18rem] max-w-[18rem] px-6'
+          ? 'max-w-[4.5rem] min-w-[4.5rem] px-3'
+          : 'max-w-[18rem] min-w-[18rem] px-6'
       )}
     >
       <div className="mb-8 flex items-center justify-between">
@@ -71,36 +71,36 @@ export const Sidebar: React.FC = React.memo(() => {
             <img
               src={Assets.Logo}
               alt="Logo Asset"
-              className="w-[10rem] h-[3.5625rem]"
+              className="h-[3.5625rem] w-[10rem]"
             />
           </Link>
         )}
         <button
           onClick={toggleCollapse}
           className={cn(
-            'p-2 rounded-full hover:bg-gray-100 transition-colors',
+            'rounded-full p-2 transition-colors hover:bg-gray-100',
             isCollapsed && 'mx-auto'
           )}
           aria-label={isCollapsed ? 'Развернуть меню' : 'Свернуть меню'}
         >
-          <span className="text-gray-600 font-bold">
-            {!isCollapsed ? (
-              <LucideArrowIcon className="size-4" type="chevron-left" />
-            ) : (
+          <span className="font-bold text-gray-600">
+            {isCollapsed ? (
               <LucideArrowIcon className="size-4" type="chevron-right" />
+            ) : (
+              <LucideArrowIcon className="size-4" type="chevron-left" />
             )}
           </span>
         </button>
       </div>
 
-      <nav className="flex flex-col gap-2 flex-1 w-full">
+      <nav className="flex w-full flex-1 flex-col gap-2">
         {isLoading
-          ? Array.from({ length: 6 }).map((_, i) => (
+          ? Array.from({ length: 6 }).map((_, index) => (
               <div
-                key={i}
+                key={index}
                 className={cn(
-                  'bg-gray-200 rounded-full animate-pulse',
-                  isCollapsed ? 'h-10 w-0 mx-auto' : 'h-10 w-full'
+                  'animate-pulse rounded-full bg-gray-200',
+                  isCollapsed ? 'mx-auto h-10 w-0' : 'h-10 w-full'
                 )}
               />
             ))
@@ -109,11 +109,11 @@ export const Sidebar: React.FC = React.memo(() => {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  'p-3 transition-colors flex items-center gap-2',
+                  'flex items-center gap-2 p-3 transition-colors',
                   'rounded-full',
-                  isCollapsed ? 'w-10 h-10 justify-center' : 'w-full',
+                  isCollapsed ? 'h-10 w-10 justify-center' : 'w-full',
                   isActive(item.href)
-                    ? 'bg-primary text-white font-semibold'
+                    ? 'bg-primary font-semibold text-white'
                     : 'hover:bg-primary/10 text-gray-800'
                 )}
                 title={item.label}
@@ -129,7 +129,7 @@ export const Sidebar: React.FC = React.memo(() => {
                   />
                 </span>
                 {!isCollapsed && (
-                  <span className="ls-base font-normal text-base leading-[1.375rem]">
+                  <span className="ls-base text-base leading-[1.375rem] font-normal">
                     {item.label}
                   </span>
                 )}
@@ -137,14 +137,14 @@ export const Sidebar: React.FC = React.memo(() => {
             ))}
       </nav>
 
-      <div className="mt-auto pt-4 border-t border-gray-200 flex flex-col gap-1">
+      <div className="mt-auto flex flex-col gap-1 border-t border-gray-200 pt-4">
         <Link
           to={routePaths.profile}
           className={cn(
-            'p-3 transition-colors flex items-center gap-2 rounded-full',
-            isCollapsed ? 'w-10 h-10 justify-center' : 'w-full',
+            'flex items-center gap-2 rounded-full p-3 transition-colors',
+            isCollapsed ? 'h-10 w-10 justify-center' : 'w-full',
             isActive(routePaths.profile)
-              ? 'bg-primary text-white font-semibold'
+              ? 'bg-primary font-semibold text-white'
               : 'hover:bg-primary/10 text-gray-800'
           )}
           title="Аккаунт"
@@ -171,7 +171,7 @@ export const Sidebar: React.FC = React.memo(() => {
             </svg>
           </span>
           {!isCollapsed && (
-            <span className="ls-base font-normal text-base leading-[1.375rem]">
+            <span className="ls-base text-base leading-[1.375rem] font-normal">
               Аккаунт
             </span>
           )}
@@ -181,8 +181,8 @@ export const Sidebar: React.FC = React.memo(() => {
           type="button"
           onClick={() => setHelpModalOpen(true)}
           className={cn(
-            'p-3 transition-colors flex items-center gap-2 rounded-full w-full text-left',
-            isCollapsed ? 'w-10 h-10 justify-center' : '',
+            'flex w-full items-center gap-2 rounded-full p-3 text-left transition-colors',
+            isCollapsed ? 'h-10 w-10 justify-center' : '',
             'hover:bg-primary/10 text-gray-800'
           )}
           title="Помощь"
@@ -206,7 +206,7 @@ export const Sidebar: React.FC = React.memo(() => {
             </svg>
           </span>
           {!isCollapsed && (
-            <span className="ls-base font-normal text-base leading-[1.375rem]">
+            <span className="ls-base text-base leading-[1.375rem] font-normal">
               Помощь
             </span>
           )}
@@ -215,10 +215,10 @@ export const Sidebar: React.FC = React.memo(() => {
         <div className={cn(isCollapsed ? 'flex justify-center' : '')}>
           <LogoutButton
             className={cn(
-              'w-full py-[0.625rem] px-3 rounded-full text-medium',
-              'flex items-center gap-2 [&_svg]:size-[1rem] [&_span]:text-sm',
+              'text-medium w-full rounded-full px-3 py-[0.625rem]',
+              'flex items-center gap-2 [&_span]:text-sm [&_svg]:size-[1rem]',
               'hover:bg-primary/10 text-gray-800',
-              isCollapsed && 'w-10 h-10 justify-center [&_span]:hidden'
+              isCollapsed && 'h-10 w-10 justify-center [&_span]:hidden'
             )}
           />
         </div>
@@ -232,7 +232,7 @@ export const Sidebar: React.FC = React.memo(() => {
             body: 'w-[250px] h-[250px] min-w-[250px] min-h-[250px] flex flex-col',
           }}
         >
-          <p className="text-gray-700 flex-1 flex items-center justify-center text-center">
+          <p className="flex flex-1 items-center justify-center text-center text-gray-700">
             Страница помощи в разработке, скоро
           </p>
         </Modal>

@@ -24,17 +24,21 @@ export const UsersList: React.FC = React.memo(() => {
         // .filter(user => !user.is_superuser)
         .filter(user => {
           switch (selectedGroup.type) {
-            case 'company':
+            case 'company': {
               return user.company?.id === selectedGroup.id;
+            }
 
-            case 'operators':
+            case 'operators': {
               return user.is_operator;
+            }
 
-            case 'admins':
+            case 'admins': {
               return user.is_admin;
+            }
 
-            default:
+            default: {
               return false;
+            }
           }
         })
     );
@@ -51,7 +55,7 @@ export const UsersList: React.FC = React.memo(() => {
     let operators = 0;
     let admins = 0;
 
-    query.data.forEach(user => {
+    for (const user of query.data) {
       if (user.is_operator) operators++;
       if (user.is_admin) admins++;
 
@@ -64,10 +68,10 @@ export const UsersList: React.FC = React.memo(() => {
         }
         companyMap.get(user.company.id).userCount += 1;
       }
-    });
+    }
 
     return {
-      companies: Array.from(companyMap.values()),
+      companies: [...companyMap.values()],
       operatorsCount: operators,
       adminsCount: admins,
     };
@@ -76,7 +80,22 @@ export const UsersList: React.FC = React.memo(() => {
   return (
     <div className="px-3 py-4">
       <AsyncBoundary isLoading={query.isLoading} queryError={query.error}>
-        {!selectedGroup ? (
+        {selectedGroup ? (
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => setSelectedGroup(null)}
+              className="self-start rounded-lg bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+            >
+              Назад
+            </button>
+
+            <div className="flex max-h-[calc(100vh-2rem)] flex-col gap-3 overflow-y-auto">
+              {usersFiltered.map((user, index) => (
+                <UserListItem key={`${user.id}-${index}`} user={user} />
+              ))}
+            </div>
+          </div>
+        ) : (
           <div className="flex flex-col gap-6">
             {/* Companies */}
             <div className="space-y-2">
@@ -109,21 +128,6 @@ export const UsersList: React.FC = React.memo(() => {
                   onClick={() => setSelectedGroup({ type: 'admins' })}
                 />
               </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => setSelectedGroup(null)}
-              className="self-start rounded-lg bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-            >
-              Назад
-            </button>
-
-            <div className="flex max-h-[calc(100vh-2rem)] flex-col gap-3 overflow-y-auto">
-              {usersFiltered.map((user, index) => (
-                <UserListItem key={`${user.id}-${index}`} user={user} />
-              ))}
             </div>
           </div>
         )}

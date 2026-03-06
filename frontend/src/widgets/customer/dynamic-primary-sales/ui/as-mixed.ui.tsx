@@ -13,16 +13,16 @@ import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
 import { PeriodSorting } from '#/shared/utils/period-sorting';
 
-import type { DynamicPrimarySalesAsMixedProps } from '../dynamic-primary-sales.types';
+import type { DynamicPrimarySalesAsMixedProps as DynamicPrimarySalesAsMixedProperties } from '../dynamic-primary-sales.types';
 
-export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProps> =
+export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProperties> =
   React.memo(({ period, sales: salesData, indicator }) => {
     const sectionStyle = useSectionStyle();
 
     const processedData = useMemo(() => {
       return salesData
-        .sort(PeriodSorting.sortByPeriod(period))
-        .map((item, idx) => {
+        .toSorted(PeriodSorting.sortByPeriod(period))
+        .map((item, index) => {
           const parsed = parsePeriodData(item.period, period);
 
           return {
@@ -37,7 +37,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
                 ? item.stock_packages
                 : item.stock_amount,
             trade_stock: item.coverage_months,
-            xIndex: `${idx}`,
+            xIndex: `${index}`,
           };
         });
     }, [salesData, indicator, period]);
@@ -46,8 +46,8 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
       return Math.max(...processedData.map(d => d.trade_stock)) + 10;
     }, [processedData]);
 
-    const CustomXAxisTick = (props: any) => {
-      const { x, y, payload } = props;
+    const CustomXAxisTick = (properties: any) => {
+      const { x, y, payload } = properties;
       const index = payload.index;
       const item = processedData[index];
 
@@ -59,7 +59,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             x={x}
             y={y}
             textAnchor="middle"
-            className="fill-black text-xs leading-full font-normal"
+            className="leading-full fill-black text-xs font-normal"
           >
             {item.label}
           </text>
@@ -84,12 +84,9 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             }}
             formatter={(value, name) => {
               if (value == null) return null;
-              const label =
-                name === 'remains'
-                  ? 'Остаток'
-                  : name === 'primary'
-                    ? 'Первичные продажи'
-                    : 'Товарный запас';
+              const labelName =
+                name === 'primary' ? 'Первичные продажи' : 'Товарный запас';
+              const label = name === 'remains' ? 'Остаток' : labelName;
               return [value.toLocaleString('ru-RU'), label];
             }}
           />
@@ -108,7 +105,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             axisLine={false}
             tickLine={false}
             hide
-            className="text-xs font-normal leading-full"
+            className="leading-full text-xs font-normal"
             tick={{ fontSize: 12, fill: '#6b7280' }}
             tickMargin={10}
           />
@@ -123,7 +120,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
               dataKey="remains"
               position="top"
               formatter={value => Number(value).toLocaleString('ru-RU')}
-              className="text-xs fill-black"
+              className="fill-black text-xs"
             />
           </Bar>
 
@@ -137,7 +134,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
               dataKey="primary"
               position="top"
               formatter={value => Number(value).toLocaleString('ru-RU')}
-              className="text-xs fill-black"
+              className="fill-black text-xs"
             />
           </Bar>
 

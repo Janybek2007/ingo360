@@ -1,10 +1,10 @@
-import type { ICreateEditModalProps } from '../components/create-edit-modal';
+import type { ICreateEditModalProps as ICreateEditModalProperties } from '../components/create-edit-modal';
 
 interface FieldsWithSelectItemsConfig {
   data?: Record<string, string | number>[][];
   options?: Record<string, Array<{ value: string | number; label: string }>>;
   defaultData?: Record<string, string | number> | null;
-  fields: ICreateEditModalProps['fields'];
+  fields: ICreateEditModalProperties['fields'];
   dependsUrls: { fieldName: string; url: string }[];
 }
 
@@ -26,7 +26,7 @@ export const fieldsWithSelectItems = ({
       const key =
         dependencyUrl === 'companies'
           ? 'companies_companies'
-          : dependencyUrl.replace(/[/-]/g, '_');
+          : dependencyUrl.replaceAll(/[/-]/g, '_');
 
       return (options[key] || [])
         .filter(option => option.value !== 0)
@@ -43,7 +43,7 @@ export const fieldsWithSelectItems = ({
 
   const processField = (field: any): any => {
     if (Array.isArray(field)) {
-      return field.map(processField);
+      return field.map(item => processField(item));
     }
 
     if (!field.name) return field;
@@ -83,5 +83,5 @@ export const fieldsWithSelectItems = ({
     return { ...field, selectItems, defaultValue };
   };
 
-  return fields.map(processField);
+  return fields.map(item => processField(item));
 };

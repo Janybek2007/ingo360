@@ -22,16 +22,18 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
       const selectedCompanyId = Number(data.company_id);
       const company = companies.find(c => c.id === selectedCompanyId);
 
-      if (company && company.active_users_limit > 0) {
-        if (company.active_users >= company.active_users_limit) {
-          toast({
-            message:
-              'Достигнут лимит активных пользователей для выбранной компании',
-            type: 'warning',
-            duration: 8000, // 8 seconds
-          });
-          return;
-        }
+      if (
+        company &&
+        company.active_users_limit > 0 &&
+        company.active_users >= company.active_users_limit
+      ) {
+        toast({
+          message:
+            'Достигнут лимит активных пользователей для выбранной компании',
+          type: 'warning',
+          duration: 8000, // 8 seconds
+        });
+        return;
       }
 
       await mutation.mutateAsync(data);

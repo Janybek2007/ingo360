@@ -23,9 +23,9 @@ import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 import { transformHeaderKeys } from '#/shared/utils/transform';
 
 import { getReferenceTypeDeps, getReferenceWorkColumns } from './constants';
-import type { IReferenceWorkProps } from './reference-work.types';
+import type { IReferenceWorkProps as IReferenceWorkProperties } from './reference-work.types';
 
-const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
+const ReferenceWork: React.FC<IReferenceWorkProperties> = React.memo(
   ({
     currentData,
     current,
@@ -78,7 +78,7 @@ const ReferenceWork: React.FC<IReferenceWorkProps> = React.memo(
         <PageSection
           title={findCurrentTab(tabsItems, current)?.subItem?.label}
           headerEnd={
-            <div className="flex items-center gap-4 relative z-100">
+            <div className="relative z-100 flex items-center gap-4">
               <Select<false, number>
                 value={rowsCount}
                 setValue={setRowsCount}

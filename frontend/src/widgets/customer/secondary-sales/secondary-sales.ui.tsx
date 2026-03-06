@@ -43,7 +43,7 @@ export const SecondarySales: React.FC = React.memo(() => {
     'clients/geo-indicators',
   ]);
 
-  const dbFilters = useDbFilters({
+  const databaseFilters = useDbFilters({
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
     geoIndicatorsOptions: filterOptions.options.clients_geo_indicators,
@@ -66,17 +66,20 @@ export const SecondarySales: React.FC = React.memo(() => {
         filters,
         COMMON_COLUMNS_FILTER_KEY_MAP,
         {
-          brand_ids: dbFilters.brands,
-          product_group_ids: dbFilters.groups,
-          geo_indicator_ids: dbFilters.geoIndicators,
+          brand_ids: databaseFilters.brands,
+          product_group_ids: databaseFilters.groups,
+          geo_indicator_ids: databaseFilters.geoIndicators,
         }
       ),
       ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-      limit: dbFilters.rowsCount === 'all' ? undefined : dbFilters.rowsCount,
-      search: dbFilters.search,
+      limit:
+        databaseFilters.rowsCount === 'all'
+          ? undefined
+          : databaseFilters.rowsCount,
+      search: databaseFilters.search,
 
-      group_by_dimensions: dbFilters.groupBy,
+      group_by_dimensions: databaseFilters.groupBy,
       period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
 
@@ -101,26 +104,26 @@ export const SecondarySales: React.FC = React.memo(() => {
       commonColumns.distributor(),
       commonColumns.geo_indicator(),
     ],
-    months: monthsPreset(dbFilters.indicator, sales),
-    total: totalPreset(dbFilters.indicator),
+    months: monthsPreset(databaseFilters.indicator, sales),
+    total: totalPreset(databaseFilters.indicator),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: dbFilters.setGroupBy,
+      setGroupBy: databaseFilters.setGroupBy,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(sales, dbFilters.indicator);
-  }, [sales, dbFilters.indicator]);
+    return calcPeriodTotals(sales, databaseFilters.indicator);
+  }, [sales, databaseFilters.indicator]);
 
   return (
     <PageSection
       title="Вторичные продажи"
       headerEnd={
-        <div className="flex items-center gap-4 relative z-100">
-          <DbFilters {...dbFilters} />
+        <div className="relative z-100 flex items-center gap-4">
+          <DbFilters {...databaseFilters} />
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}
@@ -145,7 +148,7 @@ export const SecondarySales: React.FC = React.memo(() => {
             }}
             hasTotal
             selectKeys={visibleColumns}
-            periodKey={dbFilters.indicator}
+            periodKey={databaseFilters.indicator}
             data={sales}
             fileName="Вторичные продажи"
           />
@@ -160,10 +163,10 @@ export const SecondarySales: React.FC = React.memo(() => {
           value={{ filters, setFilters, sorting, setSorting }}
         >
           <Table
-            key={dbFilters.indicator}
+            key={databaseFilters.indicator}
             filters={{
-              usedFilterItems: dbFilters.usedFilterItems,
-              resetFilters: dbFilters.resetFilters,
+              usedFilterItems: databaseFilters.usedFilterItems,
+              resetFilters: databaseFilters.resetFilters,
             }}
             columns={columnsForTable}
             data={sales}

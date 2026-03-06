@@ -32,7 +32,7 @@ export const SetPasswordForm: React.FC<{ token: string | null }> = React.memo(
           />
         </div>
         {(errors.root || errors.token) && (
-          <div className="text-red-500 mb-5">
+          <div className="mb-5 text-red-500">
             {(errors.root || errors.token)?.message}
           </div>
         )}
@@ -43,7 +43,7 @@ export const SetPasswordForm: React.FC<{ token: string | null }> = React.memo(
             type="submit"
             roundedFull
             disabled={status === 'pending'}
-            className="flex items-center justify-center py-4 text-xl leading-7 align-middle w-[14.375rem] h-[3.125rem] text-1xl"
+            className="text-1xl flex h-[3.125rem] w-[14.375rem] items-center justify-center py-4 align-middle text-xl leading-7"
           >
             {status === 'pending' ? 'Отправка...' : 'Отправить'}
           </Button>

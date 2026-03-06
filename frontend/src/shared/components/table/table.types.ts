@@ -18,11 +18,11 @@ import type { IUsedFilterProps } from '../used-filter';
 
 export interface TableContextProps {
   sorting: SortingState;
-  setSorting: (val: SortingState) => void;
+  setSorting: (value: SortingState) => void;
   columnFilters: ColumnFiltersState;
-  setColumnFilters: (val: ColumnFiltersState) => void;
+  setColumnFilters: (value: ColumnFiltersState) => void;
   columnPinning: ColumnPinningState;
-  setColumnPinning: (val: ColumnPinningState) => void;
+  setColumnPinning: (value: ColumnPinningState) => void;
   openFilterColumn: string | null;
   setOpenFilterColumn: (id: string | null) => void;
   popupPosition: IAnchorPosition;
@@ -85,7 +85,7 @@ export interface IFilterActionsProps {
 
 export interface IFilterSelectProps {
   value: ISelectItem<string | number>[];
-  setValue: (val: ISelectItem<string | number>[]) => void;
+  setValue: (value: ISelectItem<string | number>[]) => void;
   items: ISelectItem<string | number>[];
 }
 

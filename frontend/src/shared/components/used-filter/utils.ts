@@ -49,7 +49,7 @@ export class PeriodGrouping {
   }
 
   public group(): IUsedFilterItem[] | IGroupedPeriod[] {
-    if (!this.items.length) return [];
+    if (this.items.length === 0) return [];
 
     const key = `${this.mode}-${this.isReadOnly}`;
     if (this.cache.has(key)) return this.cache.get(key)!;
@@ -62,11 +62,11 @@ export class PeriodGrouping {
   }
 
   private parse(value: string | number): ParsedPeriod {
-    const str = String(value);
-    const parts = str.split('-');
+    const string_ = String(value);
+    const parts = string_.split('-');
 
-    if (parts.length === 1 && /^\d{4}$/.test(str)) {
-      return { type: 'year', year: str };
+    if (parts.length === 1 && /^\d{4}$/.test(string_)) {
+      return { type: 'year', year: string_ };
     }
 
     return {
@@ -87,10 +87,10 @@ export class PeriodGrouping {
   }
 
   private sortByNumber(items: IUsedFilterItem[]): IUsedFilterItem[] {
-    return [...items].sort((a, b) => {
-      const aNum = this.parse(a.value).number ?? 0;
-      const bNum = this.parse(b.value).number ?? 0;
-      return aNum - bNum;
+    return items.toSorted((a, b) => {
+      const aNumber = this.parse(a.value).number ?? 0;
+      const bNumber = this.parse(b.value).number ?? 0;
+      return aNumber - bNumber;
     });
   }
 
@@ -111,7 +111,7 @@ export class PeriodGrouping {
       it => this.parse(it.value).type !== 'year'
     );
 
-    if (!periodItems.length) return [];
+    if (periodItems.length === 0) return [];
 
     // 2️⃣ ЕСЛИ РОВНО 12 МЕСЯЦЕВ / 4 КВАРТАЛА → НЕ ПОКАЗЫВАЕМ НИЧЕГО
     const detectedType = this.getFirstPeriodType(periodItems);
@@ -140,7 +140,7 @@ export class PeriodGrouping {
     const result: IUsedFilterItem[] = [];
 
     // сортируем годы: 2026, 2025, ...
-    const sortedYears = Array.from(years.entries()).sort(
+    const sortedYears = [...years.entries()].toSorted(
       ([a], [b]) => Number(b) - Number(a)
     );
 
@@ -188,11 +188,11 @@ export class PeriodGrouping {
       });
     }
 
-    return result.sort((a, b) => {
+    return result.toSorted((a, b) => {
       if (a.year !== b.year) return Number(a.year) - Number(b.year);
-      const aNum = this.parse(a.value).number ?? 0;
-      const bNum = this.parse(b.value).number ?? 0;
-      return aNum - bNum;
+      const aNumber = this.parse(a.value).number ?? 0;
+      const bNumber = this.parse(b.value).number ?? 0;
+      return aNumber - bNumber;
     });
   }
 }

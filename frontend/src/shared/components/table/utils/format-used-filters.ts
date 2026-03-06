@@ -12,7 +12,7 @@ import type {
 
 import type { IUsedFilterItem } from '../../used-filter';
 
-interface FormatUsedFilterItemsParams {
+interface FormatUsedFilterItemsParameters {
   columnFilters: ColumnFiltersState;
   sorting: SortingState;
   columns: ColumnDef<any>[];
@@ -93,7 +93,7 @@ const formatFilterValue = (
   // Старый формат (массив значений)
   if (Array.isArray(filterValue)) {
     return filterValue
-      .map(val => getSelectLabel(columnId, val, columns))
+      .map(value => getSelectLabel(columnId, value, columns))
       .join(', ');
   }
 
@@ -107,118 +107,193 @@ export const formatUsedFilterItems = ({
   externalUsedFilters = [],
   setColumnFilters,
   setSorting,
-}: FormatUsedFilterItemsParams): IUsedFilterItem[] => {
+}: FormatUsedFilterItemsParameters): IUsedFilterItem[] => {
   const items: IUsedFilterItem[] = [...externalUsedFilters];
 
-  columnFilters.forEach(filter => {
+  for (const filter of columnFilters) {
     const { id, value: filterValue } = filter as {
       id: string;
       value: TableFilterValue;
     };
     const header = filterValue?.header ?? getColumnHeader(id, columns);
 
-    // Фильтры типа select
+    let item: IUsedFilterItem | null = null;
+
     if (
       filterValue?.colType === 'select' &&
       Array.isArray(filterValue.selectValues)
     ) {
-      const column = columns.find(
-        c => c.id === id || c.accessorKey === id
-      ) as any;
-      const selectOptions = column?.selectOptions ?? [];
+      item = buildSelectFilterItem(
+        id,
+        header,
+        filterValue,
+        columns,
+        setColumnFilters
+      );
+    } else if (Array.isArray(filterValue)) {
+      item = buildArrayFilterItem(
+        id,
+        header,
+        filterValue,
+        columns,
+        setColumnFilters
+      );
+    } else if (filterValue && typeof filterValue === 'object') {
+      item = buildOperatorFilterItem(
+        id,
+        header,
+        filterValue,
+        columns,
+        setColumnFilters
+      );
+    }
 
-      // Не показываем фильтр, если ничего не выбрано или выбраны все значения
-      if (
-        filterValue.selectValues.length > 0 &&
-        filterValue.selectValues.length < selectOptions.length
-      ) {
-        items.push({
-          label: header,
-          value: id,
-          onDelete: () =>
-            setColumnFilters(prev => prev.filter(f => f.id !== id)),
-          subItems: filterValue.selectValues.map(item => ({
-            label: item.label,
-            value: `${id}-${item.value}`,
-            onDelete: () =>
-              setColumnFilters(prev =>
-                prev
-                  .map(f => {
-                    if (
-                      f.id === id &&
-                      (f.value as TableFilterSelectValue)?.selectValues
-                    ) {
-                      const updatedSelectValues = (
-                        f.value as TableFilterSelectValue
-                      ).selectValues?.filter(v => v.value !== item.value);
-                      return {
-                        ...f,
-                        value: {
-                          ...(f.value as TableFilterValue),
-                          selectValues: updatedSelectValues,
-                        },
-                      };
-                    }
-                    return f;
-                  })
-                  .filter(
-                    f =>
-                      (f.value as TableFilterSelectValue)?.selectValues
-                        ?.length ?? true
-                  )
-              ),
-          })),
-        });
-      }
-    }
-    // Старый формат (массив значений)
-    else if (Array.isArray(filterValue)) {
-      items.push({
-        label: header,
-        value: id,
-        onDelete: () => setColumnFilters(prev => prev.filter(f => f.id !== id)),
-        subItems: filterValue.map(val => ({
-          label: getSelectLabel(id, val, columns),
-          value: `${id}-${val}`,
-          onDelete: () =>
-            setColumnFilters(
-              prev =>
-                prev
-                  .map(f =>
-                    f.id === id && Array.isArray(f.value)
-                      ? { ...f, value: f.value.filter(v => v !== val) }
-                      : f
-                  )
-                  .filter(
-                    f => !Array.isArray(f.value) || f.value.length > 0
-                  ) as ColumnFiltersState
-            ),
-        })),
-      });
-    }
-    // Фильтры с операторами
-    else if (filterValue && typeof filterValue === 'object') {
-      const formattedValue = formatFilterValue(filterValue, id, columns);
-      if (formattedValue) {
-        items.push({
-          label: `${header}: ${formattedValue}`,
-          value: id,
-          onDelete: () =>
-            setColumnFilters(prev => prev.filter(f => f.id !== id)),
-        });
-      }
-    }
-  });
+    if (item) items.push(item);
+  }
 
-  // Сортировка
-  sorting.forEach(sort => {
+  for (const sort of sorting) {
     const header = getColumnHeader(sort.id, columns);
     items.push({
       label: `Сортировка: ${header} ${sort.desc ? '↓' : '↑'}`,
       value: `sort-${sort.id}`,
-      onDelete: () => setSorting(prev => prev.filter(s => s.id !== sort.id)),
+      onDelete: deleteSortById(sort.id, setSorting),
     });
-  });
+  }
 
   return items;
 };
+
+const buildSelectFilterItem = (
+  id: string,
+  header: string,
+  filterValue: TableFilterSelectValue,
+  columns: ColumnDef<any>[],
+  setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+): IUsedFilterItem | null => {
+  const column = columns.find(c => c.id === id || c.accessorKey === id) as any;
+  const selectOptions = column?.selectOptions ?? [];
+  const { selectValues } = filterValue;
+
+  const hasPartialSelection =
+    selectValues.length > 0 && selectValues.length < selectOptions.length;
+
+  if (!hasPartialSelection) return null;
+
+  return {
+    label: header,
+    value: id,
+    onDelete: deleteFilterById(id, setColumnFilters),
+    subItems: selectValues.map(item => ({
+      label: item.label,
+      value: `${id}-${item.value}`,
+      onDelete: deleteSelectSubItem(id, item.value, setColumnFilters),
+    })),
+  };
+};
+
+const buildArrayFilterItem = (
+  id: string,
+  header: string,
+  filterValue: unknown[],
+  columns: ColumnDef<any>[],
+  setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+): IUsedFilterItem => ({
+  label: header,
+  value: id,
+  onDelete: deleteFilterById(id, setColumnFilters),
+  subItems: filterValue.map(value => ({
+    label: getSelectLabel(id, value as string | number, columns),
+    value: `${id}-${value}`,
+    onDelete: deleteArraySubItem(id, value, setColumnFilters),
+  })),
+});
+
+const buildOperatorFilterItem = (
+  id: string,
+  header: string,
+  filterValue: TableFilterValue,
+  columns: ColumnDef<any>[],
+  setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+): IUsedFilterItem | null => {
+  const formattedValue = formatFilterValue(filterValue, id, columns);
+  if (!formattedValue) return null;
+
+  return {
+    label: `${header}: ${formattedValue}`,
+    value: id,
+    onDelete: deleteFilterById(id, setColumnFilters),
+  };
+};
+
+const deleteFilterById =
+  (
+    id: string,
+    setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+  ) =>
+  () => {
+    setColumnFilters(previous => previous.filter(f => f.id !== id));
+  };
+
+const deleteSortById =
+  (
+    id: string,
+    setSorting: React.Dispatch<React.SetStateAction<SortingState>>
+  ) =>
+  () => {
+    setSorting(previous => previous.filter(s => s.id !== id));
+  };
+const deleteSelectSubItem =
+  (
+    id: string,
+    itemValue: unknown,
+    setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+  ) =>
+  () => {
+    setColumnFilters(previous =>
+      previous
+        .map(f => {
+          const selectValue = f.value as TableFilterSelectValue;
+          if (f.id !== id || !selectValue?.selectValues) return f;
+
+          return {
+            ...f,
+            value: {
+              ...(f.value as TableFilterValue),
+              selectValues: selectValue.selectValues.filter(
+                excludeSelectValue(itemValue)
+              ),
+            },
+          };
+        })
+        .filter(
+          f => (f.value as TableFilterSelectValue)?.selectValues?.length ?? true
+        )
+    );
+  };
+
+const deleteArraySubItem =
+  (
+    id: string,
+    itemValue: unknown,
+    setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+  ) =>
+  () => {
+    setColumnFilters(
+      previous =>
+        previous
+          .map(f =>
+            f.id === id && Array.isArray(f.value)
+              ? { ...f, value: f.value.filter(excludeArrayValue(itemValue)) }
+              : f
+          )
+          .filter(
+            f => !Array.isArray(f.value) || f.value.length > 0
+          ) as ColumnFiltersState
+    );
+  };
+
+const excludeSelectValue = (itemValue: unknown) => (v: { value: unknown }) =>
+  v.value !== itemValue;
+
+const excludeArrayValue = (itemValue: unknown) => (v: unknown) =>
+  v !== itemValue;

@@ -44,14 +44,19 @@ function BubbleError(): null {
   const error = useRouteError();
 
   if (error) {
+    let error_: Error;
+
     if (error instanceof Error) {
-      throw error;
+      error_ = error;
+    } else if (typeof error === 'string') {
+      error_ = new Error(error);
     } else {
-      throw new Error(
-        typeof error === 'string' ? error : JSON.stringify(error)
-      );
+      error_ = new Error(JSON.stringify(error));
     }
+
+    throw error_;
   }
+
   return null;
 }
 

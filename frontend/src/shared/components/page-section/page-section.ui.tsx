@@ -3,9 +3,9 @@ import React from 'react';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { cn } from '#/shared/utils/cn';
 
-import type { IPageSectionProps } from './page-section.types';
+import type { IPageSectionProps as IPageSectionProperties } from './page-section.types';
 
-export const PageSection: React.FC<IPageSectionProps> = React.memo(
+export const PageSection: React.FC<IPageSectionProperties> = React.memo(
   ({
     children,
     headerEnd,
@@ -26,18 +26,18 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
         className={cn('relative', sectionClassName)}
       >
         <div
-          className={cn('w-full flex flex-col gap-7 p-6', classNames?.wrapper)}
+          className={cn('flex w-full flex-col gap-7 p-6', classNames?.wrapper)}
         >
           {viewHeader &&
             (beforeHeader || afterHeader || title || legends || headerEnd) && (
-              <div className="flex flex-col gap-6 relative z-[40]">
+              <div className="relative z-[40] flex flex-col gap-6">
                 {beforeHeader}
-                <div className="flex items-center flex-wrap justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex flex-col">
                     {title && (
                       <h4
                         className={cn(
-                          'font-medium text-xl leading-6 text-[#1D170F]'
+                          'text-xl leading-6 font-medium text-[#1D170F]'
                         )}
                       >
                         {title}{' '}
@@ -60,17 +60,17 @@ export const PageSection: React.FC<IPageSectionProps> = React.memo(
           {children}
           {legends && legends.length > 0 && (
             <div className="mx-auto">
-              <ul className="flex items-center flex-wrap justify-center gap-4 mt-4">
-                {legends.map((l, i) => (
+              <ul className="mt-4 flex flex-wrap items-center justify-center gap-4">
+                {legends.map((l, index) => (
                   <li
-                    key={`${l.label}-${i}`}
+                    key={`${l.label}-${index}`}
                     className="flex items-center gap-1.5"
                   >
                     <span
                       className="inline-block size-[0.938rem] rounded-full"
                       style={{ backgroundColor: l.fill }}
                     ></span>
-                    <span className="text-[#888888] font-normal text-sm leading-full -tracking-[0.2px]">
+                    <span className="leading-full text-sm font-normal -tracking-[0.2px] text-[#888888]">
                       {l.label}
                     </span>
                   </li>

@@ -10,14 +10,14 @@ import { useEffect } from 'react';
 let fetchingCount = 0;
 
 export function useKeepQuery<
-  TQueryFnData = unknown,
+  TQueryFunctionData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
+  TData = TQueryFunctionData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  options: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  options: UseQueryOptions<TQueryFunctionData, TError, TData, TQueryKey>
 ): UseQueryResult<TData, TError> {
-  const queryData = useQuery<TQueryFnData, TError, TData, TQueryKey>({
+  const queryData = useQuery<TQueryFunctionData, TError, TData, TQueryKey>({
     ...options,
     placeholderData: keepPreviousData,
   });

@@ -1,6 +1,6 @@
 import { type UseFormRegisterReturn } from 'react-hook-form';
 
-import type { ISelectProps } from '../select';
+import type { ISelectProps as ISelectProperties } from '../select';
 
 export interface IFormFieldProps {
   label: string;
@@ -17,7 +17,7 @@ export interface IFormFieldProps {
   }>;
   error?: string;
   select?: Pick<
-    ISelectProps<false, string | number | boolean>,
+    ISelectProperties<false, string | number | boolean>,
     'items' | 'value' | 'setValue' | 'search'
   >;
 }

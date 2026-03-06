@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import type { ITableBodyProps } from '../table.types';
+import type { ITableBodyProps as ITableBodyProperties } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 import { TableTotalRow } from './table-total-row.ui';
 
@@ -18,7 +18,7 @@ export function TableBody({
   rowTotal,
   rowVirtualizer,
   isVirtualized = true,
-}: ITableBodyProps) {
+}: Readonly<ITableBodyProperties>) {
   const rows = table.getRowModel().rows;
 
   const initialCount = useMemo(
@@ -35,12 +35,16 @@ export function TableBody({
       return;
     }
 
-    setVisibleRowCount(prev => Math.min(prev || CHUNK_SIZE, rows.length));
+    setVisibleRowCount(previous =>
+      Math.min(previous || CHUNK_SIZE, rows.length)
+    );
 
     if (visibleRowCount >= rows.length) return;
 
     const timer = setTimeout(() => {
-      setVisibleRowCount(prev => Math.min(prev + CHUNK_SIZE, rows.length));
+      setVisibleRowCount(previous =>
+        Math.min(previous + CHUNK_SIZE, rows.length)
+      );
     }, CHUNK_DELAY);
 
     return () => clearTimeout(timer);
@@ -56,7 +60,7 @@ export function TableBody({
       <>
         <tbody>
           {displayRows.map(row => (
-            <tr key={row.id} className="hover:bg-gray-50 group">
+            <tr key={row.id} className="group hover:bg-gray-50">
               {row.getVisibleCells().map(cell => {
                 const columnDef = cell.column.columnDef;
                 const accessor = columnDef.accessorKey;
@@ -75,8 +79,8 @@ export function TableBody({
                     className={cn(
                       cell.column.getIsPinned() &&
                         'bg-white group-hover:bg-gray-50',
-                      'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
-                      'overflow-hidden text-ellipsis border-b',
+                      'border-r border-[#E4E4E4] px-4 py-[0.875rem] whitespace-nowrap text-gray-800',
+                      'overflow-hidden border-b text-ellipsis',
                       isPinned ? 'sticky top-[45px] bottom-0 z-30' : '',
                       columnDef.pinned === 'right' && 'border-l',
                       highlightRow?.(row.original)
@@ -99,9 +103,7 @@ export function TableBody({
   const totalSize = rowVirtualizer.getTotalSize();
   const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
   const paddingBottom =
-    virtualRows.length > 0
-      ? totalSize - (virtualRows[virtualRows.length - 1].end ?? 0)
-      : 0;
+    virtualRows.length > 0 ? totalSize - (virtualRows.at(-1)?.end ?? 0) : 0;
 
   return (
     <>
@@ -121,7 +123,7 @@ export function TableBody({
             <tr
               key={row.id}
               className={cn(
-                'hover:bg-gray-50 group',
+                'group hover:bg-gray-50',
                 highlightRow?.(row.original)
               )}
             >
@@ -141,8 +143,8 @@ export function TableBody({
                     className={cn(
                       cell.column.getIsPinned() &&
                         'bg-white group-hover:bg-gray-50',
-                      'py-[0.875rem] border-r px-4 text-gray-800 whitespace-nowrap border-[#E4E4E4]',
-                      'overflow-hidden text-ellipsis border-b',
+                      'border-r border-[#E4E4E4] px-4 py-[0.875rem] whitespace-nowrap text-gray-800',
+                      'overflow-hidden border-b text-ellipsis',
                       columnDef.pinned == 'right' && 'border-l',
                       highlightRow?.(row.original)
                     )}

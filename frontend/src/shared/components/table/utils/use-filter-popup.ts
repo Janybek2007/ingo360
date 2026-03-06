@@ -1,6 +1,5 @@
-/* eslint-disable */
 import type { Column, ColumnDefBase } from '@tanstack/react-table';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 
@@ -72,15 +71,9 @@ export const useFilterPopup = ({
     return '';
   }, [initialFilterValue, colType]);
 
-  const [filterType, setFilterType] = useState<string>(initialFilterType);
-  const [value, setValue] = useState<any>(initialValue);
-  const [value2, setValue2] = useState<string | number>(initialValue2);
-
-  useEffect(() => {
-    setFilterType(initialFilterType);
-    setValue(initialValue);
-    setValue2(initialValue2);
-  }, [initialFilterType, initialValue, initialValue2]);
+  const [filterType, setFilterType] = useState<string>(() => initialFilterType);
+  const [value, setValue] = useState<any>(() => initialValue);
+  const [value2, setValue2] = useState<string | number>(() => initialValue2);
 
   const applyFilter = useCallback(() => {
     if (colType === 'select') {
@@ -99,9 +92,7 @@ export const useFilterPopup = ({
         value === '' ||
         value === null ||
         value === undefined ||
-        value2 === '' ||
-        value2 === null ||
-        value2 === undefined
+        value2 === ''
       ) {
         column.setFilterValue(undefined);
         onClose();

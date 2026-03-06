@@ -1,4 +1,4 @@
-.PHONY: run build start lint formt
+.PHONY: run build start lint format knip react-scan
 
 run:
 	npm run dev
@@ -12,5 +12,11 @@ start:
 lint:
 	npm run lint:fix
 
-formt:
+format:
 	npm run format
+
+knip:
+	bunx -y knip
+
+react-scan:
+	bunx -y react-scan init

@@ -29,16 +29,19 @@ const defaultFields: ICreateEditModalProps['fields'] = [
       label: 'Месяц',
       placeholder: 'Выберите месяц',
       type: 'select',
-      selectItems: allMonths.map((v, i) => ({ label: v, value: i + 1 })),
+      selectItems: allMonths.map((v, index) => ({
+        label: v,
+        value: index + 1,
+      })),
     },
     {
       name: 'year',
       label: 'Год',
       placeholder: 'Выберите год',
       type: 'select',
-      selectItems: Array.from({ length: 8 }, (_, i) => ({
-        label: (2020 + i).toString(),
-        value: 2020 + i,
+      selectItems: Array.from({ length: 8 }, (_, index) => ({
+        label: (2020 + index).toString(),
+        value: 2020 + index,
       })),
     },
     {
@@ -46,9 +49,9 @@ const defaultFields: ICreateEditModalProps['fields'] = [
       label: 'Квартал',
       placeholder: 'Выберите квартал',
       type: 'select',
-      selectItems: Array.from({ length: 4 }, (_, i) => ({
-        label: `Q${i + 1}`,
-        value: i + 1,
+      selectItems: Array.from({ length: 4 }, (_, index) => ({
+        label: `Q${index + 1}`,
+        value: index + 1,
       })),
     },
   ],
@@ -187,16 +190,19 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
         label: 'Месяц',
         placeholder: 'Выберите месяц',
         type: 'select',
-        selectItems: allMonths.map((v, i) => ({ label: v, value: i + 1 })),
+        selectItems: allMonths.map((v, index) => ({
+          label: v,
+          value: index + 1,
+        })),
       },
       {
         name: 'year',
         label: 'Год',
         placeholder: 'Выберите год',
         type: 'select',
-        selectItems: Array.from({ length: 5 }, (_, i) => ({
-          label: (new Date().getFullYear() + i).toString(),
-          value: new Date().getFullYear() + i,
+        selectItems: Array.from({ length: 5 }, (_, index) => ({
+          label: (new Date().getFullYear() + index).toString(),
+          value: new Date().getFullYear() + index,
         })),
       },
     ],

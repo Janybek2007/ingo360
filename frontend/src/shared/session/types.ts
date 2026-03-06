@@ -37,17 +37,19 @@ export type NotificationMessage = {
   };
   //
   count: number;
-  tasks: Array<{
-    task_id: string;
-    id: number;
-    status: TaskStatus;
-    file_name: string | null;
-    created_at: string;
-    result?: {
-      file_name: string;
-      import_result: TImportResponse;
-    };
-    task_type: 'export' | 'import';
-    file_size_bytes?: number | null;
-  }>;
+  tasks: Array<Task>;
 };
+
+export interface Task {
+  task_id: string;
+  id: number;
+  status: TaskStatus;
+  file_name: string;
+  created_at: string;
+  result?: {
+    file_name: string;
+    import_result: TImportResponse;
+  };
+  task_type: 'export' | 'import';
+  file_size_bytes?: number | null;
+}

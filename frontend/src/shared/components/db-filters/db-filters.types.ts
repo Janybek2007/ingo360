@@ -71,10 +71,6 @@ export type FilterOptionsReferencesKey =
 export type FilterOptionItem = { id: number; name: string };
 export type FilterOptions = { value: string | number; label: string };
 
-export interface UseFilterOptionsConfig {
-  references?: FilterOptionsReferencesKey[];
-}
-
 export type FilterOptionsKey = ReplaceSeparators<FilterOptionsReferencesKey>;
 export type FilterOptionsObject = Record<FilterOptionsKey, FilterOptions[]>;
 

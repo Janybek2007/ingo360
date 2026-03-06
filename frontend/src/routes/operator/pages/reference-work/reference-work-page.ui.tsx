@@ -12,7 +12,7 @@ import { Tabs } from '#/shared/components/ui/tabs';
 import { WORK_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
-import { usePagination } from '#/shared/hooks/usePagination';
+import { usePagination } from '#/shared/hooks/use-pagination';
 import type { PaginationResponse } from '#/shared/types/global';
 import type { ReferencesType } from '#/shared/types/references.type';
 import {
@@ -45,8 +45,8 @@ const ReferenceWorkPage: React.FC = () => {
     defaultValue: 'geography/countries',
   });
 
-  const prevCurrentRef = React.useRef(current);
-  const tabChangingRef = React.useRef(false);
+  const previousCurrentReference = React.useRef(current);
+  const tabChangingReference = React.useRef(false);
 
   const queryData = useKeepQuery(
     ReferenceQueries.GetReferencesQuery<
@@ -60,16 +60,16 @@ const ReferenceWorkPage: React.FC = () => {
     })
   );
 
-  if (prevCurrentRef.current !== current) {
-    prevCurrentRef.current = current;
-    tabChangingRef.current = true;
+  if (previousCurrentReference.current !== current) {
+    previousCurrentReference.current = current;
+    tabChangingReference.current = true;
   }
 
-  if (tabChangingRef.current && !queryData.isFetching) {
-    tabChangingRef.current = false;
+  if (tabChangingReference.current && !queryData.isFetching) {
+    tabChangingReference.current = false;
   }
 
-  const isTabChange = tabChangingRef.current;
+  const isTabChange = tabChangingReference.current;
 
   React.useEffect(() => {
     setFilters([]);

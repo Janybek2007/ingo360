@@ -2,7 +2,7 @@ import type { RouteObject } from 'react-router';
 
 import { profilePageRoute } from '#/routes/profile';
 
-import { dbWorkPageRoute } from '../pages/db-work';
+import { dbWorkPageRoute as databaseWorkPageRoute } from '../pages/db-work';
 import { referenceWorkPageRoute } from '../pages/reference-work';
 import { reportLogsPageRoute } from '../pages/report-logs';
 
@@ -14,7 +14,7 @@ export const operatorLayoutRoute: RouteObject = {
     return { Component };
   },
   children: [
-    dbWorkPageRoute,
+    databaseWorkPageRoute,
     referenceWorkPageRoute,
     profilePageRoute,
     reportLogsPageRoute,

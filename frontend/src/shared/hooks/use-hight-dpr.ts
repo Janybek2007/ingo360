@@ -1,9 +1,7 @@
 import React from 'react';
 
 export const useDpr = () => {
-  const [dpr, setDpr] = React.useState(
-    typeof window !== 'undefined' ? window.devicePixelRatio : 1
-  );
+  const [dpr, setDpr] = React.useState(window.devicePixelRatio);
 
   React.useEffect(() => {
     const update = () => setDpr(window.devicePixelRatio || 1);

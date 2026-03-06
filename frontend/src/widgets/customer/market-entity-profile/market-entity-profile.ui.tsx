@@ -17,7 +17,7 @@ import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
-import type { MarketEntityProfileProps } from './market-entity-profile.types';
+import type { MarketEntityProfileProps as MarketEntityProfileProperties } from './market-entity-profile.types';
 
 const tabItems: { value: ISMGroupColumn; label: string }[] = [
   { value: 'company', label: 'Компании' },
@@ -25,7 +25,7 @@ const tabItems: { value: ISMGroupColumn; label: string }[] = [
   { value: 'segment', label: 'Сегменты' },
 ];
 
-export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
+export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
   React.memo(
     ({
       periodFilter,
@@ -34,22 +34,20 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
       queryError,
       activeTab,
       setActiveTab,
-      filters: dbFilters,
+      filters: databaseFilters,
     }) => {
       const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
       const [sorting, setSorting] = React.useState<SortingState>([]);
+
+      const activeTabHeader = activeTab == 'brand' ? 'Бренд' : 'Сегмент';
+      const activeTabText = activeTab === 'brand' ? 'брендов' : 'сегментов';
 
       const columns = useMemo<ColumnDef<EntityRow>[]>(
         () => [
           { accessorKey: 'rank', header: 'Место', size: 130 },
           {
             accessorKey: 'entity',
-            header:
-              activeTab == 'company'
-                ? 'Компания'
-                : activeTab == 'brand'
-                  ? 'Бренд'
-                  : 'Сегмент',
+            header: activeTab == 'company' ? 'Компания' : activeTabHeader,
             size: 300,
             cell: ({ row }) =>
               React.createElement(
@@ -69,15 +67,15 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
               }),
           },
         ],
-        [activeTab]
+        [activeTab, activeTabHeader]
       );
 
       return (
         <PageSection
           title="Профайл компании, бренда или сегмента"
           headerEnd={
-            <div className="flex gap-4 items-center relative z-100">
-              <DbFilters {...dbFilters} brandsMultiple={false} />
+            <div className="relative z-100 flex items-center gap-4">
+              <DbFilters {...databaseFilters} brandsMultiple={false} />
               <PeriodFilters {...periodFilter} isMultiple={false} />
             </div>
           }
@@ -100,38 +98,33 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProps> =
                     isReadOnly: true,
                   },
                 ])}
-                usedFilterItems={dbFilters.usedFilterItems}
+                usedFilterItems={databaseFilters.usedFilterItems}
                 isView={periodFilter.isView}
                 isViewPeriods={periodFilter.isView}
                 resetFilters={() => {
                   periodFilter.onReset();
-                  dbFilters.resetFilters();
+                  databaseFilters.resetFilters();
                 }}
                 periodViewMode="from"
               />
             </div>
           }
         >
-          <div className="flex items justify-between h-full font-inter">
-            <div className="max-w-100 min-w-100 flex flex-col justify-between text-[#131313]">
-              <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
-                Рейтинг{' '}
-                {activeTab === 'company'
-                  ? 'компаний'
-                  : activeTab === 'brand'
-                    ? 'брендов'
-                    : 'сегментов'}
+          <div className="items font-inter flex h-full justify-between">
+            <div className="flex max-w-100 min-w-100 flex-col justify-between text-[#131313]">
+              <h4 className="leading-full text-xl font-semibold -tracking-[0.0125rem]">
+                Рейтинг {activeTab === 'company' ? 'компаний' : activeTabText}
               </h4>
               <div className="my-20">
-                <div className="flex flex-col items-center w-full gap-4.5">
-                  <span className="font-medium text-5xl leading-full -tracking-[0.0125rem]">
+                <div className="flex w-full flex-col items-center gap-4.5">
+                  <span className="leading-full text-5xl font-medium -tracking-[0.0125rem]">
                     {isLoading
                       ? '-'
                       : (entities.find(
                           row => row.is_user_company || row.is_user_entity
                         )?.rank ?? '-')}
                   </span>
-                  <p className="font-normal text-base leading-full -tracking-[0.0125rem]">
+                  <p className="leading-full text-base font-normal -tracking-[0.0125rem]">
                     Ваше место в рейтинге
                   </p>
                 </div>

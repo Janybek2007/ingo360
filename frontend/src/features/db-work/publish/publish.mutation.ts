@@ -31,12 +31,7 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
         (oldData: IDbItem[][] | undefined) => {
           if (!oldData) return oldData;
 
-          return oldData.map(innerArray =>
-            innerArray.map(item => {
-              const updated = updatedItems.find(u => u.id === item.id);
-              return updated ? { ...item, published: updated.published } : item;
-            })
-          );
+          return updateOldData(oldData, updatedItems);
         }
       );
 
@@ -48,3 +43,23 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
     onError: QueryOnError,
   });
 };
+
+function updateOldData(
+  oldData: IDbItem[][],
+  updatedItems: Pick<IDbItem, 'id' | 'published'>[]
+): IDbItem[][] {
+  return oldData.map(innerArray =>
+    innerArray.map(item => updateItem(item, updatedItems))
+  );
+}
+
+function updateItem(
+  item: IDbItem,
+  updatedItems: Pick<IDbItem, 'id' | 'published'>[]
+): IDbItem {
+  const updated = updatedItems.find(u => u.id === item.id);
+  if (updated) {
+    return { ...item, published: updated.published };
+  }
+  return item;
+}

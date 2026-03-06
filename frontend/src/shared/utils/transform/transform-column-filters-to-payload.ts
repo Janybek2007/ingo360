@@ -7,7 +7,7 @@ import type {
   TableFilterValue,
 } from '#/shared/types/table-filters';
 
-export type TFilterPayloadValue =
+type TFilterPayloadValue =
   | string
   | number
   | boolean
@@ -15,17 +15,15 @@ export type TFilterPayloadValue =
   | undefined
   | Array<string | number | boolean | null | undefined>;
 
-export type TExtraDataMap = Record<string, TFilterPayloadValue>;
+type TExtraDataMap = Record<string, TFilterPayloadValue>;
 
 const isNullish = (v: unknown): v is null | undefined =>
   v === null || v === undefined;
 
-const cleanValue = (
-  value: TFilterPayloadValue
-): TFilterPayloadValue | undefined => {
+const cleanValue = (value: TFilterPayloadValue): any => {
   if (Array.isArray(value)) {
     const cleaned = value.filter(v => !isNullish(v));
-    return cleaned.length ? cleaned : undefined;
+    return cleaned.length > 0 ? cleaned : undefined;
   }
   return isNullish(value) ? undefined : value;
 };
@@ -48,119 +46,114 @@ const isNumberFilter = (v: any): v is TableFilterNumberValue =>
   v.colType === 'number' &&
   typeof v.type === 'string';
 
+const appendExtraDataIfArray = (
+  key: string,
+  value: TFilterPayloadValue,
+  extraDataMap: TExtraDataMap
+): any => {
+  if (!Array.isArray(value)) return value;
+
+  const extraData = extraDataMap[key];
+  if (isNullish(extraData)) return value;
+
+  const result = [...value];
+  if (Array.isArray(extraData)) result.push(...extraData);
+  else result.push(extraData);
+
+  return result;
+};
+
 export const transformColumnFiltersToPayload = (
   columnFilters: ColumnFiltersState,
   keyMap: Record<string, string> = {},
   extraDataMap: TExtraDataMap = {}
 ): Record<string, TFilterPayloadValue> => {
-  const appendExtraDataIfArray = (
-    key: string,
-    value: TFilterPayloadValue
-  ): TFilterPayloadValue => {
-    if (!Array.isArray(value)) return value;
+  const payload: Record<string, TFilterPayloadValue> = {};
 
-    const extraData = extraDataMap[key];
-    if (extraData === undefined || extraData === null) return value;
+  for (const filter of columnFilters) {
+    const mappedKey = keyMap[filter.id] ?? filter.id;
+    const rawValue = filter.value as TableFilterValue;
 
-    if (Array.isArray(extraData)) value.push(...extraData);
-    else value.push(extraData);
+    let result: TFilterPayloadValue;
 
-    return value;
-  };
-
-  const payload = columnFilters.reduce<Record<string, TFilterPayloadValue>>(
-    (acc, filter) => {
-      const mappedKey = keyMap[filter.id] ?? filter.id;
-      const rawValue = filter.value as TableFilterValue;
-
-      // ✅ select: [values]
-      if (isSelectFilter(rawValue)) {
-        const arr = rawValue.selectValues.map(
-          i => i.value
-        ) as TFilterPayloadValue;
-        const withExtra = appendExtraDataIfArray(mappedKey, arr);
-        const cleaned = cleanValue(withExtra);
-        if (cleaned !== undefined) acc[mappedKey] = cleaned;
-        return acc;
-      }
-
-      // ✅ string/number: "type:value"
-      if (isStringFilter(rawValue)) {
-        const v = rawValue.value?.trim();
-        if (!v) return acc; // пустые строки не отправляем
-        acc[mappedKey] = `${rawValue.type}:${v}`;
-        return acc;
-      }
-
-      if (isNumberFilter(rawValue)) {
-        const v = rawValue.value;
-
-        // between -> "between:min,max"
-        if (rawValue.type === 'between') {
-          const [a, b] = v as [number, number];
-          if (isNullish(a) || isNullish(b)) return acc;
-          acc[mappedKey] = `between:${a},${b}`;
-          return acc;
-        }
-
-        // остальные -> ">=:10"
-        if (isNullish(v) || Number.isNaN(v as any)) return acc;
-        acc[mappedKey] = `${rawValue.type}:${v}`;
-        return acc;
-      }
-
-      return acc;
-    },
-    {}
-  );
-
-  const removeIfDuplicated = (key: string) => {
-    const count =
-      columnFilters.filter(f => (keyMap[f.id] ?? f.id) === key).length +
-      (extraDataMap[key] !== undefined ? 1 : 0);
-
-    if (count > 1) delete payload[key];
-  };
-
-  // merge extraDataMap
-  Object.entries(extraDataMap).forEach(([key, extraData]) => {
-    const cleanedExtra = cleanValue(extraData);
-    if (cleanedExtra === undefined) return;
-
-    if (!(key in payload)) {
-      payload[key] = Array.isArray(cleanedExtra)
-        ? [...(cleanedExtra as any[])]
-        : cleanedExtra;
-      return;
+    if (isSelectFilter(rawValue)) {
+      result = processSelectFilter(rawValue, mappedKey, extraDataMap);
+    } else if (isStringFilter(rawValue)) {
+      result = processStringFilter(rawValue);
+    } else if (isNumberFilter(rawValue)) {
+      result = processNumberFilter(rawValue);
     }
 
-    const currentValue = payload[key];
+    if (!isNullish(result!)) payload[mappedKey] = result!;
+  }
 
-    if (Array.isArray(currentValue) && Array.isArray(cleanedExtra)) {
-      currentValue.push(...cleanedExtra);
-      const cleanedMerged = cleanValue(currentValue);
-      if (cleanedMerged === undefined) delete payload[key];
-      else payload[key] = cleanedMerged;
-      return;
-    }
+  for (const [key, extraData] of Object.entries(extraDataMap)) {
+    mergeExtraIntoPayload(payload, key, extraData);
+  }
 
-    if (Array.isArray(currentValue) && !Array.isArray(cleanedExtra)) {
-      currentValue.push(cleanedExtra as any);
-      const cleanedMerged = cleanValue(currentValue);
-      if (cleanedMerged === undefined) delete payload[key];
-      else payload[key] = cleanedMerged;
-      return;
-    }
-  });
+  const isActiveCount =
+    columnFilters.filter(f => (keyMap[f.id] ?? f.id) === 'is_active').length +
+    (extraDataMap['is_active'] === undefined ? 0 : 1);
+  if (isActiveCount > 1) delete payload['is_active'];
 
-  removeIfDuplicated('is_active');
-
-  // финальная зачистка
-  Object.keys(payload).forEach(k => {
+  for (const k of Object.keys(payload)) {
     const cleaned = cleanValue(payload[k]);
-    if (cleaned === undefined) delete payload[k];
+    if (isNullish(cleaned)) delete payload[k];
     else payload[k] = cleaned;
-  });
+  }
 
   return payload;
+};
+
+const processSelectFilter = (
+  rawValue: TableFilterSelectValue,
+  mappedKey: string,
+  extraDataMap: TExtraDataMap
+): TFilterPayloadValue => {
+  const array = rawValue.selectValues.map(i => i.value) as TFilterPayloadValue;
+  return cleanValue(appendExtraDataIfArray(mappedKey, array, extraDataMap));
+};
+
+const processStringFilter = (rawValue: TableFilterStringValue): any => {
+  const v = rawValue.value?.trim();
+  return v ? `${rawValue.type}:${v}` : undefined;
+};
+
+const processNumberFilter = (rawValue: TableFilterNumberValue): any => {
+  if (rawValue.type === 'between') {
+    const [a, b] = rawValue.value as [number, number];
+    return isNullish(a) || isNullish(b) ? undefined : `between:${a},${b}`;
+  }
+  const v = rawValue.value;
+  return isNullish(v) || Number.isNaN(v as any)
+    ? undefined
+    : `${rawValue.type}:${v}`;
+};
+
+const mergeExtraIntoPayload = (
+  payload: Record<string, TFilterPayloadValue>,
+  key: string,
+  extraData: TFilterPayloadValue
+): void => {
+  const cleanedExtra = cleanValue(extraData);
+  if (isNullish(cleanedExtra)) return;
+
+  if (!(key in payload)) {
+    payload[key] = Array.isArray(cleanedExtra)
+      ? [...cleanedExtra]
+      : cleanedExtra;
+    return;
+  }
+
+  const current = payload[key];
+  const merged = Array.isArray(current)
+    ? [
+        ...current,
+        ...(Array.isArray(cleanedExtra) ? cleanedExtra : [cleanedExtra]),
+      ]
+    : cleanedExtra;
+
+  const cleaned = cleanValue(merged as TFilterPayloadValue);
+  if (isNullish(cleaned)) delete payload[key];
+  else payload[key] = cleaned;
 };

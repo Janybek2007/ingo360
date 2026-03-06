@@ -8,7 +8,7 @@ import { UsersList } from '#/widgets/users-list';
 const SuperUserPage: React.FC = () => {
   return (
     <CheckSession>
-      <div className="w-full h-full relative container mx-auto max-w-2xl">
+      <div className="relative container mx-auto h-full w-full max-w-2xl">
         <div className="absolute top-5 right-6">
           <LogoutButton className="p-0 [&_span]:text-base [&_svg]:size-[1.25rem]" />
         </div>

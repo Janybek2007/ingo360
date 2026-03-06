@@ -53,7 +53,7 @@ export const useUserAccess = (
 
       const accessKey = accessTypeMap[lastMessage.access_type];
       if (accessKey) {
-        setAccess(prev => ({ ...prev, [accessKey]: false }));
+        setAccess(previous => ({ ...previous, [accessKey]: false }));
       }
     }
   }, [lastMessage]);

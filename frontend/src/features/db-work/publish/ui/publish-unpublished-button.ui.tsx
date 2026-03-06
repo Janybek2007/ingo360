@@ -14,7 +14,7 @@ export const PublishUnpublishedButton: React.FC<{
   return (
     <Button
       disabled={disabled || mutation.isPending}
-      className="px-4 py-2 rounded-full"
+      className="rounded-full px-4 py-2"
       onClick={() => mutation.mutateAsync(ids)}
     >
       {mutation.isPending ? 'Публикуем...' : 'Опубликовать неопубликованные'}

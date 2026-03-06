@@ -11,12 +11,16 @@ import { cn } from '#/shared/utils/cn';
 
 import { LucideAlertCircleIcon } from '../../assets/icons';
 import { UsedFilter } from '../used-filter';
-import type { ITableProps } from './table.types';
+import type { ITableProps as ITableProperties } from './table.types';
 import { TableBody } from './ui/table-body.ui';
 import { TableHeader } from './ui/table-header.ui';
 import { formatUsedFilterItems } from './utils/format-used-filters';
 
-export const Table: React.FC<ITableProps> = React.memo(
+const isFirefox = navigator.userAgent.includes('Firefox');
+const firefoxMeasureElement = (element: Element) =>
+  element?.getBoundingClientRect().height;
+
+export const Table: React.FC<ITableProperties> = React.memo(
   ({
     columns,
     data,
@@ -61,6 +65,11 @@ export const Table: React.FC<ITableProps> = React.memo(
       setColumnFilters(filters.custom);
     }, [filters?.custom, setColumnFilters, setSorting]);
 
+    const overscan = React.useMemo(
+      () => (data.length > 1000 ? 10 : 5),
+      [data.length]
+    );
+
     // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
       data,
@@ -82,13 +91,9 @@ export const Table: React.FC<ITableProps> = React.memo(
       count: table.getRowModel().rows.length,
       getScrollElement: () => tableContainerRef.current,
       estimateSize: () => 50,
-      overscan: data.length > 1000 ? 10 : 5,
+      overscan,
       enabled: isVirtualized,
-      measureElement:
-        typeof window !== 'undefined' &&
-        navigator.userAgent.indexOf('Firefox') === -1
-          ? element => element?.getBoundingClientRect().height
-          : undefined,
+      measureElement: isFirefox ? firefoxMeasureElement : undefined,
     });
 
     const allUsedFilters = React.useMemo(
@@ -134,7 +139,7 @@ export const Table: React.FC<ITableProps> = React.memo(
         <div
           ref={tableContainerRef}
           className={cn(
-            'bg-white border border-[#E4E4E4] font-inter',
+            'font-inter border border-[#E4E4E4] bg-white',
             'overflow-x-auto overflow-y-auto',
             rounded == 'sm' && 'rounded-sm',
             rounded == 'md' && 'rounded-md',
@@ -148,7 +153,7 @@ export const Table: React.FC<ITableProps> = React.memo(
           ) : (
             <table
               id="custom-table"
-              className="text-sm border-separate border-spacing-0 w-full min-w-max"
+              className="w-full min-w-max border-separate border-spacing-0 text-sm"
             >
               <Suspense fallback={<thead></thead>}>
                 <TableHeader table={table} />
@@ -172,14 +177,14 @@ export const Table: React.FC<ITableProps> = React.memo(
 );
 
 const DefaultEmpty = React.memo(() => (
-  <div className="flex flex-col items-center justify-center my-40 px-4 text-center text-gray-500 space-y-3">
-    <LucideAlertCircleIcon className="text-gray-400 size-[36px]" />
-    <p className="font-medium text-base">Нет данных для отображения</p>
-    <p className="text-sm text-gray-400 max-w-sm">
+  <div className="my-40 flex flex-col items-center justify-center space-y-3 px-4 text-center text-gray-500">
+    <LucideAlertCircleIcon className="size-[36px] text-gray-400" />
+    <p className="text-base font-medium">Нет данных для отображения</p>
+    <p className="max-w-sm text-sm text-gray-400">
       Попробуйте изменить фильтры.
     </p>
   </div>
 ));
 
-DefaultEmpty.displayName = 'DefaultEmpty';
+DefaultEmpty.displayName = '_DefaultEmpty_';
 Table.displayName = '_Table_';

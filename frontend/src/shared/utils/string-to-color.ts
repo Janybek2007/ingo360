@@ -1,10 +1,10 @@
-export const stringToColor = (str: string): string => {
+export const stringToColor = (string_: string): string => {
   let hash = 0;
 
-  for (let i = 0; i < str.length; i++) {
-    const charCode = str.charCodeAt(i);
-    hash = charCode + ((hash << 5) - hash) + i * 3;
-    hash = hash & 0xffffffff;
+  for (let index = 0; index < string_.length; index++) {
+    const charCode = string_.codePointAt(index)!;
+    hash = charCode + ((hash << 5) - hash) + index * 3;
+    hash = hash & 0xff_ff_ff_ff;
   }
 
   const h = Math.abs(hash % 360);

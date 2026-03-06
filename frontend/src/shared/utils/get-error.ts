@@ -26,9 +26,9 @@ export async function getResponseError(error?: Response): Promise<string> {
     const data = parsed as ErrorResponse;
     if (Array.isArray(data.detail)) {
       return data.detail
-        .map(err => {
-          const path = err.loc.join('.');
-          return `${path}: ${err.msg}`;
+        .map(error_ => {
+          const path = error_.loc.join('.');
+          return `${path}: ${error_.msg}`;
         })
         .join('; ');
     }

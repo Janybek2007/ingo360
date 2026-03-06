@@ -4,10 +4,13 @@ import { cn } from '#/shared/utils/cn';
 
 import { LucideXIcon } from '../../assets/icons';
 import { Select } from '../ui/select';
-import type { IUsedFilterItem, IUsedFilterProps } from './used-filter.types';
+import type {
+  IUsedFilterItem,
+  IUsedFilterProps as IUsedFilterProperties,
+} from './used-filter.types';
 import { PeriodGrouping } from './utils';
 
-export const UsedFilter: React.FC<IUsedFilterProps> = ({
+export const UsedFilter: React.FC<IUsedFilterProperties> = ({
   usedFilterItems = [],
   usedPeriodFilters = [],
   resetFilters,
@@ -33,16 +36,16 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
         item.subItems?.map(sub => sub.value as string) || [];
       const removedValues = currentValues.filter(v => !values.includes(v));
 
-      removedValues.forEach(value => {
+      for (const value of removedValues) {
         const sub = item.subItems?.find(s => s.value === value);
         sub?.onDelete?.();
-      });
+      }
     },
     []
   );
 
   if (
-    (!groupedItems.length && !groupedPeriodItems.length) ||
+    (groupedItems.length === 0 && groupedPeriodItems.length === 0) ||
     (!isView && !isViewPeriods)
   )
     return null;
@@ -56,7 +59,7 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
           : ''
       }`}
     >
-      <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-700 rounded border border-gray-200 text-[13px]">
+      <div className="flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-[13px] text-gray-700">
         <span>
           {item.label}{' '}
           {(item.subItems?.length as number) === 1 && item.subItems?.[0].label}
@@ -100,18 +103,18 @@ export const UsedFilter: React.FC<IUsedFilterProps> = ({
   return (
     <div
       className={cn(
-        'flex items-center gap-1.5 flex-wrap font-inter select-none relative z-30 text-[13px]',
+        'font-inter relative z-30 flex flex-wrap items-center gap-1.5 text-[13px] select-none',
         className
       )}
     >
-      {isView && groupedItems.map(renderDefaultItem)}
-      {isViewPeriods && groupedPeriodItems.map(renderDefaultItem)}
+      {isView && groupedItems.map(item => renderDefaultItem(item))}
+      {isViewPeriods && groupedPeriodItems.map(item => renderDefaultItem(item))}
 
       {!isReadOnly && (
         <button
           type="button"
           onClick={resetFilters}
-          className="px-2 py-0.5 text-[13px] text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
+          className="rounded px-2 py-0.5 text-[13px] text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700"
         >
           Сбросить
         </button>

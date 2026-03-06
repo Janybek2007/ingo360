@@ -19,15 +19,15 @@ export const useNotifications = (isWelcome = false) => {
   useEffect(() => {
     if (isWelcome) return;
 
-    const msg = lastMessage;
-    if (!msg || !msg.type) return;
+    const message = lastMessage;
+    if (!message || !message.type) return;
 
-    if (notificationsTypes.includes(msg.type)) {
+    if (notificationsTypes.includes(message.type)) {
       queryClient.setQueryData(UserQueries.queryKeys.getUser, null);
       toast({
         duration: 2000,
         message:
-          msg.message ||
+          message.message ||
           'Срок действия вашего сеанса истек. Пожалуйста, войдите в систему еще раз.',
         type: 'warning',
       });

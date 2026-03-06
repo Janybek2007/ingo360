@@ -8,21 +8,21 @@ const cloneDbData = (urls: DbType[], data?: IDbItem[][]): IDbItem[][] => {
   );
 };
 
+function matchArray(
+  values: Array<number | string> | undefined,
+  actual: number | string | undefined
+) {
+  if (!values || values.length === 0) return true;
+  if (actual == null) return false;
+  return values.includes(actual);
+}
+
 export const matchesDbOptions = (
   item: IDbItem,
   options?: IGetDBItemsParams
 ): boolean => {
   if (!options) return true;
   if (options.search) return false;
-
-  const matchArray = (
-    values: Array<number | string> | undefined,
-    actual: number | string | undefined
-  ) => {
-    if (!values || values.length === 0) return true;
-    if (actual === undefined || actual === null) return false;
-    return values.includes(actual);
-  };
 
   if (
     !matchArray(
@@ -81,21 +81,20 @@ export const updateDbCache = (
     context: { urls: DbType[]; options?: IGetDBItemsParams }
   ) => IDbItem[][]
 ) => {
-  queryClient
+  for (const query of queryClient
     .getQueryCache()
-    .findAll({ queryKey: ['get-db-items'] })
-    .forEach(query => {
-      const [, urls, options] = query.queryKey as [
-        string,
-        DbType[],
-        IGetDBItemsParams | undefined,
-      ];
-      if (!Array.isArray(urls) || !urls.includes(type)) return;
+    .findAll({ queryKey: ['get-db-items'] })) {
+    const [, urls, options] = query.queryKey as [
+      string,
+      DbType[],
+      IGetDBItemsParams | undefined,
+    ];
+    if (!Array.isArray(urls) || !urls.includes(type)) continue;
 
-      const existing = query.state.data as IDbItem[][] | undefined;
-      const normalized = cloneDbData(urls, existing);
+    const existing = query.state.data as IDbItem[][] | undefined;
+    const normalized = cloneDbData(urls, existing);
 
-      const next = updater(normalized, { urls, options });
-      queryClient.setQueryData(query.queryKey, next);
-    });
+    const next = updater(normalized, { urls, options });
+    queryClient.setQueryData(query.queryKey, next);
+  }
 };

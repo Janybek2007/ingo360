@@ -30,11 +30,11 @@ export const useLoginMutation = () => {
 
   const { mutateAsync, status } = useMutation({
     mutationKey: ['session-login'],
-    mutationFn: async (vars: TLoginContract) => {
+    mutationFn: async (variables: TLoginContract) => {
       const formData = qs.stringify({
         grant_type: 'password',
-        username: vars.username,
-        password: vars.password,
+        username: variables.username,
+        password: variables.password,
       });
 
       const response = await http
@@ -65,14 +65,14 @@ export const useLoginMutation = () => {
           type: 'manual',
           message: isInactiveError ? 'Ваш статус неактивен' : data,
         });
-      } catch (e) {
-        console.error('Ошибка разбора ответа', e);
+      } catch (error_) {
+        console.error('Ошибка разбора ответа', error_);
       }
     },
   });
 
-  const onSubmit = handleSubmit(async vars => {
-    await mutateAsync(vars);
+  const onSubmit = handleSubmit(async variables => {
+    await mutateAsync(variables);
   });
 
   return {

@@ -10,14 +10,17 @@ import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
 
-import { dbItemCEFields, dbItemDependsUrls } from '../constants';
-import { dbItemContractWithType } from '../db-item.contracts';
+import {
+  dbItemCEFields as databaseItemCEFields,
+  dbItemDependsUrls as databaseItemDependsUrls,
+} from '../constants';
+import { dbItemContractWithType as databaseItemContractWithType } from '../db-item.contracts';
 import { useAddReferenceMutation } from './add-db-item.mutation';
 
 const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
   React.memo(({ onClose, type }) => {
     const dependsUrls = React.useMemo(
-      () => dbItemDependsUrls[type as DbType] || [],
+      () => databaseItemDependsUrls[type as DbType] || [],
       [type]
     );
 
@@ -39,7 +42,7 @@ const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
       () =>
         fieldsWithSelectItems({
           options: filterOptions.options,
-          fields: dbItemCEFields[type],
+          fields: databaseItemCEFields[type],
           dependsUrls,
         }),
       [dependsUrls, filterOptions.options, type]
@@ -52,7 +55,7 @@ const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
         isLoading={filterOptions.isLoading}
         isPending={mutation.isPending}
         isSuccess={mutation.isSuccess}
-        schema={dbItemContractWithType[type]}
+        schema={databaseItemContractWithType[type]}
         fields={fields}
         onSubmit={mutation.mutateAsync}
         onClose={onClose}
@@ -68,7 +71,7 @@ export const AddDbItemWrapper: React.FC<{ type: DbType }> = React.memo(
       <>
         {open && <AddDbItemModal onClose={() => set(false)} type={type} />}
 
-        <Button onClick={toggle} className="px-4 py-2 rounded-full">
+        <Button onClick={toggle} className="rounded-full px-4 py-2">
           Добавить запись
         </Button>
       </>

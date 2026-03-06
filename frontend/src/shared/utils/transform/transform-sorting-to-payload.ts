@@ -1,11 +1,11 @@
 import type { SortingState } from '@tanstack/react-table';
 
-import type { SortParams } from '../../types/global';
+import type { SortParams as SortParameters } from '../../types/global';
 
 export const transformSortingToPayload = (
   sorting: SortingState,
   keyMap: Record<string, string> = {}
-): SortParams => {
+): SortParameters => {
   const first = sorting[0];
   if (!first) return {};
 

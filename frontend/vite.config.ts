@@ -4,14 +4,61 @@ import { defineConfig, type HtmlTagDescriptor } from 'vite';
 import compression from 'vite-plugin-compression';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
+// Вынести ЗА пределы defineConfig (на уровень модуля)
+
+const VENDOR_CHUNKS: [patterns: string[], chunk: string][] = [
+  [['react/', 'react-dom/', 'scheduler'], 'react-vendor'],
+  [['react-router'], 'router-vendor'],
+  [['@tanstack/react-query', '@tanstack/query-core'], 'query-vendor'],
+  [['@tanstack/react-table', '@tanstack/table-core'], 'table-vendor'],
+  [['@tanstack/react-virtual', '@tanstack/virtual-core'], 'virtual-vendor'],
+  [['recharts', 'd3-'], 'charts-vendor'],
+  [['react-hook-form', '@hookform'], 'forms-vendor'],
+  [['zod'], 'zod-vendor'],
+  [['xlsx'], 'xlsx-vendor'],
+  [['ky'], 'http-vendor'],
+  [['clsx', 'tailwind-merge'], 'ui-utils-vendor'],
+  [
+    [
+      'js-cookie',
+      'qs',
+      'react-hot-toast',
+      'use-debounce',
+      'use-local-storage-state',
+    ],
+    'utils-vendor',
+  ],
+];
+
+const SRC_CHUNKS: [pattern: string, chunk: string][] = [
+  ['/src/app/', 'app'],
+  ['/src/shared/components/ui', 'shared-ui'],
+  ['/src/shared/components/table', 'shared-table-ui'],
+  ['/src/shared/hooks/', 'shared-hooks'],
+  ['/src/shared/utils/', 'shared-utils'],
+];
+
+function resolveVendorChunk(id: string): string {
+  const match = VENDOR_CHUNKS.find(([patterns]) =>
+    patterns.some(p => id.includes(p))
+  );
+  return match?.[1] ?? 'vendor';
+}
+
+function resolveSourceChunk(id: string): string | undefined {
+  return SRC_CHUNKS.find(([pattern]) => id.includes(pattern))?.[1];
+}
+
 export default defineConfig(({ mode }) => {
-  const isDev = mode === 'development';
-  const isProd = mode === 'production';
+  const isDevelopment = mode === 'development';
+  const isProduction = mode === 'production';
 
   return {
     resolve: {
       alias: { '#': '/src' },
     },
+
+    target: ['es2023', 'chrome107', 'safari16', 'firefox109', 'edge107'],
 
     plugins: [
       react(),
@@ -19,13 +66,20 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       tsconfigPaths(),
 
-      isProd &&
+      isProduction &&
         compression({
           algorithm: 'gzip',
           ext: '.gz',
           compressionOptions: { level: 9 },
           threshold: 512,
           deleteOriginFile: false,
+        }),
+      isProduction &&
+        compression({
+          algorithm: 'brotliCompress',
+          ext: '.br',
+          threshold: 512,
+          compressionOptions: { level: 11 },
         }),
 
       {
@@ -73,8 +127,8 @@ export default defineConfig(({ mode }) => {
       target: ['es2022', 'chrome100', 'safari15', 'firefox100', 'edge100'],
       cssMinify: 'lightningcss',
       cssCodeSplit: true,
-      minify: 'esbuild',
-      sourcemap: isDev,
+      minify: 'terser',
+      sourcemap: isDevelopment,
       chunkSizeWarningLimit: 800,
       reportCompressedSize: false,
 
@@ -89,7 +143,9 @@ export default defineConfig(({ mode }) => {
           },
 
           assetFileNames: assetInfo => {
-            const name = assetInfo.name ?? '';
+            const name =
+              (assetInfo as any).name ?? (assetInfo as any).fileName ?? '';
+
             if (/\.css$/.test(name)) return 'assets/css/[name]-[hash][extname]';
             if (/\.(png|jpe?g|gif|svg|webp|avif)$/.test(name))
               return 'assets/images/[name]-[hash][extname]';
@@ -100,99 +156,14 @@ export default defineConfig(({ mode }) => {
             return 'assets/other/[name]-[hash][extname]';
           },
           manualChunks(id) {
-            // Vendor chunks - только то что есть в package.json
-            if (id.includes('node_modules')) {
-              // React core (19.2.0)
-              if (
-                id.includes('react/') ||
-                id.includes('react-dom/') ||
-                id.includes('scheduler')
-              ) {
-                return 'react-vendor';
-              }
-
-              // Router (react-router 7.8.0)
-              if (id.includes('react-router')) {
-                return 'router-vendor';
-              }
-
-              // TanStack ecosystem
-              if (
-                id.includes('@tanstack/react-query') ||
-                id.includes('@tanstack/query-core')
-              ) {
-                return 'query-vendor';
-              }
-              if (
-                id.includes('@tanstack/react-table') ||
-                id.includes('@tanstack/table-core')
-              ) {
-                return 'table-vendor';
-              }
-              if (
-                id.includes('@tanstack/react-virtual') ||
-                id.includes('@tanstack/virtual-core')
-              ) {
-                return 'virtual-vendor';
-              }
-
-              // Charts (recharts + d3 dependencies)
-              if (id.includes('recharts') || id.includes('d3-')) {
-                return 'charts-vendor';
-              }
-
-              // Forms ecosystem
-              if (id.includes('react-hook-form') || id.includes('@hookform')) {
-                return 'forms-vendor';
-              }
-              if (id.includes('zod')) {
-                return 'zod-vendor';
-              }
-
-              // Excel обработка (большой, lazy load рекомендуется)
-              if (id.includes('xlsx')) {
-                return 'xlsx-vendor';
-              }
-
-              // HTTP & Utils
-              if (id.includes('ky')) {
-                return 'http-vendor';
-              }
-
-              // UI utilities
-              if (id.includes('clsx') || id.includes('tailwind-merge')) {
-                return 'ui-utils-vendor';
-              }
-
-              // Прочие небольшие библиотеки
-              if (
-                id.includes('js-cookie') ||
-                id.includes('qs') ||
-                id.includes('react-hot-toast') ||
-                id.includes('use-debounce') ||
-                id.includes('use-local-storage-state') ||
-                id.includes('react-error-boundary')
-              ) {
-                return 'utils-vendor';
-              }
-
-              // Остальные зависимости
-              return 'vendor';
-            }
-
-            if (id.includes('/src/app/')) return 'app';
-
-            if (id.includes('/src/shared/components/ui')) return 'shared-ui';
-            if (id.includes('/src/shared/components/table'))
-              return 'shared-table-ui';
-            if (id.includes('/src/shared/hooks/')) return 'shared-hooks';
-            if (id.includes('/src/shared/utils/')) return 'shared-utils';
+            if (id.includes('node_modules')) return resolveVendorChunk(id);
+            return resolveSourceChunk(id);
           },
 
-          experimentalMinChunkSize: 20000, // 20kb
+          experimentalMinChunkSize: 20_000, // 20kb
         },
 
-        treeshake: isProd
+        treeshake: isProduction
           ? {
               moduleSideEffects: 'no-external',
               preset: 'recommended',
@@ -207,17 +178,25 @@ export default defineConfig(({ mode }) => {
           warn(warning);
         },
       },
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
     },
 
     esbuild: {
       logOverride: { 'this-is-undefined-in-esm': 'silent' },
       legalComments: 'none',
       treeShaking: true,
-      minifyIdentifiers: isProd,
-      minifySyntax: isProd,
-      minifyWhitespace: isProd,
-      drop: isProd ? ['console', 'debugger'] : [],
-      pure: isProd ? ['console.log', 'console.info', 'console.debug'] : [],
+      minifyIdentifiers: isProduction,
+      minifySyntax: isProduction,
+      minifyWhitespace: isProduction,
+      drop: isProduction ? ['console', 'debugger'] : [],
+      pure: isProduction
+        ? ['console.log', 'console.info', 'console.debug']
+        : [],
     },
 
     optimizeDeps: {
@@ -238,7 +217,7 @@ export default defineConfig(({ mode }) => {
       ],
       exclude: [
         'xlsx', // Большой, загружать lazy
-        isProd && 'recharts',
+        isProduction && 'recharts',
       ].filter(Boolean) as string[],
       esbuildOptions: {
         target: 'es2022',
@@ -246,14 +225,14 @@ export default defineConfig(({ mode }) => {
           'top-level-await': true,
         },
       },
-      force: isDev,
+      force: isDevelopment,
     },
 
     json: {
       stringify: true,
     },
 
-    logLevel: isDev ? 'info' : 'warn',
+    logLevel: isDevelopment ? 'info' : 'warn',
     clearScreen: false,
   };
 });

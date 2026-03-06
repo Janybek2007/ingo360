@@ -4,22 +4,22 @@ import qs from 'qs';
 import { http } from '#/shared/api';
 
 import type {
-  IGetReferencesParams,
+  IGetReferencesParams as IGetReferencesParameters,
   IGetReferencesResponse,
 } from './reference.types';
 
-export class ReferenceQueries {
-  static queryKeys = {
-    getReferences: (urls: string[], options?: IGetReferencesParams) => [
+export const ReferenceQueries = {
+  queryKeys: {
+    getReferences: (urls: string[], options?: IGetReferencesParameters) => [
       'get-references',
       ...urls,
       options,
     ],
-  };
+  },
 
-  static GetReferencesQuery<T = IGetReferencesResponse>(
+  GetReferencesQuery<T = IGetReferencesResponse>(
     urls: string[],
-    options?: IGetReferencesParams & { method?: 'GET' | 'POST' }
+    options?: IGetReferencesParameters & { method?: 'GET' | 'POST' }
   ) {
     const method = options?.method ?? 'GET';
 
@@ -42,5 +42,5 @@ export class ReferenceQueries {
           })
         ),
     });
-  }
-}
+  },
+};

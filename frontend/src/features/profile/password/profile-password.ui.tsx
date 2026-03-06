@@ -40,7 +40,7 @@ export const ProfilePassword: React.FC = React.memo(() => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-      <div className="flex gap-3 flex-col w-full">
+      <div className="flex w-full flex-col gap-3">
         <FormField
           register={register('old_password')}
           name="old_password"
@@ -72,19 +72,19 @@ export const ProfilePassword: React.FC = React.memo(() => {
           error={errors.confirm_password?.message}
         />
       </div>
-      <div className="flex gap-5 mt-5">
+      <div className="mt-5 flex gap-5">
         <button
           type="button"
           onClick={handleCancel}
           disabled={updatePasswordMutation.isPending}
-          className="bg-gray-200 py-3 px-6 rounded-3xl disabled:opacity-60"
+          className="rounded-3xl bg-gray-200 px-6 py-3 disabled:opacity-60"
         >
           Отменить
         </button>
         <button
           type="submit"
           disabled={updatePasswordMutation.isPending}
-          className="bg-black text-white py-3 px-6 rounded-3xl disabled:opacity-60"
+          className="rounded-3xl bg-black px-6 py-3 text-white disabled:opacity-60"
         >
           {updatePasswordMutation.isPending
             ? 'Обновление...'

@@ -5,4 +5,4 @@ import { createRoot } from 'react-dom/client';
 
 import { BootstrappedRouter } from './browser-router';
 
-createRoot(document.getElementById('root')!).render(<BootstrappedRouter />);
+createRoot(document.querySelector('#root')!).render(<BootstrappedRouter />);

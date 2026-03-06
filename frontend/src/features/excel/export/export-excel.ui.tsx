@@ -3,10 +3,10 @@ import React from 'react';
 import { cn } from '#/shared/utils/cn';
 
 import { useExportExcelMutation } from './export-excel.mutation';
-import type { ExportToExcelButtonProps } from './export-excel.types';
+import type { ExportToExcelButtonProps as ExportToExcelButtonProperties } from './export-excel.types';
 
 const ExportToExcelComponent = <T extends object>(
-  props: ExportToExcelButtonProps<T>
+  properties: ExportToExcelButtonProperties<T>
 ) => {
   const {
     url,
@@ -16,7 +16,7 @@ const ExportToExcelComponent = <T extends object>(
     booleanMap,
     customMap,
     isPeriod = false,
-  } = props;
+  } = properties;
   const { mutate, isPending } = useExportExcelMutation(url);
 
   const handleExport = React.useCallback(() => {
@@ -37,14 +37,14 @@ const ExportToExcelComponent = <T extends object>(
       onClick={handleExport}
       disabled={isPending}
       className={cn(
-        'border border-gray-300 rounded-lg gap-2 px-3 py-2',
-        'text-left bg-white hover:border-gray-400',
-        'flex items-center justify-center cursor-pointer transition-colors'
+        'gap-2 rounded-lg border border-gray-300 px-3 py-2',
+        'bg-white text-left hover:border-gray-400',
+        'flex cursor-pointer items-center justify-center transition-colors'
       )}
     >
       <span
         className={cn(
-          'text-nowrap overflow-hidden text-ellipsis max-w-full leading-full'
+          'leading-full max-w-full overflow-hidden text-nowrap text-ellipsis'
         )}
       >
         {isPending ? 'Выгрузка...' : 'Выгрузить в Excel'}
@@ -56,7 +56,7 @@ const ExportToExcelComponent = <T extends object>(
 export const ExportToExcelButton = React.memo(ExportToExcelComponent) as <
   T extends object,
 >(
-  props: ExportToExcelButtonProps<T>
+  properties: ExportToExcelButtonProperties<T>
 ) => React.JSX.Element;
 (
   ExportToExcelButton as React.MemoExoticComponent<

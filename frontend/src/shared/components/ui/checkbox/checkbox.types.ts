@@ -1,4 +1,4 @@
-export interface ICheckedBind {
+interface ICheckedBind {
   checked?: boolean;
   onChecked: (newV: boolean) => void;
 }

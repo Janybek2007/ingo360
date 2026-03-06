@@ -1,33 +1,33 @@
 import * as XLSX from 'xlsx';
 
-import type { ExportToExcelProps } from './export-to-excel.types';
+import type { ExportToExcelProps as ExportToExcelProperties } from './export-to-excel.types';
 
 export class ExcelExporter<T extends object> {
   private data: T[];
   private fileName: string;
-  private formatHeader?: ExportToExcelProps<T>['formatHeader'];
-  private selectKeys: NonNullable<ExportToExcelProps<T>['selectKeys']>;
+  private formatHeader?: ExportToExcelProperties<T>['formatHeader'];
+  private selectKeys: NonNullable<ExportToExcelProperties<T>['selectKeys']>;
   private periodKey?: string;
   private periodAsPercent: boolean;
   private transform?: (item: T) => any;
   private hasTotal: boolean;
   private emptyValue: string = '-';
 
-  constructor(props: ExportToExcelProps<T>) {
-    this.data = props.data;
-    this.fileName = props.fileName || 'export';
-    this.formatHeader = props.formatHeader;
-    this.selectKeys = props.selectKeys || [];
-    this.periodKey = props.periodKey;
-    this.periodAsPercent = props.periodAsPercent || false;
-    this.transform = props.transform;
-    this.hasTotal = props.hasTotal || false;
+  constructor(properties: ExportToExcelProperties<T>) {
+    this.data = properties.data;
+    this.fileName = properties.fileName || 'export';
+    this.formatHeader = properties.formatHeader;
+    this.selectKeys = properties.selectKeys || [];
+    this.periodKey = properties.periodKey;
+    this.periodAsPercent = properties.periodAsPercent || false;
+    this.transform = properties.transform;
+    this.hasTotal = properties.hasTotal || false;
   }
 
-  private getNestedValue(obj: any, path: string): any {
+  private getNestedValue(object: any, path: string): any {
     return path.split('.').reduce((current, key) => {
       return current && typeof current === 'object' ? current[key] : undefined;
-    }, obj);
+    }, object);
   }
 
   private isPeriodObject(value: any): boolean {
@@ -59,22 +59,22 @@ export class ExcelExporter<T extends object> {
 
     const allPeriods = new Set<string>();
 
-    data.forEach(item => {
+    for (const item of data) {
       const periodDataKey = Object.keys(item).find(key =>
         this.isPeriodObject(item[key])
       );
-      if (!periodDataKey) return;
+      if (!periodDataKey) continue;
 
       const periodData = item[periodDataKey];
 
-      Object.keys(periodData).forEach(period => {
+      for (const period of Object.keys(periodData)) {
         if (useAllPeriods || selectedPeriods.includes(period)) {
           allPeriods.add(period);
         }
-      });
-    });
+      }
+    }
 
-    const periodKeys = this.periodKeysSort(Array.from(allPeriods));
+    const periodKeys = this.periodKeysSort([...allPeriods]);
 
     const formattedData = data.map(item => {
       const newItem: any = { ...item };
@@ -90,25 +90,13 @@ export class ExcelExporter<T extends object> {
 
       let total = 0;
 
-      periodKeys.forEach(period => {
+      for (const period of periodKeys) {
         const rawValue = periodData[period]?.[this.periodKey!];
+        if (rawValue == null) continue;
 
-        if (rawValue !== undefined && rawValue !== null) {
-          if (typeof rawValue === 'number') {
-            total += rawValue;
-          }
-
-          let value: string | number = rawValue;
-
-          if (this.periodAsPercent) {
-            value = `${Math.trunc(rawValue)}%`;
-          } else if (typeof rawValue === 'number') {
-            value = Number(rawValue.toFixed(2));
-          }
-
-          newItem[period] = value;
-        }
-      });
+        if (typeof rawValue === 'number') total += rawValue;
+        newItem[period] = this.formatPeriodValue(rawValue);
+      }
 
       if (this.hasTotal && total > 0) {
         newItem['total'] = this.periodAsPercent
@@ -122,11 +110,10 @@ export class ExcelExporter<T extends object> {
     return { formattedData, periodKeys };
   }
 
-  private periodKeysSort = (arr: string[]) => {
-    return [...arr].sort((a, b) => {
+  private periodKeysSort = (array: string[]) => {
+    return array.toSorted((a, b) => {
       const [ay, am] = a.split('-').map(Number);
       const [by, bm] = b.split('-').map(Number);
-
       if (ay !== by) return ay - by;
       return am - bm;
     });
@@ -140,24 +127,24 @@ export class ExcelExporter<T extends object> {
         key => !/^\d{4}-\d{2}$/.test(String(key))
       );
 
-      allowedTextKeys.forEach(key => {
-        const keyStr = String(key);
-        let value = this.getNestedValue(item, keyStr);
+      for (const key of allowedTextKeys) {
+        const keyString = String(key);
+        let value = this.getNestedValue(item, keyString);
         value = value === undefined || value === null ? this.emptyValue : value;
 
         const headerName =
-          this.formatHeader?.[keyStr as keyof typeof this.formatHeader] ||
-          keyStr;
+          this.formatHeader?.[keyString as keyof typeof this.formatHeader] ||
+          keyString;
 
         newItem[headerName] = value;
-      });
+      }
 
-      periodKeys.forEach(period => {
+      for (const period of periodKeys) {
         newItem[period] =
           item[period] !== undefined && item[period] !== null
             ? item[period]
             : this.emptyValue;
-      });
+      }
 
       if (this.hasTotal && 'total' in item) {
         newItem['Итого'] = item.total;
@@ -167,6 +154,16 @@ export class ExcelExporter<T extends object> {
     });
   }
 
+  private formatPeriodValue(rawValue: number | string): string {
+    if (this.periodAsPercent) {
+      return `${Math.trunc(Number(rawValue))}%`;
+    }
+    if (typeof rawValue === 'number') {
+      return rawValue.toFixed(2);
+    }
+    return rawValue;
+  }
+
   public export(): void {
     if (!this.data || this.data.length === 0) {
       console.warn('Нет данных для экспорта');
@@ -174,7 +171,7 @@ export class ExcelExporter<T extends object> {
     }
 
     let formattedData = this.transform
-      ? this.data.map(this.transform)
+      ? this.data.map(item => this.transform!(item))
       : this.data;
 
     let periodKeys: string[] = [];

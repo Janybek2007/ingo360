@@ -31,8 +31,8 @@ export const DashboardPreview: React.FC = React.memo(() => {
               src={Assets.DoctorsCount}
               alt="DoctorsCount | Dash"
               className={cn(
-                'w-[26rem] h-[30rem]',
-                isHighDpr && 'w-[27rem] h-[30rem]'
+                'h-[30rem] w-[26rem]',
+                isHighDpr && 'h-[30rem] w-[27rem]'
               )}
             />
           </div>
@@ -42,18 +42,18 @@ export const DashboardPreview: React.FC = React.memo(() => {
               src={Assets.DynamicPrimarySales}
               alt="DoctorsCount | Dash"
               className={cn(
-                'w-[27rem] h-[35rem]',
-                isHighDpr && 'w-[29rem] h-[33rem]'
+                'h-[35rem] w-[27rem]',
+                isHighDpr && 'h-[33rem] w-[29rem]'
               )}
             />
           </div>
         </div>
 
         <div className="px-[6.25rem] text-center">
-          <h1 className="mb-4 font-inter text-[2rem] font-semibold leading-[140%] text-[#F7FAFC]">
+          <h1 className="font-inter mb-4 text-[2rem] leading-[140%] font-semibold text-[#F7FAFC]">
             Добро пожаловать на единый <br /> портал бизнес-аналитики 🚀
           </h1>
-          <p className="font-inter text-xl font-normal leading-[138%] text-[#FFFFFF]">
+          <p className="font-inter text-xl leading-[138%] font-normal text-[#FFFFFF]">
             Отслеживайте рост компании, анализируйте продажи и <br />
             получайте инсайты, которые помогут вам принимать <br />
             точные решения.

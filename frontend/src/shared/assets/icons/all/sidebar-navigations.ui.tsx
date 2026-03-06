@@ -2,19 +2,19 @@ import React from 'react';
 
 import { routePaths } from '#/shared/router';
 
-import type { IStaticIconProps } from '../types';
+import type { IStaticIconProps as IStaticIconProperties } from '../types';
 
 export const SidebarNavigationsIcons: React.FC<
-  IStaticIconProps & { path: string }
-> = React.memo(props => {
-  if (props.path == routePaths.customer.home) {
+  IStaticIconProperties & { path: string }
+> = React.memo(properties => {
+  if (properties.path == routePaths.customer.home) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <g
           fill="none"
@@ -31,14 +31,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.customer.primarySales) {
+  if (properties.path === routePaths.customer.primarySales) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -47,14 +47,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.customer.secondarySales) {
+  if (properties.path === routePaths.customer.secondarySales) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
         height="16"
         viewBox="0 0 16 16"
-        {...props}
+        {...properties}
       >
         <path
           fill="none"
@@ -67,14 +67,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.customer.tertiarySales) {
+  if (properties.path === routePaths.customer.tertiarySales) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -83,14 +83,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.customer.marketDevelopment) {
+  if (properties.path === routePaths.customer.marketDevelopment) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
         height="16"
         viewBox="0 0 16 16"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -99,14 +99,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.customer.visitActivity) {
+  if (properties.path === routePaths.customer.visitActivity) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -115,14 +115,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.administrator.ingoAccounts) {
+  if (properties.path === routePaths.administrator.ingoAccounts) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -131,14 +131,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.administrator.customerAccounts) {
+  if (properties.path === routePaths.administrator.customerAccounts) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -147,14 +147,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.administrator.companyManagement) {
+  if (properties.path === routePaths.administrator.companyManagement) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -164,14 +164,14 @@ export const SidebarNavigationsIcons: React.FC<
     );
   }
 
-  if (props.path === routePaths.operator.dbWork) {
+  if (properties.path === routePaths.operator.dbWork) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -180,14 +180,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.operator.referenceWork) {
+  if (properties.path === routePaths.operator.referenceWork) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"
@@ -196,14 +196,14 @@ export const SidebarNavigationsIcons: React.FC<
       </svg>
     );
   }
-  if (props.path === routePaths.operator.reportLogs) {
+  if (properties.path === routePaths.operator.reportLogs) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        {...props}
+        {...properties}
       >
         <path
           fill="currentColor"

@@ -1,8 +1,8 @@
 import type { CColumn } from '../hooks/use-generate-columns';
-import { formatDateInUTC } from '../utils/format_date_in_utc';
+import { formatDateInUTC } from '../utils/format-date-in-utc';
 import { columnHeaderNames } from './column-header-names';
 import { allMonths } from './months';
-import { ROLES_OBJECT } from './roles_statuses';
+import { ROLES_OBJECT } from './roles';
 
 export const commonColumns = {
   sku: (pinned = true): CColumn<any> => ({
@@ -73,7 +73,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'distributor',
     custom: {
-      accessor: (row: any) => row['distributor_name'] || '-',
+      accessor: row => row['distributor_name'] || '-',
     },
   }),
   indicator: (): CColumn<any> => ({
@@ -85,7 +85,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'indicator',
     custom: {
-      accessor: (row: any) => row['indicator_name'] || '-',
+      accessor: row => row['indicator_name'] || '-',
     },
   }),
   geo_indicator: (): CColumn<any> => ({
@@ -97,7 +97,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'geo_indicator',
     custom: {
-      accessor: (row: any) => row['geo_indicator_name'] || '-',
+      accessor: row => row['geo_indicator_name'] || '-',
     },
   }),
   pharmacy: (): CColumn<any> => ({
@@ -109,7 +109,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'pharmacy',
     custom: {
-      accessor: (row: any) => row['pharmacy'] || '-',
+      accessor: row => row['pharmacy'] || '-',
     },
   }),
   medical_facility: (size = 150): CColumn<any> => ({
@@ -121,7 +121,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'medical_facility',
     custom: {
-      accessor: (row: any) => row['medical_facility'] || '-',
+      accessor: row => row['medical_facility'] || '-',
     },
   }),
   employee: (): CColumn<any> => ({
@@ -132,7 +132,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'employee',
     custom: {
-      accessor: (row: any) => row['employee'] || '-',
+      accessor: row => row['employee'] || '-',
     },
   }),
   year: (): CColumn<any> => ({
@@ -154,9 +154,9 @@ export const commonColumns = {
     type: 'select',
     custom: {
       cell: ({ row }) => allMonths[row.original.month - 1] ?? '-',
-      options: allMonths.map((month, i) => ({
+      options: allMonths.map((month, index) => ({
         label: month,
-        value: i + 1,
+        value: index + 1,
       })),
     },
   }),
@@ -224,7 +224,7 @@ export const commonColumns = {
     size,
     type: 'string',
     custom: {
-      accessor: (row: any) =>
+      accessor: row =>
         `${row.last_name} ${row.first_name} ${row.patronymic || ''}`.trim() ||
         '-',
       cell: ({ row }) => {
@@ -244,11 +244,9 @@ export const commonColumns = {
     type: 'string',
     custom: {
       accessor(row) {
-        return row.is_admin
-          ? ROLES_OBJECT.administrator
-          : row.is_operator
-            ? ROLES_OBJECT.operator
-            : '';
+        if (row.is_admin) return ROLES_OBJECT.administrator;
+        if (row.is_operator) return ROLES_OBJECT.operator;
+        return '';
       },
     },
   }),
@@ -265,8 +263,7 @@ export const commonColumns = {
     size,
     type: 'string',
     custom: {
-      accessor: (row: any) =>
-        (row as { position?: string }).position || 'Не указана',
+      accessor: row => (row as { position?: string }).position || 'Не указана',
     },
   }),
   customerCompany: (size = 290): CColumn<any> => ({
@@ -277,7 +274,7 @@ export const commonColumns = {
     type: 'select',
     optionKey: 'companies_companies',
     custom: {
-      accessor: (row: any) => row.company?.name || 'Не указана',
+      accessor: row => row.company?.name || 'Не указана',
     },
   }),
   // Report Logs columns
@@ -294,7 +291,7 @@ export const commonColumns = {
     size: 200,
     type: 'string',
     custom: {
-      accessor: (row: any) =>
+      accessor: row =>
         `${row.user_last_name} ${row.user_first_name}`.trim() || '-',
     },
   }),
@@ -334,7 +331,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'medical_facility',
     custom: {
-      accessor: (row: any) => row.medical_facility_name || '-',
+      accessor: row => row.medical_facility_name || '-',
     },
   }),
   specialistCoverageDoctor: (): CColumn<any> => ({
@@ -346,7 +343,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'doctor',
     custom: {
-      accessor: (row: any) => row.doctor_name || '-',
+      accessor: row => row.doctor_name || '-',
     },
   }),
   specialistCoverageSpeciality: (): CColumn<any> => ({
@@ -358,7 +355,7 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'speciality',
     custom: {
-      accessor: (row: any) => row.speciality_name || '-',
+      accessor: row => row.speciality_name || '-',
     },
   }),
   specialistCoveragePercentage: (): CColumn<any> => ({
@@ -368,7 +365,7 @@ export const commonColumns = {
     size: 230,
     type: 'number',
     custom: {
-      accessor: (row: any) => `${row.coverage_percentage.toFixed(0)}%`,
+      accessor: row => `${row.coverage_percentage.toFixed(0)}%`,
     },
   }),
   specialistCoverageTotalDoctors: (): CColumn<any> => ({
@@ -428,12 +425,15 @@ export const commonColumns = {
 
 //
 
-export const marketInsightsDynamicPeriods = (data: any[]): CColumn<any>[] => {
-  if (!data || data.length === 0) return [];
+// ---- Parsing ----
+type Period =
+  | { type: 'month'; year: number; order: number }
+  | { type: 'quarter'; year: number; order: number }
+  | { type: 'year'; year: number; order: number }
+  | { type: 'unknown'; year: 0; order: 0 };
 
-  const firstRow = data[0];
-
-  const staticKeys = [
+export class MarketInsightsDynamicPeriods {
+  private staticKeys = [
     'company',
     'brand',
     'segment',
@@ -443,116 +443,77 @@ export const marketInsightsDynamicPeriods = (data: any[]): CColumn<any>[] => {
   ];
 
   // ---- Parsing ----
-  const parsePeriod = (key: string) => {
-    // month: YYYY-MM
+  private parsePeriod(key: string): Period {
     if (/^\d{4}-\d{2}$/.test(key)) {
       const [year, month] = key.split('-').map(Number);
-      return { type: 'month' as const, year, order: month };
+      return { type: 'month', year, order: month };
     }
-
-    // quarter: YYYY-QN
-    if (/^\d{4}-Q\d{1}$/.test(key)) {
+    if (/^\d{4}-Q\d$/.test(key)) {
       const [yearPart, quarterPart] = key.split('-Q');
       return {
-        type: 'quarter' as const,
+        type: 'quarter',
         year: Number(yearPart),
         order: Number(quarterPart),
       };
     }
-
-    // year: YYYY
     if (/^\d{4}$/.test(key)) {
-      return { type: 'year' as const, year: Number(key), order: 1 };
+      return { type: 'year', year: Number(key), order: 1 };
     }
-
-    return { type: 'unknown' as const, year: 0, order: 0 };
-  };
+    return { type: 'unknown', year: 0, order: 0 };
+  }
 
   // ---- Format Header ----
-  const formatHeader = (key: string): string => {
-    const p = parsePeriod(key);
-
+  private formatHeader(key: string): string {
+    const p = this.parsePeriod(key);
     switch (p.type) {
-      case 'month':
+      case 'month': {
         return `${p.year}-${String(p.order).padStart(2, '0')}`;
-
-      case 'quarter':
+      }
+      case 'quarter': {
         return `${p.year}-Q${p.order}`;
-
-      case 'year':
+      }
+      case 'year': {
         return `${p.year}`;
-
-      default:
+      }
+      default: {
         return key;
+      }
     }
-  };
+  }
 
   // ---- Sorting ----
-  const sortPeriods = (a: string, b: string) => {
-    const pa = parsePeriod(a);
-    const pb = parsePeriod(b);
+  private sortPeriods(a: string, b: string): number {
+    const pa = this.parsePeriod(a);
+    const pb = this.parsePeriod(b);
 
     if (pa.year !== pb.year) return pa.year - pb.year;
     return pa.order - pb.order;
-  };
+  }
 
-  const periodKeys = Object.keys(firstRow)
-    .filter(key => !staticKeys.includes(key))
-    .sort(sortPeriods);
+  // ---- Generate Columns ----
+  public generate(data: any[]): CColumn<any>[] {
+    if (!data || data.length === 0) return [];
 
-  return periodKeys.map(key => ({
-    id: key,
-    key,
-    header: formatHeader(key),
-    aggregate: 'sum' as const,
-    custom: {
-      cell: ({ row }) => row.original[key],
-    },
-  }));
-};
+    const firstRow = data[0];
 
-/*
+    const periodKeys = Object.keys(firstRow)
+      .filter(key => !this.staticKeys.includes(key))
+      .toSorted((a, b) => this.sortPeriods(a, b));
 
-export const monthsPreset = <
-  TData extends { periods_data?: Record<string, Record<string, number>> },
->(
-  indicator: string,
-  data: TData[],
-  options?: { asPercent?: boolean; noFraction?: boolean }
-) => {
-  const existingPeriods = new Set<string>();
+    return periodKeys.map(key => ({
+      id: key,
+      key,
+      header: this.formatHeader(key),
+      aggregate: 'sum' as const,
+      custom: {
+        cell: ({ row }: any) => row.original[key],
+      },
+    }));
+  }
+}
 
-  data.forEach(row => {
-    if (!row.periods_data) return;
-
-    Object.keys(row.periods_data).forEach(period => {
-      // Проверяем, что в этом периоде есть значение именно по нашему индикатору
-      if (row.periods_data![period][indicator] !== undefined) {
-        existingPeriods.add(period);
-      }
-    });
-  });
-
-  const periods = Array.from(existingPeriods).sort((a, b) => {
-    const [ya, ma] = a.split('-').map(Number);
-    const [yb, mb] = b.split('-').map(Number);
-    return ya !== yb ? ya - yb : ma - mb;
-  });
-
-  return {
-    periods,
-    getValue: (row: TData, periodKey: string) => {
-      if (!row.periods_data?.[periodKey]) return null;
-      const value = row.periods_data[periodKey][indicator];
-      return value ?? null;
-    },
-    asPercent: options?.asPercent,
-    indicatorKey: indicator,
-    noFraction: options?.noFraction,
-  };
-};
-
-*/
+export const marketInsightsDynamicPeriods = new MarketInsightsDynamicPeriods()
+  .generate;
 
 export const monthsPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
@@ -562,29 +523,27 @@ export const monthsPreset = <
   options?: { asPercent?: boolean; noFraction?: boolean }
 ) => {
   const years = new Set<number>();
-  data.forEach(row => {
+  for (const row of data) {
     if (row.periods_data) {
-      Object.keys(row.periods_data).forEach(period => {
+      for (const period of Object.keys(row.periods_data)) {
         const [year] = period.split('-').map(Number);
-        if (!isNaN(year)) {
+        if (!Number.isNaN(year)) {
           years.add(year);
         }
-      });
+      }
     }
-  });
+  }
 
   if (years.size === 0) {
     years.add(new Date().getFullYear());
   }
 
   const allPeriods: string[] = [];
-  Array.from(years)
-    .sort()
-    .forEach(year => {
-      for (let month = 1; month <= 12; month++) {
-        allPeriods.push(`${year}-${String(month).padStart(2, '0')}`);
-      }
-    });
+  for (const year of [...years].toSorted((a, b) => a - b)) {
+    for (let month = 1; month <= 12; month++) {
+      allPeriods.push(`${year}-${String(month).padStart(2, '0')}`);
+    }
+  }
 
   return {
     periods: allPeriods,
@@ -598,14 +557,16 @@ export const monthsPreset = <
   };
 };
 
+const DEFAULT_TOTAL_OPTIONS: { asPercent?: boolean; periods?: string[] } = {
+  asPercent: false,
+  periods: [],
+};
+
 export const totalPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
 >(
   indicator: string,
-  options: { asPercent?: boolean; periods?: string[] } = {
-    asPercent: false,
-    periods: [],
-  }
+  options: { asPercent?: boolean; periods?: string[] } = DEFAULT_TOTAL_OPTIONS
 ) => ({
   getValue: (row: TData) => {
     if (!row.periods_data) return null;
@@ -614,17 +575,17 @@ export const totalPreset = <
 
     if (periods.length === 0) {
       let total = 0;
-      Object.values(row.periods_data).forEach(periodValues => {
+      for (const periodValues of Object.values(row.periods_data)) {
         const value = periodValues[indicator];
         if (value != null) {
           total += value;
         }
-      });
+      }
       return total;
     }
 
     let total = 0;
-    periods.forEach(period => {
+    for (const period of periods) {
       const periodValues = row.periods_data?.[period];
       if (periodValues) {
         const value = periodValues[indicator];
@@ -632,7 +593,7 @@ export const totalPreset = <
           total += value;
         }
       }
-    });
+    }
 
     return total;
   },

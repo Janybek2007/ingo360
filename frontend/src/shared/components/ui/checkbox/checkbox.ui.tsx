@@ -2,17 +2,17 @@ import React from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
-import type { ICheckboxProps } from './checkbox.types';
+import type { ICheckboxProps as ICheckboxProperties } from './checkbox.types';
 
-const Checkbox: React.FC<ICheckboxProps> = React.memo(
+const Checkbox: React.FC<ICheckboxProperties> = React.memo(
   ({ classNames, checked, onChecked }) => {
     return (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
       <label
         className={cn(
-          'inline-flex items-center justify-center min-w-[1.115rem] max-w-[1.115rem] min-h-[1.115rem] max-h-[1.115rem] rounded-md border border-gray-300 cursor-pointer select-none',
+          'inline-flex max-h-[1.115rem] min-h-[1.115rem] max-w-[1.115rem] min-w-[1.115rem] cursor-pointer items-center justify-center rounded-md border border-gray-300 select-none',
           'transition-all duration-200',
-          checked ? 'bg-blue-500 border-blue-500' : 'bg-white',
+          checked ? 'border-blue-500 bg-blue-500' : 'bg-white',
           classNames?.root
         )}
         onClick={e => e.stopPropagation()}
@@ -28,7 +28,7 @@ const Checkbox: React.FC<ICheckboxProps> = React.memo(
         />
         {checked && (
           <svg
-            className="min-w-[0.65rem] max-w-[0.65rem] min-h-[0.65rem] max-h-[0.65rem] text-white pointer-events-none"
+            className="pointer-events-none max-h-[0.65rem] min-h-[0.65rem] max-w-[0.65rem] min-w-[0.65rem] text-white"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

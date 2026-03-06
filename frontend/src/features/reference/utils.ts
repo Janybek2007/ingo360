@@ -9,23 +9,22 @@ export const updateReferencesCache = (
     context: { urls: string[]; options?: Record<string, any> }
   ) => IReferenceItem[][]
 ) => {
-  queryClient
+  for (const query of queryClient
     .getQueryCache()
-    .findAll({ queryKey: ['get-references'] })
-    .forEach(query => {
-      const [, urls, options] = query.queryKey as [
-        string,
-        string[],
-        Record<string, any> | undefined,
-      ];
-      if (!Array.isArray(urls) || !urls.includes(type)) return;
+    .findAll({ queryKey: ['get-references'] })) {
+    const [, urls, options] = query.queryKey as [
+      string,
+      string[],
+      Record<string, any> | undefined,
+    ];
+    if (!Array.isArray(urls) || !urls.includes(type)) continue;
 
-      const existing = query.state.data as IReferenceItem[][] | undefined;
-      const normalized = urls.map((_, index) =>
-        existing && Array.isArray(existing[index]) ? [...existing[index]] : []
-      );
+    const existing = query.state.data as IReferenceItem[][] | undefined;
+    const normalized = urls.map((_, index) =>
+      existing && Array.isArray(existing[index]) ? [...existing[index]] : []
+    );
 
-      const next = updater(normalized, { urls, options });
-      queryClient.setQueryData(query.queryKey, next);
-    });
+    const next = updater(normalized, { urls, options });
+    queryClient.setQueryData(query.queryKey, next);
+  }
 };

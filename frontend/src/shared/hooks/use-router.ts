@@ -13,13 +13,13 @@ export const useRouter = () => {
         search?: Record<string, string | number | boolean | undefined>;
       }
     ) => {
-      const searchParams = options?.search
+      const searchParameters = options?.search
         ? `?${new URLSearchParams(
             options.search as Record<string, string>
           ).toString()}`
         : '';
 
-      navigate(`${path}${searchParams}`, {
+      navigate(`${path}${searchParameters}`, {
         state: options?.state,
         replace: options?.replace,
       });

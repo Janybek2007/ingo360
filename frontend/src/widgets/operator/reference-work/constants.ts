@@ -13,30 +13,35 @@ export function getReferenceTypeDeps(
   current: ReferencesTypeWithMain
 ): FilterOptionsReferencesKey[] {
   switch (current) {
-    case 'geography/settlements':
+    case 'geography/settlements': {
       return ['geography/regions'];
+    }
 
-    case 'geography/regions':
+    case 'geography/regions': {
       return ['geography/countries'];
+    }
 
-    case 'geography/districts':
+    case 'geography/districts': {
       return [
         'companies_companies',
         'geography/settlements',
         'geography/regions',
       ];
+    }
 
-    case 'products/product-groups':
+    case 'products/product-groups': {
       return ['companies_companies'];
+    }
 
-    case 'products/brands':
+    case 'products/brands': {
       return [
         'companies_companies',
         'products/promotion-types',
         'products/product-groups',
       ];
+    }
 
-    case 'products/skus':
+    case 'products/skus': {
       return [
         'companies_companies',
         'products/brands',
@@ -47,8 +52,9 @@ export function getReferenceTypeDeps(
         'products/segments',
         'clients/geo-indicators',
       ];
+    }
 
-    case 'employees/employees':
+    case 'employees/employees': {
       return [
         'companies_companies',
         'employees/positions',
@@ -56,23 +62,26 @@ export function getReferenceTypeDeps(
         'geography/regions',
         'geography/districts',
       ];
+    }
 
-    case 'clients/medical-facilities':
+    case 'clients/medical-facilities': {
       return [
         'clients/medical-facilities',
         'geography/settlements',
         'geography/districts',
       ];
+    }
 
-    case 'clients/doctors':
+    case 'clients/doctors': {
       return [
         'employees/employees',
         'clients/medical-facilities',
         'clients/specialities',
         'clients/client-categories',
       ];
+    }
 
-    case 'clients/pharmacies':
+    case 'clients/pharmacies': {
       return [
         'companies_companies',
         'clients/distributors',
@@ -83,9 +92,11 @@ export function getReferenceTypeDeps(
         'clients/geo-indicators',
         'products/product-groups',
       ];
+    }
 
-    default:
+    default: {
       return [];
+    }
   }
 }
 
@@ -230,18 +241,6 @@ export function getReferenceWorkColumns(
       break;
     }
 
-    case 'products/promotion-types': {
-      columns.push({
-        accessorKey: 'name',
-        header: columnHeaderNames.name,
-        size: 200,
-        enableColumnFilter: true,
-        filterFn: stringFilter(),
-        filterType: 'string',
-      });
-      break;
-    }
-
     case 'products/brands': {
       columns.push(
         {
@@ -305,6 +304,7 @@ export function getReferenceWorkColumns(
     case 'clients/distributors':
     case 'clients/geo-indicators':
     case 'clients/specialities':
+    case 'products/promotion-types':
     case 'clients/client-categories': {
       columns.push({
         accessorKey: 'name',
@@ -706,8 +706,9 @@ export function getReferenceWorkColumns(
       break;
     }
 
-    default:
+    default: {
       break;
+    }
   }
 
   return columns;

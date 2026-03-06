@@ -60,21 +60,21 @@ const CompanyManagementPage: React.FC = () => {
         header: 'Действия',
         size: 120,
         custom: {
-          cell(props) {
+          cell(properties) {
             return (
               <RowActions
                 items={[
                   {
                     type: 'edit',
                     onSelect: () => {
-                      setSelectData(props.row.original);
+                      setSelectData(properties.row.original);
                       setTimeout(() => set('edit'), 0);
                     },
                   },
                   {
                     type: 'access_settings',
                     onSelect: () => {
-                      setSelectData(props.row.original);
+                      setSelectData(properties.row.original);
                       setOpenAccess(true);
                     },
                   },
@@ -105,7 +105,7 @@ const CompanyManagementPage: React.FC = () => {
       <PageSection
         title="Все Компании"
         headerEnd={
-          <div className="flex items-center gap-4 relative z-100">
+          <div className="relative z-100 flex items-center gap-4">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton<ICompanyItem>
               headerMap={transformHeaderKeys(allColumns)}
@@ -115,7 +115,7 @@ const CompanyManagementPage: React.FC = () => {
             />
             <Button
               onClick={() => set('create')}
-              className="px-3 py-2 rounded-full flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full px-3 py-2"
             >
               <LucidePlusIcon className="size-6" />
               Добавить компанию

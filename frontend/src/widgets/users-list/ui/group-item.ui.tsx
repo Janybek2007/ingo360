@@ -20,7 +20,7 @@ export const GroupItem: React.FC<{
       }}
       role="button"
       tabIndex={0}
-      className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:border-gray-200 cursor-pointer"
+      className="flex cursor-pointer flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:border-gray-200"
     >
       <div className="flex items-center gap-2">
         <p className="text-base text-gray-900 transition-colors duration-150">

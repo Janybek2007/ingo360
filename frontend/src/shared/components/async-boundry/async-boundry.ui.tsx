@@ -5,9 +5,9 @@ import {
   LucideAlertCircleIcon,
   LucideRefreshCcwIcon,
 } from '../../assets/icons';
-import type { IAsyncBoundaryProps } from './async-boundry.types';
+import type { IAsyncBoundaryProps as IAsyncBoundaryProperties } from './async-boundry.types';
 
-export const AsyncBoundary: React.FC<IAsyncBoundaryProps> = ({
+export const AsyncBoundary: React.FC<IAsyncBoundaryProperties> = ({
   children,
   fallback = <DefaultFallback />,
   error,
@@ -29,11 +29,11 @@ export const AsyncBoundary: React.FC<IAsyncBoundaryProps> = ({
   return <React.Suspense fallback={fallback}>{children}</React.Suspense>;
 };
 
-AsyncBoundary.displayName = 'AsyncBoundary';
+AsyncBoundary.displayName = '_AsyncBoundary_';
 
 const DefaultFallback = React.memo(() => (
-  <div className="flex flex-col items-center justify-center w-full my-40 text-gray-500 animate-pulse">
-    <LoadingIcon className="animate-spin size-[32px]" />
+  <div className="my-40 flex w-full animate-pulse flex-col items-center justify-center text-gray-500">
+    <LoadingIcon className="size-[32px] animate-spin" />
     <p className="text-sm font-medium">Загрузка данных...</p>
   </div>
 ));
@@ -46,17 +46,17 @@ const DefaultError = React.memo(
     queryError?: unknown;
     onRetry?: VoidFunction;
   }) => (
-    <div className="flex flex-col items-center justify-center my-10 px-4 text-center text-red-600 space-y-3">
-      <LucideAlertCircleIcon className="text-red-500 size-[40px]" />
-      <p className="font-semibold text-lg">Произошла ошибка</p>
-      <p className="text-sm text-red-500 max-w-sm">
+    <div className="my-10 flex flex-col items-center justify-center space-y-3 px-4 text-center text-red-600">
+      <LucideAlertCircleIcon className="size-[40px] text-red-500" />
+      <p className="text-lg font-semibold">Произошла ошибка</p>
+      <p className="max-w-sm text-sm text-red-500">
         {(queryError as Error)?.message ?? 'Неизвестная ошибка'}
       </p>
 
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-2 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 shadow-sm"
+          className="group mt-2 inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-700"
         >
           <LucideRefreshCcwIcon className="size-[18px] transition-transform duration-200 group-hover:rotate-180" />
           Повторить

@@ -7,7 +7,7 @@ import { useToggle } from '#/shared/hooks/use-toggle';
 
 export const Notifications: React.FC = React.memo(() => {
   const [isOpen, { toggle, set }] = useToggle(false);
-  const contentRef = useClickAway<HTMLDivElement>(() => set(false));
+  const contentReference = useClickAway<HTMLDivElement>(() => set(false));
 
   const notifications = [
     {
@@ -31,31 +31,26 @@ export const Notifications: React.FC = React.memo(() => {
   ];
 
   return (
-    <div className="relative z-[110]" ref={contentRef}>
+    <div className="relative z-[110]" ref={contentReference}>
       <button
-        className="relative p-2 border border-[#E7EAE9] rounded-lg bg-gray-100 cursor-not-allowed"
+        className="relative cursor-not-allowed rounded-lg border border-[#E7EAE9] bg-gray-100 p-2"
         onClick={toggle}
         disabled
         title="Уведомления временно недоступны"
       >
         <FlowbiteBellOutlineIcon className="size-[1.25rem]" />
-        {/* {notifications.length > 0 && (
-          <span className="absolute -top-1 -right-1 block h-5 w-5 rounded-full bg-red-500 text-white text-xs text-center leading-5">
-            {notifications.length}
-          </span>
-        )} */}
       </button>
       {isOpen && (
-        <div className="absolute right-0 mt-2 max-w-[27.5rem] min-w-[27.5rem] z-50 bg-white border border-gray-200 rounded-md shadow-lg text-sm">
-          <div className="flex items-center justify-between px-3 py-4 border-b border-[#ECECEC]">
+        <div className="absolute right-0 z-50 mt-2 max-w-[27.5rem] min-w-[27.5rem] rounded-md border border-gray-200 bg-white text-sm shadow-lg">
+          <div className="flex items-center justify-between border-b border-[#ECECEC] px-3 py-4">
             <h3 className="font-inter flex items-center font-semibold text-black">
               Уведомления
-              <span className="ml-2 flexCenter w-6 h-6 rounded-full text-xs font-bold bg-danger text-white">
+              <span className="flexCenter bg-danger ml-2 h-6 w-6 rounded-full text-xs font-bold text-white">
                 2
               </span>
             </h3>
           </div>
-          <button className="text-gray-500 hover:text-gray-700 text-xs my-3 mx-3 border border-[#ECECEC] py-1 px-6 rounded">
+          <button className="mx-3 my-3 rounded border border-[#ECECEC] px-6 py-1 text-xs text-gray-500 hover:text-gray-700">
             Отметить все как прочитанные
           </button>
 
@@ -63,19 +58,19 @@ export const Notifications: React.FC = React.memo(() => {
             {notifications.map(notif => (
               <div
                 key={notif.id}
-                className="flex items-start p-4 border-b border-c3 hover:bg-gray-50 last:border-b-0"
+                className="border-c3 flex items-start border-b p-4 last:border-b-0 hover:bg-gray-50"
               >
                 <img
                   src={notif.avatar}
                   alt={notif.user}
-                  className="h-6 w-6 rounded-full mr-3"
+                  className="mr-3 h-6 w-6 rounded-full"
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium leading-6 text-[#302F2A] truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm leading-6 font-medium text-[#302F2A]">
                     <strong>{notif.user}</strong> {notif.action}{' '}
                     <strong>{notif.task}</strong>
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="mt-1 text-xs text-gray-500">
                     {notif.time} • {notif.category}
                   </p>
                 </div>

@@ -9,7 +9,7 @@ import { SendRequestForm } from './ui/send-request-form.ui';
 export const SendRequestWrapper: React.FC = React.memo(() => {
   const [open, { toggle, set }] = useToggle();
   return (
-    <div className="mt-auto mx-auto">
+    <div className="mx-auto mt-auto">
       <SendRequestButton onClick={toggle} />
       {open && (
         <Modal

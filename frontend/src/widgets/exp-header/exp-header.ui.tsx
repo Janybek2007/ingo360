@@ -12,9 +12,9 @@ export const ExpHeader: React.FC = React.memo(() => {
   return (
     <header
       id="exp-header"
-      className="bg-white w-full max-h-[4.875rem] min-h-[4.875rem] flex items-center justify-end border-b border-c3 px-6 py-4"
+      className="border-c3 flex max-h-[4.875rem] min-h-[4.875rem] w-full items-center justify-end border-b bg-white px-6 py-4"
     >
-      <div className="flex justify-end items-center gap-4">
+      <div className="flex items-center justify-end gap-4">
         <Notifications />
 
         <div className="group">

@@ -6,19 +6,19 @@ import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
 import { cn } from '#/shared/utils/cn';
 
 import { LucideFilterIcon } from '../../../assets/icons';
-import type { ITableHeaderProps } from '../table.types';
+import type { ITableHeaderProps as ITableHeaderProperties } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 import { FilterPopup } from './filter-popup/filter-popup.ui';
 
-export function TableHeader({ table }: ITableHeaderProps) {
+export function TableHeader({ table }: Readonly<ITableHeaderProperties>) {
   const [popupOpen, setPopupOpen] = useState<string | null>(null);
   const { position: popupPosition, updatePosition } = useAnchorPosition();
 
   return (
     <thead className={cn('sticky top-0 z-20 select-none')}>
-      {table.getHeaderGroups().map((headerGroup, i) => (
+      {table.getHeaderGroups().map((headerGroup, index) => (
         <tr
-          key={`${headerGroup.id}|${headerGroup.depth}|${headerGroup.headers.length}|${i}`}
+          key={`${headerGroup.id}|${headerGroup.depth}|${headerGroup.headers.length}|${index}`}
         >
           {headerGroup.headers.map((header, index) => {
             const columnDef = header.column.columnDef;
@@ -30,8 +30,8 @@ export function TableHeader({ table }: ITableHeaderProps) {
                 onDoubleClick={() => header.column.resetSize()}
                 key={`${header.id}|${header.depth}|${index}`}
                 className={cn(
-                  'py-4 pl-4 pr-10 text-left font-medium whitespace-nowrap tracking-[0.1px] leading-5 relative',
-                  'border-b border-[#E4E4E4] border-r bg-gray-50 group',
+                  'relative py-4 pr-10 pl-4 text-left leading-5 font-medium tracking-[0.1px] whitespace-nowrap',
+                  'group border-r border-b border-[#E4E4E4] bg-gray-50',
                   columnDef.pinned == 'right' && 'border-l'
                 )}
                 style={{
@@ -46,8 +46,8 @@ export function TableHeader({ table }: ITableHeaderProps) {
                     aria-label="Resize column"
                     onMouseDown={header.getResizeHandler()}
                     className={cn(
-                      'absolute right-1 top-1 h-[calc(100%-8px)] w-1.5 rounded-full select-none touch-manipulation',
-                      'bg-transparent hover:bg-blue-400/50 active:bg-blue-500 transition-colors'
+                      'absolute top-1 right-1 h-[calc(100%-8px)] w-1.5 touch-manipulation rounded-full select-none',
+                      'bg-transparent transition-colors hover:bg-blue-400/50 active:bg-blue-500'
                     )}
                     style={{
                       padding: 0,
@@ -64,7 +64,7 @@ export function TableHeader({ table }: ITableHeaderProps) {
 
                   {canFilter && (
                     <button
-                      className="p-1 hover:bg-gray-100 rounded"
+                      className="rounded p-1 hover:bg-gray-100"
                       onClick={e => {
                         e.stopPropagation();
                         updatePosition(e);

@@ -43,28 +43,29 @@ export const WelcomeMessage: React.FC = React.memo(() => {
       {/* Stars overlay (0-3s) */}
       <div
         className={`absolute inset-0 flex items-center justify-center bg-white/95 ${
-          phase === 'modal' ? 'opacity-0 pointer-events-none' : ''
+          phase === 'modal' ? 'pointer-events-none opacity-0' : ''
         }`}
         style={{
           transition: phase === 'modal' ? 'opacity 0.3s ease-out' : undefined,
         }}
       >
         {/* 5 stars in circle, rotating 360° together (2.5s), then disperse (0.5s) */}
-        <div className="relative w-40 h-40 welcome-star-rotate">
-          {[0, 1, 2, 3, 4].map(i => {
-            const angle = (i * 360) / 5 - 90;
+        <div className="welcome-star-rotate relative h-40 w-40">
+          {[0, 1, 2, 3, 4].map(index => {
+            const angle = (index * 360) / 5 - 90;
             const radius = 48;
             const x = 50 + radius * Math.cos((angle * Math.PI) / 180);
             const y = 50 + radius * Math.sin((angle * Math.PI) / 180);
 
             return (
               <svg
-                key={i}
-                className="absolute w-10 h-10 welcome-star-disperse"
+                key={index}
+                className="welcome-star-disperse absolute h-10 w-10"
                 style={{
                   left: `calc(${x}% - 1.25rem)`,
                   top: `calc(${y}% - 1.25rem)`,
-                  ['--disperse-transform' as string]: DISPERSE_TRANSFORMS[i],
+                  ['--disperse-transform' as string]:
+                    DISPERSE_TRANSFORMS[index],
                 }}
                 viewBox="0 0 24 24"
                 fill="currentColor"
@@ -78,14 +79,14 @@ export const WelcomeMessage: React.FC = React.memo(() => {
 
       {/* Welcome modal (3s-4.5s) */}
       {phase === 'modal' && (
-        <div className="fixed inset-0 flex items-center justify-center z-[10001]">
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="relative z-10 w-[250px] h-[250px] bg-white rounded-2xl p-6 flex flex-col items-center justify-center shadow-xl animate-fade-in"
+            className="animate-fade-in relative z-10 flex h-[250px] w-[250px] flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-xl"
             role="dialog"
             aria-label="Добро пожаловать"
           >
-            <p className="text-gray-800 text-center text-lg font-medium">
+            <p className="text-center text-lg font-medium text-gray-800">
               Добро пожаловать
             </p>
           </div>
@@ -95,4 +96,4 @@ export const WelcomeMessage: React.FC = React.memo(() => {
   );
 });
 
-WelcomeMessage.displayName = 'WelcomeMessage';
+WelcomeMessage.displayName = '_WelcomeMessage_';

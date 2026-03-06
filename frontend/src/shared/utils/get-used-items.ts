@@ -1,6 +1,6 @@
 import type { IUsedFilterItem } from '#/shared/components/used-filter';
 
-export interface IFilterConfig {
+interface IFilterConfig {
   value: (string | number) | (string | number)[];
   items?: Array<{ value: string | number; label: string }>;
   getLabelFromValue?: (value: string | number) => string;
@@ -8,6 +8,7 @@ export interface IFilterConfig {
   main?: Omit<IFilterConfig, 'value'> & { label: string };
   isReadOnly?: boolean;
 }
+
 export function getUsedFilterItems(
   filters: (IFilterConfig | boolean)[]
 ): IUsedFilterItem[] {
@@ -16,59 +17,64 @@ export function getUsedFilterItems(
     filter => typeof filter !== 'boolean'
   ) as IFilterConfig[];
 
-  filtersArray.forEach(filter => {
+  for (const filter of filtersArray) {
     const values = Array.isArray(filter.value) ? filter.value : [filter.value];
 
-    const subItems: IUsedFilterItem[] | undefined = filter.main
-      ? values
-          .filter(value => value !== '' && value != null)
-          .map(value => {
-            let label = String(value);
-
-            if (filter.getLabelFromValue) {
-              label = filter.getLabelFromValue(value);
-            } else if (filter.items) {
-              label =
-                filter.items.find(item => item.value === value)?.label || label;
-            }
-
-            return {
-              label,
-              value,
-              onDelete: () => filter.main!.onDelete?.(value),
-              isReadOnly: filter.isReadOnly,
-            };
-          })
-      : undefined;
-
-    if (subItems) {
-      items.push({
-        label: filter.main!.label,
-        value: filter.value as string,
-        onDelete: () => filter.onDelete?.(filter.value as string),
-        subItems,
-      });
+    if (filter.main) {
+      items.push(buildGroupedItem(filter, values));
     } else {
-      values.forEach(value => {
-        if (!value || value === '') return;
-
-        let label = String(value);
-
-        if (filter.getLabelFromValue) {
-          label = filter.getLabelFromValue(value);
-        } else if (filter.items) {
-          label =
-            filter.items.find(item => item.value === value)?.label || label;
-        }
-
-        items.push({
-          label,
-          value,
-          onDelete: () => filter.onDelete?.(value),
-        });
-      });
+      items.push(...buildFlatItems(values, filter));
     }
-  });
+  }
 
   return items;
+}
+
+function resolveLabel(value: string | number, filter: IFilterConfig): string {
+  if (filter.getLabelFromValue) return filter.getLabelFromValue(value);
+  if (filter.items) {
+    return (
+      filter.items.find(item => item.value === value)?.label ?? String(value)
+    );
+  }
+  return String(value);
+}
+
+function buildSubItems(
+  values: (string | number)[],
+  filter: IFilterConfig
+): IUsedFilterItem[] {
+  return values
+    .filter(value => value !== '' && value != null)
+    .map(value => ({
+      label: resolveLabel(value, filter),
+      value,
+      onDelete: () => filter.main!.onDelete?.(value),
+      isReadOnly: filter.isReadOnly,
+    }));
+}
+
+function buildGroupedItem(
+  filter: IFilterConfig,
+  values: (string | number)[]
+): IUsedFilterItem {
+  return {
+    label: filter.main!.label,
+    value: filter.value as string,
+    onDelete: () => filter.onDelete?.(filter.value as string),
+    subItems: buildSubItems(values, filter),
+  };
+}
+
+function buildFlatItems(
+  values: (string | number)[],
+  filter: IFilterConfig
+): IUsedFilterItem[] {
+  return values
+    .filter(value => value && value !== '')
+    .map(value => ({
+      label: resolveLabel(value, filter),
+      value,
+      onDelete: () => filter.onDelete?.(value),
+    }));
 }

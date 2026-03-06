@@ -1,15 +1,18 @@
 import { cn } from '#/shared/utils/cn';
 
-import type { ITableTotalRowProps } from '../table.types';
+import type { ITableTotalRowProps as ITableTotalRowProperties } from '../table.types';
 import { getCommonPinningStyles } from '../utils/get-pinning-style';
 
-export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
+export function TableTotalRow({
+  table,
+  rowTotal,
+}: Readonly<ITableTotalRowProperties>) {
   if (!rowTotal) return null;
   return (
-    <tr className="sticky bottom-0 right-0 z-[16]">
+    <tr className="sticky right-0 bottom-0 z-[16]">
       <td
         colSpan={rowTotal.firstColSpan}
-        className="py-[0.875rem] sticky bottom-0 left-0 z-[18] border-t text-center border-r border-[#E4E4E4] bg-white"
+        className="sticky bottom-0 left-0 z-[18] border-t border-r border-[#E4E4E4] bg-white py-[0.875rem] text-center"
       >
         Итого
       </td>
@@ -29,8 +32,8 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
                 key={column.id}
                 style={getCommonPinningStyles(column, 20)}
                 className={cn(
-                  'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white',
-                  'border-l bottom-0',
+                  'border-t border-r border-[#e4e4e4] bg-white px-4 py-[0.875rem] text-right',
+                  'bottom-0 border-l',
                   total < 0 && 'text-red-600'
                 )}
               >
@@ -54,7 +57,7 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
                   minWidth: column.columnDef.size,
                 }}
                 className={cn(
-                  'text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white sticky bottom-0 z-[16]',
+                  'sticky bottom-0 z-[16] border-t border-r border-[#e4e4e4] bg-white px-4 py-[0.875rem] text-right',
                   total < 0 && 'text-red-600'
                 )}
               >
@@ -69,7 +72,7 @@ export function TableTotalRow({ table, rowTotal }: ITableTotalRowProps) {
           return (
             <td
               key={column.id}
-              className="text-right py-[0.875rem] px-4 border-r border-t border-[#e4e4e4] bg-white sticky bottom-0 z-[16]"
+              className="sticky bottom-0 z-[16] border-t border-r border-[#e4e4e4] bg-white px-4 py-[0.875rem] text-right"
             ></td>
           );
         })}

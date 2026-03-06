@@ -57,9 +57,9 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             colType === 'number' ? 'Введите число...' : 'Введите текст...'
           }
           className={cn(
-            'w-full border border-gray-300 rounded-sm px-2.5 py-2 text-sm bg-white',
+            'w-full rounded-sm border border-gray-300 bg-white px-2.5 py-2 text-sm',
             'text-gray-700 placeholder:text-gray-400',
-            'focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors'
+            'transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none'
           )}
         />
         {colType === 'number' && filterType === 'between' && (
@@ -69,9 +69,9 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             onChange={e => setValue2(Number(e.target.value))}
             placeholder="Введите число (до)..."
             className={cn(
-              'w-full border border-gray-300 rounded-sm px-2.5 py-2 text-sm bg-white',
+              'w-full rounded-sm border border-gray-300 bg-white px-2.5 py-2 text-sm',
               'text-gray-700 placeholder:text-gray-400',
-              'focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors'
+              'transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none'
             )}
           />
         )}

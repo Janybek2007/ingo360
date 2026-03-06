@@ -5,14 +5,7 @@ export interface DoctorsCoverageRow {
   speciality_name: 'Проктолог';
   total_count: 173;
   count_with_visits: 91;
-  coverage_percentage: 52.60115606936416;
-}
-
-export interface FiltersConfig {
-  months: number[];
-  years: number[];
-  quarters: number[];
-  medical_facility_ids: number[];
+  coverage_percentage: 52.601_156_069_364_16;
 }
 
 export interface DoctorCountVisitsProps {
@@ -20,15 +13,4 @@ export interface DoctorCountVisitsProps {
   medicalFacilityItems: FilterOptions[];
   setMedicalFacilityIds: React.Dispatch<React.SetStateAction<number[]>>;
   enabled: boolean;
-}
-
-export interface DoctorFiltersProps {
-  filters: Partial<FiltersConfig> | number[];
-  setFilters: React.Dispatch<
-    React.SetStateAction<Partial<FiltersConfig> | number[]>
-  >;
-  showConfigs?: Partial<
-    Record<'medical_facilities' | 'years' | 'months' | 'quarters', boolean>
-  >;
-  medicalFacilityItems?: FilterOptions[];
 }

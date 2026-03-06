@@ -23,24 +23,38 @@ export const numberFilter =
     const { type, value } = filterValue;
 
     switch (type) {
-      case '>':
+      case '>': {
         return rowValue > value;
-      case '>=':
+      }
+      case '>=': {
         return rowValue >= value;
-      case '<':
+      }
+      case '<': {
         return rowValue < value;
-      case '<=':
+      }
+      case '<=': {
         return rowValue <= value;
-      case '=':
+      }
+      case '=': {
         return rowValue === value;
-      case 'between':
+      }
+      case 'between': {
         if (Array.isArray(value) && value.length === 2)
           return rowValue >= value[0] && rowValue <= value[1];
         return true;
-      default:
+      }
+      default: {
         return true;
+      }
     }
   };
+
+// Нормализация для корректной работы с кириллицей
+const normalizeText = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replaceAll(/[\u0300-\u036F]/g, '');
 
 /** Универсальный фильтр для строк */
 export const stringFilter =
@@ -49,24 +63,22 @@ export const stringFilter =
     const rowValue = String(row.getValue(columnId));
     const { type = 'equals', value } = filterValue;
 
-    // Нормализация для корректной работы с кириллицей
-    const normalizeText = (text: string) =>
-      text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-
     switch (type) {
-      case 'contains':
+      case 'contains': {
         return normalizeText(rowValue).includes(normalizeText(value));
-      case 'startsWith':
+      }
+      case 'startsWith': {
         return normalizeText(rowValue).startsWith(normalizeText(value));
-      case 'equals':
+      }
+      case 'equals': {
         return rowValue === value;
-      case 'doesNotEqual':
+      }
+      case 'doesNotEqual': {
         return rowValue !== value;
-      default:
+      }
+      default: {
         return true;
+      }
     }
   };
 
@@ -87,11 +99,10 @@ export const selectFilter =
 
     const path = columnId.split('.');
 
-    const rowValue = path.reduce<any>((acc, key) => {
-      if (acc && typeof acc === 'object') {
-        return acc[key];
+    const rowValue = path.reduce<any>((accumulator, key) => {
+      if (accumulator && typeof accumulator === 'object') {
+        return accumulator[key];
       }
-      return undefined;
     }, originalData);
 
     const compareValue = rowValue?.value ?? rowValue?.id ?? rowValue;

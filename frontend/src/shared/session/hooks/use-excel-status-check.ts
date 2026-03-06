@@ -6,9 +6,9 @@ import {
   toastExportResponse,
   toastImportResponse,
 } from '#/shared/libs/toast/toasts';
-import { formatDateInUTC } from '#/shared/utils/format_date_in_utc';
+import { formatDateInUTC } from '#/shared/utils/format-date-in-utc';
 
-import type { NotificationMessage } from '../types';
+import type { NotificationMessage, Task } from '../types';
 
 export const useExcelStatusCheck = (
   user: GetUserResponse | undefined,
@@ -17,144 +17,147 @@ export const useExcelStatusCheck = (
   disconnect: VoidFunction
 ) => {
   const removeTask = React.useCallback(
-    (task_id: string) => {
-      send(`task_remove:${task_id}`);
-    },
+    (task_id: string) => send(`task_remove:${task_id}`),
     [send]
   );
 
   useEffect(() => {
     if (user?.role !== 'operator') return;
+    if (!lastMessage) return;
+    if ('status' in lastMessage && lastMessage.status === 'pending') return;
 
-    const message = lastMessage;
-    if (!message) return;
-    if ('status' in message && message.status == 'pending') return;
-
-    if ('type' in message) {
-      if (message.type === 'excel_imported' && 'result' in message) {
-        if (message.result?.import_result == null) return;
-
-        const createdAt = formatDateInUTC(message.result.created_at);
-        toast({
-          message: 'Импорт завершён',
-          description: [
-            `Файл: ${message.result?.file_name}`,
-            createdAt ? `Создано: ${createdAt}` : null,
-            'Нажмите «Открыть», чтобы посмотреть детали.',
-          ]
-            .filter(Boolean)
-            .join('\n'),
-          type: 'success',
-          actionLabel: 'Открыть',
-          onAction: () => {
-            toastImportResponse({
-              response: message.result.import_result,
-              fileName: message.result?.file_name || 'Файл импорта',
-              onRemoveTask: () => removeTask(message.task_id),
-            });
-          },
-          onClose: () => removeTask(message.task_id),
-        });
-        return;
-      }
-
-      if (message.type === 'excel_exported' && 'result' in message) {
-        const createdAt = formatDateInUTC(message.result.created_at);
-        toast({
-          message: 'Экспорт завершён',
-          description: [
-            message.result.file_name
-              ? `Файл: ${message.result.file_name}`
-              : null,
-            createdAt ? `Создано: ${createdAt}` : null,
-            'Нажмите «Открыть», чтобы скачать файл.',
-          ]
-            .filter(Boolean)
-            .join('\n'),
-          type: 'success',
-          actionLabel: 'Открыть',
-          onAction: () => {
-            toastExportResponse({
-              taskId: message.task_id,
-              fileName: message.result.file_name || 'Файл экспорта',
-              fileSizeBytes: message.result.file_size_bytes,
-              onRemoveTask: () => removeTask(message.task_id),
-            });
-          },
-          onClose: () => removeTask(message.task_id),
-        });
-
-        return;
-      }
-
-      if (message.type === 'get_tasks') {
-        message.tasks.forEach(task => {
-          if (task.status !== 'completed') return;
-
-          if (task.task_type === 'import') {
-            const createdAt = formatDateInUTC(task.created_at);
-            toast({
-              message: 'Импорт завершён',
-              description: [
-                task.result?.file_name || task.file_name
-                  ? `Файл: ${task.result?.file_name || task.file_name}`
-                  : null,
-                createdAt ? `Создано: ${createdAt}` : null,
-                'Нажмите «Открыть», чтобы посмотреть детали.',
-              ]
-                .filter(Boolean)
-                .join('\n'),
-              type: 'success',
-              actionLabel: 'Открыть',
-              onClose: () => removeTask(task.task_id),
-              onAction: () => {
-                toastImportResponse({
-                  response: task.result?.import_result ?? {
-                    total: 0,
-                    skipped: 0,
-                    imported: 0,
-                    inserted: 0,
-                    updated: 0,
-                    deduplicated_in_batch: 0,
-                    skipped_records: [],
-                  },
-                  fileName:
-                    task.result?.file_name || task.file_name || 'Файл импорта',
-                  onRemoveTask: () => removeTask(task.task_id),
-                });
-              },
-            });
-            return;
-          }
-
-          if (task.task_type === 'export') {
-            const createdAt = formatDateInUTC(task.created_at);
-            toast({
-              message: 'Экспорт завершён',
-              description: [
-                task.file_name ? `Файл: ${task.file_name}` : null,
-                createdAt ? `Создано: ${createdAt}` : null,
-                'Нажмите «Открыть», чтобы скачать файл.',
-              ]
-                .filter(Boolean)
-                .join('\n'),
-              type: 'success',
-              actionLabel: 'Открыть',
-              onClose: () => removeTask(task.task_id),
-              onAction: () => {
-                toastExportResponse({
-                  taskId: task.task_id,
-                  fileName: task.file_name || 'Файл экспорта',
-                  fileSizeBytes: task.file_size_bytes ?? null,
-                  onRemoveTask: () => removeTask(task.task_id),
-                });
-              },
-            });
-          }
-        });
-      }
-    }
+    handleMessage(lastMessage, removeTask);
   }, [disconnect, lastMessage, removeTask, send, user?.role]);
 
   return { removeTask };
 };
+
+const handleImportToast = (
+  result: NotificationMessage['result'] & Task,
+  taskId: string,
+  removeTask: (id: string) => void
+) => {
+  const onRemoveTask = createRemoveHandler(removeTask, taskId);
+  const createdAt = formatDateInUTC(result.created_at);
+  toast({
+    message: 'Импорт завершён',
+    description: formatToastDescription(
+      result?.file_name ?? result.result?.file_name,
+      createdAt,
+      'Нажмите «Открыть», чтобы посмотреть детали.'
+    ),
+    type: 'success',
+    actionLabel: 'Открыть',
+    onAction: () => {
+      toastImportResponse({
+        response: result.import_result ?? result.result?.import_result,
+        fileName:
+          (result?.file_name ?? result.result?.file_name) || 'Файл импорта',
+        onRemoveTask,
+      });
+    },
+    onClose: onRemoveTask,
+  });
+};
+
+const handleExportToast = (
+  result: NotificationMessage['result'] & Task,
+  taskId: string,
+  removeTask: (id: string) => void
+) => {
+  const onRemoveTask = createRemoveHandler(removeTask, taskId);
+  const createdAt = formatDateInUTC(result.created_at);
+  toast({
+    message: 'Экспорт завершён',
+    description: formatToastDescription(
+      result?.file_name ?? result.result?.file_name,
+      createdAt,
+      'Нажмите «Открыть», чтобы скачать файл.'
+    ),
+    type: 'success',
+    actionLabel: 'Открыть',
+    onAction: () => {
+      toastExportResponse({
+        taskId,
+        fileName:
+          (result?.file_name ?? result.result?.file_name) || 'Файл экспорта',
+        fileSizeBytes: result.file_size_bytes ?? null,
+        onRemoveTask,
+      });
+    },
+    onClose: onRemoveTask,
+  });
+};
+
+const handleTask = (task: Task, removeTask: (id: string) => void) => {
+  if (task.status !== 'completed') return;
+  if (task.task_type === 'import') {
+    handleImportToast(
+      (task.result ?? {}) as NotificationMessage['result'] & Task,
+      task.task_id,
+      removeTask
+    );
+  } else if (task.task_type === 'export') {
+    handleExportToast(
+      task as NotificationMessage['result'] & Task,
+      task.task_id,
+      removeTask
+    );
+  }
+};
+
+const handleMessage = (
+  message: NotificationMessage,
+  removeTask: (id: string) => void
+) => {
+  if (!('type' in message)) return;
+
+  switch (message.type) {
+    case 'excel_imported': {
+      if ('result' in message && message.result?.import_result != null) {
+        handleImportToast(
+          message.result as NotificationMessage['result'] & Task,
+          message.task_id,
+          removeTask
+        );
+      }
+      break;
+    }
+    case 'excel_exported': {
+      if ('result' in message) {
+        handleExportToast(
+          message.result as NotificationMessage['result'] & Task,
+          message.task_id,
+          removeTask
+        );
+      }
+      break;
+    }
+    case 'get_tasks': {
+      if (message.tasks) {
+        for (const task of message.tasks) {
+          handleTask(task, removeTask);
+        }
+      }
+      break;
+    }
+  }
+};
+
+const createRemoveHandler =
+  (removeTask: (id: string) => void, taskId: string) => () =>
+    removeTask(taskId);
+
+function formatToastDescription(
+  fileName?: string,
+  createdAt?: string,
+  extra?: string
+) {
+  return [
+    fileName ? `Файл: ${fileName}` : null,
+    createdAt ? `Создано: ${createdAt}` : null,
+    extra,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}

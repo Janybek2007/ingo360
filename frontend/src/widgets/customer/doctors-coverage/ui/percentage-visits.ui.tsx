@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cell, Pie, PieChart, Tooltip } from 'recharts';
+import { Pie, PieChart, Sector, Tooltip } from 'recharts';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
@@ -40,9 +40,9 @@ export const DoctorsPercentageVisits: React.FC<{
   const sectionStyle = useSectionStyle();
 
   return (
-    <div className="w-1/2 rounded-2xl p-5 bg-white">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="font-inter font-medium text-xl leading-[120%] text-black">
+    <div className="w-1/2 rounded-2xl bg-white p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <h4 className="font-inter text-xl leading-[120%] font-medium text-black">
           Доля врачей с визитами (%)
         </h4>
         <PeriodFilters {...periodFilter} />
@@ -65,7 +65,7 @@ export const DoctorsPercentageVisits: React.FC<{
           />
         </div>
 
-        <div className="relative min-h-[28rem] max-h-[28rem] py-2 w-full flex items-center justify-center my-3">
+        <div className="relative my-3 flex max-h-[28rem] min-h-[28rem] w-full items-center justify-center py-2">
           <PieChart width={sectionStyle.width / 2 - 80} height={440}>
             <Pie
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -82,24 +82,25 @@ export const DoctorsPercentageVisits: React.FC<{
                 `${entry.value?.toFixed(0)} (${((entry as any).coverage_percentage as number)?.toFixed(0)}%)`
               }
               paddingAngle={0}
-            >
-              {percentageVisits.map((item, i) => (
-                <Cell
-                  key={`cell-perc-${i}`}
-                  fill={stringToColor(item.speciality_name)}
+              shape={(props: any) => (
+                <Sector
+                  {...props}
+                  fill={stringToColor(props.speciality_name)}
                 />
-              ))}
-            </Pie>
+              )}
+            />
             <Tooltip
-              formatter={(value, _, props) => {
-                const data = props?.payload as DoctorsCoverageRow | undefined;
+              formatter={(value, _, properties) => {
+                const data = properties?.payload as
+                  | DoctorsCoverageRow
+                  | undefined;
                 if (!data) return value;
                 const color = stringToColor(data.speciality_name);
 
                 return [
                   <div
                     key="tooltip"
-                    className="flex flex-col gap-1 font-inter"
+                    className="font-inter flex flex-col gap-1"
                     style={{ color: '#1D170F' }}
                   >
                     <div className="flex items-center gap-2 font-medium">
@@ -140,14 +141,17 @@ export const DoctorsPercentageVisits: React.FC<{
           </PieChart>
         </div>
 
-        <div className="mx-auto grid grid-cols-6 gap-3 w-max pb-3">
-          {percentageVisits.map((d, i) => (
-            <div key={`perc-legend-${i}`} className="flex items-center gap-2">
+        <div className="mx-auto grid w-max grid-cols-6 gap-3 pb-3">
+          {percentageVisits.map((d, index) => (
+            <div
+              key={`perc-legend-${index}`}
+              className="flex items-center gap-2"
+            >
               <span
-                className="w-4 h-4 rounded-full"
+                className="h-4 w-4 rounded-full"
                 style={{ backgroundColor: stringToColor(d.speciality_name) }}
               />
-              <span className="font-inter font-medium text-sm leading-[100%] text-black">
+              <span className="font-inter text-sm leading-[100%] font-medium text-black">
                 {d.speciality_name}
               </span>
             </div>

@@ -3,20 +3,26 @@ import qs from 'qs';
 
 import { http } from '#/shared/api';
 
-import type { GetCompaniesParams, GetCompaniesResponse } from './company.types';
+import type {
+  GetCompaniesParams as GetCompaniesParameters,
+  GetCompaniesResponse,
+} from './company.types';
 
-export class CompanyQueries {
-  static queryKeys = {
-    getCompanies: (params: GetCompaniesParams) => ['get-companies', params],
-  };
+export const CompanyQueries = {
+  queryKeys: {
+    getCompanies: (parameters: GetCompaniesParameters) => [
+      'get-companies',
+      parameters,
+    ],
+  },
 
-  static GetCompaniesQuery(params: GetCompaniesParams) {
+  GetCompaniesQuery(parameters: GetCompaniesParameters) {
     return queryOptions({
-      queryKey: this.queryKeys.getCompanies(params),
+      queryKey: this.queryKeys.getCompanies(parameters),
       queryFn: async () => {
         const response = await http
           .get('companies', {
-            searchParams: qs.stringify(params, {
+            searchParams: qs.stringify(parameters, {
               arrayFormat: 'comma',
             }),
           })
@@ -24,5 +30,5 @@ export class CompanyQueries {
         return response;
       },
     });
-  }
-}
+  },
+};

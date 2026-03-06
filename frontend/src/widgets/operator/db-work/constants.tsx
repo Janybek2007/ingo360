@@ -17,19 +17,19 @@ import {
 
 export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
   switch (type) {
-    case 'sales/primary':
+    case 'sales/primary': {
       return ['clients/distributors', 'products/brands', 'products/skus'];
-
+    }
     case 'sales/secondary':
-    case 'sales/tertiary':
+    case 'sales/tertiary': {
       return [
         'clients/pharmacies',
         'clients/distributors',
         'products/brands',
         'products/skus',
       ];
-
-    case 'visits':
+    }
+    case 'visits': {
       return [
         'clients/pharmacies',
         'employees/employees',
@@ -37,12 +37,13 @@ export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
         'clients/medical-facilities',
         'clients/doctors',
       ];
-
-    case 'ims':
+    }
+    case 'ims': {
       return [];
-
-    default:
+    }
+    default: {
       return [];
+    }
   }
 };
 
@@ -52,43 +53,39 @@ export function getDbWorkColumns(
 ) {
   const columns: ColumnDef<IDbItem>[] = [];
 
-  if (type === 'sales/primary') {
-    columns.push({
-      id: 'distributor',
-      accessorKey: 'distributor.name',
-      header: columnHeaderNames.distributorNetwork,
-      size: 130,
-      filterType: 'select',
-      filterFn: selectFilter(),
-      enableColumnFilter: true,
-      meta: { groupDimension: 'distributor' },
-      selectOptions: filterOptions.clients_distributors,
-    });
-  } else if (type === 'sales/secondary') {
-    columns.push({
-      id: 'pharmacy',
-      accessorKey: 'pharmacy.name',
-      header: columnHeaderNames.pharmacy,
-      size: 350,
-      filterType: 'select',
-      filterFn: selectFilter(),
-      enableColumnFilter: true,
-      meta: { groupDimension: 'pharmacy' },
-      selectOptions: filterOptions.clients_pharmacies,
-    });
-  } else if (type === 'sales/tertiary') {
-    columns.push({
-      id: 'pharmacy',
-      accessorKey: 'pharmacy.name',
-      header: columnHeaderNames.pharmacy,
-      size: 350,
-      filterType: 'select',
-      filterFn: selectFilter(),
-      enableColumnFilter: true,
-      meta: { groupDimension: 'pharmacy' },
-      selectOptions: filterOptions.clients_pharmacies,
-    });
+  switch (type) {
+    case 'sales/primary': {
+      columns.push({
+        id: 'distributor',
+        accessorKey: 'distributor.name',
+        header: columnHeaderNames.distributorNetwork,
+        size: 130,
+        filterType: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        meta: { groupDimension: 'distributor' },
+        selectOptions: filterOptions.clients_distributors,
+      });
+      break;
+    }
+    case 'sales/secondary':
+    case 'sales/tertiary': {
+      columns.push({
+        id: 'pharmacy',
+        accessorKey: 'pharmacy.name',
+        header: columnHeaderNames.pharmacy,
+        size: 350,
+        filterType: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        meta: { groupDimension: 'pharmacy' },
+        selectOptions: filterOptions.clients_pharmacies,
+      });
+      break;
+    }
+    // No default
   }
+
   if (['sales/secondary', 'sales/tertiary'].includes(type)) {
     columns.push({
       id: 'distributor',
@@ -106,202 +103,199 @@ export function getDbWorkColumns(
   }
 
   if (['sales/primary', 'sales/secondary', 'sales/tertiary'].includes(type)) {
-    columns.push({
-      id: 'sku.brand',
-      accessorKey: 'sku.brand.name',
-      header: columnHeaderNames.brand,
-      size: 180,
-      filterType: 'select',
-      filterFn: selectFilter(),
-      enableColumnFilter: true,
-      meta: { groupDimension: 'brand' },
-      selectOptions: filterOptions.products_brands,
-    });
-
-    columns.push({
-      id: 'sku',
-      accessorKey: 'sku.name',
-      header: columnHeaderNames.skuProduct,
-      size: 180,
-      filterType: 'select',
-      filterFn: selectFilter(),
-      enableColumnFilter: true,
-      meta: { groupDimension: 'sku' },
-      selectOptions: filterOptions.products_skus,
-    });
-
-    columns.push(...getYearMonthColumns());
-    columns.push(...getSalesColumns(type));
+    columns.push(
+      {
+        id: 'sku.brand',
+        accessorKey: 'sku.brand.name',
+        header: columnHeaderNames.brand,
+        size: 180,
+        filterType: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        meta: { groupDimension: 'brand' },
+        selectOptions: filterOptions.products_brands,
+      },
+      {
+        id: 'sku',
+        accessorKey: 'sku.name',
+        header: columnHeaderNames.skuProduct,
+        size: 180,
+        filterType: 'select',
+        filterFn: selectFilter(),
+        enableColumnFilter: true,
+        meta: { groupDimension: 'sku' },
+        selectOptions: filterOptions.products_skus,
+      },
+      ...getYearMonthColumns(),
+      ...getSalesColumns(type)
+    );
   }
 
   if (type === 'visits') {
-    columns.push({
-      id: 'pharmacy.id',
-      accessorKey: 'pharmacy.name',
-      accessorFn: row => row.pharmacy?.name || '-',
-      header: columnHeaderNames.pharmacy,
-      enableColumnFilter: true,
-      size: 260,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      meta: { groupDimension: 'pharmacy' },
-      selectOptions: filterOptions.clients_pharmacies,
-    });
-    columns.push({
-      id: 'employee.id',
-      accessorKey: 'employee.full_name',
-      header: columnHeaderNames.employee,
-      size: 260,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      meta: { groupDimension: 'employee' },
-      selectOptions: filterOptions.employees_employees,
-    });
-    columns.push({
-      id: 'product_group.id',
-      accessorKey: 'product_group.name',
-      header: columnHeaderNames.group,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      meta: { groupDimension: 'product_group' },
-      selectOptions: filterOptions.products_product_groups,
-    });
-    columns.push({
-      id: 'medical_facility.id',
-      accessorKey: 'medical_facility.name',
-      cell: ({ row }) => row.original.medical_facility?.name || '-',
-      header: columnHeaderNames.medicalFacility,
-      size: 200,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      meta: { groupDimension: 'medical_facility' },
-      selectOptions: filterOptions.clients_medical_facilities,
-    });
-    columns.push({
-      id: 'doctor_or_pharmacy',
-      accessorKey: 'doctor_or_pharmacy',
-      cell: ({ row }) =>
-        row.original.client_type == 'Врач'
-          ? row.original.doctor?.full_name || '-'
-          : row.original.pharmacy?.name || '-',
-      header: columnHeaderNames.nameOfDoctorOrPharmacy,
-      size: 260,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      meta: { groupDimension: 'doctor' },
-      selectOptions: filterOptions.clients_doctors,
-    });
-    columns.push({
-      id: 'client_type',
-      accessorKey: 'client_type',
-      header: columnHeaderNames.clientType,
-      size: 160,
-      enableColumnFilter: true,
-      filterFn: selectFilter(),
-      filterType: 'select',
-      selectOptions: [
-        { label: 'Аптека', value: 'pharmacy' },
-        { label: 'Врач', value: 'doctor' },
-      ],
-      meta: { groupDimension: 'client_type' },
-    });
-    columns.push(...getYearMonthColumns());
+    columns.push(
+      {
+        id: 'pharmacy.id',
+        accessorKey: 'pharmacy.name',
+        accessorFn: row => row.pharmacy?.name || '-',
+        header: columnHeaderNames.pharmacy,
+        enableColumnFilter: true,
+        size: 260,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        meta: { groupDimension: 'pharmacy' },
+        selectOptions: filterOptions.clients_pharmacies,
+      },
+      {
+        id: 'employee.id',
+        accessorKey: 'employee.full_name',
+        header: columnHeaderNames.employee,
+        size: 260,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        meta: { groupDimension: 'employee' },
+        selectOptions: filterOptions.employees_employees,
+      },
+      {
+        id: 'product_group.id',
+        accessorKey: 'product_group.name',
+        header: columnHeaderNames.group,
+        size: 200,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        meta: { groupDimension: 'product_group' },
+        selectOptions: filterOptions.products_product_groups,
+      },
+      {
+        id: 'medical_facility.id',
+        accessorKey: 'medical_facility.name',
+        cell: ({ row }) => row.original.medical_facility?.name || '-',
+        header: columnHeaderNames.medicalFacility,
+        size: 200,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        meta: { groupDimension: 'medical_facility' },
+        selectOptions: filterOptions.clients_medical_facilities,
+      },
+      {
+        id: 'doctor_or_pharmacy',
+        accessorKey: 'doctor_or_pharmacy',
+        cell: ({ row }) =>
+          row.original.client_type == 'Врач'
+            ? row.original.doctor?.full_name || '-'
+            : row.original.pharmacy?.name || '-',
+        header: columnHeaderNames.nameOfDoctorOrPharmacy,
+        size: 260,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        meta: { groupDimension: 'doctor' },
+        selectOptions: filterOptions.clients_doctors,
+      },
+      {
+        id: 'client_type',
+        accessorKey: 'client_type',
+        header: columnHeaderNames.clientType,
+        size: 160,
+        enableColumnFilter: true,
+        filterFn: selectFilter(),
+        filterType: 'select',
+        selectOptions: [
+          { label: 'Аптека', value: 'pharmacy' },
+          { label: 'Врач', value: 'doctor' },
+        ],
+        meta: { groupDimension: 'client_type' },
+      },
+      ...getYearMonthColumns()
+    );
   }
+
   if (type === 'ims') {
-    columns.push({
-      id: 'company',
-      accessorKey: 'company',
-      header: columnHeaderNames.companyName,
-      size: 200,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'brand',
-      accessorKey: 'brand',
-      header: columnHeaderNames.brand,
-      size: 200,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'segment',
-      accessorKey: 'segment',
-      header: columnHeaderNames.segment,
-      size: 180,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'molecule',
-      accessorKey: 'molecule',
-      header: columnHeaderNames.molecule,
-      size: 180,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'dosage',
-      accessorKey: 'dosage',
-      header: columnHeaderNames.dosage,
-      size: 150,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'dosage_form',
-      accessorKey: 'dosage_form',
-      header: columnHeaderNames.dosageForm,
-      size: 240,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'period',
-      accessorKey: 'period',
-      header: columnHeaderNames.period,
-      size: 160,
-      filterType: 'string',
-      filterFn: stringFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'amount',
-      accessorKey: 'amount',
-      header: columnHeaderNames.amount,
-      size: 140,
-      filterType: 'number',
-      filterFn: numberFilter(),
-      enableColumnFilter: true,
-    });
-
-    columns.push({
-      id: 'packages',
-      accessorKey: 'packages',
-      header: columnHeaderNames.packages,
-      size: 140,
-      filterType: 'number',
-      filterFn: numberFilter(),
-      enableColumnFilter: true,
-    });
+    columns.push(
+      {
+        id: 'company',
+        accessorKey: 'company',
+        header: columnHeaderNames.companyName,
+        size: 200,
+        filterType: 'string',
+        filterFn: stringFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'brand',
+        accessorKey: 'brand',
+        header: columnHeaderNames.brand,
+        size: 200,
+        filterType: 'string',
+        filterFn: stringFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'segment',
+        accessorKey: 'segment',
+        header: columnHeaderNames.segment,
+        size: 180,
+        filterType: 'string',
+        filterFn: stringFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'molecule',
+        accessorKey: 'molecule',
+        header: columnHeaderNames.molecule,
+        size: 180,
+        filterType: 'string',
+        filterFn: stringFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'dosage',
+        accessorKey: 'dosage',
+        header: columnHeaderNames.dosage,
+        size: 150,
+        filterType: 'string',
+        filterFn: stringFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'dosage_form',
+        accessorKey: 'dosage_form',
+        header: columnHeaderNames.dosageForm,
+        size: 240,
+        filterType: 'string',
+        filterFn: stringFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'period',
+        accessorKey: 'period',
+        header: columnHeaderNames.period,
+        size: 160,
+        filterType: 'string',
+        filterFn: stringFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'amount',
+        accessorKey: 'amount',
+        header: columnHeaderNames.amount,
+        size: 140,
+        filterType: 'number',
+        filterFn: numberFilter(),
+        enableColumnFilter: true,
+      },
+      {
+        id: 'packages',
+        accessorKey: 'packages',
+        header: columnHeaderNames.packages,
+        size: 140,
+        filterType: 'number',
+        filterFn: numberFilter(),
+        enableColumnFilter: true,
+      }
+    );
   }
 
   return columns;
@@ -368,9 +362,9 @@ function getYearMonthColumns(): ColumnDef<IDbItem>[] {
       enableColumnFilter: true,
       filterFn: selectFilter(),
       filterType: 'select',
-      selectOptions: allMonths.map((month, i) => ({
+      selectOptions: allMonths.map((month, index) => ({
         label: month,
-        value: i + 1,
+        value: index + 1,
       })),
     },
     {

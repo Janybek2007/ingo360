@@ -6,7 +6,10 @@ import { QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
 import type { DbType } from '#/shared/types/db.type';
 
-import { matchesDbOptions, updateDbCache } from '../utils';
+import {
+  matchesDbOptions as matchesDatabaseOptions,
+  updateDbCache as updateDatabaseCache,
+} from '../utils';
 
 export const useAddReferenceMutation = (
   type: DbType,
@@ -22,11 +25,11 @@ export const useAddReferenceMutation = (
         .json<IDbItem>();
     },
     onSuccess: async newItem => {
-      updateDbCache(type, (data, { urls, options }) => {
+      updateDatabaseCache(type, (data, { urls, options }) => {
         const targetIndex = urls.indexOf(type);
         if (targetIndex === -1) return data;
 
-        if (!matchesDbOptions(newItem, options)) return data;
+        if (!matchesDatabaseOptions(newItem, options)) return data;
 
         const limit =
           typeof options?.limit === 'number' ? options.limit : undefined;

@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Button } from '#/shared/components/ui/button';
 
-import type { IPaginationProps } from './pagination.types';
+import type { IPaginationProps as IPaginationProperties } from './pagination.types';
 
-export const Pagination: React.FC<IPaginationProps> = React.memo(
+export const Pagination: React.FC<IPaginationProperties> = React.memo(
   ({
     hasNext,
     hasPrev,
@@ -16,11 +16,11 @@ export const Pagination: React.FC<IPaginationProps> = React.memo(
     onPrev,
   }) => {
     return (
-      <div className="flex items-center gap-2 justify-end">
+      <div className="flex items-center justify-end gap-2">
         <Button
           onClick={onPrev}
           disabled={!hasPrev}
-          className="px-4 py-2 rounded-md font-medium disabled:cursor-not-allowed transition-colors"
+          className="rounded-md px-4 py-2 font-medium transition-colors disabled:cursor-not-allowed"
         >
           Предыдущая
         </Button>
@@ -31,7 +31,7 @@ export const Pagination: React.FC<IPaginationProps> = React.memo(
         <Button
           onClick={onNext}
           disabled={!hasNext}
-          className="px-4 py-2 rounded-md font-medium disabled:cursor-not-allowed transition-colors"
+          className="rounded-md px-4 py-2 font-medium transition-colors disabled:cursor-not-allowed"
         >
           Следующая
         </Button>

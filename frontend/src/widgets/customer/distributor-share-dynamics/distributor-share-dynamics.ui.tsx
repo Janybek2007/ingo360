@@ -71,13 +71,13 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       const modifiedItem = { ...item };
       const originalValues: Record<string, number> = {};
 
-      processed.distributorKeys.forEach(key => {
+      for (const key of processed.distributorKeys) {
         const value = item[key];
         originalValues[key] = value;
         if (value !== undefined && value !== 0) {
           modifiedItem[key] = value > 0 ? value + 70 : value - 70;
         }
-      });
+      }
 
       modifiedItem._original = originalValues;
       return modifiedItem;
@@ -136,7 +136,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                 axisLine={false}
                 tickLine={false}
                 dataKey="label"
-                className="font-normal text-xs leading-full"
+                className="leading-full text-xs font-normal"
               />
 
               <Tooltip
@@ -164,56 +164,57 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                   }
                   return label;
                 }}
-                formatter={(value, name, props) => {
+                formatter={(value, name, properties) => {
                   const dataKey =
-                    typeof props?.dataKey === 'string'
-                      ? props.dataKey
+                    typeof properties?.dataKey === 'string'
+                      ? properties.dataKey
                       : undefined;
                   const originalValue =
-                    dataKey != null && props?.payload?._original
-                      ? (props.payload._original as Record<string, unknown>)[
-                          dataKey
-                        ]
+                    dataKey != null && properties?.payload?._original
+                      ? (
+                          properties.payload._original as Record<
+                            string,
+                            unknown
+                          >
+                        )[dataKey]
                       : undefined;
                   const displayValue =
-                    originalValue !== undefined ? originalValue : value;
+                    originalValue === undefined ? value : originalValue;
 
-                  if (
-                    displayValue === 0 ||
-                    displayValue === undefined ||
-                    displayValue === null
-                  ) {
+                  if (displayValue === 0 || displayValue === null) {
                     return null;
                   }
 
-                  const numValue = Number(displayValue);
+                  const numberValue = Number(displayValue);
                   const formattedValue =
-                    Math.abs(numValue) < 0.01 && numValue !== 0
-                      ? numValue.toFixed(3)
-                      : Math.round(numValue * 100) / 100;
+                    Math.abs(numberValue) < 0.01 && numberValue !== 0
+                      ? numberValue.toFixed(3)
+                      : Math.round(numberValue * 100) / 100;
                   return [`${formattedValue}%`, name];
                 }}
               />
 
-              {distributorKeys.map((distKey, index) => {
-                const distId = parseInt(distKey.replace('dist_', ''));
+              {distributorKeys.map((distributionKey, index) => {
+                const distributionId = Number.parseInt(
+                  distributionKey.replace('dist_', '')
+                );
                 const legend = legends[index];
 
                 return (
                   <Bar
-                    key={distKey}
-                    dataKey={distKey}
+                    key={distributionKey}
+                    dataKey={distributionKey}
                     barSize={periodFilter.period === 'month' ? 40 : 60}
                     stackId="stack"
                     fill={legend?.fill || '#999'}
-                    name={legend?.label || `Дистрибьютор ${distId}`}
+                    name={legend?.label || `Дистрибьютор ${distributionId}`}
                   >
                     <LabelList
-                      dataKey={distKey}
-                      content={(props: any) => (
+                      dataKey={distributionKey}
+                      content={properties => (
                         <SegmentLabel
-                          {...props}
-                          distKey={distKey}
+                          {...properties}
+                          distKey={distributionKey}
                           chartData={chartData}
                         />
                       )}
@@ -236,7 +237,7 @@ const SegmentLabel: React.FC<any> = React.memo(
     // Получаем оригинальное значение из chartData по индексу
     const dataPoint = chartData?.[index];
     const originalValue = dataPoint?._original?.[distKey];
-    const displayValue = originalValue !== undefined ? originalValue : value;
+    const displayValue = originalValue === undefined ? value : originalValue;
 
     // Форматируем значение компактно
     const formattedValue =
@@ -245,8 +246,7 @@ const SegmentLabel: React.FC<any> = React.memo(
         : Math.round(displayValue);
 
     // Динамический размер шрифта в зависимости от высоты сегмента
-    const fontSize = height < 15 ? 9 : height < 25 ? 10 : height < 35 ? 11 : 12;
-
+    const fontSize = getFontSize(height);
     return (
       <text
         x={x + width / 2}
@@ -264,3 +264,10 @@ const SegmentLabel: React.FC<any> = React.memo(
 
 SegmentLabel.displayName = '_SegmentLabel_';
 DistributorShareDynamics.displayName = '_DistributorShareDynamics_';
+
+const getFontSize = (height: number): number => {
+  if (height < 15) return 9;
+  if (height < 25) return 10;
+  if (height < 35) return 11;
+  return 12;
+};

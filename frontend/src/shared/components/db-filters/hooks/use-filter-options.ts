@@ -30,7 +30,11 @@ export const useFilterOptions = (
   scope?: FilterOptionsReferencesKey
 ): UseFilterOptionsReturn => {
   const include = useMemo(
-    () => Array.from(new Set(references.map(ref => ref.replace(/[/-]/g, '_')))),
+    () => [
+      ...new Set(
+        references.map(reference => reference.replaceAll(/[/-]/g, '_'))
+      ),
+    ],
     [references]
   );
 
@@ -42,7 +46,7 @@ export const useFilterOptions = (
         .post('filter-options/grouped', {
           json: {
             references: include,
-            ...(scope ? { scope: scope.replace(/[/-]/g, '_') } : {}),
+            ...(scope ? { scope: scope.replaceAll(/[/-]/g, '_') } : {}),
           },
         })
         .json<Record<string, FilterOptionItem[]>>();
@@ -67,11 +71,11 @@ export const useFilterOptions = (
     if (!filterOptionsQuery.data) return empty as any as FilterOptionsObject;
 
     return Object.entries(filterOptionsQuery.data).reduce(
-      (acc, [key, value]) => {
-        let val: FilterOptions[] = [{ value: 0, label: 'Не указано' }];
-        val.push(...transformToFilterOptions(value));
-        acc[key as FilterOptionsKey] = val;
-        return acc;
+      (accumulator, [key, value]) => {
+        let value_: FilterOptions[] = [{ value: 0, label: 'Не указано' }];
+        value_ = [...value_, ...transformToFilterOptions(value)];
+        accumulator[key as FilterOptionsKey] = value_;
+        return accumulator;
       },
       empty
     ) as any as FilterOptionsObject;

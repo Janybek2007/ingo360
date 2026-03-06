@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-export interface UsecolumnVisibilityOptions<T> {
+interface UsecolumnVisibilityOptions<T> {
   allColumns: ColumnDef<T>[];
   defaultVisible?: string[];
   ignore?: string[];
@@ -27,24 +27,26 @@ export function useColumnVisibility<T>({
   const [visibleColumns, setVisibleColumns] =
     useState<string[]>(getInitialVisible);
 
-  const prevColumnIdsRef = useRef<string>('');
+  const previousColumnIdsReference = useRef<string>('');
 
   useEffect(() => {
     const currentIds = allColumns
       .map(col => String('accessorKey' in col ? col.accessorKey : col.id))
       .filter(id => !ignore.includes(id));
 
-    const currentIdsString = currentIds.sort().join(',');
+    const currentIdsString = currentIds
+      .toSorted((a, b) => a.localeCompare(b))
+      .join(',');
 
-    if (prevColumnIdsRef.current === currentIdsString) return;
+    if (previousColumnIdsReference.current === currentIdsString) return;
 
-    prevColumnIdsRef.current = currentIdsString;
+    previousColumnIdsReference.current = currentIdsString;
 
     // добавляем новые колонки
     const newColumns = currentIds.filter(id => !visibleColumns.includes(id));
     if (newColumns.length > 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVisibleColumns(prev => [...prev, ...newColumns]);
+      setVisibleColumns(previous => [...previous, ...newColumns]);
     }
 
     // удаляем несуществующие
@@ -52,7 +54,9 @@ export function useColumnVisibility<T>({
       id => !currentIds.includes(id)
     );
     if (removedColumns.length > 0) {
-      setVisibleColumns(prev => prev.filter(id => currentIds.includes(id)));
+      setVisibleColumns(previous =>
+        previous.filter(id => currentIds.includes(id))
+      );
     }
   }, [allColumns, ignore, visibleColumns]);
 
@@ -85,8 +89,9 @@ export function useColumnVisibility<T>({
 
   const setColumns = useCallback(
     (value: React.SetStateAction<string[]>) => {
-      setVisibleColumns(prev => {
-        const newColumns = typeof value === 'function' ? value(prev) : value;
+      setVisibleColumns(previous => {
+        const newColumns =
+          typeof value === 'function' ? value(previous) : value;
 
         if (setGroupBy) {
           const groupDimensions = getGroupDimensions(
@@ -100,9 +105,9 @@ export function useColumnVisibility<T>({
                   allowedGroupDimensions.includes(dimension)
                 )
               : groupDimensions;
-          setGroupBy(prevGroup =>
-            arraysAreEqual(prevGroup, filteredDimensions)
-              ? prevGroup
+          setGroupBy(previousGroup =>
+            arraysAreEqual(previousGroup, filteredDimensions)
+              ? previousGroup
               : filteredDimensions
           );
         }
@@ -116,7 +121,7 @@ export function useColumnVisibility<T>({
             const periodHeaders = allColumns
               .filter(col => {
                 const id = 'accessorKey' in col ? col.accessorKey : col.id;
-                return id && periodColumns.includes(String(id));
+                return !!id && periodColumns.includes(String(id));
               })
               .map(col => ('header' in col ? String(col.header) : ''))
               .filter(Boolean);
@@ -146,25 +151,25 @@ function getGroupDimensions(
   visibleColumnIds: string[],
   ignore: string[] = []
 ): string[] {
-  return columns.reduce<string[]>((acc, column) => {
-    const id =
+  return columns.reduce<string[]>((accumulator, column) => {
+    const rawId =
       'accessorKey' in column && column.accessorKey
-        ? String(column.accessorKey)
-        : column.id != null
-          ? String(column.id)
-          : '';
+        ? column.accessorKey
+        : column.id;
 
-    if (!id || ignore.includes(id)) return acc;
-    if (!visibleColumnIds.includes(id)) return acc;
+    const id = rawId == null ? '' : String(rawId);
+
+    if (!id || ignore.includes(id)) return accumulator;
+    if (!visibleColumnIds.includes(id)) return accumulator;
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const dimension = column.meta?.groupDimension;
-    if (dimension && !acc.includes(dimension)) {
-      acc.push(dimension);
+    if (dimension && !accumulator.includes(dimension)) {
+      accumulator.push(dimension);
     }
 
-    return acc;
+    return accumulator;
   }, []);
 }
 

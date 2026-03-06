@@ -9,13 +9,20 @@ import {
 } from './access-company.contract';
 import { useAccessCompanyMutation } from './access-company.mutation';
 
-interface AccessCompanyModalProps {
+interface AccessCompanyModalProperties {
   onClose: VoidFunction;
   companyData: ICompanyItem;
 }
 
-export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
-  ({ onClose, companyData }) => {
+function getBooleanDefault(value?: boolean): 'true' | 'false' {
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false';
+  }
+  return 'true';
+}
+
+export const AccessCompanyModal: React.FC<AccessCompanyModalProperties> =
+  React.memo(({ onClose, companyData }) => {
     const accessMutation = useAccessCompanyMutation(onClose);
 
     const handleSubmit = React.useCallback(
@@ -36,12 +43,7 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
             {
               label: 'Первичные продажи',
               name: 'can_primary_sales',
-              defaultValue:
-                typeof companyData.can_primary_sales === 'boolean'
-                  ? companyData.can_primary_sales
-                    ? 'true'
-                    : 'false'
-                  : 'true',
+              defaultValue: getBooleanDefault(companyData.can_primary_sales),
               type: 'select',
               selectItems: [
                 { label: 'Да', value: 'true' },
@@ -51,12 +53,7 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
             {
               label: 'Вторичные продажи',
               name: 'can_secondary_sales',
-              defaultValue:
-                typeof companyData.can_secondary_sales === 'boolean'
-                  ? companyData.can_secondary_sales
-                    ? 'true'
-                    : 'false'
-                  : 'true',
+              defaultValue: getBooleanDefault(companyData.can_secondary_sales),
               type: 'select',
               selectItems: [
                 { label: 'Да', value: 'true' },
@@ -66,12 +63,7 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
             {
               label: 'Третичные продажи',
               name: 'can_tertiary_sales',
-              defaultValue:
-                typeof companyData.can_tertiary_sales === 'boolean'
-                  ? companyData.can_tertiary_sales
-                    ? 'true'
-                    : 'false'
-                  : 'true',
+              defaultValue: getBooleanDefault(companyData.can_tertiary_sales),
               type: 'select',
               selectItems: [
                 { label: 'Да', value: 'true' },
@@ -81,12 +73,7 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
             {
               label: 'Визиты',
               name: 'can_visits',
-              defaultValue:
-                typeof companyData.can_visits === 'boolean'
-                  ? companyData.can_visits
-                    ? 'true'
-                    : 'false'
-                  : 'true',
+              defaultValue: getBooleanDefault(companyData.can_visits),
               type: 'select',
               selectItems: [
                 { label: 'Да', value: 'true' },
@@ -96,12 +83,7 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
             {
               label: 'Анализ рынка',
               name: 'can_market_analysis',
-              defaultValue:
-                typeof companyData.can_market_analysis === 'boolean'
-                  ? companyData.can_market_analysis
-                    ? 'true'
-                    : 'false'
-                  : 'true',
+              defaultValue: getBooleanDefault(companyData.can_market_analysis),
               type: 'select',
               selectItems: [
                 { label: 'Да', value: 'true' },
@@ -116,7 +98,6 @@ export const AccessCompanyModal: React.FC<AccessCompanyModalProps> = React.memo(
         onSubmit={handleSubmit}
       />
     );
-  }
-);
+  });
 
 AccessCompanyModal.displayName = '_AccessCompanyModal_';

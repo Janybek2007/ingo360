@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { IUserItem } from '#/entities/user';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
+import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles';
 
 import { EditUserContract, type TAddUserContract } from '../users.contracts';
 import { useEditUserMutation } from './edit-user.mutation';

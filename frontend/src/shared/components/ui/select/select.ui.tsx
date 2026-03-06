@@ -7,7 +7,10 @@ import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
 import { LucideCheckIcon, LucidMinusIcon } from '../../../assets/icons';
 import { Checkbox } from '../checkbox';
-import type { ISelectItem, ISelectProps } from './select.types';
+import type {
+  ISelectItem,
+  ISelectProps as ISelectProperties,
+} from './select.types';
 
 const SelectItem = memo(
   <VT,>({
@@ -29,9 +32,9 @@ const SelectItem = memo(
       <button
         type="button"
         className={cn(
-          'flex items-center gap-2 px-3 py-2 cursor-pointer text-left',
+          'flex cursor-pointer items-center gap-2 px-3 py-2 text-left',
           'w-full transition-colors',
-          'font-normal group justify-between',
+          'group justify-between font-normal',
           indeterminate
             ? 'hover:bg-blue-50'
             : 'hover:bg-blue-50 hover:text-blue-600',
@@ -40,24 +43,24 @@ const SelectItem = memo(
         onClick={onSelect}
         title={item.label}
       >
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           {checkbox && !indeterminate && (
             <Checkbox checked={isSelected} onChecked={onSelect} />
           )}
           {indeterminate && (
-            <LucidMinusIcon className="size-4 text-gray-700 shrink-0" />
+            <LucidMinusIcon className="size-4 shrink-0 text-gray-700" />
           )}
           <span>{item.label}</span>
         </div>
         {!checkbox && isSelected && !indeterminate && (
-          <LucideCheckIcon className="size-4 text-gray-700 shrink-0" />
+          <LucideCheckIcon className="size-4 shrink-0 text-gray-700" />
         )}
       </button>
     );
   }
 );
 
-SelectItem.displayName = 'SelectItem';
+SelectItem.displayName = '_SelectItem_';
 
 const SearchInput = memo(
   ({
@@ -68,7 +71,7 @@ const SearchInput = memo(
     onChange: (value: string) => void;
   }) => {
     return (
-      <div className="px-2 py-2 border-b sticky top-0 bg-white border-gray-200 z-10">
+      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-2 py-2">
         <input
           type="text"
           placeholder="Поиск..."
@@ -76,7 +79,7 @@ const SearchInput = memo(
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           onChange={e => onChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
           onClick={e => e.stopPropagation()}
         />
       </div>
@@ -84,7 +87,7 @@ const SearchInput = memo(
   }
 );
 
-SearchInput.displayName = 'SearchInput';
+SearchInput.displayName = '_SearchInput_';
 
 const ToggleAllButton = memo(
   ({
@@ -100,12 +103,12 @@ const ToggleAllButton = memo(
       <button
         type="button"
         className={cn(
-          'flex items-center gap-2 px-3 py-2 w-full text-left hover:bg-blue-50 hover:text-blue-600 transition-colors',
+          'flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-blue-50 hover:text-blue-600',
           className
         )}
         onClick={onToggle}
       >
-        <span className="overflow-hidden max-w-full whitespace-nowrap text-ellipsis">
+        <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
           {allSelected ? 'Сбросить все' : 'Выбрать все'}
         </span>
       </button>
@@ -131,26 +134,28 @@ export function Select<ISM extends boolean = false, VT = string>({
   showToggleAll = false,
   indeterminate = false,
   defaultAllSelected = false,
-}: ISelectProps<ISM, VT>) {
+}: Readonly<ISelectProperties<ISM, VT>>) {
   const [open, { toggle, set }] = useToggle();
   const [searchQuery, setSearchQuery] = useState('');
-  const contentRef = useClickAway<HTMLDivElement>(() => {
+  const contentReference = useClickAway<HTMLDivElement>(() => {
     set(false);
     setSearchQuery('');
   });
-  const parentRef = useRef<HTMLDivElement>(null);
-  const initialValueRef = useRef(value);
+  const parentReference = useRef<HTMLDivElement>(null);
+  const initialValueReference = useRef(value);
 
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
   }, [items]);
 
-  const effectiveValue = useMemo(() => {
+  const effectiveValue = useMemo((): VT | VT[] | undefined => {
     if (!isMultiple || !defaultAllSelected) return value;
+
     // eslint-disable-next-line react-hooks/refs
-    const isInitialRender = value === initialValueRef.current;
+    const isInitialRender = value === initialValueReference.current;
     if (!isInitialRender) return value;
     if (Array.isArray(value) && value.length > 0) return value;
+
     return uniqueItems.map(item => item.value);
   }, [value, isMultiple, defaultAllSelected, uniqueItems]);
 
@@ -165,8 +170,8 @@ export function Select<ISM extends boolean = false, VT = string>({
     (item: ISelectItem<VT>) => {
       if (!isMultiple) return effectiveValue === item.value;
 
-      const arr = Array.isArray(effectiveValue) ? effectiveValue : [];
-      return arr.includes(item.value);
+      const array = Array.isArray(effectiveValue) ? effectiveValue : [];
+      return array.includes(item.value);
     },
     [effectiveValue, isMultiple]
   );
@@ -245,12 +250,12 @@ export function Select<ISM extends boolean = false, VT = string>({
   );
 
   return (
-    <div className={cn('relative', classNames?.root)} ref={contentRef}>
+    <div className={cn('relative', classNames?.root)} ref={contentReference}>
       <button
         className={cn(
-          'border border-gray-300 rounded-lg gap-2 px-3 py-2',
-          'text-left bg-white hover:border-gray-400',
-          'flex items-center justify-center cursor-pointer transition-colors',
+          'gap-2 rounded-lg border border-gray-300 px-3 py-2',
+          'bg-white text-left hover:border-gray-400',
+          'flex cursor-pointer items-center justify-center transition-colors',
           'w-full min-w-0',
           classNames?.trigger
         )}
@@ -264,7 +269,7 @@ export function Select<ISM extends boolean = false, VT = string>({
         {(triggerText || findItemLabel) && (
           <span
             className={cn(
-              'overflow-hidden text-ellipsis whitespace-nowrap flex-1 leading-full',
+              'leading-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap',
               classNames?.triggerText
             )}
           >
@@ -281,7 +286,7 @@ export function Select<ISM extends boolean = false, VT = string>({
       {open && (
         <div
           className={cn(
-            'absolute z-10 w-full bg-white rounded-xl overflow-hidden max-h-72',
+            'absolute z-10 max-h-72 w-full overflow-hidden rounded-xl bg-white',
             'border border-gray-200 shadow-xs',
             'top-full mt-1',
             'flex flex-col',
@@ -293,8 +298,8 @@ export function Select<ISM extends boolean = false, VT = string>({
           )}
 
           <div
-            ref={parentRef}
-            className="overflow-auto noscrollbar flex-1 py-1"
+            ref={parentReference}
+            className="noscrollbar flex-1 overflow-auto py-1"
             style={{ maxHeight: '18rem' }}
           >
             {filteredItems.length === 0 ? (

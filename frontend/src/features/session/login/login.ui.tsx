@@ -31,24 +31,24 @@ export const LoginForm: React.FC = React.memo(() => {
           error={errors.password?.message}
         />
       </div>
-      <div className="flex items-center justify-between mt-10 mb-5 rounded">
+      <div className="mt-10 mb-5 flex items-center justify-between rounded">
         <div></div>
         <Link
           to={routePaths.auth.forgot}
-          className="font-medium underline text-c1__2"
+          className="text-c1__2 font-medium underline"
         >
           Забыли пароль?
         </Link>
       </div>
       {errors.root && (
-        <div className="text-red-500 mb-5">{errors.root.message}</div>
+        <div className="mb-5 text-red-500">{errors.root.message}</div>
       )}
       <Button
         color="primary"
         wFull
         type="submit"
         roundedFull
-        className="py-4 text-xl leading-7 align-middle"
+        className="py-4 align-middle text-xl leading-7"
         ariaLabel=""
         disabled={status == 'pending'}
       >

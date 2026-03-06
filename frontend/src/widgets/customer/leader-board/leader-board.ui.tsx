@@ -15,9 +15,9 @@ import type { EntityRow } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
-import type { LeaderboardProps } from './leader-board.types';
+import type { LeaderboardProps as LeaderboardProperties } from './leader-board.types';
 
-export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
+export const LeaderBoard: React.FC<LeaderboardProperties> = React.memo(
   ({ periodFilter, entities, isLoading, queryError }) => {
     const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -45,13 +45,13 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
     return (
       <section
         style={sectionStyle.style}
-        className="bg-white rounded-lg w-full overflow-hidden"
+        className="w-full overflow-hidden rounded-lg bg-white"
       >
-        <div className="flex items justify-between h-full font-inter">
-          <div className="max-w-160 min-w-160 px-6 py-6 flex flex-col justify-between text-[#131313]">
+        <div className="items font-inter flex h-full justify-between">
+          <div className="flex max-w-160 min-w-160 flex-col justify-between px-6 py-6 text-[#131313]">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-xl leading-full -tracking-[0.0125rem]">
+                <h4 className="leading-full text-xl font-semibold -tracking-[0.0125rem]">
                   Рейтинг компаний
                 </h4>
                 <PeriodFilters {...periodFilter} isMultiple={false} />
@@ -72,11 +72,11 @@ export const LeaderBoard: React.FC<LeaderboardProps> = React.memo(
               />
             </div>
             <div className="my-20">
-              <div className="flex flex-col items-center w-full gap-4.5">
-                <span className="font-medium text-5xl leading-full -tracking-[0.0125rem]">
+              <div className="flex w-full flex-col items-center gap-4.5">
+                <span className="leading-full text-5xl font-medium -tracking-[0.0125rem]">
                   {entities.find(row => row.is_user_company)?.rank ?? '-'}
                 </span>
-                <p className="font-normal text-base leading-full -tracking-[0.0125rem]">
+                <p className="leading-full text-base font-normal -tracking-[0.0125rem]">
                   Ваше место в рейтинге
                 </p>
               </div>

@@ -4,7 +4,7 @@ import { Select } from '#/shared/components/ui/select';
 import { cn } from '#/shared/utils/cn';
 
 import { SearchInput } from '../search-input';
-import type { DbFiltersProps } from './db-filters.types';
+import type { DbFiltersProps as DatabaseFiltersProperties } from './db-filters.types';
 
 export const DbFilters = React.memo(
   ({
@@ -27,7 +27,7 @@ export const DbFilters = React.memo(
     setSearch,
     children,
     brandsMultiple = true,
-  }: DbFiltersProps) => {
+  }: DatabaseFiltersProperties) => {
     const {
       brands: brandsEnabled = true,
       groups: groupsEnabled = true,

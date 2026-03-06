@@ -4,12 +4,12 @@ import { http } from '#/shared/api';
 import { toast } from '#/shared/libs/toast/toasts';
 
 import type {
-  ExportToExcelButtonProps,
+  ExportToExcelButtonProps as ExportToExcelButtonProperties,
   ExportToExcelUrl,
 } from './export-excel.types';
 
-export type ExportExcelPayload = Pick<
-  ExportToExcelButtonProps<any>,
+type ExportExcelPayload = Pick<
+  ExportToExcelButtonProperties<any>,
   | 'fileName'
   | 'headerMap'
   | 'fieldsMap'
@@ -35,7 +35,9 @@ export const useExportExcelMutation = (url: ExportToExcelUrl) => {
         },
       });
 
-      if ((await response.json()).task_id) {
+      const data = await response.json();
+
+      if (data.task_id) {
         toast({
           message: 'Файл в процессе формирования',
           description: 'Мы оповестим вас, когда файл будет готов.',

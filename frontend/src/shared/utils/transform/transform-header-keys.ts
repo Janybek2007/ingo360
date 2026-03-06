@@ -5,15 +5,15 @@ export function transformHeaderKeys<T extends Record<string, any>>(
   ignores: (keyof T | 'actions')[] = ['actions']
 ): Record<keyof T, string> {
   return columns.reduce(
-    (acc, column) => {
+    (accumulator, column) => {
       if (
         typeof column.header === 'string' &&
         column.accessorKey &&
         !ignores?.includes(column.accessorKey as keyof T)
       ) {
-        acc[column.accessorKey as keyof T] = column.header;
+        accumulator[column.accessorKey as keyof T] = column.header;
       }
-      return acc;
+      return accumulator;
     },
     {} as Record<keyof T, string>
   );

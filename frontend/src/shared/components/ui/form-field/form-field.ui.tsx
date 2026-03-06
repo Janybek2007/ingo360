@@ -8,9 +8,45 @@ import {
   LucideEyeIcon,
 } from '../../../assets/icons';
 import { Select } from '../select';
-import type { IFormFieldProps } from './form-field.types';
+import type { IFormFieldProps as IFormFieldProperties } from './form-field.types';
 
-const FormField: React.FC<IFormFieldProps> = React.memo(
+const SelectField: React.FC<{
+  select: IFormFieldProperties['select'];
+  placeholder: string;
+  classNames?: IFormFieldProperties['classNames'];
+  disabled: boolean;
+}> = ({ select, placeholder, classNames, disabled }) => {
+  if (!select) return null;
+
+  return (
+    <div className={cn('w-full', disabled && 'pointer-events-none')}>
+      <Select
+        {...select}
+        triggerText={placeholder}
+        rightIcon={
+          <LucideArrowIcon
+            className="size-[18px] text-[#94A3B8]"
+            type="chevron-down"
+          />
+        }
+        changeTriggerText={true}
+        classNames={{
+          root: 'w-full',
+          triggerText: cn(
+            'text-c1__3 focus:outline-none',
+            'text-base leading-5 font-medium',
+            classNames?.input
+          ),
+          trigger:
+            'border-none rounded-xl py-[0.855rem] px-3 w-full justify-between',
+          menu: 'top-full mt-2 h-max',
+        }}
+      />
+    </div>
+  );
+};
+
+const FormField: React.FC<IFormFieldProperties> = React.memo(
   ({
     label,
     name,
@@ -24,18 +60,17 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
     disabled = false,
   }) => {
     const [showPassword, setShowPassword] = React.useState(false);
-    const inputType = isPasswordToggleShow
-      ? showPassword
-        ? 'text'
-        : 'password'
-      : type;
+
+    const passwordType = showPassword ? 'text' : 'password';
+    const inputType = isPasswordToggleShow ? passwordType : type;
+    const isComplexType = type === 'textarea' || type === 'select';
 
     return (
       <div className={classNames?.root}>
         {label && (
           <label
             htmlFor={`${name}_for`}
-            className={'text-c1__1 font-medium text-base ls-base leading-5'}
+            className="text-c1__1 ls-base text-base leading-5 font-medium"
           >
             {label}
           </label>
@@ -43,68 +78,51 @@ const FormField: React.FC<IFormFieldProps> = React.memo(
 
         <div
           className={cn(
-            'mt-2 flex items-center relative rounded-xl transition-all',
-            'border border-c3__1',
-            disabled && 'opacity-60 cursor-not-allowed',
+            'relative mt-2 flex items-center rounded-xl transition-all',
+            'border-c3__1 border',
+            disabled && 'cursor-not-allowed opacity-60',
             classNames?.wrapper
           )}
         >
-          {!['textarea', 'select'].includes(type) ? (
+          {isComplexType ? (
+            <SelectField
+              select={select}
+              placeholder={placeholder}
+              classNames={classNames}
+              disabled={disabled}
+            />
+          ) : (
             <input
               type={inputType}
               id={`${name}_for`}
               placeholder={placeholder}
               disabled={disabled}
               className={cn(
-                'placeholder:text-c1__3 focus:outline-none font-medium text-c1__3',
-                'text-base leading-5 py-[0.875rem] px-3 rounded-xl',
+                'placeholder:text-c1__3 text-c1__3 font-medium focus:outline-none',
+                'rounded-xl px-3 py-[0.875rem] text-base leading-5',
                 isPasswordToggleShow ? 'w-[90%]' : 'w-full',
                 disabled && 'cursor-not-allowed bg-gray-50',
                 classNames?.input
               )}
               {...register}
             />
-          ) : type === 'select' && select ? (
-            <div className={cn('w-full', disabled && 'pointer-events-none')}>
-              <Select
-                {...select}
-                triggerText={placeholder}
-                rightIcon={
-                  <LucideArrowIcon
-                    className="text-[#94A3B8] size-[18px]"
-                    type="chevron-down"
-                  />
-                }
-                changeTriggerText={true}
-                classNames={{
-                  root: 'w-full',
-                  triggerText: cn(
-                    'text-c1__3 focus:outline-none',
-                    'text-base leading-5 font-medium',
-                    classNames?.input
-                  ),
-                  trigger:
-                    'border-none rounded-xl py-[0.855rem] px-3 w-full justify-between',
-                  menu: 'top-full mt-2 h-max',
-                }}
-              />
-            </div>
-          ) : null}
+          )}
 
           {isPasswordToggleShow && type === 'password' && (
             <button
               type="button"
-              onClick={() => setShowPassword(prev => !prev)}
+              onClick={() => setShowPassword(previous => !previous)}
               disabled={disabled}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-all hover:bg-gray-400/20 p-1 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 text-gray-400 transition-all hover:bg-gray-400/20 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               <LucideEyeIcon off={showPassword} className="size-[1.5rem]" />
             </button>
           )}
         </div>
+
         {error && (
-          <div className="mt-1 flex items-center gap-2 text-sm text-red-600 font-medium animate-fadeIn">
+          <div className="animate-fadeIn mt-1 flex items-center gap-2 text-sm font-medium text-red-600">
             <LucideAlertCircleIcon className="size-[1rem]" />
             <p>{error}</p>
           </div>

@@ -69,14 +69,14 @@ const CustomerAccountsPage: React.FC = () => {
         header: 'Действия',
         size: 120,
         custom: {
-          cell(props) {
+          cell(properties) {
             return (
               <RowActions
                 items={[
                   {
                     type: 'edit',
                     onSelect: () => {
-                      setEditData(props.row.original);
+                      setEditData(properties.row.original);
                       setTimeout(() => set('edit'), 0);
                     },
                   },
@@ -98,7 +98,7 @@ const CustomerAccountsPage: React.FC = () => {
       <PageSection
         title="Управление учетными записями клиентов"
         headerEnd={
-          <div className="flex items-center gap-4 relative z-100">
+          <div className="relative z-100 flex items-center gap-4">
             <SearchInput saveValue={setSearch} />
             <ExportToExcelButton<CustomerRow>
               headerMap={transformHeaderKeys(allColumns)}
@@ -109,7 +109,7 @@ const CustomerAccountsPage: React.FC = () => {
             />
             <Button
               onClick={() => set('create')}
-              className="px-3 py-2 rounded-full flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full px-3 py-2"
             >
               <LucidePlusIcon className="size-6" />
               Добавить уч. запись

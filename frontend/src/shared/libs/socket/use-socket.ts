@@ -14,7 +14,7 @@ export const useSocket = <T = any | string | null>(
   endpoint: string,
   isConnect = true
 ): UseSocketResult<T> => {
-  const wsRef = useRef<WebSocket | null>(null);
+  const wsReference = useRef<WebSocket | null>(null);
   const fullURL = FULL_API_SOCKET_URL + endpoint;
 
   const [connected, setConnected] = useState(false);
@@ -22,7 +22,7 @@ export const useSocket = <T = any | string | null>(
     useState<UseSocketResult['lastMessage']>(null);
 
   const send = useCallback((data: string | Record<string, unknown>) => {
-    const ws = wsRef.current;
+    const ws = wsReference.current;
     if (ws && ws.readyState === WebSocket.OPEN) {
       const payload = typeof data === 'string' ? data : JSON.stringify(data);
       ws.send(payload);
@@ -33,36 +33,36 @@ export const useSocket = <T = any | string | null>(
 
   const connect = useCallback(() => {
     const ws = new WebSocket(fullURL);
-    wsRef.current = ws;
+    wsReference.current = ws;
 
-    ws.onopen = () => {
+    ws.addEventListener('open', () => {
       setConnected(true);
       console.log('[WS] Connected');
-    };
+    });
 
-    ws.onmessage = event => {
+    ws.addEventListener('message', event => {
       try {
         const parsed: UseSocketResult['lastMessage'] = JSON.parse(event.data);
         setLastMessage(parsed);
       } catch {
         setLastMessage(event.data);
       }
-    };
+    });
 
-    ws.onclose = () => {
+    ws.addEventListener('close', () => {
       setConnected(false);
       console.warn('[WS] Disconnected');
-    };
+    });
 
-    ws.onerror = error => {
+    ws.addEventListener('error', error => {
       console.error('[WS] Error:', error);
       ws.close();
-    };
+    });
   }, [fullURL]);
 
   const disconnect = useCallback(() => {
-    wsRef.current?.close();
-    wsRef.current = null;
+    wsReference.current?.close();
+    wsReference.current = null;
   }, []);
 
   useEffect(() => {

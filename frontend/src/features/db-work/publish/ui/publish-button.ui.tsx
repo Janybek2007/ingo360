@@ -14,7 +14,7 @@ export const PublishButton: React.FC<{
   return (
     <button
       type="button"
-      className="p-1.5 rounded-full text-green-500 hover:bg-green-100 transition"
+      className="rounded-full p-1.5 text-green-500 transition hover:bg-green-100"
       title="Опубликовать"
       disabled={mutation.isPending}
       onClick={() => mutation.mutateAsync([id])}

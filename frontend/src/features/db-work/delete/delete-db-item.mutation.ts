@@ -6,7 +6,7 @@ import { QueryOnError } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
 import type { DbType } from '#/shared/types/db.type';
 
-import { updateDbCache } from '../utils';
+import { updateDbCache as updateDatabaseCache } from '../utils';
 
 export const useDeleteDbItemMutation = (
   type: DbType,
@@ -27,7 +27,7 @@ export const useDeleteDbItemMutation = (
       return http.delete(`${type}/${id}`).json<IDbItem>();
     },
     onSuccess: async () => {
-      updateDbCache(type, (data, { urls }) => {
+      updateDatabaseCache(type, (data, { urls }) => {
         const targetIndex = urls.indexOf(type);
         if (targetIndex === -1) return data;
 

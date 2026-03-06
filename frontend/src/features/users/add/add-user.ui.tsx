@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
-import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles_statuses';
+import { ROLES, ROLES_OBJECT } from '#/shared/constants/roles';
 
 import { AddUserContract } from '../users.contracts';
 import { useAddUserMutation } from './add-user.mutation';

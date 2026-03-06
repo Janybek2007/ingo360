@@ -8,18 +8,18 @@ export type DistributorData = {
   periods_data: Record<string, { share_percent: number }>;
 };
 
-export type PeriodFilter = {
+type PeriodFilter = {
   period: 'month' | 'quarter' | 'year' | 'mat' | 'ytd';
   selectedValues: string[];
 };
 
-export type ProcessedChartData = {
+type ProcessedChartData = {
   chartData: any[];
   legends: Array<{ label: string; fill: string }>;
   distributorKeys: string[];
 };
 
-export class DistributorShareProcessor {
+class DistributorShareProcessor {
   private rawData: DistributorData[];
   private periodFilter: PeriodFilter;
 
@@ -49,12 +49,12 @@ export class DistributorShareProcessor {
   private buildDistributorMap(): Map<number, { name: string; color: string }> {
     const distributorMap = new Map<number, { name: string; color: string }>();
 
-    this.rawData.forEach(item => {
+    for (const item of this.rawData) {
       distributorMap.set(item.distributor_id, {
         name: item.distributor_name,
         color: stringToColor(item.distributor_name),
       });
-    });
+    }
 
     return distributorMap;
   }
@@ -62,11 +62,12 @@ export class DistributorShareProcessor {
   private getAllPeriods(): string[] {
     const periodsSet = new Set<string>();
 
-    this.rawData.forEach(item => {
-      Object.keys(item.periods_data).forEach(period => periodsSet.add(period));
-    });
+    for (const item of this.rawData) {
+      for (const period of Object.keys(item.periods_data))
+        periodsSet.add(period);
+    }
 
-    return Array.from(periodsSet).sort(
+    return [...periodsSet].sort(
       PeriodSorting.comparator(this.periodFilter.period)
     );
   }
@@ -103,7 +104,7 @@ export class DistributorShareProcessor {
   private buildPeriodDataMap(filteredPeriods: string[]): Map<string, any> {
     const periodDataMap = new Map<string, any>();
 
-    filteredPeriods.forEach(periodKey => {
+    for (const periodKey of filteredPeriods) {
       // periodKey может быть: "2023", "2023-01", "2023-Q1"
       const parsed = parsePeriodData(periodKey, this.periodFilter.period);
 
@@ -125,21 +126,24 @@ export class DistributorShareProcessor {
 
       const periodData = periodDataMap.get(key);
 
-      this.rawData.forEach(item => {
+      for (const item of this.rawData) {
         if (item.periods_data[periodKey]) {
-          const distKey = `dist_${item.distributor_id}`;
+          const distributionKey = `dist_${item.distributor_id}`;
           const sharePercent = item.periods_data[periodKey].share_percent;
 
-          if (!periodData[distKey]) {
-            periodData[distKey] = 0;
-            periodData.counts.set(distKey, 0);
+          if (!periodData[distributionKey]) {
+            periodData[distributionKey] = 0;
+            periodData.counts.set(distributionKey, 0);
           }
 
-          periodData[distKey] += sharePercent;
-          periodData.counts.set(distKey, periodData.counts.get(distKey) + 1);
+          periodData[distributionKey] += sharePercent;
+          periodData.counts.set(
+            distributionKey,
+            periodData.counts.get(distributionKey) + 1
+          );
         }
-      });
-    });
+      }
+    }
 
     return periodDataMap;
   }
@@ -148,7 +152,7 @@ export class DistributorShareProcessor {
     periodDataMap: Map<string, any>,
     distributorMap: Map<number, { name: string; color: string }>
   ): any[] {
-    return Array.from(periodDataMap.values()).map(item => {
+    return [...periodDataMap.values()].map(item => {
       const result: any = {
         label: item.label,
         fullLabel: item.fullLabel,
@@ -159,22 +163,23 @@ export class DistributorShareProcessor {
         result.quarter = item.quarter;
       }
 
-      distributorMap.forEach((_, distId) => {
-        const distKey = `dist_${distId}`;
-        if (item[distKey] !== undefined) {
-          const count = item.counts.get(distKey) || 1;
-          result[distKey] = Math.round((item[distKey] / count) * 100) / 100;
+      for (const [distributionId] of distributorMap.entries()) {
+        const distributionKey = `dist_${distributionId}`;
+        if (item[distributionKey] === undefined) {
+          result[distributionKey] = 0;
         } else {
-          result[distKey] = 0;
+          const count = item.counts.get(distributionKey) || 1;
+          result[distributionKey] =
+            Math.round((item[distributionKey] / count) * 100) / 100;
         }
-      });
+      }
 
       return result;
     });
   }
 
   private sortData(data: any[]): any[] {
-    return data.sort((a, b) => {
+    return data.toSorted((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
 
       if (this.periodFilter.period === 'quarter') {
@@ -190,7 +195,7 @@ export class DistributorShareProcessor {
   private buildLegends(
     distributorMap: Map<number, { name: string; color: string }>
   ): Array<{ label: string; fill: string }> {
-    return Array.from(distributorMap.entries()).map(([_, info]) => ({
+    return [...distributorMap.entries()].map(([_, info]) => ({
       label: info.name,
       fill: info.color,
     }));
@@ -199,7 +204,7 @@ export class DistributorShareProcessor {
   private buildDistributorKeys(
     distributorMap: Map<number, { name: string; color: string }>
   ): string[] {
-    return Array.from(distributorMap.keys()).map(id => `dist_${id}`);
+    return [...distributorMap.keys()].map(id => `dist_${id}`);
   }
 }
 

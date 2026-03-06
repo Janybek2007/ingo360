@@ -1,8 +1,8 @@
 import { allMonths } from '../constants/months';
 
 export function getPeriodLabel(value: string | number): string {
-  const strValue = String(value);
-  const parts = strValue.split('-');
+  const stringValue = String(value);
+  const parts = stringValue.split('-');
 
   if (!parts[0]) return '';
 
@@ -11,37 +11,29 @@ export function getPeriodLabel(value: string | number): string {
   const period = parts[2];
 
   switch (type) {
-    case 'month':
-      if (period && year) {
-        const monthIndex = parseInt(period, 10) - 1;
-        return `${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
-      }
-      return `${year || ''}`;
-
-    case 'quarter':
+    case 'quarter': {
       if (period && year) {
         return `Q${period} ${year}`;
       }
       return `${year || ''}`;
+    }
 
-    case 'year':
+    case 'year': {
       return year || '';
+    }
 
+    case 'month':
     case 'mat':
+    case 'ytd': {
       if (period && year) {
-        const monthIndex = parseInt(period, 10) - 1;
+        const monthIndex = Number.parseInt(period, 10) - 1;
         return `${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
       }
       return `${year || ''}`;
+    }
 
-    case 'ytd':
-      if (period && year) {
-        const monthIndex = parseInt(period, 10) - 1;
-        return `${allMonths[monthIndex] || 'Неизвестный месяц'} ${year}`;
-      }
-      return `${year || ''}`;
-
-    default:
-      return strValue;
+    default: {
+      return stringValue;
+    }
   }
 }

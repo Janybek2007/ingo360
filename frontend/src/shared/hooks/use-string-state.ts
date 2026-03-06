@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 type UseStringStateReturn<T extends string> = [
   T | null,
   {
-    set: (val: T | null) => void;
+    set: (value: T | null) => void;
     clear: () => void;
     toggle: () => void;
   },
@@ -15,11 +15,11 @@ export const useStringState = <T extends string>(
   const [value, setValue] = useState<T | null>(null);
 
   const set = useCallback(
-    (val: T | null) => {
-      if (val !== null && !values.includes(val)) {
-        throw new Error(`Invalid value: ${val}`);
+    (value_: T | null) => {
+      if (value_ !== null && !values.includes(value_)) {
+        throw new Error(`Invalid value: ${value_}`);
       }
-      setValue(val);
+      setValue(value_);
     },
     [values]
   );
@@ -27,9 +27,9 @@ export const useStringState = <T extends string>(
   const clear = useCallback(() => setValue(null), []);
 
   const toggle = useCallback(() => {
-    setValue(prev => {
-      if (prev === null) return values[0];
-      const index = values.indexOf(prev);
+    setValue(previous => {
+      if (previous === null) return values[0];
+      const index = values.indexOf(previous);
       const nextIndex = (index + 1) % values.length;
       return values[nextIndex];
     });
