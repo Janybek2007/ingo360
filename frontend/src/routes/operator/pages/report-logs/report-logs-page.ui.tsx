@@ -77,7 +77,7 @@ const ReportLogsPage: React.FC = () => {
           <Table
             columns={columnsForTable}
             data={tableData}
-            maxHeight={500}
+            maxHeight={550}
             rounded="none"
           />
         </AsyncBoundary>

@@ -491,7 +491,7 @@ export class MarketInsightsDynamicPeriods {
   }
 
   // ---- Generate Columns ----
-  public generate(data: any[]): CColumn<any>[] {
+  public generate = (data: any[]): CColumn<any>[] => {
     if (!data || data.length === 0) return [];
 
     const firstRow = data[0];
@@ -509,11 +509,13 @@ export class MarketInsightsDynamicPeriods {
         cell: ({ row }: any) => row.original[key],
       },
     }));
-  }
+  };
 }
 
-export const marketInsightsDynamicPeriods = new MarketInsightsDynamicPeriods()
-  .generate;
+export const marketInsightsDynamicPeriods =
+  new MarketInsightsDynamicPeriods().generate.bind(
+    MarketInsightsDynamicPeriods
+  );
 
 export const monthsPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
