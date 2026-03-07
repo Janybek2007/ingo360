@@ -59,10 +59,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
               items={medicalFacilityItems}
               triggerText="ЛПУ"
               rightIcon={
-                <LucideArrowIcon
-                  type="chevron-down"
-                  className="size-[1.125rem]"
-                />
+                <LucideArrowIcon type="chevron-down" className="size-4.5" />
               }
               classNames={{
                 trigger: 'gap-4 rounded-full justify-between',
@@ -99,7 +96,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
             isLoading={countQuery.isLoading}
             queryError={countQuery.error}
           >
-            <div className="relative my-3 flex max-h-[28rem] min-h-[28rem] w-full items-center justify-center py-2">
+            <div className="relative my-3 flex max-h-112 min-h-112 w-full items-center justify-center py-2">
               <PieChart width={sectionStyle.width / 2 - 80} height={440}>
                 <Pie
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -177,7 +174,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                       backgroundColor: stringToColor(d.speciality_name),
                     }}
                   />
-                  <span className="font-inter text-sm leading-[100%] font-medium text-black">
+                  <span className="font-inter leading-full text-sm font-medium text-black">
                     {d.speciality_name}
                   </span>
                 </div>

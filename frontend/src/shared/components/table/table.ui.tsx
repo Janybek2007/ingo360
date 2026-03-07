@@ -178,7 +178,7 @@ export const Table: React.FC<ITableProperties> = React.memo(
 
 const DefaultEmpty = React.memo(() => (
   <div className="my-40 flex flex-col items-center justify-center space-y-3 px-4 text-center text-gray-500">
-    <LucideAlertCircleIcon className="size-[36px] text-gray-400" />
+    <LucideAlertCircleIcon className="size-9 text-gray-400" />
     <p className="text-base font-medium">Нет данных для отображения</p>
     <p className="max-w-sm text-sm text-gray-400">
       Попробуйте изменить фильтры.

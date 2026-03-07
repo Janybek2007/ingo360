@@ -22,7 +22,7 @@ export const useExcelStatusCheck = (
   );
 
   useEffect(() => {
-    if (['administrator', 'operator'].includes(user?.role ?? '')) return;
+    if (!['administrator', 'operator'].includes(user?.role ?? '')) return;
     if (!lastMessage) return;
     if ('status' in lastMessage && lastMessage.status === 'pending') return;
     handleMessage(lastMessage, removeTask);
@@ -38,6 +38,7 @@ const handleImportToast = (
 ) => {
   const onRemoveTask = createRemoveHandler(removeTask, taskId);
   const createdAt = formatDateInUTC(result.created_at);
+
   toast({
     message: 'Импорт завершён',
     description: formatToastDescription(
