@@ -36,7 +36,11 @@ export class PeriodSorting {
   /**
    * Внутренний универсальный парсер периода
    */
-  private static parse(periodType: string, period: string): number {
+  private static parse(periodType: string, period?: string | null): number {
+    if (!period) {
+      return 0;
+    }
+
     // YEAR: "2023"
     if (periodType === 'year') {
       return Number(period);

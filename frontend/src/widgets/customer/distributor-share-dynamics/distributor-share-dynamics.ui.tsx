@@ -303,6 +303,7 @@ const TotalAmountLabel: React.FC<TotalAmountLabelProps> = React.memo(
 SegmentLabel.displayName = '_SegmentLabel_';
 TotalAmountLabel.displayName = '_TotalAmountLabel_';
 DistributorShareDynamics.displayName = '_DistributorShareDynamics_';
+
 const buildChartItem = (
   item: Record<string, number>,
   distributorKeys: string[]
@@ -328,9 +329,10 @@ const buildChartItem = (
   return {
     ...modifiedItem,
     _original: originalValues,
-    _topKey: topKey ?? firstNegativeKey,
+    _topKey: topKey ?? firstNegativeKey ?? distributorKeys.at(-1),
   };
 };
+
 const getFontSize = (height: number): number => {
   if (height < 15) return 9;
   if (height < 25) return 10;

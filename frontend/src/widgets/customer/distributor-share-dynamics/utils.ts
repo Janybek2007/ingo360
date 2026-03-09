@@ -63,8 +63,11 @@ class DistributorShareProcessor {
     const periodsSet = new Set<string>();
 
     for (const item of this.rawData) {
-      for (const period of Object.keys(item.periods_data))
-        periodsSet.add(period);
+      for (const period of Object.keys(item.periods_data)) {
+        if (period) {
+          periodsSet.add(period);
+        }
+      }
     }
 
     return [...periodsSet].sort(
@@ -88,8 +91,9 @@ class DistributorShareProcessor {
           parsed.year.toString()
         );
       } else if (this.periodFilter.period === 'month' && parsed.month) {
+        const monthValue = `${parsed.month}`.padStart(2, '0');
         return this.periodFilter.selectedValues.includes(
-          `month-${parsed.year}-${parsed.month}`
+          `month-${parsed.year}-${monthValue}`
         );
       } else if (this.periodFilter.period === 'quarter' && parsed.quarter) {
         return this.periodFilter.selectedValues.includes(
