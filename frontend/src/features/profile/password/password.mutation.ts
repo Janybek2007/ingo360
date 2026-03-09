@@ -26,10 +26,7 @@ export const useUpdatePasswordMutation = () => {
         .json();
     },
     onSuccess: async () => {
-      toast({
-        message: 'Пароль успешно обновлен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Пароль успешно обновлен' });
     },
     onError: async (error: HTTPError) => {
       try {
@@ -44,7 +41,6 @@ export const useUpdatePasswordMutation = () => {
         toast({
           message: 'Произошла ошибка при обновлении пароля',
           type: 'error',
-          duration: 8000, // 8 seconds
         });
       }
     },

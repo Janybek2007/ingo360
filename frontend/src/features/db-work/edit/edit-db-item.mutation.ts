@@ -23,7 +23,6 @@ export const useEditDbItemMutation = (
         toast({
           message: 'Отсутствует id ресурса',
           type: 'warning',
-          duration: 8000, // 8 seconds
         });
         return null;
       }
@@ -55,11 +54,7 @@ export const useEditDbItemMutation = (
       });
 
       onClose();
-      toast({
-        message: 'Ресурс успешно редактрован',
-        type: 'success',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Ресурс успешно редактрован' });
     },
   });
 };

@@ -35,12 +35,9 @@ export const useAccessCompanyMutation = (onClose: VoidFunction) => {
         queryKey: CompanyQueries.queryKeys.getCompanies({}),
       });
 
-      setTimeout(() => {
-        toast({
-          message: 'Настройки доступа компании успешно обновлены',
-          duration: 8000, // 8 seconds
-        });
-      }, 300);
+      toast({
+        message: 'Настройки доступа компании успешно обновлены',
+      });
     },
     onError: QueryOnError,
   });

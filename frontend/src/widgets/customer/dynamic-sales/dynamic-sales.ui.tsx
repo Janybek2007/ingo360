@@ -31,7 +31,7 @@ type DynamicPrimarySalesData = {
 
 export const DynamicSales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const periodFilter = usePeriodFilter();
+  const periodFilter = usePeriodFilter({});
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(

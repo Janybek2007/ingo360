@@ -91,7 +91,7 @@ export function toast({
   message,
   description,
   type = 'success',
-  duration = Infinity,
+  duration = 10_000,
   actionLabel,
   onAction,
   onClose,

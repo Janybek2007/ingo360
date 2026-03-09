@@ -42,7 +42,6 @@ export const useExportExcelMutation = (url: ExportToExcelUrl) => {
         toast({
           message: 'Файл в процессе формирования',
           description: 'Мы оповестим вас, когда файл будет готов.',
-          duration: 6000,
         });
       }
       return response;

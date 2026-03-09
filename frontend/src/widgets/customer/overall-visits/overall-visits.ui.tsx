@@ -22,6 +22,7 @@ import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { useSession } from '#/shared/session';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -37,6 +38,8 @@ export const OverallVisits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
   const filterOptions = useFilterOptions(['products/product-groups']);
 
+  const lastYear = useSession(s => s.lastYear);
+
   const filters = useDbFilters({
     groupsOptions: filterOptions.options.products_product_groups,
     config: {
@@ -47,7 +50,10 @@ export const OverallVisits: React.FC = React.memo(() => {
     },
   });
 
-  const periodFilter = usePeriodFilter();
+  const periodFilter = usePeriodFilter({
+    lastYear: lastYear?.visits,
+  });
+
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-by-period'],

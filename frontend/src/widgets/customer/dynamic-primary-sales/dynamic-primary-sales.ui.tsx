@@ -12,6 +12,7 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
@@ -30,6 +31,7 @@ const AsLegends = {
 
 export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
   React.memo(({ as = 'line' }) => {
+    const lastYear = useSession(s => s.lastYear);
     const filterOptions = useFilterOptions([
       'products/brands',
       'products/product-groups',
@@ -45,7 +47,9 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       },
     });
 
-    const periodFilter = usePeriodFilter();
+    const periodFilter = usePeriodFilter({
+      lastYear: lastYear?.primary,
+    });
 
     const queryData = useKeepQuery(
       DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(

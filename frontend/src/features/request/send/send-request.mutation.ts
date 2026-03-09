@@ -31,10 +31,7 @@ export const useSendRequestMutation = (callback?: VoidFunction) => {
     onSuccess: async response => {
       if (response.id) {
         callback?.();
-        toast({
-          message: 'Заявка отправлена',
-          duration: 8000, // 8 seconds
-        });
+        toast({ message: 'Заявка отправлена' });
       }
     },
     onError: async (error: HTTPError) => {

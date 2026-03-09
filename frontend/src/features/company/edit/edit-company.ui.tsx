@@ -30,7 +30,6 @@ export const EditCompanyModal: React.FC<{
           message:
             'Лимит не может быть меньше количества активных пользователей',
           type: 'warning',
-          duration: 8000, // 8 seconds
         });
         return;
       }

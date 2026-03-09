@@ -99,9 +99,8 @@ export class ExcelExporter<T extends object> {
       }
 
       if (this.hasTotal && total > 0) {
-        newItem['total'] = this.periodAsPercent
-          ? '100%'
-          : Number(total.toFixed(2));
+        const int = Number.isInteger(total) ? total : Number(total.toFixed(2));
+        newItem['total'] = this.periodAsPercent ? '100%' : int;
       }
 
       return newItem;
@@ -159,7 +158,9 @@ export class ExcelExporter<T extends object> {
       return `${Math.trunc(Number(rawValue))}%`;
     }
     if (typeof rawValue === 'number') {
-      return rawValue.toFixed(2);
+      return Number.isInteger(rawValue)
+        ? String(rawValue)
+        : rawValue.toFixed(2);
     }
     return rawValue;
   }
@@ -184,7 +185,10 @@ export class ExcelExporter<T extends object> {
 
     const finalData = this.formatData(formattedData, periodKeys);
 
-    const headers = Object.keys(finalData[0] || {});
+    const rawHeaders = Object.keys(finalData[0] || {});
+    const headers = rawHeaders.includes('Итого')
+      ? [...rawHeaders.filter(h => h !== 'Итого'), 'Итого']
+      : rawHeaders;
 
     const dataArray = [
       headers,

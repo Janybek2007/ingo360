@@ -30,7 +30,7 @@ export const PageSection: React.FC<IPageSectionProperties> = React.memo(
         >
           {viewHeader &&
             (beforeHeader || afterHeader || title || legends || headerEnd) && (
-              <div className="relative z-[40] flex flex-col gap-6">
+              <div className="relative z-40 mb-3 flex flex-col gap-6">
                 {beforeHeader}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex flex-col">

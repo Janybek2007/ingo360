@@ -22,7 +22,6 @@ export const useBlockUserMutation = (userId: number, onClose: VoidFunction) => {
       onClose();
       toast({
         message: `Пользователь ${data.is_active ? 'разблокирован' : 'заблокирован'} успешно`,
-        duration: 8000, // 8 seconds
       });
     },
     onError: QueryOnError,

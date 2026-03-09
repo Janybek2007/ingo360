@@ -47,10 +47,7 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
       });
 
       onClose();
-      toast({
-        message: 'Компания успешно обновлена',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Компания успешно обновлена' });
     },
     onError: QueryOnError,
   });

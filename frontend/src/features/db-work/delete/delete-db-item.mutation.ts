@@ -19,7 +19,6 @@ export const useDeleteDbItemMutation = (
         toast({
           message: 'Отсутствует id ресурса',
           type: 'warning',
-          duration: 8000, // 8 seconds
         });
         return null;
       }
@@ -37,10 +36,7 @@ export const useDeleteDbItemMutation = (
         return data;
       });
 
-      toast({
-        message: 'Ресурс успешно удален',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Ресурс успешно удален' });
       onClose();
     },
   });

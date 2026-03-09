@@ -37,10 +37,7 @@ export const useResetPasswordMutation = (token: string | null) => {
     },
     onSuccess: async () => {
       reset();
-      toast({
-        message: 'Пароль успешно изменен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Пароль успешно изменен' });
       setTimeout(() => navigate(routePaths.auth.login), 700);
     },
     onError: async (error: HTTPError) => {

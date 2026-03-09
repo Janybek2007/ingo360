@@ -14,7 +14,7 @@ const DISPERSE_TRANSFORMS = [
 ];
 
 export const WelcomeMessage: React.FC = React.memo(() => {
-  const { setIsWelcomeShown } = useSession();
+  const setIsWelcomeShown = useSession(u => u.setIsWelcomeShown);
   const [phase, setPhase] = React.useState<'stars' | 'modal'>('stars');
 
   React.useEffect(() => {

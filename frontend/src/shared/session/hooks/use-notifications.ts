@@ -25,7 +25,6 @@ export const useNotifications = (isWelcome = false) => {
     if (notificationsTypes.includes(message.type)) {
       queryClient.setQueryData(UserQueries.queryKeys.getUser, null);
       toast({
-        duration: 2000,
         message:
           message.message ||
           'Срок действия вашего сеанса истек. Пожалуйста, войдите в систему еще раз.',

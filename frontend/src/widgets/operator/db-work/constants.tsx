@@ -126,6 +126,20 @@ export function getDbWorkColumns(
         meta: { groupDimension: 'sku' },
         selectOptions: filterOptions.products_skus,
       },
+      ...(type == 'sales/primary'
+        ? [
+            {
+              id: 'indicator',
+              accessorKey: 'indicator',
+              header: columnHeaderNames.indicator,
+              size: 180,
+              filterType: 'string',
+              filterFn: stringFilter(),
+              enableColumnFilter: true,
+              meta: { groupDimension: 'indicator' },
+            } as ColumnDef<IDbItem>,
+          ]
+        : []),
       ...getYearMonthColumns(),
       ...getSalesColumns(type)
     );

@@ -38,11 +38,11 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
       },
     });
 
-    const periodFilter = usePeriodFilter(
-      ['mat', 'ytd', 'year', 'month'],
-      'mat',
-      false
-    );
+    const periodFilter = usePeriodFilter({
+      views: ['mat', 'ytd', 'year', 'month'],
+      defaultPeriod: 'mat',
+      isMultiple: false,
+    });
 
     const queryData = useKeepQuery(
       DbQueries.GetDbItemsQuery<TopMetricsRow>(['ims/reports/top'], {

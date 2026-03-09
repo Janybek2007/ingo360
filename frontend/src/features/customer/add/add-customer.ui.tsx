@@ -31,7 +31,6 @@ export const AddCustomerModal: React.FC<{ onClose: VoidFunction }> = React.memo(
           message:
             'Достигнут лимит активных пользователей для выбранной компании',
           type: 'warning',
-          duration: 8000, // 8 seconds
         });
         return;
       }

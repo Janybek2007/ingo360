@@ -390,36 +390,42 @@ export const commonColumns = {
     key: 'company',
     header: columnHeaderNames.companyName,
     type: 'string',
+    groupDimension: 'company',
   }),
   marketInsightsBrand: (): CColumn<any> => ({
     id: 'brand',
     key: 'brand',
     header: columnHeaderNames.brand,
     type: 'string',
+    groupDimension: 'brand',
   }),
   marketInsightsSegment: (): CColumn<any> => ({
     id: 'segment',
     key: 'segment',
     header: columnHeaderNames.segment,
     type: 'string',
+    groupDimension: 'segment',
   }),
   marketInsightsDosageForm: (): CColumn<any> => ({
     id: 'dosage_form',
     key: 'dosage_form',
     header: columnHeaderNames.dosageForm,
     type: 'string',
+    groupDimension: 'dosage_form',
   }),
   marketInsightsDosage: (): CColumn<any> => ({
     id: 'dosage',
     key: 'dosage',
     header: columnHeaderNames.dosage,
     type: 'string',
+    groupDimension: 'dosage',
   }),
   marketMolecule: (): CColumn<any> => ({
     id: 'molecule',
     key: 'molecule',
     header: columnHeaderNames.molecule,
     type: 'string',
+    groupDimension: 'molecule',
   }),
 };
 
@@ -432,7 +438,7 @@ type Period =
   | { type: 'year'; year: number; order: number }
   | { type: 'unknown'; year: 0; order: 0 };
 
-export class MarketInsightsDynamicPeriods {
+class MarketInsightsDynamicPeriods {
   private staticKeys = [
     'company',
     'brand',

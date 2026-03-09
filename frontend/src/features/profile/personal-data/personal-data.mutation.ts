@@ -35,10 +35,7 @@ export const useUpdatePersonalDataMutation = () => {
         })
       );
 
-      toast({
-        message: 'Персональные данные успешно обновлены',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Персональные данные успешно обновлены' });
     },
     onError: async (error: HTTPError) => {
       try {
@@ -53,7 +50,6 @@ export const useUpdatePersonalDataMutation = () => {
         toast({
           message: 'Произошла ошибка при обновлении данных',
           type: 'error',
-          duration: 8000, // 8 seconds
         });
       }
     },

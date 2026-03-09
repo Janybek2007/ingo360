@@ -17,7 +17,11 @@ import { cn } from '#/shared/utils/cn';
 
 export const Sidebar: React.FC = React.memo(() => {
   const isActive = useActivePath();
-  const { user, isLoading, userAccess } = useSession();
+  const { user, isLoading, userAccess } = useSession(u => ({
+    user: u.user,
+    isLoading: u.isLoading,
+    userAccess: u.userAccess,
+  }));
   const [isCollapsed, setIsCollapsed] = useLocalStorageState(
     'sidebar-collapsed',
     { defaultValue: false }

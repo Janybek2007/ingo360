@@ -9,7 +9,7 @@ export function toastExportResponse({
   taskId,
   fileName = 'export.xlsx',
   fileSizeBytes,
-  duration,
+  duration = Infinity,
   onRemoveTask,
 }: ToastExportResponseProperties) {
   tt.custom(
@@ -27,6 +27,6 @@ export function toastExportResponse({
         />,
         document.body
       ),
-    { duration: duration ?? Infinity }
+    { duration: duration }
   );
 }

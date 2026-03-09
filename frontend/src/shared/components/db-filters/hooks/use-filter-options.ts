@@ -22,7 +22,7 @@ const transformToFilterOptions = (data?: FilterOptionItem[]): FilterOptions[] =>
   data?.map((item: FilterOptionItem | string) =>
     typeof item === 'string'
       ? { value: String(item), label: String(item) }
-      : { value: item.id, label: item.name }
+      : { value: item.id, label: item.name, scope_values: item.scope_values }
   ) || [];
 
 export const useFilterOptions = (

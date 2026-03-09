@@ -1,3 +1,4 @@
+import type { IGetLastYear } from '#/entities/db';
 import type { GetUserResponse, UserAccess } from '#/entities/user';
 
 import type { TImportResponse } from '../types/global';
@@ -7,6 +8,7 @@ export interface ISessionContext {
   isLoading: boolean;
   isWelcomeShown: boolean;
   userAccess: UserAccess | null;
+  lastYear: IGetLastYear | undefined;
   setIsWelcomeShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 

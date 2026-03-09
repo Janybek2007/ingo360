@@ -17,8 +17,8 @@ export const useDbFilters = ({
   segmentsOptions = [],
   config,
 }: UseDatabaseFiltersProperties): UseDatabaseFiltersReturn => {
-  const indicatorDefault = config?.indicator?.defaultValue || 'amount';
-  const rowsCountDefault = config?.rowsCount?.defaultValue || 'all';
+  const indicatorDefault = config?.indicator?.defaultValue ?? 'amount';
+  const rowsCountDefault = config?.rowsCount?.defaultValue ?? 'all';
 
   // States
   const [brands, setBrands] = useState<(string | number)[]>([]);
@@ -38,8 +38,19 @@ export const useDbFilters = ({
 
   // Options
   const options = useMemo(() => {
+    const filteredBrands =
+      groups.length > 0
+        ? brandsOptions.filter(
+            brand =>
+              brand.value === 0 ||
+              (brand as any).scope_values?.product_group_ids?.some(
+                (id: number) => groups.includes(id)
+              )
+          )
+        : brandsOptions;
+
     return {
-      brands: brandsOptions,
+      brands: filteredBrands,
       groups: groupsOptions,
       distributors: distributorsOptions,
       geoIndicators: geoIndicatorsOptions,
@@ -63,6 +74,7 @@ export const useDbFilters = ({
     geoIndicatorsOptions,
     segmentsOptions,
     config,
+    groups,
   ]);
 
   // Used filter items
@@ -76,14 +88,22 @@ export const useDbFilters = ({
       },
     ]);
 
-    if (brands.length > 0 && brandsMultiple) {
+    if (
+      brands.length > 0 &&
+      brands.length !== options.brands.length &&
+      brandsMultiple
+    ) {
       items.push({
         label: 'Бренды: ',
         value: 'brand-roots',
         onDelete: () => setBrands([]),
         subItems: buildSubItems(brands, options.brands, setBrands),
       });
-    } else if (brands.length > 0 && !brandsMultiple) {
+    } else if (
+      brands.length > 0 &&
+      brands.length !== options.brands.length &&
+      !brandsMultiple
+    ) {
       items.push({
         label: `Бренд: ${brands[0]}`,
         value: brands[0],
@@ -91,7 +111,7 @@ export const useDbFilters = ({
       });
     }
 
-    if (groups.length > 0) {
+    if (groups.length > 0 && groups.length !== options.groups.length) {
       items.push({
         label: 'Группы: ',
         value: 'group-roots',

@@ -26,10 +26,7 @@ export const useAddCompanyMutation = (onClose: VoidFunction) => {
         queryKey: CompanyQueries.queryKeys.getCompanies({}),
       });
       onClose();
-      toast({
-        message: 'Ресурс успешно добавлен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Ресурс успешно добавлен' });
     },
     onError: QueryOnError,
   });

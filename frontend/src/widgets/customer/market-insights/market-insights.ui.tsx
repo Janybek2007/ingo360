@@ -48,7 +48,9 @@ export const MarketInsights: React.FC = React.memo(() => {
       },
     },
   });
-  const periodFilter = usePeriodFilter(['year', 'month', 'quarter']);
+  const periodFilter = usePeriodFilter({
+    views: ['year', 'month', 'quarter'],
+  });
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {

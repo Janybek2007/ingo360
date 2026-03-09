@@ -23,7 +23,7 @@ import { ReferenceWork } from '#/widgets/operator/reference-work';
 
 import { tabsItems } from './constants';
 
-const DEFAULT_LIMIT = 500;
+const DEFAULT_LIMIT = 250;
 const DEFAULT_DATA = {
   hasNext: false,
   hasPrev: false,

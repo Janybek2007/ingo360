@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { MonthFull } from '#/shared/constants/months';
 
@@ -53,13 +53,20 @@ const addQuarters = (yq: YQ, delta: number): YQ => {
 
 const uniq = <T>(array: T[]) => [...new Set(array)];
 
-export const usePeriodFilter = (
-  views: UsePeriodType[] = ['year', 'month', 'quarter'],
-  defaultPeriod: UsePeriodType = 'month',
-  isMultiple = true
-): UsePeriodFilterReturn => {
-  const [period, setPeriodState] = useState<UsePeriodType>(defaultPeriod);
+interface IUsePeriodFilter {
+  views: UsePeriodType[];
+  defaultPeriod: UsePeriodType;
+  isMultiple: boolean;
+  lastYear: number;
+}
 
+export const usePeriodFilter = ({
+  views = ['year', 'month', 'quarter'],
+  defaultPeriod = 'month',
+  isMultiple = true,
+  lastYear,
+}: Partial<IUsePeriodFilter>): UsePeriodFilterReturn => {
+  const [period, setPeriodState] = useState<UsePeriodType>(defaultPeriod);
   const now = useMemo(() => new Date(), []);
   const current = useMemo(() => toMonth(now), [now]);
   const currentYQ = useMemo(() => quarterFromYM(current), [current]);
@@ -98,35 +105,49 @@ export const usePeriodFilter = (
 
   const buildAllItemValues = useCallback(
     (p: UsePeriodType) => {
-      if (p === 'month') {
-        if (!isMultiple) return [`month-${current.y}-${current.m}`];
-        return months12.map(x => `month-${x.y}-${x.m}`);
+      switch (p) {
+        case 'month': {
+          return buildMonthValues(isMultiple, current, lastYear, months12);
+        }
+        case 'quarter': {
+          return buildQuarterValues(isMultiple, currentYQ, lastYear, quarters4);
+        }
+        case 'mat': {
+          return buildCumulativeValues(
+            'mat',
+            isMultiple,
+            current,
+            lastYear,
+            months12
+          );
+        }
+        case 'ytd': {
+          return buildCumulativeValues(
+            'ytd',
+            isMultiple,
+            current,
+            lastYear,
+            months12
+          );
+        }
+        default: {
+          return buildYearValues(isMultiple, current, lastYear);
+        }
       }
-
-      if (p === 'quarter') {
-        if (!isMultiple) return [`quarter-${currentYQ.y}-${currentYQ.q}`];
-        return quarters4.map(x => `quarter-${x.y}-${x.q}`);
-      }
-
-      if (p === 'mat') {
-        if (!isMultiple) return [`mat-${current.y}-${current.m}`];
-        return months12.map(x => `mat-${x.y}-${x.m}`);
-      }
-
-      if (p === 'ytd') {
-        if (!isMultiple) return [`ytd-${current.y}-${current.m}`];
-        return months12.map(x => `ytd-${x.y}-${x.m}`);
-      }
-
-      if (!isMultiple) return [`${current.y}`];
-      return [`${current.y}`, `${current.y - 1}`];
     },
-    [current, currentYQ, months12, quarters4, isMultiple]
+    [current, currentYQ, months12, quarters4, isMultiple, lastYear]
   );
 
   const [selectedValues, setSelectedValues] = useState<string[]>(
     buildAllItemValues(defaultPeriod)
   );
+
+  useEffect(() => {
+    if (lastYear !== undefined) {
+      setSelectedValues(buildAllItemValues(period));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastYear]);
 
   const setPeriod = useCallback(
     (newPeriod: UsePeriodType) => {
@@ -294,3 +315,53 @@ function resolveCumulativeValues(
 
   return newValues;
 }
+
+// helpers вне компонента — снижают когнитивную сложность
+const buildMonthValues = (
+  isMultiple: boolean,
+  current: YM,
+  lastYear?: number,
+  months12: YM[] = []
+) => {
+  if (!isMultiple) return [`month-${current.y}-${current.m}`];
+  if (lastYear)
+    return Array.from({ length: 12 }, (_, i) => `month-${lastYear}-${i + 1}`);
+  return months12.map(x => `month-${x.y}-${x.m}`);
+};
+
+const buildQuarterValues = (
+  isMultiple: boolean,
+  currentYQ: YQ,
+  lastYear?: number,
+  quarters4: YQ[] = []
+) => {
+  if (!isMultiple) return [`quarter-${currentYQ.y}-${currentYQ.q}`];
+  if (lastYear) return [1, 2, 3, 4].map(q => `quarter-${lastYear}-${q}`);
+  return quarters4.map(x => `quarter-${x.y}-${x.q}`);
+};
+
+const buildCumulativeValues = (
+  prefix: 'mat' | 'ytd',
+  isMultiple: boolean,
+  current: YM,
+  lastYear?: number,
+  months12: YM[] = []
+) => {
+  if (!isMultiple) return [`${prefix}-${current.y}-${current.m}`];
+  if (lastYear)
+    return Array.from(
+      { length: 12 },
+      (_, i) => `${prefix}-${lastYear}-${i + 1}`
+    );
+  return months12.map(x => `${prefix}-${x.y}-${x.m}`);
+};
+
+const buildYearValues = (
+  isMultiple: boolean,
+  current: YM,
+  lastYear?: number
+) => {
+  if (!isMultiple) return [`${current.y}`];
+  if (lastYear) return [`${lastYear}`, `${lastYear - 1}`];
+  return [`${current.y}`, `${current.y - 1}`];
+};

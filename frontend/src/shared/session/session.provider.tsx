@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 
+import { DbQueries } from '#/entities/db';
 import { UserQueries } from '#/entities/user';
 
 import { WelcomeMessage } from '../components/welcome-message';
@@ -18,6 +19,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
   const [isWelcomeShown, setIsWelcomeShown] = useState(false);
   const { lastMessage, disconnect, send } = useNotifications(isWelcomeShown);
   const userAccess = useUserAccess(lastMessage, data);
+  const lastYear = useQuery(DbQueries.GetLastYear(data?.role === 'customer'));
 
   useExcelStatusCheck(data, lastMessage, send, disconnect);
 
@@ -28,6 +30,7 @@ export const SessionProvider: React.FC<React.PropsWithChildren> = ({
     isLoading,
     isWelcomeShown,
     setIsWelcomeShown,
+    lastYear: lastYear.data,
     userAccess,
   };
 

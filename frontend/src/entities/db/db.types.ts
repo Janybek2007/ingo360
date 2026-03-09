@@ -126,3 +126,10 @@ export type IGetDBItemsParams = PaginationParams &
     segment_name?: string;
     brand_name?: string;
   };
+
+export interface IGetLastYear {
+  primary: number;
+  secondary: number;
+  tertiary: number;
+  visits: number;
+}

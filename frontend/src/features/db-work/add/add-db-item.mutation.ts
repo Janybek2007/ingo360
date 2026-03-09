@@ -43,10 +43,7 @@ export const useAddReferenceMutation = (
       });
 
       onClose();
-      toast({
-        message: 'Ресурс успешно добавлен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Ресурс успешно добавлен' });
     },
   });
 };

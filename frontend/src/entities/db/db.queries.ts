@@ -7,6 +7,7 @@ import type { ExtraDbType } from '#/shared/types/db.type';
 import type {
   IGetDBItemResponse,
   IGetDBItemsParams as IGetDBItemsParameters,
+  IGetLastYear,
 } from './db.types';
 
 export class DbQueries {
@@ -16,7 +17,16 @@ export class DbQueries {
       ...urls,
       query,
     ],
+    getLastYear: ['get-last-year'],
   };
+
+  static GetLastYear(enabled = true) {
+    return queryOptions({
+      queryKey: DbQueries.queryKeys.getLastYear,
+      queryFn: () => http.get('sales/last-year').json<IGetLastYear>(),
+      enabled,
+    });
+  }
 
   static GetDbItemsQuery<T = IGetDBItemResponse>(
     urls: ExtraDbType[],

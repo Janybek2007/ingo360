@@ -43,10 +43,7 @@ export const useEditUserMutation = (onClose: VoidFunction) => {
         queryKey: ['get-admin-operators'],
       });
       onClose();
-      toast({
-        message: 'Пользователь успешно обновлен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Пользователь успешно обновлен' });
     },
     onError: QueryOnError,
   });

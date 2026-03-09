@@ -51,10 +51,7 @@ export const useEditCustomerMutation = (onClose: VoidFunction) => {
       });
 
       onClose();
-      toast({
-        message: 'Клиент успешно обновлен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Клиент успешно обновлен' });
     },
     onError: QueryOnError,
   });

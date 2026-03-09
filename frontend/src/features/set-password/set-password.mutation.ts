@@ -40,10 +40,7 @@ export const useSetPasswordMutation = (token: string | null) => {
     onSuccess: async response => {
       if (response.user_id) {
         reset();
-        toast({
-          message: response.message,
-          duration: 8000, // 8 seconds
-        });
+        toast({ message: response.message });
         setTimeout(() => navigate(routePaths.auth.login), 700);
       }
     },

@@ -40,6 +40,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
         () => (countQuery.data ? countQuery.data[0] : []),
         [countQuery.data]
       );
+
       const sectionStyle = useSectionStyle();
 
       return (

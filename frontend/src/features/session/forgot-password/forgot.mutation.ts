@@ -32,10 +32,7 @@ export const useForgotMutation = () => {
       return response;
     },
     onSuccess: async () => {
-      toast({
-        message: 'Письмо успешно отправлено',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Письмо успешно отправлено' });
     },
     onError: async (error: HTTPError) => {
       try {

@@ -27,10 +27,7 @@ export const useAddCustomerMutation = (onClose: VoidFunction) => {
         queryKey: ['get-customers'],
       });
       onClose();
-      toast({
-        message: 'Клиент успешно добавлен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Клиент успешно добавлен' });
     },
     onError: QueryOnError,
   });

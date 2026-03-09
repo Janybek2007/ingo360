@@ -10,6 +10,7 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
@@ -24,6 +25,7 @@ import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { useSession } from '#/shared/session';
 import type { ExtraDbType } from '#/shared/types/db.type';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
 import {
@@ -31,62 +33,7 @@ import {
   transformSortingToPayload,
 } from '#/shared/utils/transform';
 
-const INDICATOR_KEY = 'total_packages';
-
-/** Нормализует ответ API: приводит periods_data к формату с total_packages, подтягивает плоские ключи периодов (YYYY-MM или month-Y-M). */
-function normalizePharmacyStockRows(
-  rows: TDbItem[]
-): (TDbItem & { periods_data: Record<string, Record<string, number>> })[] {
-  const periodKeyRegex = /^(\d{4})-(\d{2})$/;
-  const monthKeyRegex = /^month-(\d{4})-(\d+)$/;
-
-  const toYYYYMM = (key: string): string | null => {
-    const mm = periodKeyRegex.exec(key);
-    if (mm) return `${mm[1]}-${mm[2]}`;
-    const month = monthKeyRegex.exec(key);
-    if (month) {
-      const m = Number.parseInt(month[2], 10);
-      return m >= 1 && m <= 12
-        ? `${month[1]}-${String(m).padStart(2, '0')}`
-        : null;
-    }
-    return null;
-  };
-
-  return rows.map(row => {
-    const out = { ...row } as TDbItem & {
-      periods_data: Record<string, Record<string, number>>;
-    };
-    out.periods_data = out.periods_data
-      ? { ...out.periods_data }
-      : ({} as Record<string, Record<string, number>>);
-
-    for (const period of Object.keys(out.periods_data)) {
-      const p = out.periods_data[period];
-      if (
-        p &&
-        typeof (p as Record<string, number>).packages === 'number' &&
-        (p as Record<string, number>).total_packages
-      ) {
-        (p as Record<string, number>)[INDICATOR_KEY] = (
-          p as Record<string, number>
-        ).packages;
-      }
-    }
-
-    for (const key of Object.keys(row)) {
-      if (key === 'periods_data') continue;
-      const normalized = toYYYYMM(key);
-      if (!normalized) continue;
-      const value = (row as Record<string, unknown>)[key];
-      if (typeof value !== 'number') continue;
-      if (!out.periods_data[normalized]) out.periods_data[normalized] = {};
-      out.periods_data[normalized][INDICATOR_KEY] = value;
-    }
-
-    return out;
-  });
-}
+import { INDICATOR_KEY, normalizePharmacyStockRows } from './utils';
 
 export const PharmacyBalance: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
@@ -99,6 +46,8 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     'employees/employees',
   ]);
 
+  const lastYear = useSession(s => s.lastYear);
+
   const databaseFilters = useDbFilters({
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
@@ -110,7 +59,9 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     },
   });
 
-  const periodFilter = usePeriodFilter();
+  const periodFilter = usePeriodFilter({
+    lastYear: lastYear?.primary,
+  });
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(
@@ -190,6 +141,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
           <DbFilters {...databaseFilters} />
+          <PeriodFilters {...periodFilter} />
 
           <Select<true>
             value={visibleColumns}

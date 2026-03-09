@@ -9,7 +9,10 @@ import { useSession } from '../session.context';
 export const CheckSession: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  const { user, isLoading } = useSession();
+  const { user, isLoading } = useSession(u => ({
+    user: u.user,
+    isLoading: u.isLoading,
+  }));
   const { pathname } = useLocation();
   const { navigate } = useRouter();
 

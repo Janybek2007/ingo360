@@ -163,7 +163,7 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
                   },
                 ]),
               }}
-              maxHeight={630}
+              maxHeight={600}
               rounded="none"
             />
           )}

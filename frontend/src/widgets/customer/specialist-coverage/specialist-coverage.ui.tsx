@@ -19,6 +19,8 @@ import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { useSession } from '#/shared/session';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -40,6 +42,8 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     'clients/specialities',
   ]);
 
+  const lastYear = useSession(s => s.lastYear);
+
   const databaseFilters = useDbFilters({
     config: {
       brands: { enabled: false },
@@ -49,6 +53,9 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         defaultValue: 'medical_facility,speciality,doctor'.split(','),
       },
     },
+  });
+  const periodFilter = usePeriodFilter({
+    lastYear: lastYear?.primary,
   });
 
   const queryData = useKeepQuery(
@@ -68,6 +75,8 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         search: databaseFilters.search,
 
         group_by_dimensions: databaseFilters.groupBy,
+        period_values: periodFilter.selectedValues,
+        group_by_period: periodFilter.period,
 
         enabled: !filterOptions.isLoading,
         method: 'POST',

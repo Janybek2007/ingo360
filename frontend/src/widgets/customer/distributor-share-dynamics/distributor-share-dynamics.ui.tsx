@@ -22,6 +22,7 @@ import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
 
@@ -34,6 +35,8 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
     'products/product-groups',
   ]);
 
+  const lastYear = useSession(s => s.lastYear);
+
   const filters = useDbFilters({
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
@@ -43,7 +46,9 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       search: { enabled: false },
     },
   });
-  const periodFilter = usePeriodFilter();
+  const periodFilter = usePeriodFilter({
+    lastYear: lastYear?.primary,
+  });
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<DistributorData[]>(

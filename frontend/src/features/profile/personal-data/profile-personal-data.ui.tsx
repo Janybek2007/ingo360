@@ -12,7 +12,7 @@ import {
 import { useUpdatePersonalDataMutation } from './personal-data.mutation';
 
 export const ProfilePersonalData: React.FC = React.memo(() => {
-  const { user } = useSession();
+  const user = useSession(u => u.user);
   const updatePersonalDataMutation = useUpdatePersonalDataMutation();
 
   const {

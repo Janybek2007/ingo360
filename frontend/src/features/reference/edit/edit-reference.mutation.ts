@@ -17,11 +17,7 @@ export const useEditReferenceMutation = (
 
     mutationFn: async (parsedBody: any) => {
       if (!id) {
-        toast({
-          message: 'Отсутствует id ресурса',
-          type: 'warning',
-          duration: 8000, // 8 seconds
-        });
+        toast({ message: 'Отсутствует id ресурса', type: 'warning' });
         return null;
       }
       return http
@@ -43,10 +39,7 @@ export const useEditReferenceMutation = (
       });
 
       onClose();
-      toast({
-        message: 'Ресурс успешно отредактирован',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Ресурс успешно отредактирован' });
     },
   });
 };

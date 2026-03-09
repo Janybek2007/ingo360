@@ -18,10 +18,7 @@ export const useDeleteReportLogMutation = () => {
         queryKey: ReportLogsQueries.queryKeys.getReportLogs,
       });
 
-      toast({
-        message: 'Лог отчета успешно удален',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Лог отчета успешно удален' });
     },
     onError: async (error: HTTPError) => {
       try {
@@ -30,14 +27,12 @@ export const useDeleteReportLogMutation = () => {
           message: 'Ошибка при удалении лога отчета',
           description: data || 'Неизвестная ошибка',
           type: 'error',
-          duration: 8000, // 8 seconds
         });
       } catch (error_) {
         console.error('Ошибка разбора ответа', error_);
         toast({
           message: 'Ошибка при удалении лога отчета',
           type: 'error',
-          duration: 8000, // 8 seconds
         });
       }
     },

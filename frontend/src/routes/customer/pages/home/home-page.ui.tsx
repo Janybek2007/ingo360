@@ -7,7 +7,8 @@ import { DynamicSales } from '#/widgets/customer/dynamic-sales';
 import { IMSTopMetrics } from '#/widgets/ims-top-metrics';
 
 const HomePage: React.FC = () => {
-  const { userAccess } = useSession();
+  const userAccess = useSession(u => u.userAccess);
+
   return (
     <main className="space-y-6">
       {userAccess?.can_primary_sales && (

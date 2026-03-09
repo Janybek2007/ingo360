@@ -30,10 +30,7 @@ export const useAddUserMutation = (onClose: VoidFunction) => {
         queryKey: ['get-admin-operators'],
       });
       onClose();
-      toast({
-        message: 'Пользователь успешно добавлен',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Пользователь успешно добавлен' });
     },
     onError: QueryOnError,
   });

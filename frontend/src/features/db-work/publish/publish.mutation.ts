@@ -36,10 +36,7 @@ export const usePublishMutation = (type: DbType, currentStatus: boolean) => {
         }
       );
 
-      toast({
-        message: 'Статус публикации обновлён',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Статус публикации обновлён' });
     },
     onError: QueryOnError,
   });

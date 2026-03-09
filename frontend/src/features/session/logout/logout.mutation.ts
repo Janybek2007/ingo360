@@ -25,10 +25,7 @@ export const useLogoutMutation = () => {
       }
     },
     onSuccess: async () => {
-      toast({
-        message: 'Вы успешно вышли из аккаунта',
-        duration: 8000, // 8 seconds
-      });
+      toast({ message: 'Вы успешно вышли из аккаунта' });
     },
     onError: QueryOnError,
   });

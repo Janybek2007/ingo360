@@ -18,7 +18,7 @@ export const DoctorsPercentageVisits: React.FC<{
   medicalFacilityIds: number[];
   enabled: boolean;
 }> = React.memo(({ medicalFacilityIds, enabled = true }) => {
-  const periodFilter = usePeriodFilter();
+  const periodFilter = usePeriodFilter({});
   const percentageQuery = useKeepQuery(
     DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
       ['visits/reports/doctors-by-specialty'],

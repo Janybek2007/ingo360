@@ -7,7 +7,7 @@ import type { IUserItem } from '../../user.types';
 
 export const UserListItem: React.FC<{ user: IUserItem }> = React.memo(
   ({ user }) => {
-    const { user: sessionUser } = useSession();
+    const sessionUser = useSession(u => u.user);
     const isCurrentUser = sessionUser?.id === user.id;
 
     const getRoleLabel = React.useCallback(() => {

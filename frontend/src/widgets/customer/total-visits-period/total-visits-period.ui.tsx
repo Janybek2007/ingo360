@@ -10,6 +10,7 @@ import {
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
+import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
@@ -19,6 +20,8 @@ import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
+import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { useSession } from '#/shared/session';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -43,6 +46,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     'visits'
   );
 
+  const lastYear = useSession(s => s.lastYear);
+
   const databaseFilters = useDbFilters({
     groupsOptions: filterOptions.options.products_product_groups,
     config: {
@@ -56,7 +61,9 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       },
     },
   });
-
+  const periodFilter = usePeriodFilter({
+    lastYear: lastYear?.primary,
+  });
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-sum-for-period'],
@@ -72,6 +79,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
         group_by_dimensions: databaseFilters.groupBy,
+        period_values: periodFilter.selectedValues,
+        group_by_period: periodFilter.period,
 
         limit:
           databaseFilters.rowsCount === 'all'
@@ -133,6 +142,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
           <DbFilters {...databaseFilters} />
+          <PeriodFilters {...periodFilter} />
+
           <Select<true>
             value={visibleColumns}
             setValue={setVisibleColumns}

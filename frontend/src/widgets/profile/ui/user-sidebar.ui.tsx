@@ -12,7 +12,7 @@ import type {
 
 export const UserSideBar: React.FC<IUserSidebarProperties> = React.memo(
   ({ activeTab, setActiveTab }) => {
-    const { user } = useSession();
+    const user = useSession(u => u.user);
 
     return (
       <aside className="max max-w-[16.625rem] min-w-[16.625rem] rounded-2xl bg-white p-6">

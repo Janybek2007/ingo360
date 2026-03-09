@@ -68,8 +68,16 @@ export type FilterOptionsReferencesKey =
   | ReferencesTypeWithMain
   | ReplaceSeparators<DbType>;
 
-export type FilterOptionItem = { id: number; name: string };
-export type FilterOptions = { value: string | number; label: string };
+export type FilterOptionItem = {
+  id: number;
+  name: string;
+  scope_values?: Record<'product_group_ids', number[]>;
+};
+export type FilterOptions = {
+  value: string | number;
+  label: string;
+  scope_values?: Record<'product_group_ids', number[]>;
+};
 
 export type FilterOptionsKey = ReplaceSeparators<FilterOptionsReferencesKey>;
 export type FilterOptionsObject = Record<FilterOptionsKey, FilterOptions[]>;

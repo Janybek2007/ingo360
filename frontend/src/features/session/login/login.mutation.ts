@@ -26,7 +26,7 @@ export const useLoginMutation = () => {
   } = useForm({
     resolver: zodResolver(LoginContract),
   });
-  const { setIsWelcomeShown } = useSession();
+  const setIsWelcomeShown = useSession(u => u.setIsWelcomeShown);
 
   const { mutateAsync, status } = useMutation({
     mutationKey: ['session-login'],
