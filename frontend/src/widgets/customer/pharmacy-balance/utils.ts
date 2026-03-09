@@ -5,12 +5,17 @@ export const INDICATOR_KEY = 'total_packages';
 export function normalizePharmacyStockRows(
   rows: TDbItem[]
 ): (TDbItem & { periods_data: Record<string, Record<string, number>> })[] {
-  const periodKeyRegex = /^(\d{4})-(\d{2})$/;
+  const periodKeyRegex = /^(\d{4})-(\d{1,2})$/;
   const monthKeyRegex = /^month-(\d{4})-(\d+)$/;
 
   const toYYYYMM = (key: string): string | null => {
     const mm = periodKeyRegex.exec(key);
-    if (mm) return `${mm[1]}-${mm[2]}`;
+    if (mm) {
+      const m = Number.parseInt(mm[2], 10);
+      return m >= 1 && m <= 12
+        ? `${mm[1]}-${String(m).padStart(2, '0')}`
+        : null;
+    }
     const month = monthKeyRegex.exec(key);
     if (month) {
       const m = Number.parseInt(month[2], 10);
@@ -34,7 +39,7 @@ export function normalizePharmacyStockRows(
       if (
         p &&
         typeof (p as Record<string, number>).packages === 'number' &&
-        (p as Record<string, number>).total_packages
+        !(p as Record<string, number>).total_packages
       ) {
         (p as Record<string, number>)[INDICATOR_KEY] = (
           p as Record<string, number>

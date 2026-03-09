@@ -214,6 +214,8 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                     />
                     <LabelList
                       dataKey={distributionKey}
+                      position="top"
+                      offset={8}
                       content={properties => (
                         <TotalAmountLabel
                           {...properties}
@@ -283,12 +285,10 @@ const TotalAmountLabel: React.FC<TotalAmountLabelProps> = React.memo(
     if (totalAmount == null || Number.isNaN(totalAmount)) return null;
 
     const formattedValue = Number(totalAmount).toLocaleString('ru-RU');
-    const offset = 8;
-
     return (
       <text
         x={+x + +width / 2}
-        y={+y - offset}
+        y={+y + -8}
         fill="#111827"
         fontSize={11}
         fontWeight={600}
