@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const loginPageRoute: RouteObject = {
   path: routePaths.auth.login,
-  lazy: async () => {
-    const Component = await import('./login-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./login-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };

@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const customerManagementPageRoute: RouteObject = {
   path: routePaths.administrator.companyManagement,
-  lazy: async () => {
-    const Component = await import('./company-management-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./company-management-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };

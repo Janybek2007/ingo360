@@ -1,7 +1,5 @@
 import type { UsePeriodType } from '#/shared/hooks/use-period-filter';
 
-import { allMonths } from '../constants/months';
-
 interface ParsedPeriodData {
   year: number;
   month?: number;
@@ -13,50 +11,17 @@ export function parsePeriodData(
   periodString: string,
   periodType: UsePeriodType
 ): ParsedPeriodData {
-  let year: number;
-  let month: number | undefined;
-  let quarter: number | undefined;
-  let label = '';
-
-  switch (periodType) {
-    case 'year': {
-      // "2023"
-      year = Number(periodString);
-      label = year.toString();
-
-      break;
-    }
-    case 'month':
-    case 'mat':
-    case 'ytd': {
-      // "2023-01"
-      const parts = periodString.split('-');
-      year = Number(parts[0]);
-      month = Number(parts[1]);
-      label = `${allMonths[month - 1]} ${year}`;
-
-      break;
-    }
-    case 'quarter': {
-      // "2023-Q1"
-      const parts = periodString.split('-Q');
-      year = Number(parts[0]);
-      quarter = Number(parts[1]);
-      label = `Q${quarter} ${year}`;
-
-      break;
-    }
-    default: {
-      // Fallback
-      year = Number(periodString);
-      label = periodString;
-    }
+  if (periodType === 'year') {
+    const year = Number(periodString);
+    return { year, label: String(year) };
   }
 
-  return {
-    year,
-    month,
-    quarter,
-    label,
-  };
+  if (periodType === 'quarter') {
+    const [y, q] = periodString.split('-Q').map(Number);
+    return { year: y, quarter: q, label: `Q${q}-${String(y).slice(2)}` };
+  }
+
+  // month | mat | ytd → "2025-01"
+  const [y, m] = periodString.split('-').map(Number);
+  return { year: y, month: m, label: `${m}-${String(y).slice(2)}` };
 }

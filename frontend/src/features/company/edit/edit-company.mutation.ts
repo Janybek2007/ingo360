@@ -10,6 +10,7 @@ import {
   type TEditCompanyContract,
 } from '../company.contract';
 import type { TAddCompanyResponse } from '../company.types';
+import { COMPANY_ACCESS_CONTRACT_DEFAULT_VALUE } from '../constants';
 
 export const useEditCompanyMutation = (onClose: VoidFunction) => {
   return useMutation({
@@ -21,7 +22,10 @@ export const useEditCompanyMutation = (onClose: VoidFunction) => {
       id: number;
       body: TEditCompanyContract;
     }) => {
-      const parsedBody = EditCompanyContract.parse(body);
+      const parsedBody = EditCompanyContract.parse({
+        ...COMPANY_ACCESS_CONTRACT_DEFAULT_VALUE,
+        ...body,
+      });
 
       const response = await http.patch(`companies/${id}`, {
         json: {

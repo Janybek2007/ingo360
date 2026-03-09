@@ -65,20 +65,12 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       }
     )
   );
+
   const { chartData, legends, distributorKeys } = React.useMemo(() => {
-    const processed = processDistributorShareData(queryData.data?.[0], {
+    return processDistributorShareData(queryData.data?.[0], {
       period: periodFilter.period,
       selectedValues: periodFilter.selectedValues,
     });
-
-    const modifiedChartData = processed.chartData.map(item =>
-      buildChartItem(item, processed.distributorKeys)
-    );
-
-    return {
-      ...processed,
-      chartData: modifiedChartData,
-    };
   }, [queryData.data, periodFilter.period, periodFilter.selectedValues]);
 
   const resetFilters = React.useCallback(() => {
@@ -120,7 +112,6 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
               width={sectionStyle.width - 48}
               height={500}
               data={chartData}
-              stackOffset="sign"
               margin={{ top: 24 }}
             >
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
@@ -303,35 +294,6 @@ const TotalAmountLabel: React.FC<TotalAmountLabelProps> = React.memo(
 SegmentLabel.displayName = '_SegmentLabel_';
 TotalAmountLabel.displayName = '_TotalAmountLabel_';
 DistributorShareDynamics.displayName = '_DistributorShareDynamics_';
-
-const buildChartItem = (
-  item: Record<string, number>,
-  distributorKeys: string[]
-) => {
-  const modifiedItem = { ...item };
-  const originalValues: Record<string, number> = {};
-  let topKey: string | undefined;
-  let firstNegativeKey: string | undefined;
-
-  for (const key of distributorKeys) {
-    const value = item[key];
-    originalValues[key] = value;
-    if (value !== 0) {
-      modifiedItem[key] = value > 0 ? value + 70 : value - 70;
-    }
-    if (value > 0) {
-      topKey = key;
-    } else if (value < 0 && firstNegativeKey === undefined) {
-      firstNegativeKey = key;
-    }
-  }
-
-  return {
-    ...modifiedItem,
-    _original: originalValues,
-    _topKey: topKey ?? firstNegativeKey ?? distributorKeys.at(-1),
-  };
-};
 
 const getFontSize = (height: number): number => {
   if (height < 15) return 9;

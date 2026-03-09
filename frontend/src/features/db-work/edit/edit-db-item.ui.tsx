@@ -1,4 +1,5 @@
 import React from 'react';
+import * as z from 'zod/mini';
 
 import { type IDbItem } from '#/entities/db';
 import { MdiPencilIcon } from '#/shared/assets/icons';
@@ -62,7 +63,7 @@ const EditDbItemModal: React.FC<{
       isPending={mutation.isPending}
       isSuccess={mutation.isSuccess}
       error={mutation.error}
-      schema={databaseItemContractWithType[type].optional()}
+      schema={z.optional(databaseItemContractWithType[type])}
       fields={fields}
       onSubmit={mutation.mutateAsync}
       onClose={onClose}

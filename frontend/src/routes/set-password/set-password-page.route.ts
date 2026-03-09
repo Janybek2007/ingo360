@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const setPasswordPageRoute: RouteObject = {
   path: routePaths.setPassword,
-  lazy: async () => {
-    const Component = await import('./set-password-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./set-password-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };

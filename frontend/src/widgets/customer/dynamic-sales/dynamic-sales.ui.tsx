@@ -17,6 +17,7 @@ import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { useSession } from '#/shared/session';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
@@ -31,7 +32,10 @@ type DynamicPrimarySalesData = {
 
 export const DynamicSales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
-  const periodFilter = usePeriodFilter({});
+  const lastYear = useSession(s => s.lastYear);
+  const periodFilter = usePeriodFilter({
+    lastYear: lastYear?.primary,
+  });
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(

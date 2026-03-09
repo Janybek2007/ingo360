@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const secondarySalesPageRoute: RouteObject = {
   path: routePaths.customer.secondarySales,
-  lazy: async () => {
-    const Component = await import('./secondary-sales-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./secondary-sales-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };

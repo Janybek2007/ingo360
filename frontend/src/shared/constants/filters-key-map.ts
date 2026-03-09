@@ -44,4 +44,5 @@ export const WORK_FILTER_KEY_MAP: Record<string, string> = {
   pharmacy: 'pharmacy_ids',
   brand: 'brand_ids',
   month: 'months',
+  indicator: 'indicators',
 };

@@ -1,38 +1,38 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 
 const NameSchema = z.object({
-  name: z.string().min(1, 'Введите название'),
+  name: z.string().check(z.minLength(1, 'Введите название')),
 });
 const FullNameSchema = z.object({
-  full_name: z.string().min(1, 'Введите ФИО'),
+  full_name: z.string().check(z.minLength(1, 'Введите ФИО')),
 });
 
 const RequiredNumber = (message: string) => z.number(message);
 
 export const referenceContractWithType: Record<
   ReferencesTypeWithMain,
-  z.ZodTypeAny
+  z.ZodMiniType
 > = {
   'geography/countries': NameSchema,
-  'geography/settlements': NameSchema.extend({
+  'geography/settlements': z.extend(NameSchema, {
     region_id: RequiredNumber('Выберите область'),
   }),
-  'geography/regions': NameSchema.extend({
+  'geography/regions': z.extend(NameSchema, {
     country_id: RequiredNumber('Выберите страну'),
   }),
-  'geography/districts': NameSchema.extend({
+  'geography/districts': z.extend(NameSchema, {
     settlement_id: RequiredNumber('Выберите населённый пункт'),
     region_id: RequiredNumber('Выберите область'),
     company_id: RequiredNumber('Выберите компанию'),
   }),
-  'products/product-groups': NameSchema.extend({
+  'products/product-groups': z.extend(NameSchema, {
     company_id: RequiredNumber('Выберите компанию'),
   }),
   'products/promotion-types': NameSchema,
-  'products/brands': NameSchema.extend({
-    ims_name: z.string().optional(),
+  'products/brands': z.extend(NameSchema, {
+    ims_name: z.optional(z.string()),
     promotion_type_id: RequiredNumber('Выберите акцию'),
     product_group_id: RequiredNumber('Выберите группу'),
     company_id: RequiredNumber('Выберите компанию'),
@@ -40,48 +40,47 @@ export const referenceContractWithType: Record<
   'products/dosages': NameSchema,
   'products/dosage-forms': NameSchema,
   'products/segments': NameSchema,
-  'products/skus': NameSchema.extend({
+  'products/skus': z.extend(NameSchema, {
     company_id: RequiredNumber('Выберите компанию'),
     brand_id: RequiredNumber('Выберите бренд'),
     promotion_type_id: RequiredNumber('Выберите акцию'),
-    product_group_id: RequiredNumber('Выберите группу'),
     dosage_form_id: RequiredNumber('Выберите форму'),
-    dosage_id: z.number().optional(),
-    segment_id: z.number().optional(),
+    dosage_id: z.optional(z.number()),
+    segment_id: z.optional(z.number()),
   }),
   'employees/positions': NameSchema,
-  'employees/employees': FullNameSchema.extend({
+  'employees/employees': z.extend(FullNameSchema, {
     company_id: RequiredNumber('Выберите компанию'),
     position_id: RequiredNumber('Выберите должность'),
     product_group_id: RequiredNumber('Выберите группу'),
     region_id: RequiredNumber('Выберите область'),
-    district_id: z.number().optional(),
+    district_id: z.optional(z.number()),
   }),
   'clients/distributors': NameSchema,
   'clients/geo-indicators': NameSchema,
-  'clients/medical-facilities': NameSchema.extend({
+  'clients/medical-facilities': z.extend(NameSchema, {
     settlement_id: RequiredNumber('Выберите населённый пункт'),
     district_id: RequiredNumber('Выберите район'),
-    address: z.string().min(1, 'Введите адрес'),
+    address: z.string().check(z.minLength(1, 'Введите адрес')),
   }),
   'clients/specialities': NameSchema,
   'clients/client-categories': NameSchema,
-  'clients/doctors': FullNameSchema.extend({
-    responsible_employee_id: z.number().optional(),
+  'clients/doctors': z.extend(FullNameSchema, {
+    responsible_employee_id: z.optional(z.number()),
     medical_facility_id: RequiredNumber('Выберите ЛПУ'),
     speciality_id: RequiredNumber('Выберите специализацию'),
-    client_category_id: z.number().optional(),
+    client_category_id: z.optional(z.number()),
     product_group_id: RequiredNumber('Выберите группу'),
   }),
-  'clients/pharmacies': NameSchema.extend({
-    geo_indicator: z.string().optional(),
+  'clients/pharmacies': z.extend(NameSchema, {
+    geo_indicator: z.optional(z.string()),
     company_id: RequiredNumber('Выберите компанию'),
-    distributor_id: z.number().optional(),
-    region_id: z.number().optional(),
-    responsible_employee_id: z.number().optional(),
-    settlement_id: z.number().optional(),
-    district_id: z.number().optional(),
-    client_category_id: z.number().optional(),
+    distributor_id: z.optional(z.number()),
+    region_id: z.optional(z.number()),
+    responsible_employee_id: z.optional(z.number()),
+    settlement_id: z.optional(z.number()),
+    district_id: z.optional(z.number()),
+    client_category_id: z.optional(z.number()),
     product_group_id: RequiredNumber('Выберите группу'),
   }),
 };

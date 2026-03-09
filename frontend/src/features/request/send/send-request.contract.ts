@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 export const SendRequestContract = z.object({
   owner_name: z.string('Введите имя владельца'),

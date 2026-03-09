@@ -38,11 +38,14 @@ class DistributorShareProcessor {
     const periodDataMap = this.buildPeriodDataMap(filteredPeriods);
     const processedData = this.processPeriodData(periodDataMap, distributorMap);
     const sortedData = this.sortData(processedData);
+    const distributorKeys = this.buildDistributorKeys(distributorMap);
 
     return {
-      chartData: sortedData,
+      chartData: sortedData.map(item =>
+        this.buildChartItem(item, distributorKeys)
+      ),
       legends: this.buildLegends(distributorMap),
-      distributorKeys: this.buildDistributorKeys(distributorMap),
+      distributorKeys,
     };
   }
 
@@ -64,9 +67,7 @@ class DistributorShareProcessor {
 
     for (const item of this.rawData) {
       for (const period of Object.keys(item.periods_data)) {
-        if (period) {
-          periodsSet.add(period);
-        }
+        if (period) periodsSet.add(period);
       }
     }
 
@@ -83,19 +84,22 @@ class DistributorShareProcessor {
     }
 
     return allPeriods.filter(periodKey => {
-      // periodKey может быть: "2023", "2023-01", "2023-Q1"
       const parsed = parsePeriodData(periodKey, this.periodFilter.period);
 
       if (this.periodFilter.period === 'year') {
         return this.periodFilter.selectedValues.includes(
           parsed.year.toString()
         );
-      } else if (this.periodFilter.period === 'month' && parsed.month) {
+      }
+
+      if (this.periodFilter.period === 'month' && parsed.month) {
         const monthValue = `${parsed.month}`.padStart(2, '0');
         return this.periodFilter.selectedValues.includes(
           `month-${parsed.year}-${monthValue}`
         );
-      } else if (this.periodFilter.period === 'quarter' && parsed.quarter) {
+      }
+
+      if (this.periodFilter.period === 'quarter' && parsed.quarter) {
         return this.periodFilter.selectedValues.includes(
           `quarter-${parsed.year}-${parsed.quarter}`
         );
@@ -109,18 +113,13 @@ class DistributorShareProcessor {
     const periodDataMap = new Map<string, any>();
 
     for (const periodKey of filteredPeriods) {
-      // periodKey может быть: "2023", "2023-01", "2023-Q1"
       const parsed = parsePeriodData(periodKey, this.periodFilter.period);
 
-      const key = periodKey;
-      const label = parsed.label;
-      const fullLabel = parsed.label;
-
-      if (!periodDataMap.has(key)) {
-        periodDataMap.set(key, {
-          period: key,
-          label,
-          fullLabel,
+      if (!periodDataMap.has(periodKey)) {
+        periodDataMap.set(periodKey, {
+          period: periodKey,
+          label: parsed.label,
+          fullLabel: parsed.label,
           year: parsed.year,
           month: parsed.month,
           quarter: parsed.quarter,
@@ -129,7 +128,7 @@ class DistributorShareProcessor {
         });
       }
 
-      const periodData = periodDataMap.get(key);
+      const periodData = periodDataMap.get(periodKey);
 
       for (const item of this.rawData) {
         if (item.periods_data[periodKey]) {
@@ -192,12 +191,44 @@ class DistributorShareProcessor {
 
       if (this.periodFilter.period === 'quarter') {
         return (a.quarter || 0) - (b.quarter || 0);
-      } else if (this.periodFilter.period === 'month') {
+      }
+
+      if (this.periodFilter.period === 'month') {
         return (a.month || 0) - (b.month || 0);
       }
 
       return 0;
     });
+  }
+
+  private buildChartItem(
+    item: Record<string, number>,
+    distributorKeys: string[]
+  ) {
+    const totalAmount = (item.totalAmount as number) ?? 0;
+    const originalValues: Record<string, number> = {};
+    const modifiedItem: Record<string, unknown> = { ...item };
+
+    let topKey: string | undefined;
+    let firstNegativeKey: string | undefined;
+
+    for (const key of distributorKeys) {
+      const pct = item[key] ?? 0;
+      originalValues[key] = pct;
+
+      const amount = (pct / 100) * totalAmount;
+      modifiedItem[key] = amount === 0 ? 0 : amount;
+
+      if (pct > 0) topKey = key;
+      else if (pct < 0 && firstNegativeKey === undefined)
+        firstNegativeKey = key;
+    }
+
+    return {
+      ...modifiedItem,
+      _original: originalValues,
+      _topKey: topKey ?? firstNegativeKey ?? distributorKeys.at(-1),
+    };
   }
 
   private buildLegends(

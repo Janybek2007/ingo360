@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 export const AccessCompanyContract = z.object({
   can_primary_sales: z.enum(['true', 'false']),

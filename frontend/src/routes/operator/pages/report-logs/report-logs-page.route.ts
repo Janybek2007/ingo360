@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const reportLogsPageRoute: RouteObject = {
   path: routePaths.operator.reportLogs,
-  lazy: async () => {
-    const Component = await import('./report-logs-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./report-logs-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };

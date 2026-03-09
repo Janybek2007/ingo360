@@ -23,6 +23,10 @@ const defaultFields: ICreateEditModalProps['fields'] = [
       label: 'Показатель',
       placeholder: 'Выберите показатель',
       type: 'select',
+      selectItems: [
+        { label: 'Первичные продажи', value: 'Первичные продажи' },
+        { label: 'Остаток на складе', value: 'Остаток на складе' },
+      ],
     },
     {
       name: 'month',

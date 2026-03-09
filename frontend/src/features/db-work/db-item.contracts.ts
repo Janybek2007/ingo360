@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod/mini';
 
 import type { DbType } from '#/shared/types/db.type';
 
@@ -6,7 +6,7 @@ const RequiredNumber = (message: string) => z.number(message);
 
 const DefaultSchema = z.object({
   sku_id: RequiredNumber('Выберите SKU'),
-  indicator: z.string().min(1, 'Выберите показатель'),
+  indicator: z.string().check(z.minLength(1, 'Выберите показатель')),
   month: RequiredNumber('Выберите месяц'),
   year: RequiredNumber('Выберите год'),
   quarter: RequiredNumber('Выберите квартал'),
@@ -14,22 +14,22 @@ const DefaultSchema = z.object({
   amount: RequiredNumber('Выберите сумму'),
 });
 
-export const dbItemContractWithType: Record<DbType, z.ZodTypeAny> = {
-  'sales/primary': DefaultSchema.extend({
+export const dbItemContractWithType: Record<DbType, z.ZodMiniType> = {
+  'sales/primary': z.extend(DefaultSchema, {
     distributor_id: RequiredNumber('Выберите дистрибьютор/сеть'),
   }),
-  'sales/secondary': DefaultSchema.extend({
+  'sales/secondary': z.extend(DefaultSchema, {
     pharmacy_id: RequiredNumber('Выберите дистрибьютор/сеть'),
-    city: z.string().min(1, 'Введите город'),
+    city: z.string().check(z.minLength(1, 'Введите город')),
   }),
-  'sales/tertiary': DefaultSchema.extend({
+  'sales/tertiary': z.extend(DefaultSchema, {
     pharmacy_id: RequiredNumber('Выберите дистрибьютор/сеть'),
-    city: z.string().min(1, 'Введите город'),
+    city: z.string().check(z.minLength(1, 'Введите город')),
   }),
   visits: z.object({
     product_group_id: RequiredNumber('Выберите группу продукта'),
     employee_id: RequiredNumber('Выберите сотрудника'),
-    client_type: z.string().min(1, 'Введите тип клиента'),
+    client_type: z.string().check(z.minLength(1, 'Введите тип клиента')),
     client_category_id: RequiredNumber('Выберите категорию клиента'),
     month: RequiredNumber('Выберите месяц'),
     year: RequiredNumber('Выберите год'),

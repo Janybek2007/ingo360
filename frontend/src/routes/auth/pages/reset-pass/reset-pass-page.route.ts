@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const resetPassPageRoute: RouteObject = {
   path: routePaths.auth.resetPass,
-  lazy: async () => {
-    const Component = await import('./reset-pass-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./reset-pass-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };

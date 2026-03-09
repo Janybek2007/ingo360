@@ -8,10 +8,8 @@ export const stringToColor = (string_: string): string => {
   }
 
   const h = Math.abs(hash % 360);
-
-  const s = 40 + (Math.abs(hash) % 20);
-
-  const l = 50 + (Math.abs(hash >> 8) % 15);
+  const s = 70 + (Math.abs(hash) % 30);
+  const l = 45 + (Math.abs(hash >> 8) % 15);
 
   return `hsl(${h}, ${s}%, ${l}%)`;
 };

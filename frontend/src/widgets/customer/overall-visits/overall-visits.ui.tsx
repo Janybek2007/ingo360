@@ -92,7 +92,7 @@ export const OverallVisits: React.FC = React.memo(() => {
   }, [visits, periodFilter.period]);
 
   const chartAxis = useMemo(
-    () => calculateChartAxis(chartData, ['value'], 10_000),
+    () => calculateChartAxis(chartData, ['value'], 1000),
     [chartData]
   );
 

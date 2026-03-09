@@ -7,12 +7,10 @@ import { referenceWorkPageRoute } from '../pages/reference-work';
 import { reportLogsPageRoute } from '../pages/report-logs';
 
 export const operatorLayoutRoute: RouteObject = {
-  lazy: async () => {
-    const Component = await import('./operator-layout.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./operator-layout.ui').then(module => ({
+      Component: module.default,
+    })),
   children: [
     databaseWorkPageRoute,
     referenceWorkPageRoute,

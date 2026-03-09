@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod/mini';
 
 export const ForgotPasswordContract = z.object({
   email: z.email({

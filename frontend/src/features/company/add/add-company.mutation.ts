@@ -10,12 +10,16 @@ import {
   type TAddCompanyContract,
 } from '../company.contract';
 import type { TAddCompanyResponse } from '../company.types';
+import { COMPANY_ACCESS_CONTRACT_DEFAULT_VALUE } from '../constants';
 
 export const useAddCompanyMutation = (onClose: VoidFunction) => {
   return useMutation({
     mutationKey: ['companies-add'],
     mutationFn: async (body: TAddCompanyContract) => {
-      const parsedBody = AddCompanyContract.parse(body);
+      const parsedBody = AddCompanyContract.parse({
+        ...COMPANY_ACCESS_CONTRACT_DEFAULT_VALUE,
+        ...body,
+      });
       const response = await http.post('companies', {
         json: { ...parsedBody, ims_name: parsedBody.ims_name?.trim() || null },
       });

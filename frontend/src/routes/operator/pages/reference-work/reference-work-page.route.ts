@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const referenceWorkPageRoute: RouteObject = {
   path: routePaths.operator.referenceWork,
-  lazy: async () => {
-    const Component = await import('./reference-work-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./reference-work-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };

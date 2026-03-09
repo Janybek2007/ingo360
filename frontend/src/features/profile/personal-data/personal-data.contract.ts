@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 export const UpdatePersonalDataContract = z.object({
-  first_name: z.string().min(1, 'Имя обязательно'),
-  last_name: z.string().min(1, 'Фамилия обязательна'),
+  first_name: z.string().check(z.minLength(1, 'Имя обязательно')),
+  last_name: z.string().check(z.minLength(1, 'Фамилия обязательна')),
   email: z.email('Некорректный email'),
 });
 

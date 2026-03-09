@@ -4,10 +4,8 @@ import { routePaths } from '#/shared/router';
 
 export const marketDevelopmentPageRoute: RouteObject = {
   path: routePaths.customer.marketDevelopment,
-  lazy: async () => {
-    const Component = await import('./market-development-page.ui').then(
-      module => module.default
-    );
-    return { Component };
-  },
+  lazy: async () =>
+    import('./market-development-page.ui').then(module => ({
+      Component: module.default,
+    })),
 };
