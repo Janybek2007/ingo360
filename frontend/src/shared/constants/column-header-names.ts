@@ -1,6 +1,6 @@
 export const columnHeaderNames = {
   nameOfDoctorOrPharmacy: 'Наименование врача или аптеки',
-  geo_indicator: 'Индикатор',
+  indicator2: 'Индикатор',
   distrbutorAndNetwork: 'Дистрибьютор/Сеть',
   category: 'Категория',
   address: 'Аддрес',

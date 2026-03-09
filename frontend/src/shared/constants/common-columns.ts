@@ -97,11 +97,13 @@ export const commonColumns = {
       accessor: row => row['indicator_name'] || '-',
     },
   }),
-  geo_indicator: (): CColumn<any> => ({
+  geo_indicator: (
+    headerName: string = columnHeaderNames.geoIndicator
+  ): CColumn<any> => ({
     id: 'geo_indicator_id',
     key: 'geo_indicator_name',
     optionKey: 'clients_geo_indicators',
-    header: columnHeaderNames.geoIndicator,
+    header: headerName,
     size: 150,
     type: 'select',
     groupDimension: 'geo_indicator',

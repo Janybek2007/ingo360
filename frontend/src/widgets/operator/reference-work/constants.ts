@@ -513,7 +513,7 @@ export function getReferenceWorkColumns(
         {
           id: 'geo_indicator.id',
           accessorKey: 'geo_indicator.name',
-          header: columnHeaderNames.geo_indicator,
+          header: columnHeaderNames.indicator2,
           accessorFn: item => item.geo_indicator?.name ?? '-',
           size: 200,
           enableColumnFilter: true,
@@ -683,7 +683,7 @@ export function getReferenceWorkColumns(
         {
           id: 'geo_indicator.id',
           accessorKey: 'geo_indicator.name',
-          header: columnHeaderNames.geo_indicator,
+          header: columnHeaderNames.indicator2,
           accessorFn: item => item.geo_indicator?.name ?? '-',
           size: 200,
           enableColumnFilter: true,
