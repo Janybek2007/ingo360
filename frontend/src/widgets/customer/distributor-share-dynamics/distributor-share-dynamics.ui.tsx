@@ -71,21 +71,9 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       selectedValues: periodFilter.selectedValues,
     });
 
-    const modifiedChartData = processed.chartData.map(item => {
-      const modifiedItem = { ...item };
-      const originalValues: Record<string, number> = {};
-
-      for (const key of processed.distributorKeys) {
-        const value = item[key];
-        originalValues[key] = value;
-        if (value !== undefined && value !== 0) {
-          modifiedItem[key] = value > 0 ? value + 70 : value - 70;
-        }
-      }
-
-      modifiedItem._original = originalValues;
-      return modifiedItem;
-    });
+    const modifiedChartData = processed.chartData.map(item =>
+      buildChartItem(item, processed.distributorKeys)
+    );
 
     return {
       ...processed,
@@ -204,7 +192,6 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                   distributionKey.replace('dist_', '')
                 );
                 const legend = legends[index];
-                const isLast = index === distributorKeys.length - 1;
 
                 return (
                   <Bar
@@ -225,11 +212,16 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                         />
                       )}
                     />
-                    {isLast && (
-                      <LabelList
-                        content={<TotalAmountLabel chartData={chartData} />}
-                      />
-                    )}
+                    <LabelList
+                      dataKey={distributionKey}
+                      content={properties => (
+                        <TotalAmountLabel
+                          {...properties}
+                          distKey={distributionKey}
+                          chartData={chartData}
+                        />
+                      )}
+                    />
                   </Bar>
                 );
               })}
@@ -271,18 +263,22 @@ const SegmentLabel: React.FC<any> = React.memo(
 );
 
 type TotalAmountLabelProps = {
-  chartData: Array<{ totalAmount?: number }>;
-  x?: number;
-  y?: number;
-  width?: number;
+  chartData: Array<{ totalAmount?: number; _topKey?: string }>;
+  x?: number | string;
+  y?: number | string;
+  width?: number | string;
   index?: number;
+  distKey?: string;
 };
 
 const TotalAmountLabel: React.FC<TotalAmountLabelProps> = React.memo(
-  ({ chartData, x = 0, y = 0, width = 0, index }) => {
+  ({ chartData, x = 0, y = 0, width = 0, index, distKey }) => {
     if (!chartData?.length || index == null) return null;
 
     const dataPoint = chartData[index];
+    if (!dataPoint || (distKey && dataPoint._topKey !== distKey)) {
+      return null;
+    }
     const totalAmount = dataPoint?.totalAmount;
     if (totalAmount == null || Number.isNaN(totalAmount)) return null;
 
@@ -291,8 +287,8 @@ const TotalAmountLabel: React.FC<TotalAmountLabelProps> = React.memo(
 
     return (
       <text
-        x={x + width / 2}
-        y={y - offset}
+        x={+x + +width / 2}
+        y={+y - offset}
         fill="#111827"
         fontSize={11}
         fontWeight={600}
@@ -307,7 +303,34 @@ const TotalAmountLabel: React.FC<TotalAmountLabelProps> = React.memo(
 SegmentLabel.displayName = '_SegmentLabel_';
 TotalAmountLabel.displayName = '_TotalAmountLabel_';
 DistributorShareDynamics.displayName = '_DistributorShareDynamics_';
+const buildChartItem = (
+  item: Record<string, number>,
+  distributorKeys: string[]
+) => {
+  const modifiedItem = { ...item };
+  const originalValues: Record<string, number> = {};
+  let topKey: string | undefined;
+  let firstNegativeKey: string | undefined;
 
+  for (const key of distributorKeys) {
+    const value = item[key];
+    originalValues[key] = value;
+    if (value !== 0) {
+      modifiedItem[key] = value > 0 ? value + 70 : value - 70;
+    }
+    if (value > 0) {
+      topKey = key;
+    } else if (value < 0 && firstNegativeKey === undefined) {
+      firstNegativeKey = key;
+    }
+  }
+
+  return {
+    ...modifiedItem,
+    _original: originalValues,
+    _topKey: topKey ?? firstNegativeKey,
+  };
+};
 const getFontSize = (height: number): number => {
   if (height < 15) return 9;
   if (height < 25) return 10;
