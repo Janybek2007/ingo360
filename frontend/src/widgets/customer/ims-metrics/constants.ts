@@ -20,15 +20,13 @@ export const metrics: ICPICard[] = [
   {
     key: 'sales',
     fill: '#E6E5FF',
-    text: value =>
-      Boolean(value) ? '-' : `${value.toLocaleString('ru-RU')} USD`,
+    text: value => `${value.toLocaleString('ru-RU')} USD`,
     subText: 'Продажи $',
   },
   {
     key: 'market_sales',
     fill: '#A6F7E2',
-    text: value =>
-      Boolean(value) ? '-' : `${value.toLocaleString('ru-RU')} USD`,
+    text: value => `${value.toLocaleString('ru-RU')} USD`,
     subText: 'Рынок / Сегмент $',
   },
   {

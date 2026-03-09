@@ -23,6 +23,7 @@ export const columnHeaderNames = {
   group: 'Группа',
   productGroup: 'Группа товара',
   responsibleEmployee: 'Ответственный сотрудник',
+  position: 'Должность',
   segment: 'Сегмент',
   distributor: 'Дистр',
   distributorNetwork: 'Сеть',

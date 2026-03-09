@@ -57,7 +57,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
   });
 
   const periodFilter = usePeriodFilter({
-    lastYear: lastYear?.visits,
+    lastYear: lastYear?.tertiary,
   });
 
   const queryData = useKeepQuery(

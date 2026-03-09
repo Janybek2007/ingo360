@@ -42,6 +42,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       'clients/medical-facilities',
       'clients/geo-indicators',
       'employees/employees',
+      'employees/positions',
     ],
     'visits'
   );
@@ -55,7 +56,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       brands: { enabled: false },
       groupBy: {
         defaultValue:
-          'pharmacy,medical_facility,employee,product_group,geo_indicator'.split(
+          'pharmacy,medical_facility,employee,product_group,geo_indicator,position'.split(
             ','
           ),
       },
@@ -104,6 +105,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     columns: [
       commonColumns.medical_facility(250),
       commonColumns.pharmacy(),
+      commonColumns.position(),
       commonColumns.indicator(),
       commonColumns.year(),
       commonColumns.month(),

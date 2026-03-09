@@ -55,6 +55,15 @@ export const commonColumns = {
     groupDimension: 'responsible_employee',
     custom: { accessor: row => row.responsible_employee_name || '-' },
   }),
+  position: (): CColumn<any> => ({
+    id: 'position_id',
+    key: 'position',
+    optionKey: 'employees_positions',
+    header: columnHeaderNames.position,
+    size: 200,
+    type: 'select',
+    groupDimension: 'position',
+  }),
   segment: (): CColumn<any> => ({
     id: 'segment_id',
     key: 'segment_name',

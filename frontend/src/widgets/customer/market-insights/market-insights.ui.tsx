@@ -22,7 +22,10 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
-import { transformSortingToPayload } from '#/shared/utils/transform';
+import {
+  transformColumnFiltersToPayload,
+  transformSortingToPayload,
+} from '#/shared/utils/transform';
 
 interface MarketRow {
   brand: string;
@@ -54,6 +57,10 @@ export const MarketInsights: React.FC = React.memo(() => {
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<MarketRow[]>(['ims/reports/table'], {
+      ...transformColumnFiltersToPayload(
+        filters,
+        COMMON_COLUMNS_FILTER_KEY_MAP
+      ),
       ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
       period_values: periodFilter.selectedValues,

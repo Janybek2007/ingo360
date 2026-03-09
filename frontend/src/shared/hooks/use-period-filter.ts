@@ -53,6 +53,8 @@ const addQuarters = (yq: YQ, delta: number): YQ => {
 
 const uniq = <T>(array: T[]) => [...new Set(array)];
 
+const formatMonth = (month: number) => `${month}`.padStart(2, '0');
+
 interface IUsePeriodFilter {
   views: UsePeriodType[];
   defaultPeriod: UsePeriodType;
@@ -181,7 +183,7 @@ export const usePeriodFilter = ({
       const monthName = Object.values(MonthFull)[m - 1];
       result.push({
         label: `${monthName} ${y}`,
-        value: `${prefix}-${y}-${m}`,
+        value: `${prefix}-${y}-${formatMonth(m)}`,
       });
     }
 
@@ -323,10 +325,13 @@ const buildMonthValues = (
   lastYear?: number,
   months12: YM[] = []
 ) => {
-  if (!isMultiple) return [`month-${current.y}-${current.m}`];
+  if (!isMultiple) return [`month-${current.y}-${formatMonth(current.m)}`];
   if (lastYear)
-    return Array.from({ length: 12 }, (_, i) => `month-${lastYear}-${i + 1}`);
-  return months12.map(x => `month-${x.y}-${x.m}`);
+    return Array.from(
+      { length: 12 },
+      (_, i) => `month-${lastYear}-${formatMonth(i + 1)}`
+    );
+  return months12.map(x => `month-${x.y}-${formatMonth(x.m)}`);
 };
 
 const buildQuarterValues = (
@@ -347,13 +352,13 @@ const buildCumulativeValues = (
   lastYear?: number,
   months12: YM[] = []
 ) => {
-  if (!isMultiple) return [`${prefix}-${current.y}-${current.m}`];
+  if (!isMultiple) return [`${prefix}-${current.y}-${formatMonth(current.m)}`];
   if (lastYear)
     return Array.from(
       { length: 12 },
-      (_, i) => `${prefix}-${lastYear}-${i + 1}`
+      (_, i) => `${prefix}-${lastYear}-${formatMonth(i + 1)}`
     );
-  return months12.map(x => `${prefix}-${x.y}-${x.m}`);
+  return months12.map(x => `${prefix}-${x.y}-${formatMonth(x.m)}`);
 };
 
 const buildYearValues = (
