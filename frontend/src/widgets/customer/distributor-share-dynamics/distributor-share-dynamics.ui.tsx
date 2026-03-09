@@ -65,7 +65,6 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       }
     )
   );
-
   const { chartData, legends, distributorKeys } = React.useMemo(() => {
     const processed = processDistributorShareData(queryData.data?.[0], {
       period: periodFilter.period,
@@ -134,6 +133,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
               height={500}
               data={chartData}
               stackOffset="sign"
+              margin={{ top: 24 }}
             >
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
               <ReferenceLine y={0} stroke="#000" />
@@ -204,6 +204,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                   distributionKey.replace('dist_', '')
                 );
                 const legend = legends[index];
+                const isLast = index === distributorKeys.length - 1;
 
                 return (
                   <Bar
@@ -224,6 +225,11 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                         />
                       )}
                     />
+                    {isLast && (
+                      <LabelList
+                        content={<TotalAmountLabel chartData={chartData} />}
+                      />
+                    )}
                   </Bar>
                 );
               })}
@@ -239,18 +245,15 @@ const SegmentLabel: React.FC<any> = React.memo(
   ({ x, y, width, height, value, distKey, index, chartData }) => {
     if (!value || value === 0) return null;
 
-    // Получаем оригинальное значение из chartData по индексу
     const dataPoint = chartData?.[index];
     const originalValue = dataPoint?._original?.[distKey];
     const displayValue = originalValue === undefined ? value : originalValue;
 
-    // Форматируем значение компактно
     const formattedValue =
       Math.abs(displayValue) < 10
         ? displayValue.toFixed(1)
         : Math.round(displayValue);
 
-    // Динамический размер шрифта в зависимости от высоты сегмента
     const fontSize = getFontSize(height);
     return (
       <text
@@ -267,7 +270,42 @@ const SegmentLabel: React.FC<any> = React.memo(
   }
 );
 
+type TotalAmountLabelProps = {
+  chartData: Array<{ totalAmount?: number }>;
+  x?: number;
+  y?: number;
+  width?: number;
+  index?: number;
+};
+
+const TotalAmountLabel: React.FC<TotalAmountLabelProps> = React.memo(
+  ({ chartData, x = 0, y = 0, width = 0, index }) => {
+    if (!chartData?.length || index == null) return null;
+
+    const dataPoint = chartData[index];
+    const totalAmount = dataPoint?.totalAmount;
+    if (totalAmount == null || Number.isNaN(totalAmount)) return null;
+
+    const formattedValue = Number(totalAmount).toLocaleString('ru-RU');
+    const offset = 8;
+
+    return (
+      <text
+        x={x + width / 2}
+        y={y - offset}
+        fill="#111827"
+        fontSize={11}
+        fontWeight={600}
+        textAnchor="middle"
+      >
+        {formattedValue}
+      </text>
+    );
+  }
+);
+
 SegmentLabel.displayName = '_SegmentLabel_';
+TotalAmountLabel.displayName = '_TotalAmountLabel_';
 DistributorShareDynamics.displayName = '_DistributorShareDynamics_';
 
 const getFontSize = (height: number): number => {

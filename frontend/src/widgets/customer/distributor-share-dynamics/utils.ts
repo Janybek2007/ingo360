@@ -5,7 +5,7 @@ import { stringToColor } from '#/shared/utils/string-to-color';
 export type DistributorData = {
   distributor_id: number;
   distributor_name: string;
-  periods_data: Record<string, { share_percent: number }>;
+  periods_data: Record<string, { share_percent: number; amount: number }>;
 };
 
 type PeriodFilter = {
@@ -121,6 +121,7 @@ class DistributorShareProcessor {
           month: parsed.month,
           quarter: parsed.quarter,
           counts: new Map(),
+          totalAmount: 0,
         });
       }
 
@@ -130,6 +131,7 @@ class DistributorShareProcessor {
         if (item.periods_data[periodKey]) {
           const distributionKey = `dist_${item.distributor_id}`;
           const sharePercent = item.periods_data[periodKey].share_percent;
+          const amount = item.periods_data[periodKey].amount ?? 0;
 
           if (!periodData[distributionKey]) {
             periodData[distributionKey] = 0;
@@ -141,6 +143,7 @@ class DistributorShareProcessor {
             distributionKey,
             periodData.counts.get(distributionKey) + 1
           );
+          periodData.totalAmount += amount;
         }
       }
     }
@@ -157,6 +160,7 @@ class DistributorShareProcessor {
         label: item.label,
         fullLabel: item.fullLabel,
         year: item.year,
+        totalAmount: item.totalAmount,
       };
 
       if (this.periodFilter.period === 'quarter') {
