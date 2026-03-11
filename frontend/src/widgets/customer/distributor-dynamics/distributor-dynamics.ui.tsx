@@ -9,7 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { DbQueries, type TDbItem } from '#/entities/db';
+import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
@@ -26,10 +26,9 @@ import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { useSession } from '#/shared/session';
 import { calculateChartAxis } from '#/shared/utils/calculate';
-import { generateChartRawData } from '#/shared/utils/generate-chart-raw-data';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 const formatMoney = (value: number) => value.toLocaleString('ru-RU');
@@ -62,83 +61,98 @@ export const DistributorDynamics: React.FC = React.memo(() => {
   });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<TDbItem[]>(
-      ['sales/secondary/reports/sales-by-distributors/chart'],
-      {
-        brand_ids: filtersState.brands,
-        product_group_ids: filtersState.groups,
-        distributor_ids: filtersState.distributors,
-        group_by_period: periodFilter.period,
-        period_values: periodFilter.selectedValues,
-
-        enabled: !filterOptions.isLoading,
-        method: 'POST',
-      }
-    )
+    DbQueries.GetDbItemsQuery<{
+      data: any[];
+      distributors: Record<string, string>;
+    }>(['sales/secondary/reports/sales-by-distributors/chart'], {
+      brand_ids: filtersState.brands,
+      product_group_ids: filtersState.groups,
+      distributor_ids: filtersState.distributors,
+      group_by_period: periodFilter.period,
+      period_values: periodFilter.selectedValues,
+      enabled: !filterOptions.isLoading,
+      method: 'POST',
+    })
   );
-  const sales = React.useMemo(
-    () => (queryData.data ? queryData.data[0] : []),
-    [queryData.data]
+  console.log(queryData.data);
+
+  const { chartData, distributorsData } = useMemo(() => {
+    const { data: rawData = [], distributors: distributorsMap = {} } =
+      queryData.data?.[0] ?? {};
+
+    const distributorsData = Object.entries(distributorsMap).map(
+      ([id, name]) => ({
+        id: Number(id),
+        name: name as string,
+        color: stringToColor(name as string),
+      })
+    );
+
+    const allNames = Object.values(distributorsMap) as string[];
+
+    const chartData = rawData.map((item: any) => {
+      const parsed = parsePeriodData(item.period, periodFilter.period);
+      const point: any = {
+        period: item.period,
+        label: parsed.value,
+        fullLabel: parsed.label,
+      };
+
+      for (const name of allNames) {
+        point[name] = item[name]?.total_amount ?? null;
+      }
+
+      return point;
+    });
+
+    return { chartData, distributorsData };
+  }, [queryData.data, periodFilter.period]);
+
+  const allDistributorIds = useMemo(
+    () => distributorsData.map(d => d.id),
+    [distributorsData]
   );
 
   const [distributors, setDistributors] = React.useState<number[]>([]);
 
-  const distributorsData = React.useMemo(() => {
-    const uniqueDistributors = getUniqueItems(
-      sales.map(item => ({
-        value: item.distributor_id,
-        label: item.distributor_name,
-      })),
-      ['value']
-    ).filter(v => Boolean(v.value));
-
-    return uniqueDistributors.map(distribution => ({
-      id: distribution.value,
-      name: distribution.label,
-      color: stringToColor(distribution.label),
-    }));
-  }, [sales]);
-
   React.useEffect(() => {
-    if (distributors.length === 0 && distributorsData.length > 0) {
-      setDistributors(distributorsData.map(d => d.id));
-    }
-  }, [distributorsData, distributors.length]);
+    setDistributors(allDistributorIds);
+  }, [allDistributorIds]);
 
-  const chartData = useMemo(() => {
-    let filtered = sales;
-
-    if (distributors.length > 0) {
-      filtered = filtered.filter(item =>
-        distributors.includes(item.distributor_id)
-      );
-    }
-
-    const rawData = generateChartRawData(filtered, {
-      valueField: 'total_amount',
-      groupBy: item => item.distributor_name,
-      periodType: periodFilter.period,
+  const filteredChartData = useMemo(() => {
+    if (distributors.length === 0) return chartData;
+    const activeNames = new Set(
+      distributorsData.filter(d => distributors.includes(d.id)).map(d => d.name)
+    );
+    return chartData.map(item => {
+      const filtered: any = {
+        period: item.period,
+        label: item.label,
+        fullLabel: item.fullLabel,
+      };
+      for (const key of Object.keys(item)) {
+        if (activeNames.has(key)) filtered[key] = item[key];
+      }
+      return filtered;
     });
-
-    return rawData;
-  }, [periodFilter.period, sales, distributors]);
-
-  const resetFilters = React.useCallback(() => {
-    periodFilter.onReset();
-    filtersState.resetFilters();
-    setDistributors([]);
-  }, [periodFilter, filtersState]);
+  }, [chartData, distributors, distributorsData]);
 
   const chartAxis = useMemo(
     () =>
       calculateChartAxis(
-        chartData,
+        filteredChartData,
         distributorsData
           .filter(d => distributors.includes(d.id))
           .map(d => d.name)
       ),
-    [chartData, distributorsData, distributors]
+    [filteredChartData, distributorsData, distributors]
   );
+
+  const resetFilters = React.useCallback(() => {
+    periodFilter.onReset();
+    filtersState.resetFilters();
+    setDistributors(allDistributorIds);
+  }, [periodFilter, filtersState, allDistributorIds]);
 
   return (
     <PageSection
@@ -206,7 +220,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
               <LineChart
                 width={sectionStyle.width - 48}
                 height={500}
-                data={chartData}
+                data={filteredChartData}
                 margin={{ top: 20, right: 16, bottom: 20 }}
               >
                 <CartesianGrid strokeDasharray="4 4" vertical={false} />

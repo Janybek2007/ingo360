@@ -37,7 +37,11 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
       );
 
       const visits = React.useMemo(
-        () => (countQuery.data ? countQuery.data[0] : []),
+        () =>
+          (countQuery.data ? countQuery.data[0] : []).map(v => ({
+            ...v,
+            color: stringToColor(JSON.stringify(v)),
+          })),
         [countQuery.data]
       );
 
@@ -113,10 +117,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                   label
                   paddingAngle={0}
                   shape={(props: any) => (
-                    <Sector
-                      {...props}
-                      fill={stringToColor(props.speciality_name)}
-                    />
+                    <Sector {...props} fill={props.color} />
                   )}
                 />
                 <Tooltip
@@ -125,7 +126,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                       | DoctorsCoverageRow
                       | undefined;
                     if (!data) return value;
-                    const color = stringToColor(data.speciality_name);
+                    const color = (data as any).color;
 
                     return [
                       <div
@@ -172,7 +173,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                   <span
                     className="h-4 w-4 rounded-full"
                     style={{
-                      backgroundColor: stringToColor(d.speciality_name),
+                      backgroundColor: d.color,
                     }}
                   />
                   <span className="font-inter leading-full text-sm font-medium text-black">

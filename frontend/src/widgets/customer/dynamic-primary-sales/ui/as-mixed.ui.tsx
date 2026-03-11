@@ -26,7 +26,7 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
           const parsed = parsePeriodData(item.period, period);
 
           return {
-            label: parsed.label,
+            label: parsed.value,
             fullLabel: parsed.label,
             primary:
               indicator === 'packages'

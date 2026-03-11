@@ -21,14 +21,15 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
   React.memo(({ isMarketDevelopmentPage = false }) => {
     const [activeTab, setActiveTab] = React.useState<ISMGroupColumn>('company');
     const isBrandEnabled = activeTab === 'brand' && isMarketDevelopmentPage;
-    const isSegmentEnabled =
-      ['segment', 'company'].includes(activeTab) && isMarketDevelopmentPage;
+
+    const isSegmentsEnabled =
+      ['brand', 'company'].includes(activeTab) && isMarketDevelopmentPage;
 
     const [brands, setBrands] = React.useState<string[]>([]);
     const [segments, setSegments] = React.useState<string[]>([]);
 
     const filterOptions = useFilterOptions(
-      activeTab == 'company' ? ['ims_segment_names'] : []
+      isSegmentsEnabled ? ['ims_segment_names'] : []
     );
 
     const filtersState = useDbFiltersState({
@@ -36,20 +37,19 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
       search: { enabled: false },
       indicator: { enabled: false },
       rowsCount: { enabled: false },
-      segments: { enabled: isSegmentEnabled, multiple: activeTab == 'company' },
+      segments: { enabled: true, multiple: isSegmentsEnabled },
       brands: { enabled: isBrandEnabled, multiple: false },
     });
 
     const filters = useDbFilters({
       state: filtersState,
       brandsOptions: brands.map(brand => ({ label: brand, value: brand })),
-      segmentsOptions:
-        activeTab == 'company'
-          ? filterOptions.options.ims_segment_names
-          : segments.map(segment => ({
-              label: segment,
-              value: segment,
-            })),
+      segmentsOptions: isSegmentsEnabled
+        ? filterOptions.options.ims_segment_names
+        : segments.map(segment => ({
+            label: segment,
+            value: segment,
+          })),
     });
 
     const periodFilter = usePeriodFilter({

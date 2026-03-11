@@ -10,7 +10,6 @@ import { getIndicatorOptions } from '#/shared/constants/get-indicator-options';
 import { allMonths } from '#/shared/constants/months';
 import type { DbType } from '#/shared/types/db.type';
 import {
-  booleanFilter,
   numberFilter,
   selectFilter,
   stringFilter,
@@ -333,25 +332,6 @@ function getSalesColumns(type: DbType): ColumnDef<IDbItem>[] {
       filterFn: numberFilter(),
       filterType: 'number',
       meta: { aggregate: 'sum' },
-    },
-    {
-      accessorKey: 'published',
-      header: columnHeaderNames.published,
-      size: 180,
-      enableColumnFilter: true,
-      filterType: 'select',
-      filterFn: booleanFilter(),
-      selectOptions: [
-        { label: 'Опубликовано', value: 'true' },
-        { label: 'Не опубликовано', value: 'false' },
-      ],
-      cell: ({ row }: { row: { original: { published: boolean } } }) => (
-        <span
-          className={row.original.published ? 'text-green-500' : 'text-red-500'}
-        >
-          {row.original.published ? 'Опубликовано' : 'Не опубликовано'}
-        </span>
-      ),
     },
   ].filter(Boolean) as ColumnDef<IDbItem>[];
 }

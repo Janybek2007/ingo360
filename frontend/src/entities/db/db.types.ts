@@ -18,7 +18,6 @@ export interface IDbItem {
   indicator: string;
   packages: number;
   amount: number;
-  published: boolean;
   city: string;
   //
   distributor: IDbName;

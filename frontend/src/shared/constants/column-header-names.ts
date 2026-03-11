@@ -11,7 +11,6 @@ export const columnHeaderNames = {
   region: 'Область',
   country: 'Страна',
   name: 'Название',
-  published: 'Опубликовано',
   packages: 'Упаковки',
   amount: 'Сумма',
   period: 'Период',

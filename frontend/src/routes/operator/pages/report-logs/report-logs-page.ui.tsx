@@ -63,7 +63,7 @@ const ReportLogsPage: React.FC = () => {
               classNames={{ menu: 'min-w-[13.75rem] right-0' }}
             />
             <ExportToExcelButton
-              headerMap={transformHeaderKeys(allColumns, ['published'])}
+              headerMap={transformHeaderKeys(allColumns)}
               url="/import_logs"
               fieldsMap={{
                 user_full_name: '{user_last_name} {user_first_name}',

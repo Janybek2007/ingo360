@@ -19,6 +19,7 @@ export const DoctorsPercentageVisits: React.FC<{
   enabled: boolean;
 }> = React.memo(({ medicalFacilityIds, enabled = true }) => {
   const periodFilter = usePeriodFilter({});
+
   const percentageQuery = useKeepQuery(
     DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
       ['visits/reports/doctors-by-specialty'],
@@ -33,7 +34,11 @@ export const DoctorsPercentageVisits: React.FC<{
     )
   );
   const percentageVisits = React.useMemo(
-    () => (percentageQuery.data ? percentageQuery.data[0] : []),
+    () =>
+      (percentageQuery.data ? percentageQuery.data[0] : []).map(v => ({
+        ...v,
+        color: stringToColor(JSON.stringify(v)),
+      })),
     [percentageQuery.data]
   );
 
@@ -65,7 +70,7 @@ export const DoctorsPercentageVisits: React.FC<{
           />
         </div>
 
-        <div className="relative my-3 flex max-h-[28rem] min-h-[28rem] w-full items-center justify-center py-2">
+        <div className="relative my-3 flex max-h-112 min-h-112 w-full items-center justify-center py-2">
           <PieChart width={sectionStyle.width / 2 - 80} height={440}>
             <Pie
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -82,12 +87,7 @@ export const DoctorsPercentageVisits: React.FC<{
                 `${entry.value?.toFixed(0)} (${((entry as any).coverage_percentage as number)?.toFixed(0)}%)`
               }
               paddingAngle={0}
-              shape={(props: any) => (
-                <Sector
-                  {...props}
-                  fill={stringToColor(props.speciality_name)}
-                />
-              )}
+              shape={(props: any) => <Sector {...props} fill={props.color} />}
             />
             <Tooltip
               formatter={(value, _, properties) => {
@@ -95,7 +95,7 @@ export const DoctorsPercentageVisits: React.FC<{
                   | DoctorsCoverageRow
                   | undefined;
                 if (!data) return value;
-                const color = stringToColor(data.speciality_name);
+                const color = (data as any).color;
 
                 return [
                   <div
@@ -149,9 +149,9 @@ export const DoctorsPercentageVisits: React.FC<{
             >
               <span
                 className="h-4 w-4 rounded-full"
-                style={{ backgroundColor: stringToColor(d.speciality_name) }}
+                style={{ backgroundColor: d.color }}
               />
-              <span className="font-inter text-sm leading-[100%] font-medium text-black">
+              <span className="font-inter leading-full text-sm font-medium text-black">
                 {d.speciality_name}
               </span>
             </div>

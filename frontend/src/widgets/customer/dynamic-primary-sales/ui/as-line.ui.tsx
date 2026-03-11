@@ -25,7 +25,7 @@ export const DynamicPrimarySalesAsLine: React.FC<DynamicPrimarySalesAsLineProper
         const parsed = parsePeriodData(item.period, period);
 
         return {
-          label: parsed.label,
+          label: parsed.value,
           fullLabel: parsed.label,
           value:
             indicator === 'packages' ? item.sales_packages : item.sales_amount,

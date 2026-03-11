@@ -87,7 +87,7 @@ export const OverallVisits: React.FC = React.memo(() => {
         const parsed = parsePeriodData(item.period, periodFilter.period);
 
         return {
-          label: parsed.label,
+          label: parsed.value,
           fullLabel: parsed.label,
           value: item.total_visits,
         };

@@ -26,8 +26,21 @@ import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { parsePeriodData } from '#/shared/utils/parse-period-data';
+import { stringToColor } from '#/shared/utils/string-to-color';
 
-import { type DistributorData, processDistributorShareData } from './utils';
+type DistributorChartItem = {
+  period: string;
+  totalAmount: number;
+  _original: Record<string, number>;
+  _topKey: string;
+  [key: `dist_${number}`]: number;
+};
+
+type DistributorShareChartResponse = {
+  data: DistributorChartItem[];
+  distributors: Record<string, string>;
+};
 
 export const DistributorShareDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
@@ -49,12 +62,11 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
   });
-  const periodFilter = usePeriodFilter({
-    lastYear: lastYear?.primary,
-  });
+
+  const periodFilter = usePeriodFilter({ lastYear: lastYear?.primary });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<DistributorData[]>(
+    DbQueries.GetDbItemsQuery<DistributorShareChartResponse>(
       ['sales/primary/reports/distributor-shares/chart'],
       {
         brand_ids: filtersState.brands,
@@ -69,12 +81,31 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
     )
   );
 
-  const { chartData, legends, distributorKeys } = React.useMemo(() => {
-    return processDistributorShareData(queryData.data?.[0], {
-      period: periodFilter.period,
-      selectedValues: periodFilter.selectedValues,
+  const { chartData, distributorKeys, legends } = React.useMemo(() => {
+    const { data = [], distributors = {} } = queryData.data?.[0] ?? {};
+
+    const chartData = data.map(item => {
+      const parsed = parsePeriodData(item.period, periodFilter.period);
+      return {
+        ...item,
+        label: parsed.value,
+        fullLabel: parsed.label,
+        year: parsed.year,
+      };
     });
-  }, [queryData.data, periodFilter.period, periodFilter.selectedValues]);
+
+    const distributorKeys = Object.keys(chartData[0] ?? {}).filter(k =>
+      k.startsWith('dist_')
+    );
+
+    const legends = distributorKeys.map(key => ({
+      key,
+      label: distributors[key] ?? key,
+      fill: stringToColor(distributors[key] ?? key),
+    }));
+
+    return { chartData, distributorKeys, legends };
+  }, [queryData.data, periodFilter.period]);
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();

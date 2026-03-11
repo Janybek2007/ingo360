@@ -87,9 +87,9 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
         const parsed = parsePeriodData(item.period, periodFilter.period);
 
         return {
-          label: parsed.label,
+          label: parsed.value,
           fullLabel: parsed.label,
-          value: item.sales_packages,
+          value: Math.round(item.sales_packages),
         };
       });
   }, [queryData, periodFilter.period]);

@@ -7,10 +7,6 @@ import { DeleteDbItemWrapper } from '#/features/db-work/delete';
 import { EditDbItemWrapper } from '#/features/db-work/edit';
 import { ImportDbItemButton } from '#/features/db-work/import';
 import {
-  PublishButton,
-  PublishUnpublishedButton,
-} from '#/features/db-work/publish';
-import {
   ExportToExcelButton,
   type ExportToExcelUrl,
 } from '#/features/excel/export';
@@ -68,11 +64,6 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
           <div className="flex items-center gap-2 pr-10">
             <EditDbItemWrapper type={current} defaultData={row.original} />
             <DeleteDbItemWrapper data={row.original} type={current} />
-            <PublishButton
-              id={row.original.id}
-              currentStatus={row.original.published}
-              type={current}
-            />
           </div>
         ),
       });
@@ -122,23 +113,10 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
                 }}
               />
               <ExportToExcelButton<IDbItem>
-                headerMap={transformHeaderKeys(allColumns, [
-                  'actions',
-                  'published',
-                ])}
+                headerMap={transformHeaderKeys(allColumns, ['actions'])}
                 url={`/${current}` as ExportToExcelUrl}
-                booleanMap={{
-                  published: ['Не опубликовано', 'Опубликовано'],
-                }}
                 fileName={`Данные ${findCurrentTab(tabsItems, current.replace('/', '_'))?.tab.label}`}
               />
-              {!['visits', 'ims'].includes(current) && (
-                <PublishUnpublishedButton
-                  type={current}
-                  disabled={currentData.filter(v => !v.published).length === 0}
-                  ids={currentData.filter(v => !v.published).map(v => v.id)}
-                />
-              )}
               <ImportDbItemButton type={current} />
               <AddDbItemWrapper type={current} />
             </div>

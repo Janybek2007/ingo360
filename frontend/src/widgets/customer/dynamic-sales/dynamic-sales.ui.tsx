@@ -103,7 +103,7 @@ export const DynamicSales: React.FC = React.memo(() => {
         const parsed = parsePeriodData(item.period, periodFilter.period);
 
         return {
-          label: parsed.label,
+          label: parsed.value,
           fullLabel: parsed.label,
           primaryValue: item.primaryValue,
           secondaryValue: item.secondaryValue,
