@@ -38,15 +38,19 @@ const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
 
     const mutation = useAddReferenceMutation(type, onClose);
 
-    const fields = React.useMemo(
-      () =>
-        fieldsWithSelectItems({
-          options: filterOptions.options,
-          fields: databaseItemCEFields[type],
-          dependsUrls,
-        }),
-      [dependsUrls, filterOptions.options, type]
-    );
+    const fields = React.useMemo(() => {
+      let baseFields = fieldsWithSelectItems({
+        options: filterOptions.options,
+        fields: databaseItemCEFields[type],
+        dependsUrls,
+      });
+
+      if (type === 'sales/secondary' && baseFields[3]) {
+        baseFields[3] = baseFields[3].slice(1);
+      }
+
+      return baseFields;
+    }, [dependsUrls, filterOptions.options, type]);
 
     return (
       <CreateEditModal

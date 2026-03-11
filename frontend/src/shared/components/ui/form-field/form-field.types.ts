@@ -18,6 +18,6 @@ export interface IFormFieldProps {
   error?: string;
   select?: Pick<
     ISelectProperties<false, string | number | boolean>,
-    'items' | 'value' | 'setValue' | 'search'
+    'items' | 'value' | 'setValue' | 'search' | 'isVirtualize'
   >;
 }

@@ -6,6 +6,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -38,28 +39,36 @@ export const Shipments: React.FC = React.memo(() => {
 
   const lastYear = useSession(s => s.lastYear);
 
-  const filterOptions = useFilterOptions([
-    'products/brands',
-    'products/product-groups',
-    'products/skus',
-    'products/promotion-types',
-    'clients/distributors',
-  ]);
-
-  const databaseFilters = useDbFilters({
-    brandsOptions: filterOptions.options.products_brands,
-    groupsOptions: filterOptions.options.products_product_groups,
-    config: {
-      groupBy: {
-        defaultValue:
-          'sku,brand,promotion_type,product_group,distributor'.split(','),
-      },
+  const dbFiltersState = useDbFiltersState({
+    groupBy: {
+      defaultValue: 'sku,brand,promotion_type,product_group,distributor'.split(
+        ','
+      ),
     },
   });
 
-  const periodFilter = usePeriodFilter({
-    lastYear: lastYear?.primary,
+  const filterOptions = useFilterOptions(
+    [
+      'products/brands',
+      'products/product-groups',
+      'products/skus',
+      'products/promotion-types',
+      'clients/distributors',
+    ],
+    undefined,
+    transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
+      brand_ids: dbFiltersState.brands,
+      product_group_ids: dbFiltersState.groups,
+    })
+  );
+
+  const databaseFilters = useDbFilters({
+    state: dbFiltersState,
+    brandsOptions: filterOptions.options.products_brands,
+    groupsOptions: filterOptions.options.products_product_groups,
   });
+
+  const periodFilter = usePeriodFilter({ lastYear: lastYear?.primary });
 
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/primary/reports/sales'], {
@@ -67,19 +76,19 @@ export const Shipments: React.FC = React.memo(() => {
         filters,
         COMMON_COLUMNS_FILTER_KEY_MAP,
         {
-          brand_ids: databaseFilters.brands,
-          product_group_ids: databaseFilters.groups,
+          brand_ids: dbFiltersState.brands,
+          product_group_ids: dbFiltersState.groups,
         }
       ),
       ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
       limit:
-        databaseFilters.rowsCount === 'all'
+        dbFiltersState.rowsCount === 'all'
           ? undefined
-          : databaseFilters.rowsCount,
-      search: databaseFilters.search,
+          : dbFiltersState.rowsCount,
+      search: dbFiltersState.search,
 
-      group_by_dimensions: databaseFilters.groupBy,
+      group_by_dimensions: dbFiltersState.groupBy,
       period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
 
@@ -102,29 +111,29 @@ export const Shipments: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset(databaseFilters.indicator, sales),
-    total: totalPreset(databaseFilters.indicator, {
-      periods: databaseFilters.periods,
+    months: monthsPreset(dbFiltersState.indicator, sales),
+    total: totalPreset(dbFiltersState.indicator, {
+      periods: dbFiltersState.periods,
     }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: databaseFilters.setGroupBy,
-      setPeriods: databaseFilters.setPeriods,
+      setGroupBy: dbFiltersState.setGroupBy,
+      setPeriods: dbFiltersState.setPeriods,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(sales, databaseFilters.indicator);
-  }, [sales, databaseFilters.indicator]);
+    return calcPeriodTotals(sales, dbFiltersState.indicator);
+  }, [sales, dbFiltersState.indicator]);
 
   return (
     <PageSection
       title="Первичные продажи"
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
-          <DbFilters {...databaseFilters} />
+          <DbFilters {...dbFiltersState} {...databaseFilters} />
           <PeriodFilters {...periodFilter} />
 
           <Select<true>
@@ -150,7 +159,7 @@ export const Shipments: React.FC = React.memo(() => {
             }}
             hasTotal
             selectKeys={visibleColumns}
-            periodKey={databaseFilters.indicator}
+            periodKey={dbFiltersState.indicator}
             data={sales}
             fileName="Первичные продажи"
           />
@@ -165,10 +174,10 @@ export const Shipments: React.FC = React.memo(() => {
           value={{ filters, setFilters, sorting, setSorting }}
         >
           <Table
-            key={databaseFilters.indicator}
+            key={dbFiltersState.indicator}
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: databaseFilters.resetFilters,
+              resetFilters: dbFiltersState.resetFilters,
             }}
             columns={columnsForTable}
             data={sales}

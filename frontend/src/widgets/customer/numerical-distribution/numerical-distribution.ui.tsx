@@ -6,6 +6,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -31,30 +32,39 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const filterOptions = useFilterOptions([
-    'products/brands',
-    'products/product-groups',
-    'products/skus',
-    'products/segments',
-    'products/promotion-types',
-    'clients/distributors',
-    'clients/geo-indicators',
-  ]);
+  const filtersState = useDbFiltersState({
+    indicator: { enabled: false },
+    rowsCount: { enabled: true },
+    geoIndicators: { enabled: true },
+    groupBy: {
+      defaultValue: 'brand,segment,product_group,geo_indicator'.split(','),
+    },
+  });
+
+  const filterOptions = useFilterOptions(
+    [
+      'products/brands',
+      'products/product-groups',
+      'products/skus',
+      'products/segments',
+      'products/promotion-types',
+      'clients/distributors',
+      'clients/geo-indicators',
+    ],
+    undefined,
+    transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
+      brand_ids: filtersState.brands,
+      product_group_ids: filtersState.groups,
+    })
+  );
 
   const lastYear = useSession(s => s.lastYear);
 
   const databaseFilters = useDbFilters({
+    state: filtersState,
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
     geoIndicatorsOptions: filterOptions.options.clients_geo_indicators,
-    config: {
-      indicator: { enabled: false },
-      rowsCount: { enabled: true },
-      geoIndicators: { enabled: true },
-      groupBy: {
-        defaultValue: 'brand,segment,product_group,geo_indicator'.split(','),
-      },
-    },
   });
 
   const periodFilter = usePeriodFilter({
@@ -69,20 +79,18 @@ export const NumericalDistribution: React.FC = React.memo(() => {
           filters,
           COMMON_COLUMNS_FILTER_KEY_MAP,
           {
-            brand_ids: databaseFilters.brands,
-            product_group_ids: databaseFilters.groups,
-            geo_indicator_ids: databaseFilters.geoIndicators,
+            brand_ids: filtersState.brands,
+            product_group_ids: filtersState.groups,
+            geo_indicator_ids: filtersState.geoIndicators,
           }
         ),
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
         limit:
-          databaseFilters.rowsCount === 'all'
-            ? undefined
-            : databaseFilters.rowsCount,
-        search: databaseFilters.search,
+          filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
+        search: filtersState.search,
 
-        group_by_dimensions: ['distributor', 'sku', ...databaseFilters.groupBy],
+        group_by_dimensions: ['distributor', 'sku', ...filtersState.groupBy],
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
 
@@ -116,7 +124,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility<TDbItem>({
       allColumns,
-      setGroupBy: databaseFilters.setGroupBy,
+      setGroupBy: filtersState.setGroupBy,
       ignore: ['sku_name', 'distributor_name'],
     });
 
@@ -125,7 +133,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
       title="Показатель нумерической дистрибьюции по аптекам"
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
-          <DbFilters {...databaseFilters} />
+          <DbFilters {...databaseFilters} {...filtersState} />
           <PeriodFilters {...periodFilter} />
 
           <Select<true>
@@ -168,7 +176,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
           <Table
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: databaseFilters.resetFilters,
+              resetFilters: filtersState.resetFilters,
             }}
             columns={columnsForTable}
             data={sales}

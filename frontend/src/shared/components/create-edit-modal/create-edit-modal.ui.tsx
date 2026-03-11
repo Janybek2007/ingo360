@@ -211,6 +211,7 @@ function FieldItem<TSchema extends ZodType>({
             shouldDirty: true,
           }),
         search: true,
+        isVirtualize: true,
       }}
       type={field.type}
       label={field.label}

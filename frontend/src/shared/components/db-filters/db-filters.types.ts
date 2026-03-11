@@ -1,15 +1,72 @@
+import type React from 'react';
+
+import type { IUsedFilterItem } from '#/shared/components/used-filter';
 import type { DbType } from '#/shared/types/db.type';
 import type { IndicatorType, ReplaceSeparators } from '#/shared/types/global';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 
-import type { IUsedFilterItem } from '../used-filter';
+// ─── Filter Options ───────────────────────────────────────────────────────────
 
-export interface UseDbFiltersReturn {
-  // Individual states
+export type FilterOptionsReferencesKey =
+  | 'companies_companies'
+  | 'clients_clients'
+  | 'ims_company_names'
+  | 'ims_brand_names'
+  | 'ims_segment_names'
+  | 'ims_dosage_form_names'
+  | ReferencesTypeWithMain
+  | ReplaceSeparators<DbType>;
+
+export type FilterOptionItem = {
+  id: number;
+  name: string;
+  scope_values?: Record<'product_group_ids', number[]>;
+};
+
+export type FilterOptions = {
+  value: string | number;
+  label: string;
+  scope_values?: Record<'product_group_ids', number[]>;
+};
+
+export type FilterOptionsKey = ReplaceSeparators<FilterOptionsReferencesKey>;
+export type FilterOptionsObject = Record<FilterOptionsKey, FilterOptions[]>;
+
+export type UseFilterOptionsReturn = {
+  isLoading: boolean;
+  options: FilterOptionsObject;
+};
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+
+export interface DbFiltersConfig {
+  brands?: { enabled?: boolean; multiple?: boolean };
+  groups?: { enabled?: boolean };
+  distributors?: { enabled?: boolean };
+  geoIndicators?: { enabled?: boolean };
+  segments?: { enabled?: boolean; multiple?: boolean };
+  search?: { enabled?: boolean };
+  groupBy?: { defaultValue?: string[] };
+  indicator?: {
+    enabled?: boolean;
+    options?: Array<{ value: IndicatorType; label: string }>;
+    defaultValue?: IndicatorType;
+  };
+  rowsCount?: {
+    enabled?: boolean;
+    options?: Array<{ value: 'all' | number; label: string }>;
+    defaultValue?: 'all' | number;
+  };
+}
+
+// ─── State ────────────────────────────────────────────────────────────────────
+
+export interface UseDbFiltersStateReturn {
+  // Values
   brands: (number | string)[];
   groups: (number | string)[];
   geoIndicators: (number | string)[];
-  segment: string | null;
+  segments: (number | string)[];
   periods: string[];
   distributors: (number | string)[];
   indicator: IndicatorType;
@@ -25,24 +82,33 @@ export interface UseDbFiltersReturn {
   setIndicator: React.Dispatch<React.SetStateAction<IndicatorType>>;
   setPeriods: React.Dispatch<React.SetStateAction<string[]>>;
   setRowsCount: React.Dispatch<React.SetStateAction<'all' | number>>;
-  setSegment: React.Dispatch<React.SetStateAction<string | null>>;
+  setSegments: React.Dispatch<React.SetStateAction<(number | string)[]>>;
   setGroupBy: React.Dispatch<React.SetStateAction<string[]>>;
   setSearch: React.Dispatch<React.SetStateAction<string>>;
 
+  // Reset
+  resetFilters: () => void;
+
+  // Config (передаётся дальше в useDbFilters)
+  config?: DbFiltersConfig;
+}
+
+// ─── Computed ─────────────────────────────────────────────────────────────────
+
+export interface UseDbFiltersReturn {
   // Options
   options: {
     brands: FilterOptions[];
     groups: FilterOptions[];
     distributors: FilterOptions[];
     geoIndicators: FilterOptions[];
-    indicators: Array<{ value: IndicatorType; label: string }>;
     segments: FilterOptions[];
+    indicators: Array<{ value: IndicatorType; label: string }>;
     rowsCounts: Array<{ value: 'all' | number; label: string }>;
   };
 
   // For Table component
   usedFilterItems: IUsedFilterItem[];
-  resetFilters: () => void;
 
   // Helper
   enabled: {
@@ -57,60 +123,17 @@ export interface UseDbFiltersReturn {
   };
 }
 
-export type DbFiltersProps = UseDbFiltersReturn &
-  React.PropsWithChildren & {
-    brandsMultiple?: boolean;
-  };
+// ─── Props ────────────────────────────────────────────────────────────────────
 
-export type FilterOptionsReferencesKey =
-  | 'companies_companies'
-  | 'clients_clients'
-  | ReferencesTypeWithMain
-  | ReplaceSeparators<DbType>;
-
-export type FilterOptionItem = {
-  id: number;
-  name: string;
-  scope_values?: Record<'product_group_ids', number[]>;
-};
-export type FilterOptions = {
-  value: string | number;
-  label: string;
-  scope_values?: Record<'product_group_ids', number[]>;
-};
-
-export type FilterOptionsKey = ReplaceSeparators<FilterOptionsReferencesKey>;
-export type FilterOptionsObject = Record<FilterOptionsKey, FilterOptions[]>;
-
-export type UseFilterOptionsReturn = {
-  isLoading: boolean;
-  options: FilterOptionsObject;
-};
-
-//
 export interface UseDbFiltersProps {
+  state: UseDbFiltersStateReturn;
   brandsOptions?: FilterOptions[];
   groupsOptions?: FilterOptions[];
   distributorsOptions?: FilterOptions[];
   geoIndicatorsOptions?: FilterOptions[];
   segmentsOptions?: FilterOptions[];
-  config?: {
-    brands?: { enabled?: boolean; multiple?: boolean };
-    groups?: { enabled?: boolean };
-    distributors?: { enabled?: boolean };
-    geoIndicators?: { enabled?: boolean };
-    segment?: { enabled?: boolean };
-    search?: { enabled?: boolean };
-    groupBy?: { defaultValue?: string[] };
-    indicator?: {
-      enabled?: boolean;
-      options?: Array<{ value: IndicatorType; label: string }>;
-      defaultValue?: IndicatorType;
-    };
-    rowsCount?: {
-      enabled?: boolean;
-      options?: Array<{ value: 'all' | number; label: string }>;
-      defaultValue?: 'all' | number;
-    };
-  };
 }
+
+export type DbFiltersProps = UseDbFiltersStateReturn &
+  UseDbFiltersReturn &
+  React.PropsWithChildren;

@@ -18,5 +18,5 @@ export type ExportToExcelProps<T extends object> = {
   selectKeys?: NestedKeys<T>[] | (string | false)[];
   periodKey?: string;
   periodAsPercent?: boolean;
-  transform?: (item: T) => T;
+  transform?: (item: T) => any;
 };

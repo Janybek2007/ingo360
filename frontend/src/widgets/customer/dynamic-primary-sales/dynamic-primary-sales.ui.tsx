@@ -5,6 +5,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
@@ -32,19 +33,22 @@ const AsLegends = {
 export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
   React.memo(({ as = 'line' }) => {
     const lastYear = useSession(s => s.lastYear);
+
+    const filtersState = useDbFiltersState({
+      rowsCount: { enabled: false },
+      indicator: { enabled: as == 'mixed' },
+      search: { enabled: false },
+    });
+
     const filterOptions = useFilterOptions([
       'products/brands',
       'products/product-groups',
     ]);
 
     const filters = useDbFilters({
+      state: filtersState,
       brandsOptions: filterOptions.options.products_brands,
       groupsOptions: filterOptions.options.products_product_groups,
-      config: {
-        rowsCount: { enabled: false },
-        indicator: { enabled: as == 'mixed' },
-        search: { enabled: false },
-      },
     });
 
     const periodFilter = usePeriodFilter({
@@ -57,8 +61,8 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
         {
           period_values: periodFilter.selectedValues,
           group_by_period: periodFilter.period,
-          brand_ids: filters.brands,
-          product_group_ids: filters.groups,
+          brand_ids: filtersState.brands,
+          product_group_ids: filtersState.groups,
 
           method: 'POST',
           enabled: !filterOptions.isLoading,
@@ -68,16 +72,16 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
 
     const resetFilters = React.useCallback(() => {
       periodFilter.onReset();
-      filters.resetFilters();
-    }, [periodFilter, filters]);
+      filtersState.resetFilters();
+    }, [periodFilter, filtersState]);
 
     return (
       <PageSection
-        title={`Динамика первичных продаж в ${filters.indicator == 'amount' ? 'деньгах' : 'упаковках'}`}
+        title={`Динамика первичных продаж в ${filtersState.indicator == 'amount' ? 'деньгах' : 'упаковках'}`}
         legends={AsLegends[as]}
         headerEnd={
           <div className="flex items-center gap-4">
-            <DbFilters {...filters} />
+            <DbFilters {...filters} {...filtersState} />
             <PeriodFilters isSelectValues={as == 'mixed'} {...periodFilter} />
           </div>
         }
@@ -105,13 +109,13 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               <DynamicPrimarySalesAsLine
                 sales={queryData.data?.[0] || []}
                 period={periodFilter.period}
-                indicator={filters.indicator}
+                indicator={filtersState.indicator}
               />
             ) : (
               <DynamicPrimarySalesAsMixed
                 period={periodFilter.period}
                 sales={queryData.data?.[0] || []}
-                indicator={filters.indicator}
+                indicator={filtersState.indicator}
               />
             )}
           </div>

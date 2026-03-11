@@ -10,7 +10,7 @@ import type { IMSMetricsProps as IMSMetricsProperties } from './ims-metrics.type
 export const IMSMetrics: React.FC<IMSMetricsProperties> = React.memo(
   ({ periodFilter, metricData, isLoading, queryError, noImsPlaceholder }) => {
     const noPeriodSelected = periodFilter.selectedValues.length === 0;
-    console.log(metricData);
+
     const content = (() => {
       if (noPeriodSelected) {
         return (

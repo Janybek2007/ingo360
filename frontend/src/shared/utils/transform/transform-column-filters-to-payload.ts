@@ -1,19 +1,12 @@
 import type { ColumnFiltersState } from '@tanstack/react-table';
 
+import type { TFilterPayloadValue } from '#/shared/types/global';
 import type {
   TableFilterNumberValue,
   TableFilterSelectValue,
   TableFilterStringValue,
   TableFilterValue,
 } from '#/shared/types/table-filters';
-
-type TFilterPayloadValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | Array<string | number | boolean | null | undefined>;
 
 type TExtraDataMap = Record<string, TFilterPayloadValue>;
 

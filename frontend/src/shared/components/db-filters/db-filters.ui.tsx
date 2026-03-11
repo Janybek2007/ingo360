@@ -12,7 +12,7 @@ export const DbFilters = React.memo(
     groups = [],
     geoIndicators = [],
     distributors = [],
-    segment = null,
+    segments = [],
     indicator = 'amount',
     rowsCount = 'all',
     setBrands,
@@ -21,12 +21,12 @@ export const DbFilters = React.memo(
     setDistributors,
     setIndicator,
     setRowsCount,
-    setSegment,
+    setSegments,
     options,
     enabled,
     setSearch,
     children,
-    brandsMultiple = true,
+    config,
   }: DatabaseFiltersProperties) => {
     const {
       brands: brandsEnabled = true,
@@ -39,6 +39,9 @@ export const DbFilters = React.memo(
       segments: segmentsEnabled = false,
     } = enabled;
 
+    const brandsMultiple = config?.brands?.multiple ?? false;
+    const segmentsMultiple = config?.segments?.multiple ?? false;
+
     return (
       <>
         {searchEnabled && setSearch && <SearchInput saveValue={setSearch} />}
@@ -50,7 +53,7 @@ export const DbFilters = React.memo(
               if (brandsMultiple) setBrands(value as (string | number)[]);
               else setBrands([value as any]);
             }}
-            search={!brandsMultiple}
+            search={true}
             isMultiple={brandsMultiple as true}
             showToggleAll={brandsMultiple}
             checkbox={brandsMultiple}
@@ -65,12 +68,18 @@ export const DbFilters = React.memo(
             }}
           />
         )}
-        {segmentsEnabled && setSegment && options.segments && (
-          <Select<false, string | number>
-            value={segment || ''}
-            setValue={v => setSegment(String(v))}
+        {segmentsEnabled && setSegments && options.segments && (
+          <Select<boolean, string | number>
+            value={segmentsMultiple ? segments : segments[0] || ''}
+            setValue={value => {
+              if (segmentsMultiple) setSegments(value as (string | number)[]);
+              else setSegments([value as any]);
+            }}
             items={options.segments}
             search
+            isMultiple={segmentsMultiple as true}
+            showToggleAll={segmentsMultiple}
+            checkbox={segmentsMultiple}
             triggerText={'Сегменты'}
             classNames={{ menu: 'w-[30rem] right-0 max-h-[400px]' }}
           />

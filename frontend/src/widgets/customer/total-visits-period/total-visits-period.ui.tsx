@@ -6,6 +6,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -35,6 +36,17 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
+  const filtersState = useDbFiltersState({
+    indicator: { enabled: false },
+    brands: { enabled: false },
+    groupBy: {
+      defaultValue:
+        'pharmacy,medical_facility,employee,product_group,geo_indicator,position'.split(
+          ','
+        ),
+    },
+  });
+
   const filterOptions = useFilterOptions(
     [
       'products/product-groups',
@@ -44,23 +56,18 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       'employees/employees',
       'employees/positions',
     ],
-    'visits'
+    'visits',
+    transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
+      brand_ids: filtersState.brands,
+      product_group_ids: filtersState.groups,
+    })
   );
 
   const lastYear = useSession(s => s.lastYear);
 
   const databaseFilters = useDbFilters({
+    state: filtersState,
     groupsOptions: filterOptions.options.products_product_groups,
-    config: {
-      indicator: { enabled: false },
-      brands: { enabled: false },
-      groupBy: {
-        defaultValue:
-          'pharmacy,medical_facility,employee,product_group,geo_indicator,position'.split(
-            ','
-          ),
-      },
-    },
   });
   const periodFilter = usePeriodFilter({
     lastYear: lastYear?.primary,
@@ -73,21 +80,19 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
           filters,
           COMMON_COLUMNS_FILTER_KEY_MAP,
           {
-            brand_ids: databaseFilters.brands,
-            product_group_ids: databaseFilters.groups,
+            brand_ids: filtersState.brands,
+            product_group_ids: filtersState.groups,
           }
         ),
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-        group_by_dimensions: databaseFilters.groupBy,
+        group_by_dimensions: filtersState.groupBy,
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
 
         limit:
-          databaseFilters.rowsCount === 'all'
-            ? undefined
-            : databaseFilters.rowsCount,
-        search: databaseFilters.search,
+          filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
+        search: filtersState.search,
 
         enabled: !filterOptions.isLoading,
         method: 'POST',
@@ -124,7 +129,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: databaseFilters.setGroupBy,
+      setGroupBy: filtersState.setGroupBy,
       allowedGroupDimensions: [
         'pharmacy',
         'medical_facility',
@@ -143,7 +148,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       title="Количество визитов за выбранный период"
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
-          <DbFilters {...databaseFilters} />
+          <DbFilters {...databaseFilters} {...filtersState} />
           <PeriodFilters {...periodFilter} />
 
           <Select<true>
@@ -184,7 +189,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
           <Table
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: databaseFilters.resetFilters,
+              resetFilters: filtersState.resetFilters,
             }}
             columns={columnsForTable}
             data={visits}

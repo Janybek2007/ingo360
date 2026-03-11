@@ -14,6 +14,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
@@ -36,18 +37,20 @@ interface OverallVisitRow extends TDbItem {
 
 export const OverallVisits: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const filtersState = useDbFiltersState({
+    brands: { enabled: false },
+    rowsCount: { enabled: false },
+    indicator: { enabled: false },
+    search: { enabled: false },
+  });
+
   const filterOptions = useFilterOptions(['products/product-groups']);
 
   const lastYear = useSession(s => s.lastYear);
 
   const filters = useDbFilters({
+    state: filtersState,
     groupsOptions: filterOptions.options.products_product_groups,
-    config: {
-      brands: { enabled: false },
-      rowsCount: { enabled: false },
-      indicator: { enabled: false },
-      search: { enabled: false },
-    },
   });
 
   const periodFilter = usePeriodFilter({
@@ -58,7 +61,7 @@ export const OverallVisits: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-by-period'],
       {
-        product_group_ids: filters.groups,
+        product_group_ids: filtersState.groups,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
 
@@ -74,8 +77,8 @@ export const OverallVisits: React.FC = React.memo(() => {
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    filters.resetFilters();
-  }, [periodFilter, filters]);
+    filtersState.resetFilters();
+  }, [periodFilter, filtersState]);
 
   const chartData = useMemo(() => {
     return visits
@@ -101,7 +104,7 @@ export const OverallVisits: React.FC = React.memo(() => {
       title="Визиты"
       headerEnd={
         <div className="flex items-center gap-4">
-          <DbFilters {...filters} />
+          <DbFilters {...filters} {...filtersState} />
           <PeriodFilters {...periodFilter} />
         </div>
       }

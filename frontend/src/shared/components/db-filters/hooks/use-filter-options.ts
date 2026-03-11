@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import type { TFilterPayloadValue } from '#/shared/types/global';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
 
 import { http } from '../../../api';
@@ -27,7 +28,8 @@ const transformToFilterOptions = (data?: FilterOptionItem[]): FilterOptions[] =>
 
 export const useFilterOptions = (
   references: FilterOptionsReferencesKey[] = DEFAULT_REFERENCES,
-  scope?: FilterOptionsReferencesKey
+  scope?: FilterOptionsReferencesKey,
+  filters?: Record<string, TFilterPayloadValue>
 ): UseFilterOptionsReturn => {
   const include = useMemo(
     () => [
@@ -39,7 +41,7 @@ export const useFilterOptions = (
   );
 
   const filterOptionsQuery = useQuery({
-    queryKey: ['filter-options', { include, scope }],
+    queryKey: ['filter-options', { include, scope, filters }],
     enabled: include.length > 0,
     queryFn: async () => {
       const response = await http
@@ -47,6 +49,7 @@ export const useFilterOptions = (
           json: {
             references: include,
             ...(scope ? { scope: scope.replaceAll(/[/-]/g, '_') } : {}),
+            filters,
           },
         })
         .json<Record<string, FilterOptionItem[]>>();

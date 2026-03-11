@@ -24,8 +24,8 @@ const defaultFields: ICreateEditModalProps['fields'] = [
       placeholder: 'Выберите показатель',
       type: 'select',
       selectItems: [
-        { label: 'Первичные продажи', value: 'Первичные продажи' },
-        { label: 'Остаток на складе', value: 'Остаток на складе' },
+        { label: 'Первичные продажи', value: 'продаж' },
+        { label: 'Остаток на складе', value: 'остат' },
       ],
     },
     {
@@ -289,7 +289,6 @@ export const dbItemDependsUrls: Record<
     { fieldName: 'pharmacy_id', url: 'clients/pharmacies' },
     { fieldName: 'city', url: 'geography/settlements' },
     { fieldName: 'district', url: 'geography/districts' },
-    { fieldName: 'indicator', url: 'clients/geo-indicators' },
   ],
   visits: [
     { fieldName: 'product_group_id', url: 'products/product-groups' },

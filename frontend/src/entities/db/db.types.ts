@@ -123,6 +123,7 @@ export type IGetDBItemsParams = PaginationParams &
     group_by_dimensions?: string[];
     indicator?: string;
     enabled?: boolean;
+    segments?: (string | number)[];
     segment_name?: string;
     brand_name?: string;
   };

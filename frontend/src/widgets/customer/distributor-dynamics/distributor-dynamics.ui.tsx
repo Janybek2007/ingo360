@@ -14,6 +14,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
@@ -35,24 +36,27 @@ const formatMoney = (value: number) => value.toLocaleString('ru-RU');
 
 export const DistributorDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const lastYear = useSession(s => s.lastYear);
+
+  const filtersState = useDbFiltersState({
+    indicator: { enabled: false },
+    rowsCount: { enabled: false },
+    search: { enabled: false },
+  });
+
   const filterOptions = useFilterOptions([
     'products/brands',
     'products/product-groups',
     'clients/distributors',
   ]);
 
-  const lastYear = useSession(s => s.lastYear);
-
   const filters = useDbFilters({
+    state: filtersState,
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
     distributorsOptions: filterOptions.options.clients_distributors,
-    config: {
-      indicator: { enabled: false },
-      rowsCount: { enabled: false },
-      search: { enabled: false },
-    },
   });
+
   const periodFilter = usePeriodFilter({
     lastYear: lastYear?.secondary,
   });
@@ -61,9 +65,9 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<TDbItem[]>(
       ['sales/secondary/reports/sales-by-distributors/chart'],
       {
-        brand_ids: filters.brands,
-        product_group_ids: filters.groups,
-        distributor_ids: filters.distributors,
+        brand_ids: filtersState.brands,
+        product_group_ids: filtersState.groups,
+        distributor_ids: filtersState.distributors,
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
 
@@ -121,9 +125,9 @@ export const DistributorDynamics: React.FC = React.memo(() => {
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    filters.resetFilters();
+    filtersState.resetFilters();
     setDistributors([]);
-  }, [periodFilter, filters]);
+  }, [periodFilter, filtersState]);
 
   const chartAxis = useMemo(
     () =>
@@ -142,7 +146,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       legends={distributorsData.map(d => ({ label: d.name, fill: d.color }))}
       headerEnd={
         <div className="flex items-center gap-4">
-          <DbFilters {...filters} />
+          <DbFilters {...filters} {...filtersState} />
           <Select<true, number>
             value={distributors}
             setValue={setDistributors}

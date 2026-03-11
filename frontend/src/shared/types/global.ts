@@ -7,6 +7,13 @@ export type ReplaceSeparators<T extends string> =
       : T;
 
 //
+export type TFilterPayloadValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Array<string | number | boolean | null | undefined>;
 
 export type SortDirection = 'ASC' | 'DESC';
 export type IndicatorType = 'amount' | 'packages' | 'share_percent';

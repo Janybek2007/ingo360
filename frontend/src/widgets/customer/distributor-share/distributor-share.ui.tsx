@@ -6,6 +6,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
@@ -41,16 +42,18 @@ export const DistributorShare: React.FC = React.memo(() => {
     'clients/distributors',
   ]);
 
+  const filtersState = useDbFiltersState({
+    indicator: { enabled: false },
+    groupBy: {
+      defaultValue: 'sku,brand,promotion_type,product_group,distributor'.split(
+        ','
+      ),
+    },
+  });
   const databaseFilters = useDbFilters({
+    state: filtersState,
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
-    config: {
-      indicator: { enabled: false },
-      groupBy: {
-        defaultValue:
-          'sku,brand,promotion_type,product_group,distributor'.split(','),
-      },
-    },
   });
 
   const periodFilter = usePeriodFilter({
@@ -65,19 +68,17 @@ export const DistributorShare: React.FC = React.memo(() => {
           filters,
           COMMON_COLUMNS_FILTER_KEY_MAP,
           {
-            brand_ids: databaseFilters.brands,
-            product_group_ids: databaseFilters.groups,
+            brand_ids: filtersState.brands,
+            product_group_ids: filtersState.groups,
           }
         ),
         ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
         limit:
-          databaseFilters.rowsCount === 'all'
-            ? undefined
-            : databaseFilters.rowsCount,
-        search: databaseFilters.search,
+          filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
+        search: filtersState.search,
 
-        group_by_dimensions: databaseFilters.groupBy,
+        group_by_dimensions: filtersState.groupBy,
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
 
@@ -111,7 +112,7 @@ export const DistributorShare: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['total'],
-      setGroupBy: databaseFilters.setGroupBy,
+      setGroupBy: filtersState.setGroupBy,
     });
 
   return (
@@ -119,7 +120,7 @@ export const DistributorShare: React.FC = React.memo(() => {
       title="Доли дистрибьюторов в процентах"
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
-          <DbFilters {...databaseFilters} />
+          <DbFilters {...databaseFilters} {...filtersState} />
           <PeriodFilters {...periodFilter} />
 
           <Select<true>
@@ -159,7 +160,7 @@ export const DistributorShare: React.FC = React.memo(() => {
           <Table
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: databaseFilters.resetFilters,
+              resetFilters: filtersState.resetFilters,
             }}
             columns={columnsForTable}
             data={sales}

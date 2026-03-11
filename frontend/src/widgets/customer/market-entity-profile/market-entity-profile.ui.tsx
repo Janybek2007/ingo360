@@ -27,6 +27,31 @@ const tabItems: { value: ISMGroupColumn; label: string }[] = [
   { value: 'segment', label: 'Сегменты' },
 ];
 
+function getActiveTabLabels(activeTab: ISMGroupColumn) {
+  let header = '';
+  let text = '';
+
+  switch (activeTab) {
+    case 'company': {
+      header = 'Компания';
+      text = 'компаний';
+      break;
+    }
+    case 'brand': {
+      header = 'Бренд';
+      text = 'брендов';
+      break;
+    }
+    case 'segment': {
+      header = 'Сегмент';
+      text = 'сегментов';
+      break;
+    }
+  }
+
+  return { header, text };
+}
+
 export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
   React.memo(
     ({
@@ -38,20 +63,21 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
       activeTab,
       setActiveTab,
       filters: databaseFilters,
+      filtersState,
     }) => {
       const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
       const [sorting, setSorting] = React.useState<SortingState>([]);
       const showNoImsHere = useNoImsPlaceholder(queryError);
 
-      const activeTabHeader = activeTab == 'brand' ? 'Бренд' : 'Сегмент';
-      const activeTabText = activeTab === 'brand' ? 'брендов' : 'сегментов';
+      const { header: activeTabHeader, text: activeTabText } =
+        getActiveTabLabels(activeTab);
 
       const columns = useMemo<ColumnDef<EntityRow>[]>(
         () => [
           { accessorKey: 'rank', header: 'Место', size: 130 },
           {
             accessorKey: 'entity',
-            header: activeTab == 'company' ? 'Компания' : activeTabHeader,
+            header: activeTabHeader,
             size: 300,
             cell: ({ row }) =>
               React.createElement(
@@ -71,7 +97,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               }),
           },
         ],
-        [activeTab, activeTabHeader]
+        [activeTabHeader]
       );
 
       const tableContent = (() => {
@@ -120,7 +146,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
           title="Профайл компании, бренда или сегмента в деньгах"
           headerEnd={
             <div className="relative z-100 flex items-center gap-4">
-              <DbFilters {...databaseFilters} brandsMultiple={false} />
+              <DbFilters {...databaseFilters} {...filtersState} />
               <PeriodFilters {...periodFilter} isMultiple={false} />
             </div>
           }
@@ -134,7 +160,6 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               />
               <UsedFilter
                 className="mt-4"
-                isReadOnly
                 usedPeriodFilters={getUsedFilterItems([
                   {
                     value: periodFilter.selectedValues,
@@ -148,7 +173,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
                 isViewPeriods={periodFilter.isView}
                 resetFilters={() => {
                   periodFilter.onReset();
-                  databaseFilters.resetFilters();
+                  filtersState.resetFilters();
                 }}
                 periodViewMode="from"
               />
@@ -158,7 +183,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
           <div className="items font-inter flex h-full justify-between">
             <div className="flex max-w-100 min-w-100 flex-col justify-between text-[#131313]">
               <h4 className="leading-full text-xl font-semibold -tracking-[0.0125rem]">
-                Рейтинг {activeTab === 'company' ? 'компаний' : activeTabText}
+                Рейтинг {activeTabText}
               </h4>
               <div className="my-20">
                 <div className="flex w-full flex-col items-center gap-4.5">

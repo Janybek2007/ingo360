@@ -3,7 +3,11 @@ import React from 'react';
 
 import { DbQueries } from '#/entities/db';
 import { AsyncBoundary } from '#/shared/components/async-boundry';
-import { DbFilters, useDbFilters } from '#/shared/components/db-filters';
+import {
+  DbFilters,
+  useDbFilters,
+  useDbFiltersState,
+} from '#/shared/components/db-filters';
 import { ExportToExcelButton } from '#/shared/components/export-to-excel';
 import { PageSection } from '#/shared/components/page-section';
 import { PeriodFilters } from '#/shared/components/period-filters';
@@ -40,17 +44,17 @@ export const MarketInsights: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const databaseFilters = useDbFilters({
-    config: {
-      brands: { enabled: false },
-      groups: { enabled: false },
-      groupBy: {
-        defaultValue: 'company,brand,segment,dosage_form,dosage,molecule'.split(
-          ','
-        ),
-      },
+  const filtersState = useDbFiltersState({
+    brands: { enabled: false },
+    groups: { enabled: false },
+    groupBy: {
+      defaultValue: 'company,brand,segment,dosage_form,dosage,molecule'.split(
+        ','
+      ),
     },
   });
+  const databaseFilters = useDbFilters({ state: filtersState });
+
   const periodFilter = usePeriodFilter({
     views: ['year', 'month', 'quarter'],
   });
@@ -65,13 +69,11 @@ export const MarketInsights: React.FC = React.memo(() => {
 
       period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
-      group_by_dimensions: databaseFilters.groupBy,
+      group_by_dimensions: filtersState.groupBy,
 
       limit:
-        databaseFilters.rowsCount === 'all'
-          ? undefined
-          : databaseFilters.rowsCount,
-      search: databaseFilters.search,
+        filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
+      search: filtersState.search,
 
       method: 'POST',
     })
@@ -91,13 +93,13 @@ export const MarketInsights: React.FC = React.memo(() => {
           const newKey = `${year}-${month}`;
           newRow[newKey] =
             typeof value == 'object'
-              ? value[databaseFilters.indicator as 'amount']
+              ? value[filtersState.indicator as 'amount']
               : value;
           continue;
         }
 
         if (typeof value === 'object' && Boolean(value)) {
-          newRow[key] = value[databaseFilters.indicator as 'amount'];
+          newRow[key] = value[filtersState.indicator as 'amount'];
           continue;
         }
 
@@ -106,7 +108,7 @@ export const MarketInsights: React.FC = React.memo(() => {
 
       return newRow;
     });
-  }, [queryData.data, databaseFilters.indicator]);
+  }, [queryData.data, filtersState.indicator]);
 
   const allColumns = useGenerateColumns({
     filterOptions: {},
@@ -125,7 +127,7 @@ export const MarketInsights: React.FC = React.memo(() => {
     useColumnVisibility({
       allColumns,
       ignore: ['actions'],
-      setGroupBy: databaseFilters.setGroupBy,
+      setGroupBy: filtersState.setGroupBy,
     });
 
   return (
@@ -133,7 +135,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       title="Данные по рынкам"
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
-          <DbFilters {...databaseFilters}>
+          <DbFilters {...databaseFilters} {...filtersState}>
             <PeriodFilters {...periodFilter} />
           </DbFilters>
           <Select<true>
@@ -175,7 +177,7 @@ export const MarketInsights: React.FC = React.memo(() => {
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
               resetFilters: () => {
-                databaseFilters.resetFilters();
+                filtersState.resetFilters();
                 periodFilter.onReset();
               },
               isViewPeriods: periodFilter.isView,

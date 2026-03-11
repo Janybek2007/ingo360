@@ -1,3 +1,4 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
@@ -118,6 +119,124 @@ const ToggleAllButton = memo(
 
 ToggleAllButton.displayName = '_ToggleAllButton_';
 
+// ─── Виртуализированный список ────────────────────────────────────────────────
+
+function VirtualList<VT>({
+  items,
+  isSelected,
+  onSelect,
+  checkbox,
+  indeterminate,
+  className,
+}: Readonly<{
+  items: ISelectItem<VT>[];
+  isSelected: (item: ISelectItem<VT>) => boolean;
+  onSelect: (item: ISelectItem<VT>) => void;
+  checkbox: boolean;
+  indeterminate: boolean;
+  className?: string;
+}>) {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 40,
+    overscan: 5,
+    measureElement: navigator.userAgent.includes('Firefox')
+      ? undefined
+      : element => element.getBoundingClientRect().height,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+
+  return (
+    <div
+      ref={parentRef}
+      className="noscrollbar flex-1 overflow-auto py-1"
+      style={{ maxHeight: '18rem' }}
+    >
+      <div
+        style={{
+          height: virtualizer.getTotalSize(),
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualItems.map(virtualRow => {
+          const item = items[virtualRow.index];
+          return (
+            <div
+              key={`${item.value}-${item.label}`}
+              ref={virtualizer.measureElement}
+              data-index={virtualRow.index}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <SelectItem
+                item={item}
+                isSelected={isSelected(item)}
+                onSelect={() => onSelect(item)}
+                checkbox={checkbox}
+                indeterminate={indeterminate}
+                className={className}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Обычный список ───────────────────────────────────────────────────────────
+
+function PlainList<VT>({
+  items,
+  isSelected,
+  onSelect,
+  checkbox,
+  indeterminate,
+  className,
+  parentRef,
+}: Readonly<{
+  items: ISelectItem<VT>[];
+  isSelected: (item: ISelectItem<VT>) => boolean;
+  onSelect: (item: ISelectItem<VT>) => void;
+  checkbox: boolean;
+  indeterminate: boolean;
+  className?: string;
+  parentRef: React.RefObject<HTMLDivElement | null>;
+}>) {
+  return (
+    <div
+      ref={parentRef}
+      className="noscrollbar flex-1 overflow-auto py-1"
+      style={{ maxHeight: '18rem' }}
+    >
+      {items.map(item => (
+        <SelectItem
+          key={`${item.value}-${item.label}`}
+          item={item}
+          isSelected={isSelected(item)}
+          onSelect={() => onSelect(item)}
+          checkbox={checkbox}
+          indeterminate={indeterminate}
+          className={className}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Select ───────────────────────────────────────────────────────────────────
+
 export function Select<ISM extends boolean = false, VT = string>({
   items,
   setValue,
@@ -134,6 +253,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   showToggleAll = false,
   indeterminate = false,
   defaultAllSelected = false,
+  isVirtualize = false,
 }: Readonly<ISelectProperties<ISM, VT>>) {
   const [open, { toggle, set }] = useToggle();
   const [searchQuery, setSearchQuery] = useState('');
@@ -249,6 +369,27 @@ export function Select<ISM extends boolean = false, VT = string>({
     [rightIcon, open]
   );
 
+  const listContent = isVirtualize ? (
+    <VirtualList
+      items={filteredItems}
+      isSelected={isSelected}
+      onSelect={handleSelect}
+      checkbox={checkbox}
+      indeterminate={indeterminate}
+      className={classNames?.menuItem}
+    />
+  ) : (
+    <PlainList
+      items={filteredItems}
+      isSelected={isSelected}
+      onSelect={handleSelect}
+      checkbox={checkbox}
+      indeterminate={indeterminate}
+      className={classNames?.menuItem}
+      parentRef={parentReference}
+    />
+  );
+
   return (
     <div className={cn('relative', classNames?.root)} ref={contentReference}>
       <button
@@ -297,29 +438,13 @@ export function Select<ISM extends boolean = false, VT = string>({
             <SearchInput value={searchQuery} onChange={handleSearchChange} />
           )}
 
-          <div
-            ref={parentReference}
-            className="noscrollbar flex-1 overflow-auto py-1"
-            style={{ maxHeight: '18rem' }}
-          >
-            {filteredItems.length === 0 ? (
-              <div className="px-3 py-2 text-center text-gray-500">
-                Ничего не найдено
-              </div>
-            ) : (
-              filteredItems.map(item => (
-                <SelectItem
-                  key={`${item.value}-${item.label}`}
-                  item={item}
-                  isSelected={isSelected(item)}
-                  onSelect={() => handleSelect(item)}
-                  checkbox={checkbox}
-                  indeterminate={indeterminate}
-                  className={classNames?.menuItem}
-                />
-              ))
-            )}
-          </div>
+          {filteredItems.length === 0 ? (
+            <div className="px-3 py-2 text-center text-gray-500">
+              Ничего не найдено
+            </div>
+          ) : (
+            listContent
+          )}
 
           {showToggleAll && (
             <div className="shrink-0 border-t border-gray-300">

@@ -48,14 +48,17 @@ const formatValue = (
   asPercent?: boolean,
   noFraction?: boolean
 ): string => {
+  if (noFraction) {
+    value = Math.trunc(value);
+  }
+
   if (asPercent) {
-    if (noFraction) return `${Math.trunc(value)}%`;
-    return `${value.toFixed(2)}%`;
+    return `${value}${noFraction ? '%' : value.toFixed(2) + '%'}`;
   }
 
   return value.toLocaleString('ru-RU', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: noFraction ? 0 : 2,
   });
 };
 
@@ -105,8 +108,6 @@ export const useGenerateColumns = <TData extends Record<string, any>>({
     return result;
   }, [filterOptions, columns, months, total]);
 };
-
-// ─── Builders (вне хука, на уровне модуля) ───────────────────────────────────
 
 function buildStringColumn<TData>(col: string): ColumnDef<TData> {
   return { id: col, accessorKey: col, header: col } as ColumnDef<TData>;
@@ -240,6 +241,7 @@ function buildTotalColumn<TData>(
       <CellValue
         value={total.getValue(row.original)}
         asPercent={total.asPercent}
+        noFraction={true}
       />
     ),
     meta: {

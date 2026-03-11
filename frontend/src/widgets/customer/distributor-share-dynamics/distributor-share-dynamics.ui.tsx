@@ -14,6 +14,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
@@ -30,6 +31,12 @@ import { type DistributorData, processDistributorShareData } from './utils';
 
 export const DistributorShareDynamics: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const filtersState = useDbFiltersState({
+    indicator: { enabled: false },
+    rowsCount: { enabled: false },
+    search: { enabled: false },
+  });
+
   const filterOptions = useFilterOptions([
     'products/brands',
     'products/product-groups',
@@ -38,13 +45,9 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
   const lastYear = useSession(s => s.lastYear);
 
   const filters = useDbFilters({
+    state: filtersState,
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
-    config: {
-      indicator: { enabled: false },
-      rowsCount: { enabled: false },
-      search: { enabled: false },
-    },
   });
   const periodFilter = usePeriodFilter({
     lastYear: lastYear?.primary,
@@ -54,8 +57,8 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<DistributorData[]>(
       ['sales/primary/reports/distributor-shares/chart'],
       {
-        brand_ids: filters.brands,
-        product_group_ids: filters.groups,
+        brand_ids: filtersState.brands,
+        product_group_ids: filtersState.groups,
         group_by_dimensions: ['distributor'],
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
@@ -75,8 +78,8 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    filters.resetFilters();
-  }, [periodFilter, filters]);
+    filtersState.resetFilters();
+  }, [periodFilter, filtersState]);
 
   return (
     <PageSection
@@ -84,7 +87,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       title="Динамика долей дистрибьюторов в первичных продажах"
       headerEnd={
         <div className="flex items-center gap-4">
-          <DbFilters {...filters} />
+          <DbFilters {...filters} {...filtersState} />
           <PeriodFilters {...periodFilter} />
         </div>
       }

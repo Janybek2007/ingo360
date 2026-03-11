@@ -126,24 +126,6 @@ export function getDbWorkColumns(
         meta: { groupDimension: 'sku' },
         selectOptions: filterOptions.products_skus,
       },
-      ...(type == 'sales/primary'
-        ? [
-            {
-              id: 'indicator',
-              accessorKey: 'indicator',
-              header: columnHeaderNames.indicator,
-              size: 180,
-              filterType: 'select',
-              filterFn: selectFilter(),
-              selectOptions: [
-                { label: 'Первичные продажи', value: 'Первичные продажи' },
-                { label: 'Остаток на складе', value: 'Остаток на складе' },
-              ],
-              enableColumnFilter: true,
-              meta: { groupDimension: 'indicator' },
-            } as ColumnDef<IDbItem>,
-          ]
-        : []),
       ...getYearMonthColumns(),
       ...getSalesColumns(type)
     );
@@ -321,15 +303,21 @@ export function getDbWorkColumns(
 
 function getSalesColumns(type: DbType): ColumnDef<IDbItem>[] {
   return [
-    type !== 'sales/primary' && {
+    type !== 'sales/secondary' && {
       id: 'indicator',
       accessorKey: 'indicator',
       header: columnHeaderNames.indicator,
       size: 180,
-      filterType: 'string',
-      filterFn: stringFilter(),
+      filterType: 'select',
+      filterFn: selectFilter(),
+      selectOptions: [
+        { label: 'Первичные продажи', value: 'продаж' },
+        { label: 'Остаток на складе', value: 'остат' },
+      ],
       enableColumnFilter: true,
+      meta: { groupDimension: 'indicator' },
     },
+    ,
     {
       accessorKey: 'packages',
       header: columnHeaderNames.packages,

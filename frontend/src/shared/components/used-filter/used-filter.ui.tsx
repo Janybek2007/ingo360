@@ -50,7 +50,7 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
   )
     return null;
 
-  const renderDefaultItem = (item: IUsedFilterItem) => (
+  const renderDefaultItem = (item: IUsedFilterItem, isPeriodItem = false) => (
     <div
       key={item.value}
       className={`flex items-center gap-1.5 ${
@@ -64,7 +64,7 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
           {item.label}{' '}
           {(item.subItems?.length as number) === 1 && item.subItems?.[0].label}
         </span>
-        {!isReadOnly && (
+        {!isReadOnly && !isPeriodItem && (
           <button
             type="button"
             onClick={item.onDelete}
@@ -85,9 +85,9 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
             value: sub.value as string,
           }))}
           value={item.subItems.map(sub => sub.value as string)}
-          indeterminate={periodViewMode == 'default'}
+          indeterminate={!isPeriodItem}
           setValue={values =>
-            periodViewMode == 'default' && handleSubItemsChange(item, values)
+            !isPeriodItem && handleSubItemsChange(item, values)
           }
           classNames={{
             trigger:
@@ -108,7 +108,8 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
       )}
     >
       {isView && groupedItems.map(item => renderDefaultItem(item))}
-      {isViewPeriods && groupedPeriodItems.map(item => renderDefaultItem(item))}
+      {isViewPeriods &&
+        groupedPeriodItems.map(item => renderDefaultItem(item, true))}
 
       {!isReadOnly && (
         <button

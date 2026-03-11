@@ -14,6 +14,7 @@ import { AsyncBoundary } from '#/shared/components/async-boundry';
 import {
   DbFilters,
   useDbFilters,
+  useDbFiltersState,
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { PageSection } from '#/shared/components/page-section';
@@ -37,6 +38,12 @@ interface DynamicSecondarySalesRaw {
 
 export const DynamicSecondarySales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
+  const filtersState = useDbFiltersState({
+    indicator: { enabled: false },
+    rowsCount: { enabled: false },
+    search: { enabled: false },
+  });
+
   const filterOptions = useFilterOptions([
     'products/brands',
     'products/product-groups',
@@ -45,13 +52,9 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
   const lastYear = useSession(s => s.lastYear);
 
   const filters = useDbFilters({
+    state: filtersState,
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
-    config: {
-      indicator: { enabled: false },
-      rowsCount: { enabled: false },
-      search: { enabled: false },
-    },
   });
   const periodFilter = usePeriodFilter({
     lastYear: lastYear?.secondary,
@@ -61,8 +64,8 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
     DbQueries.GetDbItemsQuery<DynamicSecondarySalesRaw[]>(
       ['sales/secondary/reports/chart'],
       {
-        brand_ids: filters.brands,
-        product_group_ids: filters.groups,
+        brand_ids: filtersState.brands,
+        product_group_ids: filtersState.groups,
 
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
@@ -89,8 +92,8 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
 
   const resetFilters = React.useCallback(() => {
     periodFilter.onReset();
-    filters.resetFilters();
-  }, [periodFilter, filters]);
+    filtersState.resetFilters();
+  }, [periodFilter, filtersState]);
 
   const chartAxis = useMemo(
     () => calculateChartAxis(sales, ['value']),
@@ -99,10 +102,10 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
 
   return (
     <PageSection
-      title={`Динамика вторичных продаж в ${filters.indicator === 'amount' ? 'деньгах' : 'упаковках'}`}
+      title={`Динамика вторичных продаж в ${filtersState.indicator === 'amount' ? 'деньгах' : 'упаковках'}`}
       headerEnd={
         <div className="flex items-center gap-4">
-          <DbFilters {...filters} />
+          <DbFilters {...filters} {...filtersState} />
           <PeriodFilters {...periodFilter} />
         </div>
       }
@@ -127,7 +130,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
         <div className="space-y-4">
           <div className="font-inter">
             <LineChart
-              key={filters.indicator}
+              key={filtersState.indicator}
               width={sectionStyle.width - 48}
               height={500}
               data={sales}
