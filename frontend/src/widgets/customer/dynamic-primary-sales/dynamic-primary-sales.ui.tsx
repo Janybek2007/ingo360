@@ -40,10 +40,10 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       search: { enabled: false },
     });
 
-    const filterOptions = useFilterOptions([
-      'products/brands',
-      'products/product-groups',
-    ]);
+    const filterOptions = useFilterOptions(
+      ['products/brands', 'products/product-groups'],
+      'sales_primary'
+    );
 
     const filters = useDbFilters({
       state: filtersState,

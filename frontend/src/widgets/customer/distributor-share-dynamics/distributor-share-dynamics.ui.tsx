@@ -50,10 +50,10 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
     search: { enabled: false },
   });
 
-  const filterOptions = useFilterOptions([
-    'products/brands',
-    'products/product-groups',
-  ]);
+  const filterOptions = useFilterOptions(
+    ['products/brands', 'products/product-groups'],
+    'sales_primary'
+  );
 
   const lastYear = useSession(s => s.lastYear);
 

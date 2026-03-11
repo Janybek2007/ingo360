@@ -55,7 +55,7 @@ export const Shipments: React.FC = React.memo(() => {
       'products/promotion-types',
       'clients/distributors',
     ],
-    undefined,
+    'sales_primary',
     transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
       brand_ids: dbFiltersState.brands,
       product_group_ids: dbFiltersState.groups,

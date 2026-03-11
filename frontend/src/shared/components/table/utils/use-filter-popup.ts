@@ -1,15 +1,22 @@
-import type { Column, ColumnDefBase } from '@tanstack/react-table';
-import { useCallback, useMemo, useState } from 'react';
+import type {
+  Column,
+  ColumnDefBase,
+  SortDirection,
+} from '@tanstack/react-table';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 
 interface IUseFilterPopupArgs {
   column: Column<any, unknown>;
   onClose: VoidFunction;
-  selectOptions: {
-    label: string;
-    value: string | number;
-  }[];
+  selectOptions: { label: string; value: string | number }[];
   colType: ColumnDefBase<any>['filterType'];
 }
 
@@ -21,7 +28,72 @@ export const useFilterPopup = ({
 }: IUseFilterPopupArgs) => {
   const contentRef = useClickAway<HTMLDivElement>(onClose);
 
+  const [popupHeight, setPopupHeight] = useState(0);
+  const [isPositioned, setIsPositioned] = useState(false);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    setPopupHeight(el.offsetHeight);
+    setIsPositioned(true);
+  }, [colType, column.columnDef.enableColumnFilter, contentRef]);
+
+  const [width, setWidth] = useState(350);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  const handleResizeMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsResizing(true);
+      resizeRef.current = { startX: e.clientX, startWidth: width };
+    },
+    [width]
+  );
+
+  const handleResizeMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing || !resizeRef.current) return;
+      const delta = e.clientX - resizeRef.current.startX;
+      setWidth(
+        Math.max(250, Math.min(600, resizeRef.current.startWidth + delta))
+      );
+    },
+    [isResizing]
+  );
+
+  const handleResizeMouseUp = useCallback(() => {
+    setIsResizing(false);
+    resizeRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (!isResizing) return;
+    document.addEventListener('mousemove', handleResizeMouseMove);
+    document.addEventListener('mouseup', handleResizeMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleResizeMouseMove);
+      document.removeEventListener('mouseup', handleResizeMouseUp);
+    };
+  }, [isResizing, handleResizeMouseMove, handleResizeMouseUp]);
+
+  const [pendingSort, setPendingSort] = useState<SortDirection | false>(
+    column.getIsSorted() as SortDirection
+  );
+
+  const applySorting = useCallback(() => {
+    const currentSort = column.getIsSorted() as SortDirection;
+    if (!pendingSort) {
+      if (currentSort) column.clearSorting();
+      return;
+    }
+    if (pendingSort !== currentSort) {
+      column.toggleSorting(pendingSort === 'desc');
+    }
+  }, [column, pendingSort]);
+
   const initialFilterValue = column.getFilterValue();
+
   const initialFilterType = useMemo(() => {
     if (colType === 'select') return 'select';
     if (
@@ -79,60 +151,67 @@ export const useFilterPopup = ({
     if (colType === 'select') {
       if (!Array.isArray(value) || value.length === 0) {
         column.setFilterValue(undefined);
-        onClose();
-        return;
+      } else {
+        column.setFilterValue({
+          selectValues: value,
+          colType,
+          header: column.columnDef.header,
+        });
       }
-      column.setFilterValue({
-        selectValues: value,
-        colType,
-        header: column.columnDef.header,
-      });
     } else if (colType === 'number' && filterType === 'between') {
-      if (
-        value === '' ||
-        value === null ||
-        value === undefined ||
-        value2 === ''
-      ) {
+      if (value === '' || value == null || value2 === '') {
         column.setFilterValue(undefined);
-        onClose();
-        return;
+      } else {
+        column.setFilterValue({
+          type: filterType,
+          value: [value, value2],
+          colType,
+          header: column.columnDef.header,
+        });
       }
-      column.setFilterValue({
-        type: filterType,
-        value: [value, value2],
-        colType,
-        header: column.columnDef.header,
-      });
     } else {
       if (
         value === '' ||
-        value === null ||
-        value === undefined ||
-        (typeof value === 'string' && value.trim() === '')
+        value == null ||
+        (typeof value === 'string' && !value.trim())
       ) {
         column.setFilterValue(undefined);
-        onClose();
-        return;
+      } else {
+        column.setFilterValue({
+          type: filterType,
+          value,
+          colType,
+          header: column.columnDef.header,
+        });
       }
-      column.setFilterValue({
-        type: filterType,
-        value,
-        colType,
-        header: column.columnDef.header,
-      });
     }
     onClose();
-  }, [colType, filterType, onClose, value, column, value2]);
+  }, [colType, filterType, onClose, value, value2, column]);
+
+  const applyFilterAndSorting = useCallback(() => {
+    applySorting();
+    applyFilter();
+  }, [applySorting, applyFilter]);
 
   return {
+    // refs & visibility
     contentRef,
+    popupHeight,
+    isPositioned,
+    // resize
+    width,
+    handleResizeMouseDown,
+    // sorting
+    pendingSort,
+    setPendingSort,
+    // filter
     filterType,
     value,
     value2,
     setFilterType,
     setValue,
     setValue2,
-    applyFilter,
+    // actions
+    applyFilterAndSorting,
   };
 };

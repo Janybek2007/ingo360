@@ -55,7 +55,7 @@ export const SecondarySales: React.FC = React.memo(() => {
       'clients/distributors',
       'clients/geo-indicators',
     ],
-    undefined,
+    'sales_secondary',
     transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
       brand_ids: filtersState.brands,
       product_group_ids: filtersState.groups,

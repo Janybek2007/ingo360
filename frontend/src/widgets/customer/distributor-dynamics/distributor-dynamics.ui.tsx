@@ -43,11 +43,10 @@ export const DistributorDynamics: React.FC = React.memo(() => {
     search: { enabled: false },
   });
 
-  const filterOptions = useFilterOptions([
-    'products/brands',
-    'products/product-groups',
-    'clients/distributors',
-  ]);
+  const filterOptions = useFilterOptions(
+    ['products/brands', 'products/product-groups', 'clients/distributors'],
+    'sales_secondary'
+  );
 
   const filters = useDbFilters({
     state: filtersState,

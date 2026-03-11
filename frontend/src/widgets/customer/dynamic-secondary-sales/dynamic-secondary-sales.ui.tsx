@@ -44,10 +44,10 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
     search: { enabled: false },
   });
 
-  const filterOptions = useFilterOptions([
-    'products/brands',
-    'products/product-groups',
-  ]);
+  const filterOptions = useFilterOptions(
+    ['products/brands', 'products/product-groups'],
+    'sales_secondary'
+  );
 
   const lastYear = useSession(s => s.lastYear);
 

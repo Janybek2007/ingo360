@@ -34,13 +34,16 @@ export const DistributorShare: React.FC = React.memo(() => {
 
   const lastYear = useSession(s => s.lastYear);
 
-  const filterOptions = useFilterOptions([
-    'products/brands',
-    'products/product-groups',
-    'products/skus',
-    'products/promotion-types',
-    'clients/distributors',
-  ]);
+  const filterOptions = useFilterOptions(
+    [
+      'products/brands',
+      'products/product-groups',
+      'products/skus',
+      'products/promotion-types',
+      'clients/distributors',
+    ],
+    'sales_primary'
+  );
 
   const filtersState = useDbFiltersState({
     indicator: { enabled: false },

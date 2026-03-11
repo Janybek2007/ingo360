@@ -6,7 +6,10 @@ import { DoctorsCountVisits } from './ui/count-visits.ui';
 import { DoctorsPercentageVisits } from './ui/percentage-visits.ui';
 
 export const DoctorsCoverage: React.FC = React.memo(() => {
-  const filterOptions = useFilterOptions(['clients/medical-facilities']);
+  const filterOptions = useFilterOptions(
+    ['clients/medical-facilities'],
+    'visits'
+  );
 
   const [medicalFacilityIds, setMedicalFacilityIds] = React.useState<number[]>(
     []

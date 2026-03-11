@@ -44,7 +44,7 @@ export const OverallVisits: React.FC = React.memo(() => {
     search: { enabled: false },
   });
 
-  const filterOptions = useFilterOptions(['products/product-groups']);
+  const filterOptions = useFilterOptions(['products/product-groups'], 'visits');
 
   const lastYear = useSession(s => s.lastYear);
 

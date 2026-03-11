@@ -33,6 +33,7 @@ type DynamicPrimarySalesData = {
 export const DynamicSales: React.FC = React.memo(() => {
   const sectionStyle = useSectionStyle();
   const lastYear = useSession(s => s.lastYear);
+
   const periodFilter = usePeriodFilter({
     lastYear: lastYear?.primary,
   });
