@@ -25,7 +25,7 @@ import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -181,7 +181,7 @@ export const MarketInsights: React.FC = React.memo(() => {
                 periodFilter.onReset();
               },
               isViewPeriods: periodFilter.isView,
-              usedPeriodFilters: getUsedFilterItems([
+              usedPeriodFilters: getFilterItems([
                 {
                   value: periodFilter.selectedValues,
                   getLabelFromValue: getPeriodLabel,

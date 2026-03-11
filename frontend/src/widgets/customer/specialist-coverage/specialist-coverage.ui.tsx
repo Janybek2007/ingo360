@@ -39,6 +39,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
 
   const filtersState = useDbFiltersState({
     brands: { enabled: false },
+    groups: { enabled: false },
     indicator: { enabled: false },
     groupBy: {
       defaultValue: 'medical_facility,speciality,doctor'.split(','),
@@ -46,25 +47,17 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   });
 
   const filterOptions = useFilterOptions(
-    [
-      'clients/medical-facilities',
-      'clients/doctors',
-      'clients/specialities',
-      'products/product-groups',
-    ],
+    ['clients/medical-facilities', 'clients/doctors', 'clients/specialities'],
     'visits',
-    transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
-      brand_ids: filtersState.brands,
-      product_group_ids: filtersState.groups,
-    })
+    transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP)
   );
 
   const lastYear = useSession(s => s.lastYear);
 
   const databaseFilters = useDbFilters({
     state: filtersState,
-    groupsOptions: filterOptions.options.products_product_groups,
   });
+
   const periodFilter = usePeriodFilter({
     lastYear: lastYear?.primary,
   });

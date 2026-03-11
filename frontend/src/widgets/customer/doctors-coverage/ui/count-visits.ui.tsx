@@ -8,7 +8,7 @@ import { Select } from '#/shared/components/ui/select';
 import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
 import type {
@@ -23,12 +23,16 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
       medicalFacilityItems,
       setMedicalFacilityIds,
       enabled = true,
+      specialityItems,
     }) => {
+      const [specialityIds, setSpecialityIds] = React.useState<number[]>([]);
+
       const countQuery = useKeepQuery(
         DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
           ['visits/reports/doctors-by-specialty'],
           {
             medical_facility_ids: medicalFacilityIds,
+            speciality_ids: specialityIds,
 
             enabled,
             method: 'POST',
@@ -53,28 +57,48 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
             <h4 className="font-inter text-xl leading-[120%] font-medium text-black">
               Количество врачей
             </h4>
-            <Select<true, number | string>
-              value={medicalFacilityIds}
-              setValue={value => setMedicalFacilityIds(value.map(Number))}
-              isMultiple
-              checkbox
-              search
-              defaultAllSelected
-              showToggleAll
-              items={medicalFacilityItems}
-              triggerText="ЛПУ"
-              rightIcon={
-                <LucideArrowIcon type="chevron-down" className="size-4.5" />
-              }
-              classNames={{
-                trigger: 'gap-4 rounded-full justify-between',
-                menu: 'w-[25rem] left-0 max-h-[400px]',
-              }}
-            />
+            <div className="flex items-center gap-4">
+              <Select<true, number | string>
+                value={specialityIds}
+                setValue={value => setSpecialityIds(value.map(Number))}
+                isMultiple
+                checkbox
+                search
+                defaultAllSelected
+                showToggleAll
+                items={specialityItems}
+                triggerText="Специальность"
+                rightIcon={
+                  <LucideArrowIcon type="chevron-down" className="size-4.5" />
+                }
+                classNames={{
+                  trigger: 'gap-2 rounded-full justify-between',
+                  menu: 'w-[25rem] left-0 max-h-[400px]',
+                }}
+              />
+              <Select<true, number | string>
+                value={medicalFacilityIds}
+                setValue={value => setMedicalFacilityIds(value.map(Number))}
+                isMultiple
+                checkbox
+                search
+                defaultAllSelected
+                showToggleAll
+                items={medicalFacilityItems}
+                triggerText="ЛПУ"
+                rightIcon={
+                  <LucideArrowIcon type="chevron-down" className="size-4.5" />
+                }
+                classNames={{
+                  trigger: 'gap-2 rounded-full justify-between',
+                  menu: 'w-[25rem] left-0 max-h-[400px]',
+                }}
+              />
+            </div>
           </div>
           <div>
             <UsedFilter
-              usedFilterItems={getUsedFilterItems([
+              usedFilterItems={getFilterItems([
                 medicalFacilityIds.length > 0 && {
                   value: medicalFacilityIds,
                   getLabelFromValue(value) {
@@ -92,8 +116,26 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                     label: 'ЛПУ:',
                   },
                 },
+                specialityIds.length > 0 && {
+                  value: specialityIds,
+                  getLabelFromValue(value) {
+                    return (
+                      specialityItems.find(item => item.value === value)
+                        ?.label ?? '-'
+                    );
+                  },
+                  main: {
+                    onDelete: v => {
+                      setSpecialityIds(p => p.filter(id => id !== Number(v)));
+                    },
+                    label: 'Спепиальности:',
+                  },
+                },
               ])}
-              resetFilters={() => setMedicalFacilityIds([])}
+              resetFilters={() => {
+                setSpecialityIds([]);
+                setMedicalFacilityIds([]);
+              }}
             />
           </div>
 
@@ -102,7 +144,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
             queryError={countQuery.error}
           >
             <div className="relative my-3 flex max-h-112 min-h-112 w-full items-center justify-center py-2">
-              <PieChart width={sectionStyle.width / 2 - 80} height={440}>
+              <PieChart width={sectionStyle.width / 2 - 80} height={400}>
                 <Pie
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore

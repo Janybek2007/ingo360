@@ -25,7 +25,7 @@ import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
 import { stringToColor } from '#/shared/utils/string-to-color';
 
@@ -130,7 +130,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
         <div className="space-y-4">
           <UsedFilter
             usedFilterItems={filters.usedFilterItems}
-            usedPeriodFilters={getUsedFilterItems([
+            usedPeriodFilters={getFilterItems([
               {
                 value: periodFilter.selectedValues,
                 getLabelFromValue: getPeriodLabel,

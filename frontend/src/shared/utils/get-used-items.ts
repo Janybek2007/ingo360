@@ -9,7 +9,7 @@ interface IFilterConfig {
   isReadOnly?: boolean;
 }
 
-export function getUsedFilterItems(
+export function getFilterItems(
   filters: (IFilterConfig | boolean)[]
 ): IUsedFilterItem[] {
   const items: IUsedFilterItem[] = [];

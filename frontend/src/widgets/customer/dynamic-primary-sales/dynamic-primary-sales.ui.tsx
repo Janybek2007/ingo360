@@ -15,7 +15,7 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 
 import type { DynamicPrimarySalesData } from './dynamic-primary-sales.types';
 import { DynamicPrimarySalesAsLine } from './ui/as-line.ui';
@@ -94,7 +94,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
               resetFilters={resetFilters}
               isView={filters.usedFilterItems.length > 0}
               isViewPeriods={periodFilter.isView}
-              usedPeriodFilters={getUsedFilterItems([
+              usedPeriodFilters={getFilterItems([
                 {
                   value: periodFilter.selectedValues,
                   getLabelFromValue: getPeriodLabel,

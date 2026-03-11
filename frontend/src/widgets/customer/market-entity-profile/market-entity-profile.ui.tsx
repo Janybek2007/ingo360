@@ -17,7 +17,7 @@ import { FiltersContext } from '#/shared/context/filters';
 import { useNoImsPlaceholder } from '#/shared/hooks/use-no-ims-placeholder';
 import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 
 import type { MarketEntityProfileProps as MarketEntityProfileProperties } from './market-entity-profile.types';
 
@@ -160,7 +160,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               />
               <UsedFilter
                 className="mt-4"
-                usedPeriodFilters={getUsedFilterItems([
+                usedPeriodFilters={getFilterItems([
                   {
                     value: periodFilter.selectedValues,
                     getLabelFromValue: getPeriodLabel,

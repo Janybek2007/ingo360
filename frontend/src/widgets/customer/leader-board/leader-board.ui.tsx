@@ -14,7 +14,7 @@ import { FiltersContext } from '#/shared/context/filters';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import type { EntityRow } from '#/shared/types/ims';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 
 import type { LeaderboardProps as LeaderboardProperties } from './leader-board.types';
 
@@ -96,7 +96,7 @@ export const LeaderBoard: React.FC<LeaderboardProperties> = React.memo(
               </div>
               <UsedFilter
                 isReadOnly
-                usedPeriodFilters={getUsedFilterItems([
+                usedPeriodFilters={getFilterItems([
                   {
                     value: periodFilter.selectedValues,
                     getLabelFromValue: getPeriodLabel,

@@ -26,7 +26,7 @@ import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { useSession } from '#/shared/session';
 import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
 import { PeriodSorting } from '#/shared/utils/period-sorting';
 
@@ -112,7 +112,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
     >
       <UsedFilter
         usedFilterItems={filters.usedFilterItems}
-        usedPeriodFilters={getUsedFilterItems([
+        usedPeriodFilters={getFilterItems([
           {
             value: periodFilter.selectedValues,
             getLabelFromValue: getPeriodLabel,

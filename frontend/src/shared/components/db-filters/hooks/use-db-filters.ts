@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { IUsedFilterItem } from '#/shared/components/used-filter';
 import type { IndicatorType } from '#/shared/types/global';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 
 import type {
   DbFiltersConfig,
@@ -149,7 +149,7 @@ export const useDbFilters = ({
   ]);
 
   const usedFilterItems = useMemo((): IUsedFilterItem[] => {
-    const items = getUsedFilterItems([
+    const items = getFilterItems([
       rowsCount !== 'all' && {
         value: rowsCount,
         getLabelFromValue: (value: string | number) => `Строки: ${value}`,

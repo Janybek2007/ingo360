@@ -10,7 +10,14 @@ export interface DoctorsCoverageRow {
 
 export interface DoctorCountVisitsProps {
   medicalFacilityIds: number[];
-  medicalFacilityItems: FilterOptions[];
   setMedicalFacilityIds: React.Dispatch<React.SetStateAction<number[]>>;
+  medicalFacilityItems: FilterOptions[];
+  specialityItems: FilterOptions[];
   enabled: boolean;
+}
+
+export interface DoctorPercentageVisitsProps {
+  medicalFacilityIds: number[];
+  enabled: boolean;
+  groupItems: FilterOptions[];
 }

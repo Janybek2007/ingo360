@@ -7,7 +7,11 @@ import { DoctorsPercentageVisits } from './ui/percentage-visits.ui';
 
 export const DoctorsCoverage: React.FC = React.memo(() => {
   const filterOptions = useFilterOptions(
-    ['clients/medical-facilities'],
+    [
+      'clients/medical-facilities',
+      'clients/specialities',
+      'products/product-groups',
+    ],
     'visits'
   );
 
@@ -20,13 +24,15 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
       <div className="flex w-full items-start gap-6">
         <DoctorsCountVisits
           enabled={!filterOptions.isLoading}
-          setMedicalFacilityIds={setMedicalFacilityIds}
           medicalFacilityItems={
             filterOptions.options.clients_medical_facilities
           }
+          setMedicalFacilityIds={setMedicalFacilityIds}
           medicalFacilityIds={medicalFacilityIds}
+          specialityItems={filterOptions.options.clients_specialities}
         ></DoctorsCountVisits>
         <DoctorsPercentageVisits
+          groupItems={filterOptions.options.products_product_groups}
           enabled={!filterOptions.isLoading}
           medicalFacilityIds={medicalFacilityIds}
         />

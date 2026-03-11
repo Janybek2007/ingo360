@@ -19,7 +19,7 @@ import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import type { ReferencesTypeWithMain } from '#/shared/types/references.type';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import { transformHeaderKeys } from '#/shared/utils/transform';
 
 import { getReferenceTypeDeps, getReferenceWorkColumns } from './constants';
@@ -122,7 +122,7 @@ const ReferenceWork: React.FC<IReferenceWorkProperties> = React.memo(
                 resetFilters: () => {
                   setRowsCount(defaultLimit);
                 },
-                usedFilterItems: getUsedFilterItems([
+                usedFilterItems: getFilterItems([
                   rowsCount !== defaultLimit && {
                     value: rowsCount,
                     getLabelFromValue(value) {

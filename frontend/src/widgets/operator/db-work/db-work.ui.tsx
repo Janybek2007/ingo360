@@ -21,7 +21,7 @@ import { Select } from '#/shared/components/ui/select';
 import { findCurrentTab } from '#/shared/components/ui/tabs';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import type { DbType } from '#/shared/types/db.type';
-import { getUsedFilterItems } from '#/shared/utils/get-used-items';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import { transformHeaderKeys } from '#/shared/utils/transform';
 
 import {
@@ -130,7 +130,7 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
                 resetFilters: () => {
                   setRowsCount(defaultLimit);
                 },
-                usedFilterItems: getUsedFilterItems([
+                usedFilterItems: getFilterItems([
                   rowsCount !== defaultLimit && {
                     value: rowsCount,
                     getLabelFromValue(value) {

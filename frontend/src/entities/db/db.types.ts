@@ -110,6 +110,7 @@ export type IGetDBItemsParams = PaginationParams &
     brand_ids?: (string | number)[];
     distributor_ids?: (string | number)[];
     product_group_ids?: (string | number)[];
+    speciality_ids?: (string | number)[];
     search?: string;
     promo_type_ids?: (string | number)[];
     sku_ids?: (string | number)[];
