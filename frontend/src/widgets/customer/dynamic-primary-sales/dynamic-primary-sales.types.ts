@@ -3,7 +3,8 @@ import type { IndicatorType } from '#/shared/types/global';
 
 export type DynamicPrimarySalesData = {
   period: string; // period:year = 2023, period:month = 2023-01, period:quarter = 2023-Q1
-  coverage_months: number;
+  coverage_months_amount: number;
+  coverage_months_packages: number;
   stock_packages: number;
   stock_amount: number;
   sales_packages: number;

@@ -36,7 +36,10 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
               indicator === 'packages'
                 ? item.stock_packages
                 : item.stock_amount,
-            trade_stock: item.coverage_months,
+            trade_stock:
+              indicator === 'packages'
+                ? item.coverage_months_packages
+                : item.coverage_months_amount,
             xIndex: `${index}`,
           };
         });

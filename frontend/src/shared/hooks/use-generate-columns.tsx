@@ -40,6 +40,7 @@ interface UseGenerateColumnsProps<TData> {
     getValue: (row: TData) => number | null | undefined;
     asPercent?: boolean;
     indicatorKey?: string;
+    noFraction?: boolean;
   };
 }
 
@@ -241,7 +242,7 @@ function buildTotalColumn<TData>(
       <CellValue
         value={total.getValue(row.original)}
         asPercent={total.asPercent}
-        noFraction={true}
+        noFraction={total.noFraction}
       />
     ),
     meta: {

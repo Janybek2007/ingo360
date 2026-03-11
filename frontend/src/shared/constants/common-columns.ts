@@ -576,16 +576,21 @@ export const monthsPreset = <
   };
 };
 
-const DEFAULT_TOTAL_OPTIONS: { asPercent?: boolean; periods?: string[] } = {
+const DEFAULT_TOTAL_OPTIONS: {
+  asPercent?: boolean;
+  periods?: string[];
+  noFraction?: boolean;
+} = {
   asPercent: false,
   periods: [],
+  noFraction: false,
 };
 
 export const totalPreset = <
   TData extends { periods_data?: Record<string, Record<string, number>> },
 >(
   indicator: string,
-  options: { asPercent?: boolean; periods?: string[] } = DEFAULT_TOTAL_OPTIONS
+  options: typeof DEFAULT_TOTAL_OPTIONS = DEFAULT_TOTAL_OPTIONS
 ) => ({
   getValue: (row: TData) => {
     if (!row.periods_data) return null;
@@ -616,6 +621,7 @@ export const totalPreset = <
 
     return total;
   },
+  noFraction: options.noFraction,
   asPercent: options?.asPercent,
   indicatorKey: indicator,
 });

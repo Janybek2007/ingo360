@@ -16,7 +16,12 @@ export type TFilterPayloadValue =
   | Array<string | number | boolean | null | undefined>;
 
 export type SortDirection = 'ASC' | 'DESC';
-export type IndicatorType = 'amount' | 'packages' | 'share_percent';
+export type IndicatorType =
+  | 'amount'
+  | 'packages'
+  | 'share_percent'
+  | 'coverage_months_amount'
+  | 'coverage_months_packages';
 
 export interface PaginationParams {
   limit?: number;

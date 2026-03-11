@@ -40,13 +40,20 @@ export const Inventory: React.FC = React.memo(() => {
   const lastYear = useSession(s => s.lastYear);
 
   const filtersState = useDbFiltersState({
-    indicator: { enabled: false },
+    indicator: {
+      defaultValue: 'coverage_months_amount',
+      options: [
+        { label: 'Деньги', value: 'coverage_months_amount' },
+        { label: 'Упаковка', value: 'coverage_months_packages' },
+      ],
+    },
     groupBy: {
       defaultValue: 'sku,brand,promotion_type,product_group,distributor'.split(
         ','
       ),
     },
   });
+
   const filterOptions = useFilterOptions(
     [
       'products/brands',
@@ -114,8 +121,8 @@ export const Inventory: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset('coverage_months', sales),
-    total: totalPreset('coverage_months'),
+    months: monthsPreset(filtersState.indicator, sales),
+    total: totalPreset(filtersState.indicator),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -125,8 +132,8 @@ export const Inventory: React.FC = React.memo(() => {
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(sales, 'coverage_months');
-  }, [sales]);
+    return calcPeriodTotals(sales, filtersState.indicator);
+  }, [sales, filtersState.indicator]);
 
   return (
     <PageSection

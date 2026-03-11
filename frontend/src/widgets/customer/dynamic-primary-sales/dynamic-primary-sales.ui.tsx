@@ -51,9 +51,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
       groupsOptions: filterOptions.options.products_product_groups,
     });
 
-    const periodFilter = usePeriodFilter({
-      lastYear: lastYear?.primary,
-    });
+    const periodFilter = usePeriodFilter({ lastYear: lastYear?.primary });
 
     const queryData = useKeepQuery(
       DbQueries.GetDbItemsQuery<DynamicPrimarySalesData[]>(
