@@ -117,7 +117,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
 
       return (
         <PageSection
-          title="Профайл в деньгах компании, бренда или сегмента"
+          title="Профайл компании, бренда или сегмента в деньгах"
           headerEnd={
             <div className="relative z-100 flex items-center gap-4">
               <DbFilters {...databaseFilters} brandsMultiple={false} />

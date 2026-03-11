@@ -33,8 +33,6 @@ import {
   transformSortingToPayload,
 } from '#/shared/utils/transform';
 
-import { INDICATOR_KEY, normalizePharmacyStockRows } from './utils';
-
 export const PharmacyBalance: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -52,9 +50,11 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
     config: {
-      indicator: { enabled: false },
       groupBy: {
-        defaultValue: 'sku,brand,responsible_employee,product_group'.split(','),
+        defaultValue:
+          'sku,brand,promotion_type,product_group,distributor,geo_indicator'.split(
+            ','
+          ),
       },
     },
   });
@@ -83,16 +83,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             : databaseFilters.rowsCount,
         search: databaseFilters.search,
 
-        group_by_dimensions: databaseFilters.groupBy.filter(dimension =>
-          [
-            'sku',
-            'brand',
-            'promotion_type',
-            'product_group',
-            'distributor',
-            'geo_indicator',
-          ].includes(dimension)
-        ),
+        group_by_dimensions: databaseFilters.groupBy,
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
 
@@ -107,21 +98,18 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     [queryData.data]
   );
 
-  const normalizedSales = useMemo(
-    () => normalizePharmacyStockRows(sales),
-    [sales]
-  );
-
   const allColumns = useGenerateColumns<TDbItem>({
     filterOptions: filterOptions.options,
     columns: [
       commonColumns.sku(),
       commonColumns.brand(),
+      commonColumns.promotion(),
       commonColumns.group(),
-      commonColumns.responsible_employee(),
+      commonColumns.distributor(),
+      commonColumns.geo_indicator(),
     ],
-    months: monthsPreset(INDICATOR_KEY, normalizedSales),
-    total: totalPreset(INDICATOR_KEY),
+    months: monthsPreset(databaseFilters.indicator, sales),
+    total: totalPreset(databaseFilters.indicator),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
@@ -131,8 +119,8 @@ export const PharmacyBalance: React.FC = React.memo(() => {
     });
 
   const { monthTotals, grandTotal } = useMemo(
-    () => calcPeriodTotals(normalizedSales, INDICATOR_KEY),
-    [normalizedSales]
+    () => calcPeriodTotals(sales, databaseFilters.indicator),
+    [sales, databaseFilters.indicator]
   );
 
   return (
@@ -166,8 +154,8 @@ export const PharmacyBalance: React.FC = React.memo(() => {
             }}
             hasTotal
             selectKeys={visibleColumns}
-            periodKey={INDICATOR_KEY}
-            data={normalizedSales}
+            periodKey={databaseFilters.indicator}
+            data={sales}
             fileName="Остаток по аптекам"
           />
         </div>
@@ -186,7 +174,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
               resetFilters: databaseFilters.resetFilters,
             }}
             columns={columnsForTable}
-            data={normalizedSales}
+            data={sales}
             maxHeight={560}
             rowTotal={{ firstColSpan: 1, monthTotals, grandTotal }}
             rounded="none"
