@@ -6,3 +6,5 @@ export const ERROR_MESSAGES: Record<string, string> = {
   ACCOUNT_INACTIVE: 'Ваш статус неактивен',
   ACCOUNT_DEACTIVATED: 'Ваш статус неактивен',
 };
+export const NO_IMS_PLACEHOLDER_MESSAGE =
+  'У компании нет IMS названия и нет брендов';

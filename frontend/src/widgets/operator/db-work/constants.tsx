@@ -6,6 +6,7 @@ import type {
   FilterOptionsReferencesKey,
 } from '#/shared/components/db-filters';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
+import { getIndicatorOptions } from '#/shared/constants/get-indicator-options';
 import { allMonths } from '#/shared/constants/months';
 import type { DbType } from '#/shared/types/db.type';
 import {
@@ -310,10 +311,7 @@ function getSalesColumns(type: DbType): ColumnDef<IDbItem>[] {
       size: 180,
       filterType: 'select',
       filterFn: selectFilter(),
-      selectOptions: [
-        { label: 'Первичные продажи', value: 'продаж' },
-        { label: 'Остаток на складе', value: 'остат' },
-      ],
+      selectOptions: getIndicatorOptions(type),
       enableColumnFilter: true,
       meta: { groupDimension: 'indicator' },
     },

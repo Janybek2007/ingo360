@@ -1,4 +1,5 @@
 import type { ICreateEditModalProps } from '#/shared/components/create-edit-modal';
+import { getIndicatorOptions } from '#/shared/constants/get-indicator-options';
 import { allMonths } from '#/shared/constants/months';
 import type { DbType } from '#/shared/types/db.type';
 
@@ -23,10 +24,7 @@ const defaultFields: ICreateEditModalProps['fields'] = [
       label: 'Показатель',
       placeholder: 'Выберите показатель',
       type: 'select',
-      selectItems: [
-        { label: 'Первичные продажи', value: 'продаж' },
-        { label: 'Остаток на складе', value: 'остат' },
-      ],
+      selectItems: getIndicatorOptions('sales/primary'),
     },
     {
       name: 'month',

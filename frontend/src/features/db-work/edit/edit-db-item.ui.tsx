@@ -8,6 +8,7 @@ import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
 } from '#/shared/components/db-filters';
+import { getIndicatorOptions } from '#/shared/constants/get-indicator-options';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
@@ -44,16 +45,24 @@ const EditDbItemModal: React.FC<{
 
   const mutation = useEditDatabaseItemMutation(type, onClose, defaultData?.id);
 
-  const fields = React.useMemo(
-    () =>
-      fieldsWithSelectItems({
-        options: filterOptions.options,
-        fields: databaseItemCEFields[type],
-        dependsUrls,
-        defaultData: transformData(defaultData),
-      }),
-    [dependsUrls, filterOptions.options, type, defaultData]
-  );
+  const fields = React.useMemo(() => {
+    let baseFields = fieldsWithSelectItems({
+      options: filterOptions.options,
+      fields: databaseItemCEFields[type],
+      defaultData: transformData(defaultData),
+      dependsUrls,
+    });
+
+    if (type == 'sales/tertiary' && baseFields[3]?.[0]) {
+      baseFields[3][0].selectItems = getIndicatorOptions(type);
+    }
+
+    if (type === 'sales/secondary' && baseFields[3]) {
+      baseFields[3] = baseFields[3].slice(1);
+    }
+
+    return baseFields;
+  }, [dependsUrls, filterOptions.options, type, defaultData]);
 
   return (
     <CreateEditModal

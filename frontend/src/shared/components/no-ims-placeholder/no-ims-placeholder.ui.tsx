@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { NO_IMS_PLACEHOLDER_MESSAGE } from '#/shared/constants/ims';
+import { NO_IMS_PLACEHOLDER_MESSAGE } from '#/shared/constants/errors';
 import { cn } from '#/shared/utils/cn';
 
 interface NoImsPlaceholderProps {

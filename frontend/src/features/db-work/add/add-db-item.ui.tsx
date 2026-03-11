@@ -6,6 +6,7 @@ import {
   useFilterOptions,
 } from '#/shared/components/db-filters';
 import { Button } from '#/shared/components/ui/button';
+import { getIndicatorOptions } from '#/shared/constants/get-indicator-options';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import type { DbType } from '#/shared/types/db.type';
 import { fieldsWithSelectItems } from '#/shared/utils/fields-with-select-items';
@@ -44,6 +45,10 @@ const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
         fields: databaseItemCEFields[type],
         dependsUrls,
       });
+
+      if (type == 'sales/tertiary' && baseFields[3]?.[0]) {
+        baseFields[3][0].selectItems = getIndicatorOptions(type);
+      }
 
       if (type === 'sales/secondary' && baseFields[3]) {
         baseFields[3] = baseFields[3].slice(1);
