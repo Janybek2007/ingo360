@@ -44,7 +44,8 @@ export const calculateChartAxis = <T extends Record<string, unknown>>(
 
 export function calcPeriodTotals<T extends TDbItem>(
   sales: T[],
-  indicator: string
+  indicator: string,
+  isInventory = false
 ) {
   const totalsByMonth: Record<string, number> = {};
 
@@ -64,12 +65,12 @@ export function calcPeriodTotals<T extends TDbItem>(
   for (const [key, value] of Object.entries(totalsByMonth)) {
     const monthIndex = Number(key.split('-')[1]) - 1;
     if (monthIndex >= 0 && monthIndex < 12) {
-      monthTotals[monthIndex] = value;
+      monthTotals[monthIndex] = isInventory ? value : Math.trunc(value);
     }
   }
 
   const grandTotal = Object.values(totalsByMonth).reduce(
-    (sum, value) => sum + value,
+    (sum, value) => (isInventory ? sum + value : Math.trunc(sum + value)),
     0
   );
 

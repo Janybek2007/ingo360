@@ -134,7 +134,7 @@ export const Inventory: React.FC = React.memo(() => {
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(sales, filtersState.indicator);
+    return calcPeriodTotals(sales, filtersState.indicator, true);
   }, [sales, filtersState.indicator]);
 
   return (
