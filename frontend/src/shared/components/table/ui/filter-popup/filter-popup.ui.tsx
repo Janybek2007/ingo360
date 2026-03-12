@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { LucideFilterIcon } from '#/shared/assets/icons';
 import { filterItems } from '#/shared/constants/filter-items';
@@ -21,6 +21,13 @@ export function FilterPopup({
     () => column.columnDef.selectOptions ?? [],
     [column.columnDef.selectOptions]
   );
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredSelectOptions = useMemo(() => {
+    if (!searchQuery.trim()) return selectOptions;
+    const q = searchQuery.toLowerCase();
+    return selectOptions.filter(item => item.label.toLowerCase().includes(q));
+  }, [selectOptions, searchQuery]);
 
   const {
     contentRef,
@@ -37,7 +44,13 @@ export function FilterPopup({
     setValue,
     setValue2,
     applyFilterAndSorting,
-  } = useFilterPopup({ column, onClose, selectOptions, colType });
+  } = useFilterPopup({
+    column,
+    onClose,
+    selectOptions,
+    colType,
+    effectiveOptions: searchQuery.trim() ? filteredSelectOptions : undefined,
+  });
 
   if (popupPosition.x === 0 || popupPosition.y === 0) return null;
 
@@ -67,6 +80,8 @@ export function FilterPopup({
 
             {colType === 'select' ? (
               <FilterSelect
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
                 value={Array.isArray(value) ? value : []}
                 setValue={setValue}
                 items={selectOptions}

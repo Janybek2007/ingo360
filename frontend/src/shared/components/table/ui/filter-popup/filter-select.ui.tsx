@@ -1,41 +1,39 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { cn } from '#/shared/utils/cn';
 
 import type { IFilterSelectProps as IFilterSelectProperties } from '../../table.types';
 
 export const FilterSelect: React.FC<IFilterSelectProperties> = React.memo(
-  ({ value, setValue, items }) => {
-    const [searchQuery, setSearchQuery] = useState('');
+  ({ value, setValue, items, searchQuery, setSearchQuery }) => {
     const selectAllReference = useRef<HTMLInputElement>(null);
     const listReference = useRef<HTMLDivElement>(null);
-
-    const allSelected = useMemo(
-      () => value.length === items.length,
-      [value, items]
-    );
-    const someSelected = useMemo(
-      () => value.length > 0 && value.length < items.length,
-      [value, items]
-    );
-
-    useEffect(() => {
-      if (selectAllReference.current)
-        selectAllReference.current.indeterminate = someSelected;
-    }, [someSelected]);
 
     const filteredItems = useMemo(() => {
       if (!searchQuery.trim()) return items;
       const q = searchQuery.toLowerCase();
       return items.filter(item => item.label.toLowerCase().includes(q));
     }, [items, searchQuery]);
+
+    const allSelected = useMemo(
+      () =>
+        filteredItems.length > 0 &&
+        filteredItems.every(item => value.some(v => v.value === item.value)),
+      [value, filteredItems]
+    );
+
+    const someSelected = useMemo(
+      () =>
+        filteredItems.some(item => value.some(v => v.value === item.value)) &&
+        !allSelected,
+      [value, filteredItems, allSelected]
+    );
+
+    useEffect(() => {
+      if (selectAllReference.current)
+        selectAllReference.current.indeterminate = someSelected;
+    }, [someSelected]);
 
     const handleToggle = useCallback(
       (item: { label: string; value: string | number }) => {
@@ -49,9 +47,21 @@ export const FilterSelect: React.FC<IFilterSelectProperties> = React.memo(
       [value, setValue]
     );
 
+    // FilterSelect
     const handleToggleAll = useCallback(() => {
-      setValue(allSelected ? [] : items);
-    }, [allSelected, items, setValue]);
+      const allFilteredSelected = filteredItems.every(item =>
+        value.some(v => v.value === item.value)
+      );
+
+      if (allFilteredSelected) {
+        const filteredValues = new Set(filteredItems.map(i => i.value));
+        setValue(value.filter(v => !filteredValues.has(v.value)));
+      } else {
+        const existing = new Set(value.map(v => v.value));
+        const toAdd = filteredItems.filter(i => !existing.has(i.value));
+        setValue([...value, ...toAdd]);
+      }
+    }, [filteredItems, value, setValue]);
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const rowVirtualizer = useVirtualizer({

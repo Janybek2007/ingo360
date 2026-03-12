@@ -87,6 +87,8 @@ export interface IFilterSelectProps {
   value: ISelectItem<string | number>[];
   setValue: (value: ISelectItem<string | number>[]) => void;
   items: ISelectItem<string | number>[];
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export interface IFilterInputProps {

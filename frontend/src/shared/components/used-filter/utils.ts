@@ -173,7 +173,19 @@ export class PeriodGrouping {
     for (const item of this.items) {
       const { type, year } = this.parse(item.value);
 
-      if (type === 'year' || !this.isPeriodType(type) || !year) continue;
+      if (type === 'year') {
+        result.push({
+          type: 'year',
+          year: String(item.value),
+          label: `${item.value} год`,
+          value: String(item.value),
+          items: [item],
+          onDelete: item.onDelete,
+        });
+        continue;
+      }
+
+      if (!this.isPeriodType(type) || !year) continue;
 
       const baseLabel = item.label || getPeriodLabel(String(item.value));
       const label = this.isCumulativeType(type) ? `до ${baseLabel}` : baseLabel;

@@ -18,6 +18,7 @@ interface IUseFilterPopupArgs {
   onClose: VoidFunction;
   selectOptions: { label: string; value: string | number }[];
   colType: ColumnDefBase<any>['filterType'];
+  effectiveOptions?: { label: string; value: string | number }[];
 }
 
 export const useFilterPopup = ({
@@ -25,6 +26,7 @@ export const useFilterPopup = ({
   onClose,
   selectOptions,
   colType = 'string',
+  effectiveOptions,
 }: IUseFilterPopupArgs) => {
   const contentRef = useClickAway<HTMLDivElement>(onClose);
 
@@ -149,11 +151,25 @@ export const useFilterPopup = ({
 
   const applyFilter = useCallback(() => {
     if (colType === 'select') {
-      if (!Array.isArray(value) || value.length === 0) {
+      // Если был поиск — берём только видимые элементы из value
+      const effectiveValue = effectiveOptions
+        ? value.filter((v: any) =>
+            effectiveOptions.some(opt => opt.value === v.value)
+          )
+        : value;
+
+      const isAllSelected =
+        !Array.isArray(effectiveValue) ||
+        effectiveValue.length === 0 ||
+        selectOptions.every(opt =>
+          effectiveValue.some((v: any) => v.value === opt.value)
+        );
+
+      if (isAllSelected) {
         column.setFilterValue(undefined);
       } else {
         column.setFilterValue({
-          selectValues: value,
+          selectValues: effectiveValue,
           colType,
           header: column.columnDef.header,
         });
@@ -186,7 +202,16 @@ export const useFilterPopup = ({
       }
     }
     onClose();
-  }, [colType, filterType, onClose, value, value2, column]);
+  }, [
+    colType,
+    filterType,
+    onClose,
+    value,
+    value2,
+    column,
+    selectOptions,
+    effectiveOptions,
+  ]);
 
   const applyFilterAndSorting = useCallback(() => {
     applySorting();
