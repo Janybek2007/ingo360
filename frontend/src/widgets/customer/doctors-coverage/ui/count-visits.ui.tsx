@@ -19,20 +19,18 @@ import type {
 export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
   React.memo(
     ({
-      medicalFacilityIds,
       medicalFacilityItems,
-      setMedicalFacilityIds,
       enabled = true,
       specialityItems,
+      changeFilters,
+      filters,
     }) => {
-      const [specialityIds, setSpecialityIds] = React.useState<number[]>([]);
-
       const countQuery = useKeepQuery(
         DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
           ['visits/reports/doctors-by-specialty'],
           {
-            medical_facility_ids: medicalFacilityIds,
-            speciality_ids: specialityIds,
+            medical_facility_ids: filters.medical_facility_ids,
+            speciality_ids: filters.speciality_ids,
 
             enabled,
             method: 'POST',
@@ -59,8 +57,10 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
             </h4>
             <div className="flex items-center gap-4">
               <Select<true, number | string>
-                value={specialityIds}
-                setValue={value => setSpecialityIds(value.map(Number))}
+                value={filters.speciality_ids}
+                setValue={value =>
+                  changeFilters('speciality_ids', value.map(Number))
+                }
                 isMultiple
                 checkbox
                 search
@@ -77,8 +77,10 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                 }}
               />
               <Select<true, number | string>
-                value={medicalFacilityIds}
-                setValue={value => setMedicalFacilityIds(value.map(Number))}
+                value={filters.medical_facility_ids}
+                setValue={value =>
+                  changeFilters('medical_facility_ids', value.map(Number))
+                }
                 isMultiple
                 checkbox
                 search
@@ -99,42 +101,47 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
           <div>
             <UsedFilter
               usedFilterItems={getFilterItems([
-                medicalFacilityIds.length > 0 && {
-                  value: medicalFacilityIds,
-                  getLabelFromValue(value) {
-                    return (
-                      medicalFacilityItems.find(item => item.value === value)
-                        ?.label ?? '-'
-                    );
-                  },
-                  main: {
-                    onDelete: v => {
-                      setMedicalFacilityIds(p =>
-                        p.filter(id => id !== Number(v))
+                filters.medical_facility_ids.length > 0 &&
+                  filters.medical_facility_ids.length !==
+                    medicalFacilityItems.length && {
+                    value: filters.medical_facility_ids,
+                    getLabelFromValue(value) {
+                      return (
+                        medicalFacilityItems.find(item => item.value === value)
+                          ?.label ?? '-'
                       );
                     },
-                    label: 'ЛПУ:',
-                  },
-                },
-                specialityIds.length > 0 && {
-                  value: specialityIds,
-                  getLabelFromValue(value) {
-                    return (
-                      specialityItems.find(item => item.value === value)
-                        ?.label ?? '-'
-                    );
-                  },
-                  main: {
-                    onDelete: v => {
-                      setSpecialityIds(p => p.filter(id => id !== Number(v)));
+                    main: {
+                      onDelete: v => {
+                        changeFilters('medical_facility_ids', p =>
+                          p.filter(id => id !== Number(v))
+                        );
+                      },
+                      label: 'ЛПУ:',
                     },
-                    label: 'Спепиальности:',
                   },
-                },
+                filters.speciality_ids.length > 0 &&
+                  filters.speciality_ids.length !== specialityItems.length && {
+                    value: filters.speciality_ids,
+                    getLabelFromValue(value) {
+                      return (
+                        specialityItems.find(item => item.value === value)
+                          ?.label ?? '-'
+                      );
+                    },
+                    main: {
+                      onDelete: v => {
+                        changeFilters('speciality_ids', p =>
+                          p.filter(id => id !== Number(v))
+                        );
+                      },
+                      label: 'Спепиальности:',
+                    },
+                  },
               ])}
               resetFilters={() => {
-                setSpecialityIds([]);
-                setMedicalFacilityIds([]);
+                changeFilters('medical_facility_ids', []);
+                changeFilters('speciality_ids', []);
               }}
             />
           </div>

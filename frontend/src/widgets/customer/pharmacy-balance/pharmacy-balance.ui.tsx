@@ -118,8 +118,11 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       commonColumns.distributor(),
       commonColumns.geo_indicator(),
     ],
-    months: monthsPreset(filtersState.indicator, sales),
-    total: totalPreset(filtersState.indicator),
+    months: monthsPreset(filtersState.indicator, sales, { noFraction: true }),
+    total: totalPreset(filtersState.indicator, {
+      noFraction: true,
+      periods: filtersState.periods,
+    }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =

@@ -243,14 +243,16 @@ export const DistributorDynamics: React.FC = React.memo(() => {
 
                 <Tooltip
                   cursor={false}
-                  content={({ active, payload, label }) => {
+                  content={({ active, payload }) => {
                     if (!active || !payload || payload.length === 0)
                       return null;
+
+                    const fullLabel = payload[0]?.payload?.fullLabel;
 
                     return (
                       <div className="rounded-md border border-gray-200 bg-white px-3 py-2 shadow-lg">
                         <div className="mb-2 text-xs font-medium text-gray-500">
-                          {label}
+                          {fullLabel}
                         </div>
                         <div className="space-y-1">
                           {payload

@@ -8,16 +8,26 @@ export interface DoctorsCoverageRow {
   coverage_percentage: 52.601_156_069_364_16;
 }
 
+export interface DoctorsCoverageFilters {
+  medical_facility_ids: number[];
+  speciality_ids: number[];
+}
+
+export type ChangeDoctorsCoverageFilters = (
+  key: keyof DoctorsCoverageFilters,
+  value: React.SetStateAction<number[]>
+) => void;
+
 export interface DoctorCountVisitsProps {
-  medicalFacilityIds: number[];
-  setMedicalFacilityIds: React.Dispatch<React.SetStateAction<number[]>>;
-  medicalFacilityItems: FilterOptions[];
+  filters: DoctorsCoverageFilters;
   specialityItems: FilterOptions[];
+  medicalFacilityItems: FilterOptions[];
+  changeFilters: ChangeDoctorsCoverageFilters;
   enabled: boolean;
 }
 
 export interface DoctorPercentageVisitsProps {
-  medicalFacilityIds: number[];
+  filters: DoctorsCoverageFilters;
   enabled: boolean;
   groupItems: FilterOptions[];
 }

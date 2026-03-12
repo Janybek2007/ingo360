@@ -118,7 +118,10 @@ export const SecondarySales: React.FC = React.memo(() => {
     months: monthsPreset(filtersState.indicator, sales, {
       noFraction: true,
     }),
-    total: totalPreset(filtersState.indicator),
+    total: totalPreset(filtersState.indicator, {
+      noFraction: true,
+      periods: filtersState.periods,
+    }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =

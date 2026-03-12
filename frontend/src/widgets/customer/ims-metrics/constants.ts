@@ -11,7 +11,7 @@ const formatPercent = (value: number | string | undefined) => {
   if (typeof value === 'number') {
     return value < 1 && value > 0
       ? `${value.toFixed(2)} %`
-      : `${Math.round(value)} %`;
+      : `${Math.trunc(value)} %`;
   }
   return value === undefined ? '-' : `${value} %`;
 };

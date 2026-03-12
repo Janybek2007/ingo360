@@ -89,7 +89,7 @@ export const TertiarySalesUnits: React.FC = React.memo(() => {
         return {
           label: parsed.value,
           fullLabel: parsed.label,
-          value: Math.round(item.sales_packages),
+          value: Math.trunc(item.sales_packages),
         };
       });
   }, [queryData, periodFilter.period]);

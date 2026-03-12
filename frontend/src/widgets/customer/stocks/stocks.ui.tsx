@@ -114,8 +114,11 @@ export const Stocks: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset(filtersState.indicator, sales),
-    total: totalPreset(filtersState.indicator),
+    months: monthsPreset(filtersState.indicator, sales, { noFraction: true }),
+    total: totalPreset(filtersState.indicator, {
+      noFraction: true,
+      periods: filtersState.periods,
+    }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =

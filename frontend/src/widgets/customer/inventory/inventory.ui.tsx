@@ -122,7 +122,9 @@ export const Inventory: React.FC = React.memo(() => {
       commonColumns.distributor(),
     ],
     months: monthsPreset(filtersState.indicator, sales),
-    total: totalPreset(filtersState.indicator),
+    total: totalPreset(filtersState.indicator, {
+      periods: filtersState.periods,
+    }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =

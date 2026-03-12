@@ -207,7 +207,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
                   const formattedValue =
                     Math.abs(numberValue) < 0.01 && numberValue !== 0
                       ? numberValue.toFixed(3)
-                      : Math.round(numberValue * 100) / 100;
+                      : Math.trunc(numberValue * 100) / 100;
                   return [`${formattedValue}%`, name];
                 }}
               />

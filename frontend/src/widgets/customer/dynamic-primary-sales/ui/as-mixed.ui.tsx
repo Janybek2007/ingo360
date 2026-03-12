@@ -30,12 +30,12 @@ export const DynamicPrimarySalesAsMixed: React.FC<DynamicPrimarySalesAsMixedProp
             fullLabel: parsed.label,
             primary:
               indicator === 'packages'
-                ? item.sales_packages
-                : item.sales_amount,
+                ? Math.trunc(item.sales_packages)
+                : Math.trunc(item.sales_amount),
             remains:
               indicator === 'packages'
-                ? item.stock_packages
-                : item.stock_amount,
+                ? Math.trunc(item.stock_packages)
+                : Math.trunc(item.stock_amount),
             trade_stock:
               indicator === 'packages'
                 ? item.coverage_months_packages

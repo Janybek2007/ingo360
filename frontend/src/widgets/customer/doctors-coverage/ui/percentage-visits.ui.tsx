@@ -20,7 +20,7 @@ import type {
 } from '../doctors-covarage.types';
 
 export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
-  React.memo(({ medicalFacilityIds, enabled = true, groupItems }) => {
+  React.memo(({ filters, enabled = true, groupItems }) => {
     const periodFilter = usePeriodFilter({});
     const [groupIds, setGroupIds] = React.useState<number[]>([]);
 
@@ -28,7 +28,8 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
       DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
         ['visits/reports/doctors-by-specialty'],
         {
-          medical_facility_ids: medicalFacilityIds,
+          medical_facility_ids: filters.medical_facility_ids,
+          speciality_ids: filters.speciality_ids,
           product_group_ids: groupIds,
           group_by_period: periodFilter.period,
           period_values: periodFilter.selectedValues,
@@ -91,21 +92,22 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
                 },
               ])}
               usedFilterItems={getFilterItems([
-                groupIds.length > 0 && {
-                  value: groupIds,
-                  getLabelFromValue(value) {
-                    return (
-                      groupItems.find(item => item.value === value)?.label ??
-                      '-'
-                    );
-                  },
-                  main: {
-                    onDelete: v => {
-                      setGroupIds(p => p.filter(id => id !== Number(v)));
+                groupIds.length > 0 &&
+                  groupIds.length !== groupItems.length && {
+                    value: groupIds,
+                    getLabelFromValue(value) {
+                      return (
+                        groupItems.find(item => item.value === value)?.label ??
+                        '-'
+                      );
                     },
-                    label: 'Группы:',
+                    main: {
+                      onDelete: v => {
+                        setGroupIds(p => p.filter(id => id !== Number(v)));
+                      },
+                      label: 'Группы:',
+                    },
                   },
-                },
               ])}
               resetFilters={() => {
                 periodFilter.onReset();

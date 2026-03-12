@@ -39,7 +39,7 @@ export const Shipments: React.FC = React.memo(() => {
 
   const lastYear = useSession(s => s.lastYear);
 
-  const dbFiltersState = useDbFiltersState({
+  const filtersState = useDbFiltersState({
     groupBy: {
       defaultValue: 'sku,brand,promotion_type,product_group,distributor'.split(
         ','
@@ -57,13 +57,13 @@ export const Shipments: React.FC = React.memo(() => {
     ],
     'sales_primary',
     transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
-      brand_ids: dbFiltersState.brands,
-      product_group_ids: dbFiltersState.groups,
+      brand_ids: filtersState.brands,
+      product_group_ids: filtersState.groups,
     })
   );
 
   const databaseFilters = useDbFilters({
-    state: dbFiltersState,
+    state: filtersState,
     brandsOptions: filterOptions.options.products_brands,
     groupsOptions: filterOptions.options.products_product_groups,
   });
@@ -76,19 +76,17 @@ export const Shipments: React.FC = React.memo(() => {
         filters,
         COMMON_COLUMNS_FILTER_KEY_MAP,
         {
-          brand_ids: dbFiltersState.brands,
-          product_group_ids: dbFiltersState.groups,
+          brand_ids: filtersState.brands,
+          product_group_ids: filtersState.groups,
         }
       ),
       ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
       limit:
-        dbFiltersState.rowsCount === 'all'
-          ? undefined
-          : dbFiltersState.rowsCount,
-      search: dbFiltersState.search,
+        filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
+      search: filtersState.search,
 
-      group_by_dimensions: dbFiltersState.groupBy,
+      group_by_dimensions: filtersState.groupBy,
       period_values: periodFilter.selectedValues,
       group_by_period: periodFilter.period,
 
@@ -111,29 +109,30 @@ export const Shipments: React.FC = React.memo(() => {
       commonColumns.group(),
       commonColumns.distributor(),
     ],
-    months: monthsPreset(dbFiltersState.indicator, sales),
-    total: totalPreset(dbFiltersState.indicator, {
-      periods: dbFiltersState.periods,
+    months: monthsPreset(filtersState.indicator, sales, { noFraction: true }),
+    total: totalPreset(filtersState.indicator, {
+      periods: filtersState.periods,
+      noFraction: true,
     }),
   });
 
   const { visibleColumns, setVisibleColumns, columnsForTable, columnItems } =
     useColumnVisibility({
       allColumns,
-      setGroupBy: dbFiltersState.setGroupBy,
-      setPeriods: dbFiltersState.setPeriods,
+      setGroupBy: filtersState.setGroupBy,
+      setPeriods: filtersState.setPeriods,
     });
 
   const { monthTotals, grandTotal } = useMemo(() => {
-    return calcPeriodTotals(sales, dbFiltersState.indicator);
-  }, [sales, dbFiltersState.indicator]);
+    return calcPeriodTotals(sales, filtersState.indicator);
+  }, [sales, filtersState.indicator]);
 
   return (
     <PageSection
       title="Первичные продажи"
       headerEnd={
         <div className="relative z-100 flex items-center gap-4">
-          <DbFilters {...dbFiltersState} {...databaseFilters} />
+          <DbFilters {...filtersState} {...databaseFilters} />
           <PeriodFilters {...periodFilter} />
 
           <Select<true>
@@ -159,7 +158,7 @@ export const Shipments: React.FC = React.memo(() => {
             }}
             hasTotal
             selectKeys={visibleColumns}
-            periodKey={dbFiltersState.indicator}
+            periodKey={filtersState.indicator}
             data={sales}
             fileName="Первичные продажи"
           />
@@ -174,10 +173,10 @@ export const Shipments: React.FC = React.memo(() => {
           value={{ filters, setFilters, sorting, setSorting }}
         >
           <Table
-            key={dbFiltersState.indicator}
+            key={filtersState.indicator}
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: dbFiltersState.resetFilters,
+              resetFilters: filtersState.resetFilters,
             }}
             columns={columnsForTable}
             data={sales}
