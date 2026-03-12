@@ -16,30 +16,33 @@ export const EditCompanyModal: React.FC<{
 }> = React.memo(({ onClose, companyData }) => {
   const mutation = useEditCompanyMutation(onClose);
 
-  const handleSubmit = async (data: Record<string, unknown>) => {
-    if (companyData?.id) {
-      const newLimit = Number(
-        (data as { active_users_limit?: number }).active_users_limit
-      );
-      if (
-        Number.isFinite(newLimit) &&
-        newLimit > 0 &&
-        companyData.active_users > newLimit
-      ) {
-        toast({
-          message:
-            'Лимит не может быть меньше количества активных пользователей',
-          type: 'warning',
-        });
-        return;
-      }
+  const handleSubmit = React.useCallback(
+    async (data: Record<string, unknown>) => {
+      if (companyData?.id) {
+        const newLimit = Number(
+          (data as { active_users_limit?: number }).active_users_limit
+        );
+        if (
+          Number.isFinite(newLimit) &&
+          newLimit > 0 &&
+          companyData.active_users > newLimit
+        ) {
+          toast({
+            message:
+              'Лимит не может быть меньше количества активных пользователей',
+            type: 'warning',
+          });
+          return;
+        }
 
-      await mutation.mutateAsync({
-        id: companyData.id,
-        body: data as TEditCompanyContract,
-      });
-    }
-  };
+        await mutation.mutateAsync({
+          id: companyData.id,
+          body: data as TEditCompanyContract,
+        });
+      }
+    },
+    [companyData, mutation]
+  );
 
   return (
     <CreateEditModal

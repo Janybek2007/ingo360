@@ -4,6 +4,7 @@ import { type IDbItem } from '#/entities/db';
 import { http } from '#/shared/api';
 import { toast } from '#/shared/libs/toast/toasts';
 import type { DbType } from '#/shared/types/db.type';
+import { getChangedFields } from '#/shared/utils/get-changed-fields';
 
 import {
   matchesDbOptions as matchesDatabaseOptions,
@@ -13,8 +14,10 @@ import {
 export const useEditDbItemMutation = (
   type: DbType,
   onClose: VoidFunction,
-  id?: number
+  dbItem: Record<string, any> | null
 ) => {
+  const id = dbItem?.id;
+
   return useMutation({
     mutationKey: ['edit-db-item', type, id],
 
@@ -24,6 +27,13 @@ export const useEditDbItemMutation = (
           message: 'Отсутствует id ресурса',
           type: 'warning',
         });
+        return null;
+      }
+
+      const changedFields = getChangedFields(dbItem, parsedBody);
+
+      if (Object.keys(changedFields).length === 0) {
+        toast({ message: 'Нет изменений', type: 'warning' });
         return null;
       }
       return http

@@ -69,6 +69,7 @@ export function getReferenceTypeDeps(
         'clients/medical-facilities',
         'geography/settlements',
         'geography/districts',
+        'clients/geo-indicators',
       ];
     }
 
@@ -79,6 +80,7 @@ export function getReferenceTypeDeps(
         'clients/specialities',
         'clients/client-categories',
         'products/product-groups',
+        'companies_companies',
       ];
     }
 
@@ -106,7 +108,6 @@ export function getReferenceWorkColumns(
   filterOptions: FilterOptionsObject
 ): ColumnDef<IReferenceItem>[] {
   const columns: ColumnDef<IReferenceItem>[] = [];
-
   switch (type) {
     case 'geography/countries': {
       columns.push({
@@ -555,6 +556,17 @@ export function getReferenceWorkColumns(
           enableColumnFilter: true,
           filterFn: stringFilter(),
           filterType: 'string',
+        },
+        {
+          id: 'company.id',
+          accessorKey: 'company.name',
+          accessorFn: item => item.company?.name ?? '-',
+          header: columnHeaderNames.companyName,
+          size: 200,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          selectOptions: filterOptions.companies_companies,
         },
         {
           id: 'responsible_employee.id',

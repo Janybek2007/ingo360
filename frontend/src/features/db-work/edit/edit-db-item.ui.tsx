@@ -43,7 +43,11 @@ const EditDbItemModal: React.FC<{
 
   const filterOptions = useFilterOptions(references);
 
-  const mutation = useEditDatabaseItemMutation(type, onClose, defaultData?.id);
+  const mutation = useEditDatabaseItemMutation(
+    type,
+    onClose,
+    transformData(defaultData)
+  );
 
   const fields = React.useMemo(() => {
     let baseFields = fieldsWithSelectItems({

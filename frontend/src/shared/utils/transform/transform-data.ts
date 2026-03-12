@@ -1,6 +1,6 @@
 import type { IItem } from '#/entities/reference';
 
-export function transformData<T extends Record<string, any>>(data: T | null) {
+export function transformData(data: object | null) {
   if (!data) return null;
 
   const result: Record<string, any> = { ...data };

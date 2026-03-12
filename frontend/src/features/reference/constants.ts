@@ -238,7 +238,7 @@ export const referencesCEFields: Record<
       placeholder: 'Введите тип учреждения',
     },
     {
-      name: 'indicator',
+      name: 'geo_indicator_id',
       label: 'Показатель',
       placeholder: 'Выберите показатель',
       type: 'select',
@@ -275,6 +275,12 @@ export const referencesCEFields: Record<
   ],
   'clients/doctors': [
     { name: 'full_name', label: 'ФИО', placeholder: 'Введите ФИО' },
+    {
+      name: 'company_id',
+      label: 'Компания',
+      placeholder: 'Выберите компанию',
+      type: 'select',
+    },
     [
       {
         name: 'responsible_employee_id',
@@ -411,9 +417,10 @@ export const referencesDependsUrls: Record<
   'clients/medical-facilities': [
     { fieldName: 'settlement_id', url: 'geography/settlements' },
     { fieldName: 'district_id', url: 'geography/districts' },
-    { fieldName: 'indicator', url: 'clients/geo-indicators' },
+    { fieldName: 'geo_indicator_id', url: 'clients/geo-indicators' },
   ],
   'clients/doctors': [
+    { fieldName: 'company_id', url: 'companies_companies' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
     { fieldName: 'medical_facility_id', url: 'clients/medical-facilities' },
     { fieldName: 'speciality_id', url: 'clients/specialities' },
@@ -426,7 +433,6 @@ export const referencesDependsUrls: Record<
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },
-    { fieldName: 'region_id', url: 'geography/regions' },
     { fieldName: 'district_id', url: 'geography/districts' },
     { fieldName: 'product_group_id', url: 'products/product-groups' },
     { fieldName: 'client_category_id', url: 'clients/client-categories' },

@@ -22,7 +22,7 @@ import { useEditReferenceMutation } from './edit-reference.mutation';
 
 const EditReferenceModal: React.FC<{
   type: ReferencesType;
-  defaultData: IReferenceItem | null;
+  defaultData: IReferenceItem;
   onClose: () => void;
 }> = React.memo(({ type, defaultData, onClose }) => {
   const dependsUrls = React.useMemo(
@@ -37,7 +37,11 @@ const EditReferenceModal: React.FC<{
 
   const filterOptions = useFilterOptions(references);
 
-  const mutation = useEditReferenceMutation(type, onClose, defaultData?.id);
+  const mutation = useEditReferenceMutation(
+    type,
+    onClose,
+    transformData(defaultData)
+  );
 
   const fields = React.useMemo(
     () =>
@@ -68,7 +72,7 @@ const EditReferenceModal: React.FC<{
 
 export const EditReferenceWrapper: React.FC<{
   type: ReferencesType;
-  defaultData: IReferenceItem | null;
+  defaultData: IReferenceItem;
 }> = React.memo(({ type, defaultData }) => {
   const [open, { toggle, set }] = useToggle();
 

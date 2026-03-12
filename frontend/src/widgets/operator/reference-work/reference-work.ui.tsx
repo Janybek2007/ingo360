@@ -133,7 +133,7 @@ const ReferenceWork: React.FC<IReferenceWorkProperties> = React.memo(
                   },
                 ]),
               }}
-              maxHeight={600}
+              maxHeight={550}
               rounded="none"
             />
           )}
