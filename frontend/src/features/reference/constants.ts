@@ -360,12 +360,10 @@ export const referencesCEFields: Record<
         type: 'select',
       },
       {
-        name: 'geo_indicator',
+        name: 'geo_indicator_id',
         label: 'Показатель',
         placeholder: 'Выберите показатель',
         type: 'select',
-        selectValueKey: 'name',
-        selectLabelKey: 'name',
       },
     ],
   ],
@@ -424,7 +422,7 @@ export const referencesDependsUrls: Record<
   ],
   'clients/pharmacies': [
     { fieldName: 'company_id', url: 'companies_companies' },
-    { fieldName: 'geo_indicator', url: 'clients/geo-indicators' },
+    { fieldName: 'geo_indicator_id', url: 'clients/geo-indicators' },
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },

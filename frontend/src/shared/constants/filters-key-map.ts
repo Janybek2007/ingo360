@@ -34,6 +34,7 @@ export const WORK_FILTER_KEY_MAP: Record<string, string> = {
   'position.id': 'position_ids',
   'dosage_form.id': 'dosage_form_ids',
   'dosage.id': 'dosage_ids',
+  'geo_indicator.id': 'geo_indicator_ids',
   'segment.id': 'segment_ids',
   'pharmacy.id': 'pharmacy_ids',
   'employee.id': 'employee_ids',

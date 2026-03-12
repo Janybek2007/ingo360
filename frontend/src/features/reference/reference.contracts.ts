@@ -73,7 +73,7 @@ export const referenceContractWithType: Record<
     product_group_id: RequiredNumber('Выберите группу'),
   }),
   'clients/pharmacies': z.extend(NameSchema, {
-    geo_indicator: z.optional(z.string()),
+    geo_indicator_id: z.optional(z.number()),
     company_id: RequiredNumber('Выберите компанию'),
     distributor_id: z.optional(z.number()),
     region_id: z.optional(z.number()),
