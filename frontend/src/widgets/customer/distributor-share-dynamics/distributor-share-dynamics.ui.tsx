@@ -27,7 +27,7 @@ import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getFilterItems } from '#/shared/utils/get-used-items';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
-import { stringToColor } from '#/shared/utils/string-to-color';
+import { getDistinctColorByIndex } from '#/shared/utils/string-to-color';
 
 type DistributorChartItem = {
   period: string;
@@ -98,10 +98,10 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       k.startsWith('dist_')
     );
 
-    const legends = distributorKeys.map(key => ({
+    const legends = distributorKeys.map((key, index) => ({
       key,
       label: distributors[key] ?? key,
-      fill: stringToColor(distributors[key] ?? key),
+      fill: getDistinctColorByIndex(index),
     }));
 
     return { chartData, distributorKeys, legends };

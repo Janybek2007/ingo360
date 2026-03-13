@@ -9,12 +9,12 @@ import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { getFilterItems } from '#/shared/utils/get-used-items';
-import { stringToColor } from '#/shared/utils/string-to-color';
 
 import type {
   DoctorCountVisitsProps as DoctorCountVisitsProperties,
   DoctorsCoverageRow,
 } from '../doctors-covarage.types';
+import { SPECIALITY_COLORS } from '../speciality-colors';
 
 export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
   React.memo(
@@ -42,7 +42,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
         () =>
           (countQuery.data ? countQuery.data[0] : []).map(v => ({
             ...v,
-            color: stringToColor(JSON.stringify(v)),
+            color: SPECIALITY_COLORS[v.speciality_name] ?? null,
           })),
         [countQuery.data]
       );
@@ -166,7 +166,11 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                   label
                   paddingAngle={0}
                   shape={(props: any) => (
-                    <Sector {...props} fill={props.color} />
+                    <Sector
+                      {...props}
+                      fill={props.color ?? 'transparent'}
+                      stroke={props.color ?? '#000000'}
+                    />
                   )}
                 />
                 <Tooltip
@@ -175,7 +179,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                       | DoctorsCoverageRow
                       | undefined;
                     if (!data) return value;
-                    const color = (data as any).color;
+                    const color = (data as any).color as string | null;
 
                     return [
                       <div
@@ -186,7 +190,8 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                         <div className="flex items-center gap-2 font-medium">
                           <span
                             style={{
-                              backgroundColor: color,
+                              backgroundColor: color ?? 'transparent',
+                              border: color ? undefined : '1px solid #000',
                               width: '10px',
                               height: '10px',
                               minWidth: '10px',
@@ -222,7 +227,8 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                   <span
                     className="h-4 w-4 rounded-full"
                     style={{
-                      backgroundColor: d.color,
+                      backgroundColor: d.color ?? 'transparent',
+                      border: d.color ? undefined : '1px solid #000',
                     }}
                   />
                   <span className="font-inter leading-full text-sm font-medium text-black">
