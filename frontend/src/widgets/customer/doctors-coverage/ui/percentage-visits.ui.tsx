@@ -12,12 +12,12 @@ import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getFilterItems } from '#/shared/utils/get-used-items';
-import { stringToColor } from '#/shared/utils/string-to-color';
 
 import type {
   DoctorPercentageVisitsProps,
   DoctorsCoverageRow,
 } from '../doctors-covarage.types';
+import { SPECIALITY_COLORS } from '../speciality-colors';
 
 export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
   React.memo(({ filters, enabled = true, groupItems }) => {
@@ -44,7 +44,7 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
       () =>
         (percentageQuery.data ? percentageQuery.data[0] : []).map(v => ({
           ...v,
-          color: stringToColor(JSON.stringify(v)),
+          color: SPECIALITY_COLORS[v.speciality_name] ?? null,
         })),
       [percentageQuery.data]
     );
@@ -134,7 +134,13 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
                   `${entry.value?.toFixed(0)} (${((entry as any).coverage_percentage as number)?.toFixed(0)}%)`
                 }
                 paddingAngle={0}
-                shape={(props: any) => <Sector {...props} fill={props.color} />}
+                shape={(props: any) => (
+                  <Sector
+                    {...props}
+                    fill={props.color ?? 'transparent'}
+                    stroke={props.color ?? '#000000'}
+                  />
+                )}
               />
               <Tooltip
                 formatter={(value, _, properties) => {
@@ -142,7 +148,7 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
                     | DoctorsCoverageRow
                     | undefined;
                   if (!data) return value;
-                  const color = (data as any).color;
+                  const color = (data as any).color as string | null;
 
                   return [
                     <div
@@ -153,7 +159,8 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
                       <div className="flex items-center gap-2 font-medium">
                         <span
                           style={{
-                            backgroundColor: color,
+                            backgroundColor: color ?? 'transparent',
+                            border: color ? undefined : '1px solid #000',
                             width: '10px',
                             height: '10px',
                             minWidth: '10px',
@@ -196,7 +203,10 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
               >
                 <span
                   className="h-4 w-4 rounded-full"
-                  style={{ backgroundColor: d.color }}
+                  style={{
+                    backgroundColor: d.color ?? 'transparent',
+                    border: d.color ? undefined : '1px solid #000',
+                  }}
                 />
                 <span className="font-inter leading-full text-sm font-medium text-black">
                   {d.speciality_name}

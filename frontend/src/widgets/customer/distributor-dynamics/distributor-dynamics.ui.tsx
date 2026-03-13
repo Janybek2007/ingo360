@@ -29,7 +29,7 @@ import { calculateChartAxis } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getFilterItems } from '#/shared/utils/get-used-items';
 import { parsePeriodData } from '#/shared/utils/parse-period-data';
-import { stringToColor } from '#/shared/utils/string-to-color';
+import { getDistinctColorByIndex } from '#/shared/utils/string-to-color';
 
 const formatMoney = (value: number) => value.toLocaleString('ru-RU');
 
@@ -73,17 +73,16 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       method: 'POST',
     })
   );
-  console.log(queryData.data);
 
   const { chartData, distributorsData } = useMemo(() => {
     const { data: rawData = [], distributors: distributorsMap = {} } =
       queryData.data?.[0] ?? {};
 
     const distributorsData = Object.entries(distributorsMap).map(
-      ([id, name]) => ({
+      ([id, name], index) => ({
         id: Number(id),
         name: name as string,
-        color: stringToColor(name as string),
+        color: getDistinctColorByIndex(index),
       })
     );
 
