@@ -19,6 +19,7 @@ export const dbItemContractWithType: Record<DbType, z.ZodMiniType> = {
     distributor_id: RequiredNumber('Выберите дистрибьютор/сеть'),
   }),
   'sales/secondary': z.extend(DefaultSchema, {
+    distributor_id: RequiredNumber('Выберите дистрибьютор'),
     pharmacy_id: RequiredNumber('Выберите дистрибьютор/сеть'),
     city: z.string().check(z.minLength(1, 'Введите город')),
   }),

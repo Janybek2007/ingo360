@@ -80,32 +80,38 @@ export const dbItemCEFields: Record<DbType, ICreateEditModalProps['fields']> = {
   'sales/secondary': [
     [
       {
+        name: 'distributor_id',
+        label: 'Дистрибютор',
+        placeholder: 'Выберите дистрибютор',
+        type: 'select',
+      },
+      {
         name: 'pharmacy_id',
         label: 'Аптека',
         placeholder: 'Выберите аптеку',
         type: 'select',
       },
+    ],
+    [
       {
         name: 'sku_id',
         label: 'SKU',
         placeholder: 'Выберите SKU',
         type: 'select',
       },
-    ],
-    [
       {
         name: 'city',
         label: 'Город',
         placeholder: 'Выберите город',
         type: 'select',
       },
-      {
-        name: 'district',
-        label: 'Район',
-        placeholder: 'Выберите район',
-        type: 'select',
-      },
     ],
+    {
+      name: 'district',
+      label: 'Район',
+      placeholder: 'Выберите район',
+      type: 'select',
+    },
     ...defaultFields,
   ],
   'sales/tertiary': [
@@ -277,6 +283,7 @@ export const dbItemDependsUrls: Record<
   ],
   'sales/secondary': [
     { fieldName: 'sku_id', url: 'products/skus' },
+    { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'pharmacy_id', url: 'clients/pharmacies' },
     { fieldName: 'city', url: 'geography/settlements' },
     { fieldName: 'district', url: 'geography/districts' },

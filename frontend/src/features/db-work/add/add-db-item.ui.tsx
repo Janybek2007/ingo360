@@ -51,7 +51,7 @@ const AddDbItemModal: React.FC<{ onClose: VoidFunction; type: DbType }> =
       }
 
       if (type === 'sales/secondary' && baseFields[3]) {
-        baseFields[3] = baseFields[3].slice(1);
+        baseFields[4] = baseFields[4].slice(1);
       }
 
       return baseFields;

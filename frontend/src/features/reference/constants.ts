@@ -432,6 +432,7 @@ export const referencesDependsUrls: Record<
     { fieldName: 'geo_indicator_id', url: 'clients/geo-indicators' },
     { fieldName: 'distributor_id', url: 'clients/distributors' },
     { fieldName: 'responsible_employee_id', url: 'employees/employees' },
+    { fieldName: 'region_id', url: 'geography/regions' },
     { fieldName: 'settlement_id', url: 'geography/settlements' },
     { fieldName: 'district_id', url: 'geography/districts' },
     { fieldName: 'product_group_id', url: 'products/product-groups' },

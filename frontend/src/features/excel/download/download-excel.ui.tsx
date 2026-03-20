@@ -60,23 +60,27 @@ export const DownloadExcelModalContent: React.FC<DownloadExcelModalContentProper
           <div className="sticky top-0 z-10 rounded-2xl border border-slate-100 bg-white/95 px-4 py-3 shadow-[0_8px_30px_rgba(15,23,42,0.06)] backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-[0.65rem] tracking-[0.18em] text-slate-400 uppercase">
+                {/* 0.65rem → 0.75rem */}
+                <p className="text-[0.75rem] tracking-[0.18em] text-slate-400 uppercase">
                   Экспорт завершён
                 </p>
-                <h3 className="mt-1 text-base font-semibold text-slate-800">
+                {/* text-base(1rem) → text-[1.15rem] */}
+                <h3 className="mt-1 text-[1.15rem] font-semibold text-slate-800">
                   Сводка по экспорту файла
                 </h3>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-2.5 py-1 text-[0.65rem] font-semibold text-emerald-600">
+              {/* 0.65rem → 0.75rem, px-2.5 py-1 → px-3 py-1.5 */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[0.75rem] font-semibold text-emerald-600">
                 Файл готов
               </div>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">
+            {/* text-xs → text-sm */}
+            <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">
                 Файл: {fileName || 'export.xlsx'}
               </span>
               {sizeLabel && (
-                <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
+                <span className="rounded-full bg-sky-50 px-3 py-1 text-sky-700">
                   Размер: {sizeLabel}
                 </span>
               )}
@@ -90,22 +94,25 @@ export const DownloadExcelModalContent: React.FC<DownloadExcelModalContentProper
                   ✓
                 </span>
                 <div>
-                  <p className="text-[0.65rem] tracking-[0.18em] text-emerald-400 uppercase">
+                  {/* 0.65rem → 0.75rem */}
+                  <p className="text-[0.75rem] tracking-[0.18em] text-emerald-400 uppercase">
                     Файл подготовлен
                   </p>
-                  <p className="text-xs font-semibold text-emerald-700">
+                  {/* text-xs → text-sm */}
+                  <p className="text-sm font-semibold text-emerald-700">
                     Можно скачать файл
                   </p>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                {/* кнопки: text-xs → text-sm, px-3 py-2 → px-4 py-2.5 */}
                 <button
                   type="button"
                   onClick={() => {
                     onClose();
                     onRemoveTask?.();
                   }}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:bg-slate-100"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:bg-slate-100"
                 >
                   Закрыть
                 </button>
@@ -114,7 +121,7 @@ export const DownloadExcelModalContent: React.FC<DownloadExcelModalContentProper
                   type="button"
                   onClick={handleDownload}
                   disabled={isPending}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-500 active:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 active:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isPending ? 'Скачивание...' : 'Скачать'}
                 </button>
