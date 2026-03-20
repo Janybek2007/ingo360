@@ -7,7 +7,7 @@ export interface ImportErrorItem {
 }
 
 export interface ToastImportResponseProps {
-  response: TImportResponse;
+  response?: TImportResponse | null;
   fileName?: string;
   duration?: number;
   onRemoveTask?: VoidFunction;

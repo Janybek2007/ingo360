@@ -60,6 +60,38 @@ const handleImportToast = (
   });
 };
 
+const handleFailedToast = ({
+  taskId,
+  taskType,
+  removeTask,
+  fileName,
+  createdAt,
+  message,
+}: {
+  taskId: string;
+  taskType: 'import' | 'export';
+  removeTask: (id: string) => void;
+  fileName?: string | null;
+  createdAt?: string;
+  message?: string | null;
+}) => {
+  const onRemoveTask = createRemoveHandler(removeTask, taskId);
+  const title =
+    taskType === 'import' ? 'Импорт не выполнен' : 'Экспорт не выполнен';
+  const extra = message ?? 'Произошла ошибка. Попробуйте ещё раз.';
+
+  toast({
+    message: title,
+    description: formatToastDescription(
+      fileName ?? undefined,
+      createdAt,
+      extra
+    ),
+    type: 'error',
+    onClose: onRemoveTask,
+  });
+};
+
 const handleExportToast = (
   result: NotificationMessage['result'] & Task,
   taskId: string,
@@ -90,8 +122,30 @@ const handleExportToast = (
 };
 
 const handleTask = (task: Task, removeTask: (id: string) => void) => {
+  if (task.status === 'failed') {
+    handleFailedToast({
+      taskId: task.task_id,
+      taskType: task.task_type,
+      removeTask,
+      fileName: task.file_name,
+      createdAt: formatDateInUTC(task.created_at),
+      message: task.result?.message,
+    });
+    return;
+  }
   if (task.status !== 'completed') return;
   if (task.task_type === 'import') {
+    if (task.result?.import_result == null) {
+      handleFailedToast({
+        taskId: task.task_id,
+        taskType: 'import',
+        removeTask,
+        fileName: task.file_name,
+        createdAt: formatDateInUTC(task.created_at),
+        message: task.result?.message,
+      });
+      return;
+    }
     handleImportToast(
       (task.result ?? {}) as NotificationMessage['result'] & Task,
       task.task_id,
@@ -106,6 +160,66 @@ const handleTask = (task: Task, removeTask: (id: string) => void) => {
   }
 };
 
+const handleExcelImported = (
+  message: NotificationMessage,
+  removeTask: (id: string) => void
+) => {
+  if (message.status === 'failed') {
+    handleFailedToast({
+      taskId: message.task_id,
+      taskType: 'import',
+      removeTask,
+      fileName: message.result?.file_name,
+      createdAt: message.result?.created_at
+        ? formatDateInUTC(message.result.created_at)
+        : undefined,
+      message: message.result?.message ?? message.message,
+    });
+    return;
+  }
+
+  handleImportToast(
+    message.result as NotificationMessage['result'] & Task,
+    message.task_id,
+    removeTask
+  );
+};
+
+const handleExcelExported = (
+  message: NotificationMessage,
+  removeTask: (id: string) => void
+) => {
+  if (message.status === 'failed' || message.result == null) {
+    handleFailedToast({
+      taskId: message.task_id,
+      taskType: 'export',
+      removeTask,
+      fileName: message.result?.file_name,
+      createdAt: message.result?.created_at
+        ? formatDateInUTC(message.result.created_at)
+        : undefined,
+      message: message.result?.message ?? message.message,
+    });
+    return;
+  }
+
+  handleExportToast(
+    message.result as NotificationMessage['result'] & Task,
+    message.task_id,
+    removeTask
+  );
+};
+
+const handleTasksList = (
+  message: NotificationMessage,
+  removeTask: (id: string) => void
+) => {
+  if (!message.tasks) return;
+  for (const task of message.tasks) {
+    handleTask(task, removeTask);
+  }
+};
+
 const handleMessage = (
   message: NotificationMessage,
   removeTask: (id: string) => void
@@ -113,31 +227,15 @@ const handleMessage = (
   if (!('type' in message)) return;
   switch (message.type) {
     case 'excel_imported': {
-      if ('result' in message && message.result?.import_result != null) {
-        handleImportToast(
-          message.result as NotificationMessage['result'] & Task,
-          message.task_id,
-          removeTask
-        );
-      }
+      handleExcelImported(message, removeTask);
       break;
     }
     case 'excel_exported': {
-      if ('result' in message) {
-        handleExportToast(
-          message.result as NotificationMessage['result'] & Task,
-          message.task_id,
-          removeTask
-        );
-      }
+      handleExcelExported(message, removeTask);
       break;
     }
     case 'get_tasks': {
-      if (message.tasks) {
-        for (const task of message.tasks) {
-          handleTask(task, removeTask);
-        }
-      }
+      handleTasksList(message, removeTask);
       break;
     }
   }

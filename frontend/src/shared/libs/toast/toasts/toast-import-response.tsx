@@ -33,6 +33,16 @@ export function toastImportResponse({
   duration,
   onRemoveTask,
 }: ToastImportResponseProperties) {
+  if (!response) {
+    onRemoveTask?.();
+    toast({
+      message: 'Импорт не выполнен',
+      description: 'Нет данных по результату импорта.',
+      type: 'error',
+      duration,
+    });
+    return;
+  }
   const totals = getTotals(response);
   const hasErrors = response.skipped_records.length > 0;
   const errorItems = formatSkipped(response.skipped_records);

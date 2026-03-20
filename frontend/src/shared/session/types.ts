@@ -33,9 +33,10 @@ export type NotificationMessage = {
   task_id: string;
   result: {
     file_name: string;
-    import_result: TImportResponse;
+    import_result: TImportResponse | null;
     file_size_bytes: number | null;
     created_at: string;
+    message?: string | null;
   };
   //
   count: number;
@@ -50,7 +51,8 @@ export interface Task {
   created_at: string;
   result?: {
     file_name: string;
-    import_result: TImportResponse;
+    import_result: TImportResponse | null;
+    message?: string | null;
   };
   task_type: 'export' | 'import';
   file_size_bytes?: number | null;
