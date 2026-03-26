@@ -7,7 +7,7 @@ import { queryClient } from '#/shared/libs/react-query';
 import { toast } from '#/shared/libs/toast/toasts';
 import { getResponseError } from '#/shared/utils/get-error';
 
-export const useDeleteReportLogMutation = () => {
+export const useDeleteReportLogMutation = (callback: VoidFunction) => {
   return useMutation({
     mutationKey: ['delete-report-log'],
     mutationFn: async (reportLogId: number) => {
@@ -18,6 +18,7 @@ export const useDeleteReportLogMutation = () => {
         queryKey: ReportLogsQueries.queryKeys.getReportLogs,
       });
 
+      callback();
       toast({ message: 'Лог отчета успешно удален' });
     },
     onError: async (error: HTTPError) => {

@@ -26,7 +26,7 @@ export interface IDbItem {
   product_group: IDbName;
   employee: { id: number; full_name: string };
   doctor: null | (IDbName & { full_name: string });
-  client_type: 'Аптека' | 'Врач';
+  client_type: 'аптека' | 'врач';
   medical_facility: null | IDbName;
   //
   company: string;

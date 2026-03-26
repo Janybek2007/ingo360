@@ -11,7 +11,7 @@ export const DeleteReportLogWrapper: React.FC<{ log: ReportLog }> = React.memo(
   ({ log }) => {
     const [deleteModalOpen, { toggle, set }] = useToggle();
 
-    const deleteMutation = useDeleteReportLogMutation();
+    const deleteMutation = useDeleteReportLogMutation(() => set(false));
 
     return (
       <div className="flex items-center gap-2 pr-10">

@@ -3,6 +3,7 @@ import * as z from 'zod/mini';
 import type { DbType } from '#/shared/types/db.type';
 
 const RequiredNumber = (message: string) => z.number(message);
+const RequiredStr = (message: string) => z.string(message);
 
 const DefaultSchema = z.object({
   sku_id: RequiredNumber('Выберите SKU'),
@@ -31,11 +32,21 @@ export const dbItemContractWithType: Record<DbType, z.ZodMiniType> = {
     product_group_id: RequiredNumber('Выберите группу продукта'),
     employee_id: RequiredNumber('Выберите сотрудника'),
     client_type: z.string().check(z.minLength(1, 'Введите тип клиента')),
-    client_category_id: RequiredNumber('Выберите категорию клиента'),
     month: RequiredNumber('Выберите месяц'),
     year: RequiredNumber('Выберите год'),
-    doctor_id: RequiredNumber('Выберите врача'),
-    medical_facility_id: RequiredNumber('Выберите ЛПУ'),
+    doctor_id: z.number(),
+    medical_facility_id: z.number(),
+    pharmacy_id: z.number(),
   }),
-  ims: z.string({}),
+  ims: z.object({
+    company: RequiredStr('Введите компанию'),
+    brand: RequiredStr('Введите бренд'),
+    segment: RequiredStr('Введите сегмент'),
+    dosage: RequiredStr('Введите дозировку'),
+    dosage_form: RequiredStr('Введите форму дозировки'),
+    period: RequiredStr('Введите период'),
+    amount: RequiredNumber('Введите количество'),
+    packages: RequiredNumber('Введите количество пакетов'),
+    molecule: RequiredStr('Введите молекулу'),
+  }),
 };

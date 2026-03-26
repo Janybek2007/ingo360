@@ -40,6 +40,7 @@ export const WORK_FILTER_KEY_MAP: Record<string, string> = {
   'employee.id': 'employee_ids',
   'doctor.id': 'doctor_ids',
   'sku.brand': 'brand_ids',
+  doctor_or_pharmacy: 'doctor_or_pharmacy_ids',
   distributor: 'distributor_ids',
   sku: 'sku_ids',
   pharmacy: 'pharmacy_ids',

@@ -35,6 +35,7 @@ export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
         'employees/employees',
         'products/product-groups',
         'clients/medical-facilities',
+        'clients/pharmacies',
         'clients/doctors',
       ];
     }
@@ -183,7 +184,7 @@ export function getDbWorkColumns(
         id: 'doctor_or_pharmacy',
         accessorKey: 'doctor_or_pharmacy',
         cell: ({ row }) =>
-          row.original.client_type == 'Врач'
+          row.original.client_type.toLowerCase().includes('врач')
             ? row.original.doctor?.full_name || '-'
             : row.original.pharmacy?.name || '-',
         header: columnHeaderNames.nameOfDoctorOrPharmacy,
@@ -192,20 +193,25 @@ export function getDbWorkColumns(
         filterFn: selectFilter(),
         filterType: 'select',
         meta: { groupDimension: 'doctor' },
-        selectOptions: filterOptions.clients_doctors,
+        selectOptions: [
+          ...filterOptions.clients_doctors,
+          ...filterOptions.clients_pharmacies.slice(1),
+        ],
       },
       {
         id: 'client_type',
         accessorKey: 'client_type',
+        accessorFn: row =>
+          row.client_type.toLowerCase().includes('врач') ? 'Врач' : 'Аптека',
         header: columnHeaderNames.clientType,
         size: 160,
         enableColumnFilter: true,
         filterFn: selectFilter(),
         filterType: 'select',
-        selectOptions: [
-          { label: 'Аптека', value: 'pharmacy' },
-          { label: 'Врач', value: 'doctor' },
-        ],
+        selectOptions: ['Аптека', 'Врач'].map(v => ({
+          label: v,
+          value: v,
+        })),
         meta: { groupDimension: 'client_type' },
       },
       ...getYearMonthColumns()
