@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
@@ -257,12 +257,42 @@ export function Select<ISM extends boolean = false, VT = string>({
 }: Readonly<ISelectProperties<ISM, VT>>) {
   const [open, { toggle, set }] = useToggle();
   const [searchQuery, setSearchQuery] = useState('');
+  const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
+  const [align, setAlign] = useState<'left' | 'right'>('right');
   const contentReference = useClickAway<HTMLDivElement>(() => {
     set(false);
     setSearchQuery('');
   });
   const parentReference = useRef<HTMLDivElement>(null);
   const initialValueReference = useRef(value);
+
+  useEffect(() => {
+    if (!open || !contentReference.current) return;
+
+    const triggerRect = contentReference.current.getBoundingClientRect();
+    const menuHeight = 288; // max-h-72 in rem converted to px (18rem)
+    const gap = 8; // mt-1 spacing
+
+    // Determine vertical position
+    const spaceBelow = window.innerHeight - triggerRect.bottom - gap;
+    const spaceAbove = triggerRect.top - gap;
+
+    if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
+      setPosition('top');
+    } else {
+      setPosition('bottom');
+    }
+
+    // Determine horizontal alignment
+    const spaceRight = window.innerWidth - triggerRect.left;
+    const spaceLeft = triggerRect.right;
+
+    if (spaceRight < triggerRect.width && spaceLeft > triggerRect.width) {
+      setAlign('left');
+    } else {
+      setAlign('right');
+    }
+  }, [open]);
 
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
@@ -427,10 +457,11 @@ export function Select<ISM extends boolean = false, VT = string>({
       {open && (
         <div
           className={cn(
-            'absolute z-10 max-h-72 w-full overflow-hidden rounded-xl bg-white',
+            'absolute z-10 max-h-72 overflow-hidden rounded-xl bg-white',
             'border border-gray-200 shadow-xs',
-            'top-full mt-1',
             'flex flex-col',
+            position === 'top' ? 'bottom-full mb-1' : 'top-full mt-1',
+            align === 'left' ? 'right-0' : 'left-0',
             classNames?.menu
           )}
         >

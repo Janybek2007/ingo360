@@ -41,7 +41,7 @@ export const RetailSales: React.FC = React.memo(() => {
     geoIndicators: { enabled: true },
     groupBy: {
       defaultValue:
-        'sku,brand,promotion_type,product_group,distributor,geo_indicator'.split(
+        'sku,pharmacy,brand,promotion_type,product_group,distributor,geo_indicator'.split(
           ','
         ),
     },
@@ -51,6 +51,7 @@ export const RetailSales: React.FC = React.memo(() => {
       'products/brands',
       'products/product-groups',
       'products/skus',
+      'clients/pharmacies',
       'products/promotion-types',
       'clients/distributors',
       'clients/geo-indicators',
@@ -110,6 +111,7 @@ export const RetailSales: React.FC = React.memo(() => {
     filterOptions: filterOptions.options,
     columns: [
       commonColumns.sku(),
+      commonColumns.pharmacy('pharmacy_name'),
       commonColumns.brand(),
       commonColumns.promotion(),
       commonColumns.group(),

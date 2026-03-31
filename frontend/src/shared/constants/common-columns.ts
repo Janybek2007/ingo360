@@ -111,16 +111,16 @@ export const commonColumns = {
       accessor: row => row['geo_indicator_name'] || '-',
     },
   }),
-  pharmacy: (): CColumn<any> => ({
+  pharmacy: (key = 'pharmacy'): CColumn<any> => ({
     id: 'pharmacy_id',
-    key: 'pharmacy',
+    key: key,
     optionKey: 'clients_pharmacies',
     header: columnHeaderNames.pharmacy,
     size: 300,
     type: 'select',
     groupDimension: 'pharmacy',
     custom: {
-      accessor: row => row['pharmacy'] || '-',
+      accessor: row => row[key] || '-',
     },
   }),
   medical_facility: (size = 150): CColumn<any> => ({
