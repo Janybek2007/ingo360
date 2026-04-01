@@ -123,13 +123,7 @@ export const formatUsedFilterItems = ({
       filterValue?.colType === 'select' &&
       Array.isArray(filterValue.selectValues)
     ) {
-      item = buildSelectFilterItem(
-        id,
-        header,
-        filterValue,
-        columns,
-        setColumnFilters
-      );
+      item = buildSelectFilterItem(id, header, filterValue, setColumnFilters);
     } else if (Array.isArray(filterValue)) {
       item = buildArrayFilterItem(
         id,
@@ -167,7 +161,6 @@ const buildSelectFilterItem = (
   id: string,
   header: string,
   filterValue: TableFilterSelectValue,
-  columns: ColumnDef<any>[],
   setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
 ): IUsedFilterItem | null => {
   const { selectValues } = filterValue;
