@@ -66,7 +66,7 @@ export function getReferenceTypeDeps(
 
     case 'clients/medical-facilities': {
       return [
-        'clients/medical-facilities',
+        'clients_medical_facility_types',
         'geography/settlements',
         'geography/districts',
         'clients/geo-indicators',
@@ -498,7 +498,7 @@ export function getReferenceWorkColumns(
           enableColumnFilter: true,
           filterFn: selectFilter(),
           filterType: 'select',
-          selectOptions: filterOptions.clients_medical_facilities,
+          selectOptions: filterOptions.clients_medical_facility_types,
         },
         {
           id: 'settlement.id',

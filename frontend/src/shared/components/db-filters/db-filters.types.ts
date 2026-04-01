@@ -14,6 +14,7 @@ export type FilterOptionsReferencesKey =
   | 'ims_brand_names'
   | 'ims_segment_names'
   | 'ims_dosage_form_names'
+  | 'clients_medical_facility_types'
   | ReferencesTypeWithMain
   | ReplaceSeparators<DbType>;
 

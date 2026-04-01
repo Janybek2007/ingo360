@@ -40,7 +40,7 @@ export const FilterInput: React.FC<IFilterInputProps> = React.memo(
             trigger:
               'w-full justify-between border border-gray-300 rounded-sm px-2.5 py-2 text-sm font-medium bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors',
             triggerText: 'text-gray-700',
-            menu: 'border border-gray-300 rounded-sm bg-white mt-1 shadow-lg',
+            menu: 'border w-full border-gray-300 rounded-sm bg-white mt-1 shadow-lg',
             menuItem:
               'text-sm px-2.5 py-2 hover:bg-blue-50 rounded-sm justify-between',
           }}
