@@ -5,7 +5,7 @@ import { allMonths } from './months';
 import { ROLES_OBJECT } from './roles';
 
 export const commonColumns = {
-  sku: (pinned = true): CColumn<any> => ({
+  sku: (pinned = true, skipFirstFilterOption = false): CColumn<any> => ({
     id: 'sku_id',
     key: 'sku_name',
     optionKey: 'products_skus',
@@ -14,8 +14,9 @@ export const commonColumns = {
     type: 'select',
     pinned,
     groupDimension: 'sku',
+    skipFirstFilterOption,
   }),
-  brand: (): CColumn<any> => ({
+  brand: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'brand_id',
     key: 'brand_name',
     optionKey: 'products_brands',
@@ -23,8 +24,9 @@ export const commonColumns = {
     size: 150,
     type: 'select',
     groupDimension: 'brand',
+    skipFirstFilterOption,
   }),
-  promotion: (): CColumn<any> => ({
+  promotion: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'promotion_type_id',
     key: 'promotion_type_name',
     optionKey: 'products_promotion_types',
@@ -32,8 +34,12 @@ export const commonColumns = {
     size: 200,
     type: 'select',
     groupDimension: 'promotion_type',
+    skipFirstFilterOption,
   }),
-  group: (key = 'product_group_name'): CColumn<any> => ({
+  group: (
+    key = 'product_group_name',
+    skipFirstFilterOption = false
+  ): CColumn<any> => ({
     id: 'product_group_id',
     key,
     optionKey: 'products_product_groups',
@@ -44,8 +50,9 @@ export const commonColumns = {
     custom: {
       accessor: row => row[key] || '-',
     },
+    skipFirstFilterOption,
   }),
-  responsible_employee: (): CColumn<any> => ({
+  responsible_employee: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'responsible_employee_id',
     key: 'responsible_employee_name',
     optionKey: 'employees_employees',
@@ -54,8 +61,9 @@ export const commonColumns = {
     type: 'select',
     groupDimension: 'responsible_employee',
     custom: { accessor: row => row.responsible_employee_name || '-' },
+    skipFirstFilterOption,
   }),
-  position: (): CColumn<any> => ({
+  position: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'position_id',
     key: 'position',
     optionKey: 'employees_positions',
@@ -63,8 +71,9 @@ export const commonColumns = {
     size: 200,
     type: 'select',
     groupDimension: 'position',
+    skipFirstFilterOption,
   }),
-  segment: (): CColumn<any> => ({
+  segment: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'segment_id',
     key: 'segment_name',
     optionKey: 'products_segments',
@@ -72,8 +81,9 @@ export const commonColumns = {
     size: 200,
     type: 'select',
     groupDimension: 'segment',
+    skipFirstFilterOption,
   }),
-  distributor: (): CColumn<any> => ({
+  distributor: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'distributor_id',
     key: 'distributor_name',
     optionKey: 'clients_distributors',
@@ -84,8 +94,9 @@ export const commonColumns = {
     custom: {
       accessor: row => row['distributor_name'] || '-',
     },
+    skipFirstFilterOption,
   }),
-  indicator: (): CColumn<any> => ({
+  indicator: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'indicator_id',
     key: 'indicator_name',
     optionKey: 'clients_geo_indicators',
@@ -96,6 +107,7 @@ export const commonColumns = {
     custom: {
       accessor: row => row['indicator_name'] || '-',
     },
+    skipFirstFilterOption,
   }),
   geo_indicator: (
     headerName: string = columnHeaderNames.geoIndicator
@@ -111,7 +123,10 @@ export const commonColumns = {
       accessor: row => row['geo_indicator_name'] || '-',
     },
   }),
-  pharmacy: (key = 'pharmacy'): CColumn<any> => ({
+  pharmacy: (
+    key = 'pharmacy',
+    skipFirstFilterOption = false
+  ): CColumn<any> => ({
     id: 'pharmacy_id',
     key: key,
     optionKey: 'clients_pharmacies',
@@ -122,8 +137,12 @@ export const commonColumns = {
     custom: {
       accessor: row => row[key] || '-',
     },
+    skipFirstFilterOption,
   }),
-  medical_facility: (size = 150): CColumn<any> => ({
+  medical_facility: (
+    size = 150,
+    skipFirstFilterOption = false
+  ): CColumn<any> => ({
     id: 'medical_facility_id',
     key: 'medical_facility',
     optionKey: 'clients_medical_facilities',
@@ -134,8 +153,9 @@ export const commonColumns = {
     custom: {
       accessor: row => row['medical_facility'] || '-',
     },
+    skipFirstFilterOption,
   }),
-  employee: (): CColumn<any> => ({
+  employee: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'employee_id',
     key: 'employee',
     optionKey: 'employees_employees',
@@ -145,6 +165,7 @@ export const commonColumns = {
     custom: {
       accessor: row => row['employee'] || '-',
     },
+    skipFirstFilterOption,
   }),
   year: (): CColumn<any> => ({
     id: 'year',
@@ -344,6 +365,7 @@ export const commonColumns = {
     custom: {
       accessor: row => row.medical_facility_name || '-',
     },
+    skipFirstFilterOption: true,
   }),
   specialistCoverageDoctor: (): CColumn<any> => ({
     id: 'doctor_id',
@@ -356,6 +378,7 @@ export const commonColumns = {
     custom: {
       accessor: row => row.doctor_name || '-',
     },
+    skipFirstFilterOption: true,
   }),
   specialistCoverageSpeciality: (): CColumn<any> => ({
     id: 'speciality_id',
@@ -368,6 +391,7 @@ export const commonColumns = {
     custom: {
       accessor: row => row.speciality_name || '-',
     },
+    skipFirstFilterOption: true,
   }),
   specialistCoveragePercentage: (): CColumn<any> => ({
     id: 'coverage_percentage',

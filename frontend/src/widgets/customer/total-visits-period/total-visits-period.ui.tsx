@@ -110,12 +110,12 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     columns: [
       commonColumns.medical_facility(250),
       commonColumns.pharmacy(),
-      commonColumns.position(),
-      commonColumns.indicator(),
+      commonColumns.position(true),
+      commonColumns.indicator(true),
+      commonColumns.employee(true),
+      commonColumns.group('product_group', true),
       commonColumns.year(),
       commonColumns.month(),
-      commonColumns.employee(),
-      commonColumns.group('product_group'),
       {
         id: 'employee_visits',
         key: 'employee_visits',

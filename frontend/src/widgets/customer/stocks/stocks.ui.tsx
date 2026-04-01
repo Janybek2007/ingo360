@@ -108,11 +108,11 @@ export const Stocks: React.FC = React.memo(() => {
   const allColumns = useGenerateColumns<TDbItem>({
     filterOptions: filterOptions.options,
     columns: [
-      commonColumns.sku(),
-      commonColumns.brand(),
-      commonColumns.promotion(),
-      commonColumns.group(),
-      commonColumns.distributor(),
+      commonColumns.sku(true, true),
+      commonColumns.brand(true),
+      commonColumns.promotion(true),
+      commonColumns.group('product_group_name', true),
+      commonColumns.distributor(true),
     ],
     months: monthsPreset(filtersState.indicator, sales, { noFraction: true }),
     total: totalPreset(filtersState.indicator, {

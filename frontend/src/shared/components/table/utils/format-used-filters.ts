@@ -170,14 +170,9 @@ const buildSelectFilterItem = (
   columns: ColumnDef<any>[],
   setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
 ): IUsedFilterItem | null => {
-  const column = columns.find(c => c.id === id || c.accessorKey === id) as any;
-  const selectOptions = column?.selectOptions ?? [];
   const { selectValues } = filterValue;
 
-  const hasPartialSelection =
-    selectValues.length > 0 && selectValues.length < selectOptions.length;
-
-  if (!hasPartialSelection) return null;
+  if (selectValues.length === 0) return null;
 
   return {
     label: header,

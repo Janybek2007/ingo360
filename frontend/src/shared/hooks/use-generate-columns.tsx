@@ -19,6 +19,7 @@ export interface CColumn<TData> {
   aggregate?: 'sum' | 'first';
   skipGrouping?: boolean;
   groupDimension?: string;
+  skipFirstFilterOption?: boolean;
   custom?: {
     accessor?: (row: TData) => any;
     cell?: ColumnDef<TData>['cell'];
@@ -49,18 +50,19 @@ const formatValue = (
   asPercent?: boolean,
   noFraction?: boolean
 ): string => {
-  if (noFraction) {
-    value = Math.trunc(value);
-  }
-
   if (asPercent) {
-    return `${value}${noFraction ? '%' : value.toFixed(2) + '%'}`;
+    if (noFraction) {
+      return `${Math.trunc(value)}%`;
+    }
+    return `${value.toFixed(2)}%`;
   }
 
-  return value.toLocaleString('ru-RU', {
+  const formatted = value.toLocaleString('ru-RU', {
     minimumFractionDigits: 0,
     maximumFractionDigits: noFraction ? 0 : 2,
   });
+
+  return formatted;
 };
 
 const CellValue = ({
@@ -75,7 +77,9 @@ const CellValue = ({
   if (value === null || value === undefined) return <>-</>;
   const formatted = formatValue(value, asPercent, noFraction);
   return (
-    <span className={value < 0 ? 'font-medium text-red-600' : ''}>
+    <span
+      className={value !== 0 && value < 0 ? 'font-medium text-red-600' : ''}
+    >
       {formatted}
     </span>
   );
@@ -136,9 +140,11 @@ function applySelectType<TData>(
   if (col.custom?.options) {
     column.selectOptions = col.custom.options;
   } else if (col.key && col.optionKey && col.optionKey in filterOptions) {
-    column.selectOptions = (filterOptions as FilterOptionsObject)[
-      col.optionKey
-    ];
+    let options = (filterOptions as FilterOptionsObject)[col.optionKey];
+    if (col.skipFirstFilterOption) {
+      options = options.slice(1);
+    }
+    column.selectOptions = options;
   }
 }
 

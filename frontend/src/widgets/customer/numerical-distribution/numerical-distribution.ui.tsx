@@ -108,11 +108,11 @@ export const NumericalDistribution: React.FC = React.memo(() => {
   const allColumns = useGenerateColumns<TDbItem>({
     filterOptions: filterOptions.options,
     columns: [
-      commonColumns.sku(),
-      commonColumns.brand(),
-      commonColumns.segment(),
-      commonColumns.group(),
-      commonColumns.distributor(),
+      commonColumns.sku(true, true),
+      commonColumns.brand(true),
+      commonColumns.segment(true),
+      commonColumns.group('product_group_name', true),
+      commonColumns.distributor(true),
       commonColumns.geo_indicator(columnHeaderNames.indicator2),
     ],
     months: monthsPreset('nd_percent', sales, {

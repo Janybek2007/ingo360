@@ -110,12 +110,12 @@ export const RetailSales: React.FC = React.memo(() => {
   const allColumns = useGenerateColumns<TDbItem>({
     filterOptions: filterOptions.options,
     columns: [
-      commonColumns.sku(),
-      commonColumns.pharmacy('pharmacy_name'),
-      commonColumns.brand(),
-      commonColumns.promotion(),
-      commonColumns.group(),
-      commonColumns.distributor(),
+      commonColumns.sku(true, true),
+      commonColumns.pharmacy('pharmacy_name', true),
+      commonColumns.brand(true),
+      commonColumns.promotion(true),
+      commonColumns.group('product_group_name', true),
+      commonColumns.distributor(true),
       commonColumns.geo_indicator(),
     ],
     months: monthsPreset(filtersState.indicator, sales, {
