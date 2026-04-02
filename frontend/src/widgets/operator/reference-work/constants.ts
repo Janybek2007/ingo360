@@ -550,6 +550,19 @@ export function getReferenceWorkColumns(
     case 'clients/doctors': {
       columns.push(
         {
+          accessorKey: 'mode',
+          header: columnHeaderNames.mode,
+          size: 160,
+          enableColumnFilter: true,
+          filterFn: selectFilter(),
+          filterType: 'select',
+          accessorFn: item => (item.mode == 'global' ? 'Общий' : 'Компания'),
+          selectOptions: [
+            { label: 'Общий', value: 'global' },
+            { label: 'Компания', value: 'company' },
+          ],
+        },
+        {
           accessorKey: 'full_name',
           header: columnHeaderNames.fullName,
           size: 260,

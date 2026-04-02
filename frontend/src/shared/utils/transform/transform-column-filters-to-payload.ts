@@ -60,8 +60,12 @@ export const transformColumnFiltersToPayload = (
   columnFilters: ColumnFiltersState,
   keyMap: Record<string, string> = {},
   extraDataMap: TExtraDataMap = {}
+  // excludeKeys: string[] = [],
 ): Record<string, TFilterPayloadValue> => {
   const payload: Record<string, TFilterPayloadValue> = {};
+
+  // @
+  // const columnFilters = _columnFilters.filter(f => !excludeKeys.includes(f.id));
 
   for (const filter of columnFilters) {
     const mappedKey = keyMap[filter.id] ?? filter.id;
@@ -104,7 +108,15 @@ const processSelectFilter = (
   extraDataMap: TExtraDataMap
 ): TFilterPayloadValue => {
   const array = rawValue.selectValues.map(i => i.value) as TFilterPayloadValue;
-  return cleanValue(appendExtraDataIfArray(mappedKey, array, extraDataMap));
+  const withExtra = appendExtraDataIfArray(mappedKey, array, extraDataMap);
+
+  if (mappedKey === 'mode') {
+    const arr = Array.isArray(withExtra) ? withExtra : [];
+    if (arr.length === 1) return arr[0];
+    return undefined;
+  }
+
+  return cleanValue(withExtra);
 };
 
 const processStringFilter = (rawValue: TableFilterStringValue): any => {

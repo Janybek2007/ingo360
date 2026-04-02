@@ -90,6 +90,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
         >
           <div className="space-y-4">
             <UsedFilter
+              periodCurrent={periodFilter.periodCurrent}
               usedFilterItems={filters.usedFilterItems}
               resetFilters={resetFilters}
               isView={filters.usedFilterItems.length > 0}

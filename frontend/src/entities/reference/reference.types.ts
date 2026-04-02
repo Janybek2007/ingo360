@@ -29,6 +29,7 @@ export interface IReferenceItem extends IItem {
   pharmacy_network: IItem;
   geo_indicator: IItem;
   distributor: IItem;
+  mode?: 'company' | 'global';
 }
 
 export type IGetReferencesResponse = IReferenceItem[];

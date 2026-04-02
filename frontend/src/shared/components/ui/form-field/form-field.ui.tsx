@@ -39,7 +39,7 @@ const SelectField: React.FC<{
           ),
           trigger:
             'border-none rounded-xl py-[0.855rem] px-3 w-full justify-between',
-          menu: 'top-full mt-2 h-max',
+          menu: 'top-full mt-2 h-max w-full',
         }}
       />
     </div>

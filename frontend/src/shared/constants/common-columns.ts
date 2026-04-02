@@ -73,6 +73,28 @@ export const commonColumns = {
     groupDimension: 'position',
     skipFirstFilterOption,
   }),
+  doctor: (skipFirstFilterOption = false): CColumn<any> => ({
+    id: 'doctor_id',
+    key: 'doctor_full_name',
+    optionKey: 'clients_doctors',
+    header: columnHeaderNames.doctor,
+    size: 200,
+    type: 'select',
+    groupDimension: 'doctor',
+    custom: { accessor: row => row.doctor_full_name || '-' },
+    skipFirstFilterOption,
+  }),
+  speciality: (skipFirstFilterOption = false): CColumn<any> => ({
+    id: 'speciality_id',
+    key: 'speciality_name',
+    optionKey: 'clients_specialities',
+    header: columnHeaderNames.speciality,
+    size: 200,
+    type: 'select',
+    groupDimension: 'speciality',
+    custom: { accessor: row => row.speciality_name || '-' },
+    skipFirstFilterOption,
+  }),
   segment: (skipFirstFilterOption = false): CColumn<any> => ({
     id: 'segment_id',
     key: 'segment_name',
@@ -167,23 +189,23 @@ export const commonColumns = {
     },
     skipFirstFilterOption,
   }),
-  year: (): CColumn<any> => ({
+  year: (filter = true): CColumn<any> => ({
     id: 'year',
     key: 'year',
     optionKey: 'employees_employees',
     header: columnHeaderNames.year,
     size: 140,
-    type: 'number',
+    type: filter ? 'number' : undefined,
     custom: {
       cell: ({ row }) => row.original.year ?? '-',
     },
   }),
-  month: (): CColumn<any> => ({
+  month: (filter = true): CColumn<any> => ({
     id: 'month',
     key: 'month',
     header: columnHeaderNames.month,
     size: 140,
-    type: 'select',
+    type: filter ? 'select' : undefined,
     custom: {
       cell: ({ row }) => allMonths[row.original.month - 1] ?? '-',
       options: allMonths.map((month, index) => ({

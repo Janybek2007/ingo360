@@ -6,10 +6,10 @@ import { useForm } from 'react-hook-form';
 
 import { UserQueries } from '#/entities/user';
 import { http } from '#/shared/api';
+import { TokenUtils } from '#/shared/api/token-utils';
 import { queryClient } from '#/shared/libs/react-query';
 import { useSession } from '#/shared/session';
 import { getResponseError } from '#/shared/utils/get-error';
-import { TokenUtils } from '#/shared/utils/token-utils';
 
 import {
   LoginContract,

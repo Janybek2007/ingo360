@@ -23,6 +23,8 @@ import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -176,7 +178,19 @@ export const NumericalDistribution: React.FC = React.memo(() => {
           <Table
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: filtersState.resetFilters,
+              resetFilters: () => {
+                filtersState.resetFilters();
+                periodFilter.onReset();
+              },
+              isViewPeriods: periodFilter.isView,
+              usedPeriodFilters: getFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: periodFilter.onDelete,
+                },
+              ]),
+              periodCurrent: periodFilter.periodCurrent,
             }}
             columns={columnsForTable}
             data={sales}

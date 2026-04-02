@@ -22,6 +22,8 @@ import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -150,8 +152,20 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
         >
           <Table
             filters={{
+              periodCurrent: periodFilter.periodCurrent,
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: filtersState.resetFilters,
+              resetFilters: () => {
+                filtersState.resetFilters();
+                periodFilter.onReset();
+              },
+              isViewPeriods: periodFilter.isView,
+              usedPeriodFilters: getFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: periodFilter.onDelete,
+                },
+              ]),
             }}
             columns={columnsForTable}
             data={visits}

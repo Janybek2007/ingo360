@@ -99,6 +99,9 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
                   { value: 100_000, label: '100000' },
                 ]}
                 triggerText="Количество строк"
+                classNames={{
+                  menu: 'w-full',
+                }}
               />
               <Select<true>
                 value={visibleColumns}

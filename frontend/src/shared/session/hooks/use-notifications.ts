@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
 import { UserQueries } from '#/entities/user';
+import { TokenUtils } from '#/shared/api/token-utils';
 import { toast } from '#/shared/libs/toast/toasts';
-import { TokenUtils } from '#/shared/utils/token-utils';
 
 import { queryClient } from '../../libs/react-query';
 import { useSocket } from '../../libs/socket';

@@ -1,7 +1,7 @@
 import ky from 'ky';
 
-import { FULL_API_URL } from './constants/environment';
-import { TokenUtils as TokenUtilities } from './utils/token-utils';
+import { FULL_API_URL } from '../constants/environment';
+import { TokenUtils as TokenUtilities } from './token-utils';
 
 const http = ky.create({
   prefixUrl: FULL_API_URL,

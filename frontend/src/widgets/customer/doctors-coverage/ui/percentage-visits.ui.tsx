@@ -84,6 +84,7 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
         >
           <div>
             <UsedFilter
+              periodCurrent={periodFilter.periodCurrent}
               usedPeriodFilters={getFilterItems([
                 {
                   value: periodFilter.selectedValues,

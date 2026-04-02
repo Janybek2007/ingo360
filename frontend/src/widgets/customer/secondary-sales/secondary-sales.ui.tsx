@@ -28,6 +28,8 @@ import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -184,7 +186,19 @@ export const SecondarySales: React.FC = React.memo(() => {
             key={filtersState.indicator}
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: filtersState.resetFilters,
+              resetFilters: () => {
+                filtersState.resetFilters();
+                periodFilter.onReset();
+              },
+              isViewPeriods: periodFilter.isView,
+              usedPeriodFilters: getFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: periodFilter.onDelete,
+                },
+              ]),
+              periodCurrent: periodFilter.periodCurrent,
             }}
             columns={columnsForTable}
             data={sales}

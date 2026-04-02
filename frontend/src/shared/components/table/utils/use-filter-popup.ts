@@ -13,6 +13,69 @@ import React, {
 
 import { useClickAway } from '#/shared/hooks/use-click-away';
 
+const buildFilterValue = ({
+  colType,
+  filterType,
+  value,
+  value2,
+  effectiveValue,
+  selectOptions,
+  header,
+}: {
+  colType: string;
+  filterType: string;
+  value: any;
+  value2: string | number;
+  effectiveValue?: any[];
+  selectOptions: { label: string; value: string | number }[];
+  header?: string | number | any;
+}) => {
+  if (colType === 'select') {
+    const isAllSelected =
+      !Array.isArray(effectiveValue) ||
+      effectiveValue.length === 0 ||
+      selectOptions.every(opt =>
+        effectiveValue.some((v: any) => v.value === opt.value)
+      );
+
+    if (isAllSelected) {
+      return;
+    }
+    return {
+      selectValues: effectiveValue,
+      colType,
+      header,
+    };
+  }
+
+  if (colType === 'number' && filterType === 'between') {
+    if (value === '' || value == null || value2 === '') {
+      return;
+    }
+    return {
+      type: filterType,
+      value: [value, value2],
+      colType,
+      header,
+    };
+  }
+
+  if (
+    value === '' ||
+    value == null ||
+    (typeof value === 'string' && !value.trim())
+  ) {
+    return;
+  }
+
+  return {
+    type: filterType,
+    value,
+    colType,
+    header,
+  };
+};
+
 interface IUseFilterPopupArgs {
   column: Column<any, unknown>;
   onClose: VoidFunction;
@@ -150,57 +213,24 @@ export const useFilterPopup = ({
   const [value2, setValue2] = useState<string | number>(() => initialValue2);
 
   const applyFilter = useCallback(() => {
-    if (colType === 'select') {
-      // Если был поиск — берём только видимые элементы из value
-      const effectiveValue = effectiveOptions
+    const effectiveValue =
+      colType === 'select' && effectiveOptions
         ? value.filter((v: any) =>
             effectiveOptions.some(opt => opt.value === v.value)
           )
         : value;
 
-      const isAllSelected =
-        !Array.isArray(effectiveValue) ||
-        effectiveValue.length === 0 ||
-        selectOptions.every(opt =>
-          effectiveValue.some((v: any) => v.value === opt.value)
-        );
+    const filterValue = buildFilterValue({
+      colType,
+      filterType,
+      value,
+      value2,
+      effectiveValue,
+      selectOptions,
+      header: column.columnDef.header,
+    });
 
-      if (isAllSelected) {
-        column.setFilterValue(undefined);
-      } else {
-        column.setFilterValue({
-          selectValues: effectiveValue,
-          colType,
-          header: column.columnDef.header,
-        });
-      }
-    } else if (colType === 'number' && filterType === 'between') {
-      if (value === '' || value == null || value2 === '') {
-        column.setFilterValue(undefined);
-      } else {
-        column.setFilterValue({
-          type: filterType,
-          value: [value, value2],
-          colType,
-          header: column.columnDef.header,
-        });
-      }
-    } else {
-      if (
-        value === '' ||
-        value == null ||
-        (typeof value === 'string' && !value.trim())
-      ) {
-        column.setFilterValue(undefined);
-      } else {
-        column.setFilterValue({
-          type: filterType,
-          value,
-          colType,
-          header: column.columnDef.header,
-        });
-      }
-    }
+    column.setFilterValue(filterValue);
     onClose();
   }, [
     colType,

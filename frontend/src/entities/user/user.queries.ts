@@ -2,8 +2,8 @@ import { queryOptions } from '@tanstack/react-query';
 import qs from 'qs';
 
 import { http } from '#/shared/api';
+import { TokenUtils } from '#/shared/api/token-utils';
 import type { SessionRole } from '#/shared/types';
-import { TokenUtils } from '#/shared/utils/token-utils';
 
 import type {
   GetUserResponse,

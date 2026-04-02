@@ -44,6 +44,7 @@ export const columnHeaderNames = {
   companyContractNumber: '№ Договора',
   companyContractEndDate: 'Срок окончания договора',
   fullName: 'ФИО',
+  mode: 'Уровень доступа',
   role: 'Роль',
   email: 'Электронная почта',
   customerPosition: 'Должность',

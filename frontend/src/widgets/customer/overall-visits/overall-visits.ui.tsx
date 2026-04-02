@@ -115,6 +115,7 @@ export const OverallVisits: React.FC = React.memo(() => {
       >
         <div className="space-y-4">
           <UsedFilter
+            periodCurrent={periodFilter.periodCurrent}
             usedFilterItems={filters.usedFilterItems}
             resetFilters={resetFilters}
             isViewPeriods={periodFilter.isView}

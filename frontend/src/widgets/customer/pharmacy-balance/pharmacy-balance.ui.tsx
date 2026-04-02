@@ -29,6 +29,8 @@ import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
 import type { ExtraDbType } from '#/shared/types/db.type';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -185,8 +187,20 @@ export const PharmacyBalance: React.FC = React.memo(() => {
         >
           <Table
             filters={{
+              periodCurrent: periodFilter.periodCurrent,
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: filtersState.resetFilters,
+              resetFilters: () => {
+                filtersState.resetFilters();
+                periodFilter.onReset();
+              },
+              isViewPeriods: periodFilter.isView,
+              usedPeriodFilters: getFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: periodFilter.onDelete,
+                },
+              ]),
             }}
             columns={columnsForTable}
             data={sales}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { MonthFull } from '#/shared/constants/months';
 
@@ -19,7 +19,15 @@ export type UsePeriodFilterReturn = {
   onChange: (value: string[]) => void;
   onDelete: (value: string | number) => void;
   onReset: VoidFunction;
+  periodCurrent: Record<'m' | 'q' | 'y', number>;
 };
+
+interface IUsePeriodFilter {
+  views: UsePeriodType[];
+  defaultPeriod: UsePeriodType;
+  isMultiple: boolean;
+  lastYear: number;
+}
 
 export type PeriodFiltersProps = Omit<
   UsePeriodFilterReturn,
@@ -29,8 +37,8 @@ export type PeriodFiltersProps = Omit<
   isMultiple?: boolean;
 };
 
-type YM = { y: number; m: number }; // m: 1..12
-type YQ = { y: number; q: number }; // q: 1..4
+type YM = { y: number; m: number };
+type YQ = { y: number; q: number };
 
 const toMonth = (d: Date): YM => ({ y: d.getFullYear(), m: d.getMonth() + 1 });
 
@@ -45,7 +53,7 @@ const currentQuarter = (m: number) => Math.floor((m - 1) / 3) + 1;
 const quarterFromYM = (ym: YM): YQ => ({ y: ym.y, q: currentQuarter(ym.m) });
 
 const addQuarters = (yq: YQ, delta: number): YQ => {
-  const index = yq.y * 4 + (yq.q - 1) + delta; // absolute quarter index
+  const index = yq.y * 4 + (yq.q - 1) + delta;
   const y = Math.floor(index / 4);
   const q = (index % 4) + 1;
   return { y, q };
@@ -55,13 +63,6 @@ const uniq = <T>(array: T[]) => [...new Set(array)];
 
 const formatMonth = (month: number) => `${month}`.padStart(2, '0');
 
-interface IUsePeriodFilter {
-  views: UsePeriodType[];
-  defaultPeriod: UsePeriodType;
-  isMultiple: boolean;
-  lastYear: number;
-}
-
 export const usePeriodFilter = ({
   views = ['year', 'month', 'quarter'],
   defaultPeriod = 'month',
@@ -69,38 +70,33 @@ export const usePeriodFilter = ({
   lastYear,
 }: Partial<IUsePeriodFilter>): UsePeriodFilterReturn => {
   const [period, setPeriodState] = useState<UsePeriodType>(defaultPeriod);
+
   const now = useMemo(() => new Date(), []);
   const current = useMemo(() => toMonth(now), [now]);
   const currentYQ = useMemo(() => quarterFromYM(current), [current]);
 
-  // 36 months: current month + 35 назад (3 года)
   const months36 = useMemo(() => {
     const out: YM[] = [];
-    for (let index = 0; index < 36; index++)
-      out.push(addMonths(current, -index));
+    for (let i = 0; i < 36; i++) out.push(addMonths(current, -i));
     return out;
   }, [current]);
 
-  // 12 месяцев: current month + 11 назад (1 год)
   const months12 = useMemo(() => months36.slice(0, 12), [months36]);
 
-  // 12 кварталов: current quarter + 11 назад (3 года)
   const quarters12 = useMemo(() => {
     const out: YQ[] = [];
-    for (let index = 0; index < 12; index++)
-      out.push(addQuarters(currentYQ, -index));
+    for (let i = 0; i < 12; i++) out.push(addQuarters(currentYQ, -i));
     return out;
   }, [currentYQ]);
 
-  // 4 квартала: current quarter + 3 назад (1 год)
   const quarters4 = useMemo(() => quarters12.slice(0, 4), [quarters12]);
 
   const getRangeYears = useCallback(
     (p: UsePeriodType) => {
       if (p === 'year')
-        return Array.from({ length: 5 }, (_, index) => current.y - index);
+        return Array.from({ length: 5 }, (_, i) => current.y - i);
       if (p === 'quarter') return uniq(quarters12.map(x => x.y));
-      return uniq(months36.map(x => x.y)); // month/mat/ytd
+      return uniq(months36.map(x => x.y));
     },
     [current.y, months36, quarters12]
   );
@@ -140,23 +136,38 @@ export const usePeriodFilter = ({
     [current, currentYQ, months12, quarters4, isMultiple, lastYear]
   );
 
-  const [selectedValues, setSelectedValues] = useState<string[]>(
-    buildAllItemValues(defaultPeriod)
+  const [selectedValuesState, setSelectedValuesState] = useState<string[]>(
+    () => {
+      if (lastYear !== undefined) {
+        return buildAllItemValues(period);
+      }
+      return buildAllItemValues(defaultPeriod);
+    }
   );
 
-  useEffect(() => {
+  const selectedValues = useMemo(() => {
     if (lastYear !== undefined) {
-      setSelectedValues(buildAllItemValues(period));
+      return buildAllItemValues(period);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastYear]);
+    return selectedValuesState;
+  }, [lastYear, period, selectedValuesState, buildAllItemValues]);
+
+  const setSelectedValues = useCallback(
+    (values: string[] | ((prev: string[]) => string[])) => {
+      setSelectedValuesState(prev => {
+        const newValues = typeof values === 'function' ? values(prev) : values;
+        return newValues;
+      });
+    },
+    []
+  );
 
   const setPeriod = useCallback(
     (newPeriod: UsePeriodType) => {
       setPeriodState(newPeriod);
       setSelectedValues(buildAllItemValues(newPeriod));
     },
-    [buildAllItemValues]
+    [buildAllItemValues, setSelectedValues]
   );
 
   const items = useMemo(() => {
@@ -178,7 +189,7 @@ export const usePeriodFilter = ({
       return result;
     }
 
-    const prefix = period; // month | mat | ytd
+    const prefix = period;
     for (const { y, m } of months36) {
       const monthName = Object.values(MonthFull)[m - 1];
       result.push({
@@ -190,42 +201,17 @@ export const usePeriodFilter = ({
     return result;
   }, [period, months36, quarters12, getRangeYears]);
 
-  const years = useMemo(() => getRangeYears(period), [getRangeYears, period]);
-
-  const getYearItems = useCallback(
-    (year: string) => {
-      const allValues = items.map(index => index.value);
-      if (period === 'month')
-        return allValues.filter(v => v.startsWith(`month-${year}-`));
-      if (period === 'quarter')
-        return allValues.filter(v => v.startsWith(`quarter-${year}-`));
-      if (period === 'mat')
-        return allValues.filter(v => v.startsWith(`mat-${year}-`));
-      if (period === 'ytd')
-        return allValues.filter(v => v.startsWith(`ytd-${year}-`));
-      return [];
-    },
-    [items, period]
-  );
-
-  const allItemValues = useMemo(() => items.map(index => index.value), [items]);
+  const allItemValues = useMemo(() => items.map(x => x.value), [items]);
 
   const getIsView = useCallback(() => {
-    const allValuesWithYears =
-      period === 'year'
-        ? allItemValues
-        : [...allItemValues, ...years.map(y => `year-${y}`)];
-    return selectedValues.length !== allValuesWithYears.length;
-  }, [selectedValues, allItemValues, years, period]);
+    return selectedValues.length !== allItemValues.length;
+  }, [selectedValues, allItemValues]);
 
   const handleValueChange = useCallback(
     (value: string[] | string): void => {
       const valueArray = Array.isArray(value) ? value : [value];
-      const allValues = items.map(index => index.value);
 
       if (valueArray.length === 0) return setSelectedValues([]);
-      if (valueArray.length === allValues.length)
-        return setSelectedValues(allValues);
 
       if (period === 'mat' || period === 'ytd') {
         const resolved = resolveCumulativeValues(
@@ -237,48 +223,20 @@ export const usePeriodFilter = ({
         return;
       }
 
-      const addedYear = valueArray.find(
-        v => v.startsWith('year-') && !selectedValues.includes(v)
-      );
-      if (addedYear) {
-        const year = addedYear.split('-')[1];
-        const yearItems = getYearItems(year);
-        setSelectedValues(previous => [
-          ...new Set([...previous, addedYear, ...yearItems]),
-        ]);
-        return;
+      const cleaned = valueArray.filter(v => !v.startsWith('year-'));
+
+      if (!isMultiple) {
+        return setSelectedValues(cleaned.slice(-1));
       }
 
-      const removedYear = selectedValues.find(
-        v => v.startsWith('year-') && !valueArray.includes(v)
-      );
-      if (removedYear) {
-        const year = removedYear.split('-')[1];
-        const yearItems = getYearItems(year);
-        setSelectedValues(
-          selectedValues.filter(v => ![...yearItems, removedYear].includes(v))
-        );
-        return;
-      }
-
-      let updatedValues = valueArray.filter(v => !v.startsWith('year-'));
-
-      for (const year of years) {
-        const yearItems = getYearItems(`${year}`);
-        if (yearItems.some(v => updatedValues.includes(v))) {
-          updatedValues.push(`year-${year}`);
-        }
-      }
-
-      setSelectedValues([...new Set(updatedValues)]);
+      setSelectedValues([...new Set(cleaned)]);
     },
-    [items, period, selectedValues, years, getYearItems]
+    [period, selectedValues, isMultiple, setSelectedValues]
   );
 
   const handleDelete = useCallback(
     (value: string | number) => {
-      const newValues = selectedValues.filter(v => v !== value);
-      handleValueChange(newValues);
+      handleValueChange(selectedValues.filter(v => v !== value));
     },
     [handleValueChange, selectedValues]
   );
@@ -296,10 +254,10 @@ export const usePeriodFilter = ({
       setSelectedValues([]);
       setPeriod(defaultPeriod);
     },
+    periodCurrent: { y: current.y, m: current.m, q: currentYQ.q },
   };
 };
 
-// На уровне модуля, вне компонента
 function resolveCumulativeValues(
   valueArray: string[],
   selectedValues: string[],
@@ -309,8 +267,8 @@ function resolveCumulativeValues(
   const oldValues = selectedValues.filter(v => v.startsWith(`${period}-`));
 
   if (newValues.length > oldValues.length) {
-    const addedValue = newValues.find(v => !oldValues.includes(v));
-    if (addedValue) return [addedValue];
+    const added = newValues.find(v => !oldValues.includes(v));
+    if (added) return [added];
   }
 
   if (newValues.length === 0) return [];
@@ -318,7 +276,6 @@ function resolveCumulativeValues(
   return newValues;
 }
 
-// helpers вне компонента — снижают когнитивную сложность
 const buildMonthValues = (
   isMultiple: boolean,
   current: YM,
@@ -326,11 +283,15 @@ const buildMonthValues = (
   months12: YM[] = []
 ) => {
   if (!isMultiple) return [`month-${current.y}-${formatMonth(current.m)}`];
-  if (lastYear)
+
+  if (lastYear) {
+    const maxMonth = lastYear === current.y ? current.m : 12;
     return Array.from(
-      { length: 12 },
+      { length: maxMonth },
       (_, i) => `month-${lastYear}-${formatMonth(i + 1)}`
     );
+  }
+
   return months12.map(x => `month-${x.y}-${formatMonth(x.m)}`);
 };
 
@@ -341,7 +302,15 @@ const buildQuarterValues = (
   quarters4: YQ[] = []
 ) => {
   if (!isMultiple) return [`quarter-${currentYQ.y}-${currentYQ.q}`];
-  if (lastYear) return [1, 2, 3, 4].map(q => `quarter-${lastYear}-${q}`);
+
+  if (lastYear) {
+    const maxQ = lastYear === currentYQ.y ? currentYQ.q : 4;
+    return Array.from(
+      { length: maxQ },
+      (_, i) => `quarter-${lastYear}-${i + 1}`
+    );
+  }
+
   return quarters4.map(x => `quarter-${x.y}-${x.q}`);
 };
 
@@ -353,11 +322,15 @@ const buildCumulativeValues = (
   months12: YM[] = []
 ) => {
   if (!isMultiple) return [`${prefix}-${current.y}-${formatMonth(current.m)}`];
-  if (lastYear)
+
+  if (lastYear) {
+    const maxMonth = lastYear === current.y ? current.m : 12;
     return Array.from(
-      { length: 12 },
+      { length: maxMonth },
       (_, i) => `${prefix}-${lastYear}-${formatMonth(i + 1)}`
     );
+  }
+
   return months12.map(x => `${prefix}-${x.y}-${formatMonth(x.m)}`);
 };
 

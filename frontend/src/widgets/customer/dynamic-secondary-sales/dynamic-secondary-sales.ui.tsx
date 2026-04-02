@@ -111,6 +111,7 @@ export const DynamicSecondarySales: React.FC = React.memo(() => {
       }
     >
       <UsedFilter
+        periodCurrent={periodFilter.periodCurrent}
         usedFilterItems={filters.usedFilterItems}
         usedPeriodFilters={getFilterItems([
           {

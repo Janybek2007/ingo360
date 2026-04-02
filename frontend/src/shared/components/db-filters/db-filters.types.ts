@@ -57,6 +57,8 @@ export interface DbFiltersConfig {
     enabled?: boolean;
     options?: Array<{ value: 'all' | number; label: string }>;
     defaultValue?: 'all' | number;
+    value?: 'all' | number;
+    setter?: React.Dispatch<React.SetStateAction<'all' | number>>;
   };
 }
 

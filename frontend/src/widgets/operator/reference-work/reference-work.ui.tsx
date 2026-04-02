@@ -90,6 +90,9 @@ const ReferenceWork: React.FC<IReferenceWorkProperties> = React.memo(
                   { value: 100_000, label: '100000' },
                 ]}
                 triggerText="Количество строк"
+                classNames={{
+                  menu: 'w-full',
+                }}
               />
               <Select<true>
                 value={visibleColumns}

@@ -176,6 +176,7 @@ export const MarketInsights: React.FC = React.memo(() => {
           <Table
             filters={{
               usedFilterItems: databaseFilters.usedFilterItems,
+              periodCurrent: periodFilter.periodCurrent,
               resetFilters: () => {
                 filtersState.resetFilters();
                 periodFilter.onReset();

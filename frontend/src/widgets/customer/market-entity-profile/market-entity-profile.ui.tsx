@@ -160,6 +160,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               />
               <UsedFilter
                 className="mt-4"
+                periodCurrent={periodFilter.periodCurrent}
                 usedPeriodFilters={getFilterItems([
                   {
                     value: periodFilter.selectedValues,

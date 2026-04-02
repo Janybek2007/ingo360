@@ -276,18 +276,16 @@ export const referencesCEFields: Record<
   'clients/doctors': [
     { name: 'full_name', label: 'ФИО', placeholder: 'Введите ФИО' },
     {
-      name: 'company_id',
-      label: 'Компания',
-      placeholder: 'Выберите компанию',
+      name: 'mode',
+      label: 'Уровень доступа',
+      placeholder: 'Выберите уровень доступа',
       type: 'select',
+      selectItems: [
+        { value: 'global', label: 'Общий' },
+        { value: 'company', label: 'Только для компании' },
+      ],
     },
     [
-      {
-        name: 'responsible_employee_id',
-        label: 'Ответственный сотрудник',
-        placeholder: 'Выберите ответственного сотрудника',
-        type: 'select',
-      },
       {
         name: 'medical_facility_id',
         label: 'ЛПУ',
@@ -301,15 +299,27 @@ export const referencesCEFields: Record<
         type: 'select',
       },
       {
-        name: 'client_category_id',
-        label: 'Категория',
-        placeholder: 'Выберите категорию',
+        name: 'company_id',
+        label: 'Компания',
+        placeholder: 'Выберите компанию',
         type: 'select',
       },
       {
         name: 'product_group_id',
         label: 'Группа',
         placeholder: 'Выберите группу',
+        type: 'select',
+      },
+      {
+        name: 'responsible_employee_id',
+        label: 'Ответственный сотрудник',
+        placeholder: 'Выберите ответственного сотрудника',
+        type: 'select',
+      },
+      {
+        name: 'client_category_id',
+        label: 'Категория',
+        placeholder: 'Выберите категорию',
         type: 'select',
       },
     ],

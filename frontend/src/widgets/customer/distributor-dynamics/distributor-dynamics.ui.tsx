@@ -182,6 +182,7 @@ export const DistributorDynamics: React.FC = React.memo(() => {
       >
         <div className="relative space-y-4">
           <UsedFilter
+            periodCurrent={periodFilter.periodCurrent}
             usedFilterItems={filters.usedFilterItems}
             resetFilters={resetFilters}
             usedPeriodFilters={getFilterItems([

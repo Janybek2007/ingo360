@@ -4,7 +4,6 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useClickAway } from '#/shared/hooks/use-click-away';
 import { useToggle } from '#/shared/hooks/use-toggle';
 import { cn } from '#/shared/utils/cn';
-import { getUniqueItems } from '#/shared/utils/get-unique-items';
 
 import { LucideCheckIcon, LucidMinusIcon } from '../../../assets/icons';
 import { Checkbox } from '../checkbox';
@@ -12,6 +11,19 @@ import type {
   ISelectItem,
   ISelectProps as ISelectProperties,
 } from './select.types';
+
+function getUniqueItems<T extends Record<string, any>>(
+  items: T[],
+  keys: (keyof T)[]
+): T[] {
+  const seen = new Set<string>();
+  return items.filter(item => {
+    const key = keys.map(k => String(item[k])).join('|');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 const SelectItem = memo(
   <VT,>({
@@ -259,6 +271,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   const [searchQuery, setSearchQuery] = useState('');
   const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
   const [align, setAlign] = useState<'left' | 'right'>('right');
+  const [draftValue, setDraftValue] = useState<VT[]>([]);
   const contentReference = useClickAway<HTMLDivElement>(() => {
     set(false);
     setSearchQuery('');
@@ -292,7 +305,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     } else {
       setAlign('right');
     }
-  }, [open]);
+  }, [open, contentReference]);
 
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
@@ -309,6 +322,19 @@ export function Select<ISM extends boolean = false, VT = string>({
     return uniqueItems.map(item => item.value);
   }, [value, isMultiple, defaultAllSelected, uniqueItems]);
 
+  const stagedValue = useMemo(() => {
+    if (!showToggleAll || !isMultiple) return effectiveValue;
+    return draftValue;
+  }, [showToggleAll, isMultiple, effectiveValue, draftValue]);
+
+  useEffect(() => {
+    if (!showToggleAll || !isMultiple) return;
+    if (!open) {
+      const current = Array.isArray(effectiveValue) ? effectiveValue : [];
+      setDraftValue(current);
+    }
+  }, [showToggleAll, isMultiple, open, effectiveValue]);
+
   const filteredItems = useMemo(() => {
     if (!search || !searchQuery.trim()) return uniqueItems;
 
@@ -318,12 +344,12 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   const isSelected = useCallback(
     (item: ISelectItem<VT>) => {
-      if (!isMultiple) return effectiveValue === item.value;
+      if (!isMultiple) return stagedValue === item.value;
 
-      const array = Array.isArray(effectiveValue) ? effectiveValue : [];
+      const array = Array.isArray(stagedValue) ? stagedValue : [];
       return array.includes(item.value);
     },
-    [effectiveValue, isMultiple]
+    [stagedValue, isMultiple]
   );
 
   const handleSelect = useCallback(
@@ -334,33 +360,46 @@ export function Select<ISM extends boolean = false, VT = string>({
         return;
       }
 
-      const current = Array.isArray(effectiveValue) ? effectiveValue : [];
+      const current = Array.isArray(stagedValue) ? stagedValue : [];
       const newValue = current.includes(item.value)
         ? current.filter(v => v !== item.value)
         : [...current, item.value];
 
+      if (showToggleAll) {
+        setDraftValue(newValue);
+        return;
+      }
+
       setValue(newValue as any);
     },
-    [isMultiple, effectiveValue, setValue, set]
+    [isMultiple, stagedValue, setValue, set, showToggleAll]
   );
 
   const handleToggleAll = useCallback(() => {
     if (!isMultiple) return;
 
-    const current = Array.isArray(effectiveValue) ? effectiveValue : [];
+    const current = Array.isArray(stagedValue) ? stagedValue : [];
 
     const allSelectedNow =
       filteredItems.length > 0 &&
       filteredItems.every(item => current.includes(item.value));
 
     if (allSelectedNow) {
+      if (showToggleAll) {
+        setDraftValue([]);
+        return;
+      }
       setValue([] as any);
       return;
     }
 
     const newValues = filteredItems.map(item => item.value);
+    if (showToggleAll) {
+      setDraftValue(newValues);
+      return;
+    }
     setValue(newValues as any);
-  }, [isMultiple, filteredItems, effectiveValue, setValue]);
+  }, [isMultiple, filteredItems, stagedValue, setValue, showToggleAll]);
 
   const findItemLabel = useMemo(() => {
     if (changeTriggerText && Array.isArray(effectiveValue)) {
@@ -379,11 +418,16 @@ export function Select<ISM extends boolean = false, VT = string>({
     return (
       filteredItems.length > 0 &&
       filteredItems.every(
-        item =>
-          Array.isArray(effectiveValue) && effectiveValue.includes(item.value)
+        item => Array.isArray(stagedValue) && stagedValue.includes(item.value)
       )
     );
-  }, [filteredItems, effectiveValue, isMultiple]);
+  }, [filteredItems, stagedValue, isMultiple]);
+
+  const handleApply = useCallback(() => {
+    if (!showToggleAll || !isMultiple) return;
+    setValue(draftValue as any);
+    set(false);
+  }, [showToggleAll, isMultiple, draftValue, setValue, set]);
 
   const handleSearchChange = useCallback((newQuery: string) => {
     setSearchQuery(newQuery);
@@ -479,11 +523,20 @@ export function Select<ISM extends boolean = false, VT = string>({
 
           {showToggleAll && (
             <div className="shrink-0 border-t border-gray-300">
-              <ToggleAllButton
-                allSelected={allSelected}
-                onToggle={handleToggleAll}
-                className={classNames?.menuItem}
-              />
+              <div className="flex items-center justify-between">
+                <ToggleAllButton
+                  allSelected={allSelected}
+                  onToggle={handleToggleAll}
+                  className={classNames?.menuItem}
+                />
+                <button
+                  type="button"
+                  onClick={handleApply}
+                  className="mr-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+                >
+                  Применить
+                </button>
+              </div>
             </div>
           )}
         </div>

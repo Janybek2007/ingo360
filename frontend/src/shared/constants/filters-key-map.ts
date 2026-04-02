@@ -15,6 +15,7 @@ export const COMMON_COLUMNS_FILTER_KEY_MAP: Record<string, string> = {
   speciality_id: 'speciality_ids',
   company_id: 'company_ids',
   position_id: 'position_ids',
+  month: 'months',
 };
 
 export const WORK_FILTER_KEY_MAP: Record<string, string> = {

@@ -129,6 +129,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
       >
         <div className="space-y-4">
           <UsedFilter
+            periodCurrent={periodFilter.periodCurrent}
             usedFilterItems={filters.usedFilterItems}
             usedPeriodFilters={getFilterItems([
               {

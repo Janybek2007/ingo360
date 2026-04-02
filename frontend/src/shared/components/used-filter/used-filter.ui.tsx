@@ -1,5 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
+import { useLocation } from 'react-router';
 
+import type { IGetLastYear } from '#/entities/db';
+import { routePaths } from '#/shared/router';
+import { useSession } from '#/shared/session';
 import { cn } from '#/shared/utils/cn';
 
 import { LucideXIcon } from '../../assets/icons';
@@ -10,6 +14,22 @@ import type {
 } from './used-filter.types';
 import { PeriodGrouping } from './utils';
 
+const PATH_TO_LAST_YEAR_KEY: Record<string, keyof IGetLastYear> = {
+  [routePaths.customer.primarySales]: 'primary',
+  [routePaths.customer.secondarySales]: 'secondary',
+  [routePaths.customer.tertiarySales]: 'tertiary',
+  [routePaths.customer.visitActivity]: 'visits',
+};
+
+const getLastYearByPath = (
+  lastYear: IGetLastYear | undefined,
+  pathname: string
+): number | undefined => {
+  if (!lastYear) return undefined;
+  const key = PATH_TO_LAST_YEAR_KEY[pathname];
+  return key ? lastYear[key] : undefined;
+};
+
 export const UsedFilter: React.FC<IUsedFilterProperties> = ({
   usedFilterItems = [],
   usedPeriodFilters = [],
@@ -19,16 +39,28 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
   periodViewMode = 'default',
   className,
   isReadOnly = false,
+  periodCurrent,
 }) => {
   const groupedItems = useMemo(() => usedFilterItems, [usedFilterItems]);
+  const lastYear = useSession(s => s.lastYear);
+  const pathname = useLocation().pathname;
 
   const groupedPeriodItems = useMemo(() => {
     return new PeriodGrouping(
       usedPeriodFilters,
       periodViewMode,
-      isReadOnly
+      isReadOnly,
+      periodCurrent,
+      getLastYearByPath(lastYear, pathname)
     ).group();
-  }, [usedPeriodFilters, periodViewMode, isReadOnly]);
+  }, [
+    usedPeriodFilters,
+    periodViewMode,
+    isReadOnly,
+    periodCurrent,
+    lastYear,
+    pathname,
+  ]);
 
   const handleSubItemsChange = useCallback(
     (item: IUsedFilterItem, values: string[]) => {
@@ -85,9 +117,9 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
             value: sub.value as string,
           }))}
           value={item.subItems.map(sub => sub.value as string)}
-          indeterminate={!isPeriodItem}
+          indeterminate={isPeriodItem}
           setValue={values =>
-            !isPeriodItem && handleSubItemsChange(item, values)
+            isPeriodItem && handleSubItemsChange(item, values)
           }
           classNames={{
             trigger:

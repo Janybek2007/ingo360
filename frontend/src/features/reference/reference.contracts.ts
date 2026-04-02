@@ -67,14 +67,30 @@ export const referenceContractWithType: Record<
   }),
   'clients/specialities': NameSchema,
   'clients/client-categories': NameSchema,
-  'clients/doctors': z.extend(FullNameSchema, {
-    company_id: RequiredNumber('Выберите компанию'),
-    responsible_employee_id: z.optional(z.number()),
-    medical_facility_id: RequiredNumber('Выберите ЛПУ'),
-    speciality_id: RequiredNumber('Выберите специализацию'),
-    client_category_id: z.optional(z.number()),
-    product_group_id: RequiredNumber('Выберите группу'),
-  }),
+  'clients/doctors': z
+    .object({
+      full_name: z.string().check(z.minLength(1, 'Введите ФИО')),
+      mode: z.enum(['global', 'company'], 'Выберите уровень доступа'),
+      medical_facility_id: RequiredNumber('Выберите ЛПУ'),
+      speciality_id: RequiredNumber('Выберите специализацию'),
+      company_id: z.optional(z.number()),
+      product_group_id: z.optional(z.number()),
+      responsible_employee_id: z.optional(z.number()),
+      client_category_id: z.optional(z.number()),
+    })
+    .check(
+      z.refine(
+        data => {
+          if (data.mode === 'company') {
+            if (!data.company_id) return false;
+            if (!data.product_group_id) return false;
+          }
+          // global: full_name, medical_facility_id, speciality_id уже обязательны в схеме
+          return true;
+        },
+        { message: 'Для доступа "компания" обязательны компания и группа' }
+      )
+    ),
   'clients/pharmacies': z.extend(NameSchema, {
     geo_indicator_id: z.optional(z.number()),
     company_id: RequiredNumber('Выберите компанию'),

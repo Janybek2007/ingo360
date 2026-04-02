@@ -23,6 +23,8 @@ import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
+import { getPeriodLabel } from '#/shared/utils/get-period-label';
+import { getFilterItems } from '#/shared/utils/get-used-items';
 import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
@@ -41,10 +43,16 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     brands: { enabled: false },
     groupBy: {
       defaultValue:
-        'pharmacy,medical_facility,employee,product_group,geo_indicator,position'.split(
+        'pharmacy,medical_facility,employee,product_group,doctor,speciality,position'.split(
           ','
         ),
     },
+  });
+
+  const lastYear = useSession(s => s.lastYear);
+
+  const periodFilter = usePeriodFilter({
+    lastYear: lastYear?.primary,
   });
 
   const filterOptions = useFilterOptions(
@@ -52,7 +60,8 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       'products/product-groups',
       'clients/pharmacies',
       'clients/medical-facilities',
-      'clients/geo-indicators',
+      'clients/specialities',
+      'clients/doctors',
       'employees/employees',
       'employees/positions',
     ],
@@ -60,18 +69,15 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
     transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
       brand_ids: filtersState.brands,
       product_group_ids: filtersState.groups,
+      period_values: periodFilter.selectedValues,
     })
   );
-
-  const lastYear = useSession(s => s.lastYear);
 
   const databaseFilters = useDbFilters({
     state: filtersState,
     groupsOptions: filterOptions.options.products_product_groups,
   });
-  const periodFilter = usePeriodFilter({
-    lastYear: lastYear?.primary,
-  });
+
   const queryData = useKeepQuery(
     DbQueries.GetDbItemsQuery<OverallVisitRow[]>(
       ['visits/reports/visits-sum-for-period'],
@@ -111,11 +117,12 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
       commonColumns.medical_facility(250),
       commonColumns.pharmacy(),
       commonColumns.position(true),
-      commonColumns.indicator(true),
+      commonColumns.doctor(true),
+      commonColumns.speciality(true),
       commonColumns.employee(true),
       commonColumns.group('product_group', true),
-      commonColumns.year(),
-      commonColumns.month(),
+      commonColumns.year(false),
+      commonColumns.month(false),
       {
         id: 'employee_visits',
         key: 'employee_visits',
@@ -188,8 +195,20 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
         >
           <Table
             filters={{
+              periodCurrent: periodFilter.periodCurrent,
               usedFilterItems: databaseFilters.usedFilterItems,
-              resetFilters: filtersState.resetFilters,
+              resetFilters: () => {
+                filtersState.resetFilters();
+                periodFilter.onReset();
+              },
+              isViewPeriods: periodFilter.isView,
+              usedPeriodFilters: getFilterItems([
+                {
+                  value: periodFilter.selectedValues,
+                  getLabelFromValue: getPeriodLabel,
+                  onDelete: periodFilter.onDelete,
+                },
+              ]),
             }}
             columns={columnsForTable}
             data={visits}

@@ -19,6 +19,7 @@ export default [
       'build/**',
       'coverage/**',
       'eslint.config.js',
+      'data',
     ],
   },
   {

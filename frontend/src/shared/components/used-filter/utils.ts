@@ -32,6 +32,8 @@ export class PeriodGrouping {
     mat: 12,
     ytd: 12,
   };
+  private current?: { y: number; m: number; q: number };
+  private lastYear?: number;
 
   private items: IUsedFilterItem[] = [];
   private cache = new Map<string, any>();
@@ -41,11 +43,15 @@ export class PeriodGrouping {
   constructor(
     items: IUsedFilterItem[] = [],
     mode: PeriodViewMode = 'default',
-    isReadOnly = false
+    isReadOnly = false,
+    current?: typeof this.current,
+    lastYear?: number
   ) {
     this.items = Array.isArray(items) ? items : [];
     this.mode = mode;
     this.isReadOnly = isReadOnly;
+    this.current = current;
+    this.lastYear = lastYear;
   }
 
   public group(): IUsedFilterItem[] | IGroupedPeriod[] {
@@ -59,6 +65,27 @@ export class PeriodGrouping {
 
     this.cache.set(key, result);
     return result;
+  }
+
+  // Реальное кол-во элементов для "дефолтного окна"
+  private getEffectiveWindowCount(type: string, year: string): number {
+    const base = PeriodGrouping.DEFAULT_WINDOW_COUNTS[type] ?? 12;
+    if (!this.current) return base;
+    const numericYear = Number(year);
+    if (
+      numericYear !== this.current.y &&
+      (this.lastYear === undefined || numericYear !== this.lastYear)
+    )
+      return base;
+
+    // Текущий год — ограничиваем реальными данными
+    if (numericYear === this.current.y) {
+      if (type === 'quarter') return this.current.q;
+      if (type === 'month' || type === 'mat' || type === 'ytd')
+        return this.current.m;
+    }
+
+    return base;
   }
 
   private parse(value: string | number): ParsedPeriod {
@@ -102,31 +129,33 @@ export class PeriodGrouping {
     return null;
   }
 
-  // ===============================
-  // DEFAULT MODE
-  // ===============================
-  private groupByYear(): IUsedFilterItem[] {
-    // 1️⃣ полностью игнорируем year-элементы
-    const periodItems = this.items.filter(
-      it => this.parse(it.value).type !== 'year'
+  private getNonYearItems(items: IUsedFilterItem[]): IUsedFilterItem[] {
+    return items.filter(it => this.parse(it.value).type !== 'year');
+  }
+
+  private shouldHideAllByDefault(
+    periodItems: IUsedFilterItem[],
+    detectedType: UsePeriodType | null
+  ): boolean {
+    if (!detectedType || !this.current) return false;
+
+    const onlyThisType = periodItems.filter(
+      it => this.parse(it.value).type === detectedType
+    );
+    const totalSelected = onlyThisType.length;
+    const base = PeriodGrouping.DEFAULT_WINDOW_COUNTS[detectedType] ?? 12;
+    const currentYearItems = onlyThisType.filter(
+      it => this.parse(it.value).year === String(this.current?.y)
+    );
+    const currentNeed = this.getEffectiveWindowCount(
+      detectedType,
+      String(this.current.y)
     );
 
-    if (periodItems.length === 0) return [];
+    return totalSelected === base && currentYearItems.length === currentNeed;
+  }
 
-    // 2️⃣ ЕСЛИ РОВНО 12 МЕСЯЦЕВ / 4 КВАРТАЛА → НЕ ПОКАЗЫВАЕМ НИЧЕГО
-    const detectedType = this.getFirstPeriodType(periodItems);
-    if (detectedType) {
-      const need = PeriodGrouping.DEFAULT_WINDOW_COUNTS[detectedType];
-      const onlyThisType = periodItems.filter(
-        it => this.parse(it.value).type === detectedType
-      );
-
-      if (onlyThisType.length === need) {
-        return [];
-      }
-    }
-
-    // 3️⃣ обычная группировка по годам
+  private buildYearMap(periodItems: IUsedFilterItem[]): Map<string, YearGroup> {
     const years = new Map<string, YearGroup>();
 
     for (const item of periodItems) {
@@ -137,6 +166,43 @@ export class PeriodGrouping {
       years.get(year)!.items.push(item);
     }
 
+    return years;
+  }
+
+  private shouldSkipYear(
+    items: IUsedFilterItem[],
+    detectedType: UsePeriodType | null,
+    year: string
+  ): boolean {
+    if (!detectedType) return false;
+    const need = this.getEffectiveWindowCount(detectedType, year);
+    return items.length === need;
+  }
+
+  private toYearItem(year: string, items: IUsedFilterItem[]): IUsedFilterItem {
+    return {
+      label: year,
+      value: `year-${year}`,
+      onDelete: () => {},
+      subItems: items,
+    };
+  }
+
+  // ===============================
+  // DEFAULT MODE
+  // ===============================
+  private groupByYear(): IUsedFilterItem[] {
+    // 1️⃣ полностью игнорируем year-элементы
+    const periodItems = this.getNonYearItems(this.items);
+
+    if (periodItems.length === 0) return [];
+
+    const detectedType = this.getFirstPeriodType(periodItems);
+    if (this.shouldHideAllByDefault(periodItems, detectedType)) return [];
+
+    // 2️⃣ обычная группировка по годам
+    const years = this.buildYearMap(periodItems);
+
     const result: IUsedFilterItem[] = [];
 
     // сортируем годы: 2026, 2025, ...
@@ -146,6 +212,7 @@ export class PeriodGrouping {
 
     for (const [year, { items }] of sortedYears) {
       const sortedItems = this.sortByNumber(items);
+      if (this.shouldSkipYear(sortedItems, detectedType, year)) continue;
 
       // если в году 1 элемент — показываем просто его
       if (sortedItems.length === 1) {
@@ -153,12 +220,7 @@ export class PeriodGrouping {
         continue;
       }
 
-      result.push({
-        label: year,
-        value: `year-${year}`,
-        onDelete: () => {},
-        subItems: sortedItems,
-      });
+      result.push(this.toYearItem(year, sortedItems));
     }
 
     return result;

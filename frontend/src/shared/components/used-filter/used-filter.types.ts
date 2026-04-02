@@ -11,6 +11,7 @@ export type PeriodViewMode = 'default' | 'from';
 
 export interface IUsedFilterProps {
   usedFilterItems?: IUsedFilterItem[];
+  periodCurrent?: Record<'m' | 'q' | 'y', number>;
   resetFilters: VoidFunction;
   isView?: boolean;
   isViewPeriods?: boolean;
