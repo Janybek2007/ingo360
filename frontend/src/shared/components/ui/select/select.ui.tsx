@@ -278,6 +278,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   });
   const parentReference = useRef<HTMLDivElement>(null);
   const initialValueReference = useRef(value);
+  const wasApplied = useRef(false);
 
   useEffect(() => {
     if (!open || !contentReference.current) return;
@@ -286,7 +287,6 @@ export function Select<ISM extends boolean = false, VT = string>({
     const menuHeight = 288; // max-h-72 in rem converted to px (18rem)
     const gap = 8; // mt-1 spacing
 
-    // Determine vertical position
     const spaceBelow = window.innerHeight - triggerRect.bottom - gap;
     const spaceAbove = triggerRect.top - gap;
 
@@ -296,7 +296,6 @@ export function Select<ISM extends boolean = false, VT = string>({
       setPosition('bottom');
     }
 
-    // Determine horizontal alignment
     const spaceRight = window.innerWidth - triggerRect.left;
     const spaceLeft = triggerRect.right;
 
@@ -329,7 +328,8 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   useEffect(() => {
     if (!showToggleAll || !isMultiple) return;
-    if (!open) {
+    if (open) {
+      wasApplied.current = false;
       const current = Array.isArray(effectiveValue) ? effectiveValue : [];
       setDraftValue(current);
     }
@@ -425,6 +425,7 @@ export function Select<ISM extends boolean = false, VT = string>({
 
   const handleApply = useCallback(() => {
     if (!showToggleAll || !isMultiple) return;
+    wasApplied.current = true;
     setValue(draftValue as any);
     set(false);
   }, [showToggleAll, isMultiple, draftValue, setValue, set]);

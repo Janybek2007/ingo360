@@ -134,6 +134,7 @@ export const DbFilters = React.memo(
             items={options.indicators}
             changeTriggerText
             labelTemplate={'Показатель: {label}'}
+            classNames={{ menu: 'w-full' }}
           />
         )}
 
@@ -143,6 +144,7 @@ export const DbFilters = React.memo(
             setValue={setRowsCount}
             items={options.rowsCounts}
             triggerText={'Количество строк'}
+            classNames={{ menu: 'w-full' }}
           />
         )}
       </>

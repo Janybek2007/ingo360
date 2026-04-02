@@ -91,8 +91,7 @@ export function getDbWorkColumns(
     columns.push({
       id: 'distributor',
       accessorKey: 'pharmacy.distributor.name',
-      accessorFn: row =>
-        row.pharmacy.distributor ? row.pharmacy.distributor.name : '-',
+      accessorFn: row => (row.distributor ? row.distributor.name : '-'),
       header: columnHeaderNames.distributor,
       size: 150,
       filterType: 'select',

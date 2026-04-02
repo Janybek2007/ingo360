@@ -57,7 +57,9 @@ export class PeriodGrouping {
   public group(): IUsedFilterItem[] | IGroupedPeriod[] {
     if (this.items.length === 0) return [];
 
-    const key = `${this.mode}-${this.isReadOnly}`;
+    // Ключ кэша должен учитывать элементы
+    const itemsKey = this.items.map(i => i.value).join('|');
+    const key = `${this.mode}-${this.isReadOnly}-${itemsKey}`;
     if (this.cache.has(key)) return this.cache.get(key)!;
 
     const result =
@@ -115,9 +117,12 @@ export class PeriodGrouping {
 
   private sortByNumber(items: IUsedFilterItem[]): IUsedFilterItem[] {
     return items.toSorted((a, b) => {
-      const aNumber = this.parse(a.value).number ?? 0;
-      const bNumber = this.parse(b.value).number ?? 0;
-      return aNumber - bNumber;
+      const aParsed = this.parse(a.value);
+      const bParsed = this.parse(b.value);
+      if (aParsed.year !== bParsed.year) {
+        return Number(bParsed.year) - Number(aParsed.year);
+      }
+      return (aParsed.number ?? 0) - (bParsed.number ?? 0);
     });
   }
 
@@ -133,11 +138,44 @@ export class PeriodGrouping {
     return items.filter(it => this.parse(it.value).type !== 'year');
   }
 
+  private getAvailableMonthsCount(year: number): number {
+    if (year === this.current?.y) return this.current.m;
+    return 12;
+  }
+
+  private hasIncompleteYear(periodItems: IUsedFilterItem[]): boolean {
+    const yearCounts = new Map<string, number>();
+    for (const item of periodItems) {
+      const { type, year } = this.parse(item.value);
+      if (type === 'month' && year) {
+        yearCounts.set(year, (yearCounts.get(year) ?? 0) + 1);
+      }
+    }
+
+    for (const [year, count] of yearCounts) {
+      const available = this.getAvailableMonthsCount(Number(year));
+      if (count < available) return true;
+    }
+    return false;
+  }
+
   private shouldHideAllByDefault(
     periodItems: IUsedFilterItem[],
     detectedType: UsePeriodType | null
   ): boolean {
     if (!detectedType || !this.current) return false;
+
+    if (detectedType === 'month') {
+      if (this.hasIncompleteYear(periodItems)) return false;
+      const yearCounts = new Map<string, number>();
+      for (const item of periodItems) {
+        const { type, year } = this.parse(item.value);
+        if (type === 'month' && year) {
+          yearCounts.set(year, (yearCounts.get(year) ?? 0) + 1);
+        }
+      }
+      return yearCounts.size > 0;
+    }
 
     const onlyThisType = periodItems.filter(
       it => this.parse(it.value).type === detectedType
@@ -174,7 +212,44 @@ export class PeriodGrouping {
     detectedType: UsePeriodType | null,
     year: string
   ): boolean {
-    if (!detectedType) return false;
+    if (!detectedType || !this.current) return false;
+
+    const numericYear = Number(year);
+    const isCurrentYear = numericYear === this.current.y;
+    const isLastYear =
+      this.lastYear !== undefined && numericYear === this.lastYear;
+
+    // Проверяем есть ли неполные годы
+    const yearCounts = new Map<string, number>();
+    for (const item of this.items) {
+      const { type, year: y } = this.parse(item.value);
+      if (type === 'month' && y) {
+        yearCounts.set(y, (yearCounts.get(y) ?? 0) + 1);
+      }
+    }
+
+    let hasIncompleteYear = false;
+    for (const [y, count] of yearCounts) {
+      const ny = Number(y);
+      const isCy = ny === this.current.y;
+
+      const available = isCy ? this.current.m : 12;
+
+      if (count < available) {
+        hasIncompleteYear = true;
+        break;
+      }
+    }
+
+    // Если есть неполные годы - не пропускаем ничего
+    if (hasIncompleteYear) return false;
+
+    // Если все годы полные - применяем правило пропуска
+    if (isCurrentYear || isLastYear) {
+      const availableMonths = isCurrentYear ? this.current.m : 12;
+      return items.length >= availableMonths;
+    }
+
     const need = this.getEffectiveWindowCount(detectedType, year);
     return items.length === need;
   }

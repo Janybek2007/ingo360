@@ -146,7 +146,7 @@ export const usePeriodFilter = ({
   );
 
   const selectedValues = useMemo(() => {
-    if (lastYear !== undefined) {
+    if (lastYear !== undefined && selectedValuesState.length === 0) {
       return buildAllItemValues(period);
     }
     return selectedValuesState;
