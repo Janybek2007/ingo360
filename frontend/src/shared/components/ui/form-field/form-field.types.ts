@@ -10,6 +10,7 @@ export interface IFormFieldProps {
   register?: UseFormRegisterReturn;
   isPasswordToggleShow?: boolean;
   disabled?: boolean;
+  readonly?: boolean;
   classNames?: Partial<{
     wrapper: string;
     input: string;

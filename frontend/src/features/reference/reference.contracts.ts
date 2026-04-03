@@ -72,7 +72,7 @@ export const referenceContractWithType: Record<
       full_name: z.string().check(z.minLength(1, 'Введите ФИО')),
       mode: z.enum(['global', 'company'], 'Выберите уровень доступа'),
       medical_facility_id: RequiredNumber('Выберите ЛПУ'),
-      speciality_id: RequiredNumber('Выберите специализацию'),
+      speciality_id: z.optional(z.int()),
       company_id: z.optional(z.number()),
       product_group_id: z.optional(z.number()),
       responsible_employee_id: z.optional(z.number()),
@@ -85,10 +85,13 @@ export const referenceContractWithType: Record<
             if (!data.company_id) return false;
             if (!data.product_group_id) return false;
           }
-          // global: full_name, medical_facility_id, speciality_id уже обязательны в схеме
+          // global: full_name, medical_facility_id уже обязательны в схеме
           return true;
         },
-        { message: 'Для доступа "компания" обязательны компания и группа' }
+        {
+          message: 'Для доступа "компания" обязательны компания и группа',
+          path: ['mode'],
+        }
       )
     ),
   'clients/pharmacies': z.extend(NameSchema, {

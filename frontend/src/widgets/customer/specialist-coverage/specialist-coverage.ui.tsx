@@ -61,7 +61,7 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
   });
 
   const periodFilter = usePeriodFilter({
-    lastYear: lastYear?.primary,
+    lastYear: lastYear?.visits,
   });
 
   const queryData = useKeepQuery(

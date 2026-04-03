@@ -61,7 +61,7 @@ export const PeriodFilters: React.FC<PeriodFiltersProps> = React.memo(
             setValue={value => onChange(value as string[])}
             classNames={{
               trigger: 'gap-4 rounded-full justify-between',
-              menu: 'w-max min-w-[13rem] left-0',
+              menu: 'w-max min-w-[14rem] right-0',
             }}
           />
         )}

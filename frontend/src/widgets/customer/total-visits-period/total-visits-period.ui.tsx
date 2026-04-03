@@ -52,7 +52,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
   const lastYear = useSession(s => s.lastYear);
 
   const periodFilter = usePeriodFilter({
-    lastYear: lastYear?.primary,
+    lastYear: lastYear?.visits,
   });
 
   const filterOptions = useFilterOptions(

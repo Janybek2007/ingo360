@@ -43,16 +43,23 @@ const EditReferenceModal: React.FC<{
     transformData(defaultData)
   );
 
-  const fields = React.useMemo(
-    () =>
-      fieldsWithSelectItems({
-        options: filterOptions.options,
-        fields: referencesCEFields[type as ReferencesTypeWithMain],
-        defaultData: transformData(defaultData),
-        dependsUrls,
-      }),
-    [defaultData, dependsUrls, filterOptions.options, type]
-  );
+  const fields = React.useMemo(() => {
+    let r = fieldsWithSelectItems({
+      options: filterOptions.options,
+      fields: referencesCEFields[type as ReferencesTypeWithMain],
+      defaultData: transformData(defaultData),
+      dependsUrls,
+    });
+
+    if (type == 'clients/doctors') {
+      r[1] = {
+        ...r[1],
+        readonly: true,
+      };
+    }
+
+    return r;
+  }, [defaultData, dependsUrls, filterOptions.options, type]);
 
   return (
     <CreateEditModal

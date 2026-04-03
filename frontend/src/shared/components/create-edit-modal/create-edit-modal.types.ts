@@ -11,6 +11,7 @@ export interface ICreateEditModalField {
   isPasswordToggleShow?: boolean;
   selectValueKey?: string;
   selectLabelKey?: string;
+  readonly?: boolean;
 }
 
 export interface ICreateEditModalProps {

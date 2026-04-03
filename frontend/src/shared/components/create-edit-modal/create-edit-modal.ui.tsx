@@ -77,7 +77,6 @@ export const CreateEditModal = React.memo(
         reset();
       };
     }, [reset, fields, isSuccess]);
-
     const isDisabled = React.useMemo(() => {
       return isPending || !isDirty || isLoading;
     }, [isPending, isDirty, isLoading]);
@@ -213,6 +212,7 @@ function FieldItem<TSchema extends ZodType>({
         search: true,
         isVirtualize: true,
       }}
+      readonly={field.readonly}
       type={field.type}
       label={field.label}
       name={field.name}

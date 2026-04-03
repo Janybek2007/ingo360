@@ -10,6 +10,7 @@ import { UsedFilter } from '#/shared/components/used-filter';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSectionStyle } from '#/shared/hooks/use-section-style';
+import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getFilterItems } from '#/shared/utils/get-used-items';
 
@@ -21,7 +22,8 @@ import { SPECIALITY_COLORS } from '../speciality-colors';
 
 export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
   React.memo(({ filters, enabled = true, groupItems }) => {
-    const periodFilter = usePeriodFilter({});
+    const lastYear = useSession(s => s.lastYear)?.visits;
+    const periodFilter = usePeriodFilter({ lastYear });
     const [groupIds, setGroupIds] = React.useState<number[]>([]);
 
     const percentageQuery = useKeepQuery(
@@ -72,7 +74,7 @@ export const DoctorsPercentageVisits: React.FC<DoctorPercentageVisitsProps> =
               }
               classNames={{
                 trigger: 'gap-2 rounded-full justify-between',
-                menu: 'w-[25rem] left-0 max-h-[400px]',
+                menu: 'w-[10rem] left-0 max-h-[400px]',
               }}
             />
             <PeriodFilters {...periodFilter} />

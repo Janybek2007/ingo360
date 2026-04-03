@@ -15,7 +15,8 @@ const SelectField: React.FC<{
   placeholder: string;
   classNames?: IFormFieldProperties['classNames'];
   disabled: boolean;
-}> = ({ select, placeholder, classNames, disabled }) => {
+  readOnly?: boolean;
+}> = ({ select, placeholder, classNames, disabled, readOnly }) => {
   if (!select) return null;
 
   return (
@@ -23,6 +24,7 @@ const SelectField: React.FC<{
       <Select
         {...select}
         triggerText={placeholder}
+        readOnly={readOnly}
         rightIcon={
           <LucideArrowIcon
             className="size-[18px] text-[#94A3B8]"
@@ -58,6 +60,7 @@ const FormField: React.FC<IFormFieldProperties> = React.memo(
     error,
     select,
     disabled = false,
+    readonly: readOnly,
   }) => {
     const [showPassword, setShowPassword] = React.useState(false);
 
@@ -87,6 +90,7 @@ const FormField: React.FC<IFormFieldProperties> = React.memo(
           {isComplexType ? (
             <SelectField
               select={select}
+              readOnly={readOnly}
               placeholder={placeholder}
               classNames={classNames}
               disabled={disabled}
@@ -97,6 +101,7 @@ const FormField: React.FC<IFormFieldProperties> = React.memo(
               id={`${name}_for`}
               placeholder={placeholder}
               disabled={disabled}
+              readOnly={readOnly}
               className={cn(
                 'placeholder:text-c1__3 text-c1__3 font-medium focus:outline-none',
                 'rounded-xl px-3 py-[0.875rem] text-base leading-5',

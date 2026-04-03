@@ -48,7 +48,6 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
       );
 
       const sectionStyle = useSectionStyle();
-      console.log(visits);
 
       return (
         <div className="w-1/2 rounded-2xl bg-white p-5">

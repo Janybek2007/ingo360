@@ -102,34 +102,34 @@ const SearchInput = memo(
 
 SearchInput.displayName = '_SearchInput_';
 
-const ToggleAllButton = memo(
+const SelectAction = memo(
   ({
-    allSelected,
-    onToggle,
+    text,
+    onClick,
     className,
   }: {
-    allSelected: boolean;
-    onToggle: () => void;
+    text: string;
+    onClick: () => void;
     className?: string;
   }) => {
     return (
       <button
         type="button"
         className={cn(
-          'flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-blue-50 hover:text-blue-600',
+          'flex w-max items-center gap-2 rounded-md px-3 py-1.5 text-left text-sm transition-colors hover:bg-blue-50 hover:text-blue-600',
           className
         )}
-        onClick={onToggle}
+        onClick={onClick}
       >
         <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
-          {allSelected ? 'Сбросить все' : 'Выбрать все'}
+          {text}
         </span>
       </button>
     );
   }
 );
 
-ToggleAllButton.displayName = '_ToggleAllButton_';
+SelectAction.displayName = '_SelectAction_';
 
 // ─── Виртуализированный список ────────────────────────────────────────────────
 
@@ -266,6 +266,7 @@ export function Select<ISM extends boolean = false, VT = string>({
   indeterminate = false,
   defaultAllSelected = false,
   isVirtualize = false,
+  readOnly,
 }: Readonly<ISelectProperties<ISM, VT>>) {
   const [open, { toggle, set }] = useToggle();
   const [searchQuery, setSearchQuery] = useState('');
@@ -296,15 +297,15 @@ export function Select<ISM extends boolean = false, VT = string>({
       setPosition('bottom');
     }
 
-    const spaceRight = window.innerWidth - triggerRect.left;
-    const spaceLeft = triggerRect.right;
+    const spaceRight = window.innerWidth - triggerRect.right;
+    const spaceLeft = triggerRect.left;
 
     if (spaceRight < triggerRect.width && spaceLeft > triggerRect.width) {
       setAlign('left');
     } else {
       setAlign('right');
     }
-  }, [open, contentReference]);
+  }, [open]);
 
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);
@@ -473,10 +474,12 @@ export function Select<ISM extends boolean = false, VT = string>({
           'bg-white text-left hover:border-gray-400',
           'flex cursor-pointer items-center justify-center transition-colors',
           'w-full min-w-0',
+          readOnly &&
+            'pointer-events-none cursor-default bg-gray-50 opacity-60 hover:border-gray-300',
           classNames?.trigger
         )}
         type="button"
-        onClick={toggle}
+        onClick={readOnly ? undefined : toggle}
         title={findItemLabel || triggerText}
       >
         {renderedLeftIcon && (
@@ -524,19 +527,17 @@ export function Select<ISM extends boolean = false, VT = string>({
 
           {showToggleAll && (
             <div className="shrink-0 border-t border-gray-300">
-              <div className="flex items-center justify-between">
-                <ToggleAllButton
-                  allSelected={allSelected}
-                  onToggle={handleToggleAll}
+              <div className="flex flex-wrap items-center gap-1 p-2">
+                <SelectAction
+                  text={allSelected ? 'Сбросить все' : 'Выбрать все'}
+                  onClick={handleToggleAll}
                   className={classNames?.menuItem}
                 />
-                <button
-                  type="button"
+                <SelectAction
                   onClick={handleApply}
-                  className="mr-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
-                >
-                  Применить
-                </button>
+                  text="Применить"
+                  className="bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
+                />
               </div>
             </div>
           )}
