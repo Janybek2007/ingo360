@@ -19,7 +19,7 @@ export const useDeleteReportLogMutation = (callback: VoidFunction) => {
       });
 
       callback();
-      toast({ message: 'Лог отчета успешно удален' });
+      toast({ message: 'Лог отчета будет удален в ближайшее время' });
     },
     onError: async (error: HTTPError) => {
       try {
