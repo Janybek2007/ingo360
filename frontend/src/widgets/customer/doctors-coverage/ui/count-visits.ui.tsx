@@ -29,8 +29,15 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
         DbQueries.GetDbItemsQuery<DoctorsCoverageRow[]>(
           ['visits/reports/doctors-by-specialty'],
           {
-            medical_facility_ids: filters.medical_facility_ids,
-            speciality_ids: filters.speciality_ids,
+            medical_facility_ids:
+              filters.medical_facility_ids.length ===
+              medicalFacilityItems.length
+                ? filters.medical_facility_ids
+                : undefined,
+            speciality_ids:
+              filters.speciality_ids.length === specialityItems.length
+                ? filters.speciality_ids
+                : undefined,
 
             enabled,
             method: 'POST',
@@ -112,6 +119,11 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                           ?.label ?? '-'
                       );
                     },
+                    onDelete: () =>
+                      changeFilters(
+                        'medical_facility_ids',
+                        medicalFacilityItems.map(item => item.value).map(Number)
+                      ),
                     main: {
                       onDelete: v => {
                         changeFilters('medical_facility_ids', p =>
@@ -130,6 +142,11 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                           ?.label ?? '-'
                       );
                     },
+                    onDelete: () =>
+                      changeFilters(
+                        'speciality_ids',
+                        specialityItems.map(item => item.value).map(Number)
+                      ),
                     main: {
                       onDelete: v => {
                         changeFilters('speciality_ids', p =>

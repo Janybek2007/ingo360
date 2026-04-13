@@ -29,5 +29,7 @@ export interface DoctorCountVisitsProps {
 export interface DoctorPercentageVisitsProps {
   filters: DoctorsCoverageFilters;
   enabled: boolean;
+  isAllMedicalFacilities: boolean;
+  isAllSpecialities: boolean;
   groupItems: FilterOptions[];
 }

@@ -50,6 +50,14 @@ export const DoctorsCoverage: React.FC = React.memo(() => {
           groupItems={filterOptions.options.products_product_groups}
           enabled={!filterOptions.isLoading}
           filters={filters}
+          isAllMedicalFacilities={
+            filters.medical_facility_ids.length ===
+            filterOptions.options.clients_medical_facilities.length
+          }
+          isAllSpecialities={
+            filters.speciality_ids.length ===
+            filterOptions.options.clients_specialities.length
+          }
         />
       </div>
     </section>

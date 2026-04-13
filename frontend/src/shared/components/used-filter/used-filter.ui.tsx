@@ -96,7 +96,7 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
           {item.label}{' '}
           {(item.subItems?.length as number) === 1 && item.subItems?.[0].label}
         </span>
-        {!isReadOnly && !isPeriodItem && (
+        {!isReadOnly && (
           <button
             type="button"
             onClick={item.onDelete}
@@ -118,9 +118,7 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
           }))}
           value={item.subItems.map(sub => sub.value as string)}
           indeterminate={isPeriodItem}
-          setValue={values =>
-            isPeriodItem && handleSubItemsChange(item, values)
-          }
+          setValue={values => handleSubItemsChange(item, values)}
           classNames={{
             trigger:
               'px-2 py-[2px] text-[13px] border border-gray-200 hover:border-gray-300 rounded bg-white',
