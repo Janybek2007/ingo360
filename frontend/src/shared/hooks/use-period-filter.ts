@@ -138,15 +138,15 @@ export const usePeriodFilter = ({
 
   const [selectedValuesState, setSelectedValuesState] = useState<string[]>(
     () => {
-      if (lastYear !== undefined) {
+      if (lastYear != null) {
         return buildAllItemValues(period);
       }
-      return buildAllItemValues(defaultPeriod);
+      return [];
     }
   );
 
   const selectedValues = useMemo(() => {
-    if (lastYear !== undefined && selectedValuesState.length === 0) {
+    if (lastYear != null && selectedValuesState.length === 0) {
       return buildAllItemValues(period);
     }
     return selectedValuesState;
@@ -284,7 +284,7 @@ const buildMonthValues = (
 ) => {
   if (!isMultiple) return [`month-${current.y}-${formatMonth(current.m)}`];
 
-  if (lastYear) {
+  if (lastYear != null) {
     const maxMonth = lastYear === current.y ? current.m : 12;
     return Array.from(
       { length: maxMonth },
@@ -303,7 +303,7 @@ const buildQuarterValues = (
 ) => {
   if (!isMultiple) return [`quarter-${currentYQ.y}-${currentYQ.q}`];
 
-  if (lastYear) {
+  if (lastYear != null) {
     const maxQ = lastYear === currentYQ.y ? currentYQ.q : 4;
     return Array.from(
       { length: maxQ },
@@ -323,7 +323,7 @@ const buildCumulativeValues = (
 ) => {
   if (!isMultiple) return [`${prefix}-${current.y}-${formatMonth(current.m)}`];
 
-  if (lastYear) {
+  if (lastYear != null) {
     const maxMonth = lastYear === current.y ? current.m : 12;
     return Array.from(
       { length: maxMonth },
@@ -340,6 +340,6 @@ const buildYearValues = (
   lastYear?: number
 ) => {
   if (!isMultiple) return [`${current.y}`];
-  if (lastYear) return [`${lastYear}`, `${lastYear - 1}`];
+  if (lastYear != null) return [`${lastYear}`, `${lastYear - 1}`];
   return [`${current.y}`, `${current.y - 1}`];
 };

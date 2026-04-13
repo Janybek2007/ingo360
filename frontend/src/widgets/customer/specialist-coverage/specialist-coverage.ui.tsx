@@ -44,12 +44,12 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     groups: { enabled: false },
     indicator: { enabled: false },
     groupBy: {
-      defaultValue: 'medical_facility,speciality,doctor'.split(','),
+      defaultValue: 'medical_facility,speciality'.split(','),
     },
   });
 
   const filterOptions = useFilterOptions(
-    ['clients/medical-facilities', 'clients/doctors', 'clients/specialities'],
+    ['clients/medical-facilities', 'clients/specialities'],
     'visits',
     transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP)
   );
@@ -96,7 +96,6 @@ export const SpecialistCoverage: React.FC = React.memo(() => {
     filterOptions: filterOptions.options,
     columns: [
       commonColumns.specialistCoverageMedicalFacility(),
-      commonColumns.specialistCoverageDoctor(),
       commonColumns.specialistCoverageSpeciality(),
       commonColumns.specialistCoveragePercentage(),
       commonColumns.specialistCoverageTotalDoctors(),

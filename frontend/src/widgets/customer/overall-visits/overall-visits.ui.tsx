@@ -70,6 +70,7 @@ export const OverallVisits: React.FC = React.memo(() => {
       }
     )
   );
+  console.log(periodFilter.selectedValues);
   const visits = React.useMemo(
     () => (queryData.data ? queryData.data[0] : []),
     [queryData]

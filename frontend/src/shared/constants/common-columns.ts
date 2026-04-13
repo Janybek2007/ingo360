@@ -389,19 +389,6 @@ export const commonColumns = {
     },
     skipFirstFilterOption: true,
   }),
-  specialistCoverageDoctor: (): CColumn<any> => ({
-    id: 'doctor_id',
-    key: 'doctor_name',
-    optionKey: 'clients_doctors',
-    header: columnHeaderNames.doctor,
-    size: 224,
-    type: 'select',
-    groupDimension: 'doctor',
-    custom: {
-      accessor: row => row.doctor_name || '-',
-    },
-    skipFirstFilterOption: true,
-  }),
   specialistCoverageSpeciality: (): CColumn<any> => ({
     id: 'speciality_id',
     key: 'speciality_name',
