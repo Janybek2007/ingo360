@@ -32,12 +32,12 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
             medical_facility_ids:
               filters.medical_facility_ids.length ===
               medicalFacilityItems.length
-                ? filters.medical_facility_ids
-                : undefined,
+                ? undefined
+                : filters.medical_facility_ids,
             speciality_ids:
               filters.speciality_ids.length === specialityItems.length
-                ? filters.speciality_ids
-                : undefined,
+                ? undefined
+                : filters.speciality_ids,
 
             enabled,
             method: 'POST',
