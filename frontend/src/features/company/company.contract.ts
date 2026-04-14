@@ -15,11 +15,11 @@ const CompanyBaseContract = z.object({
 });
 
 const CompanyAccessContract = z.object({
-  can_primary_sales: z.boolean(),
-  can_secondary_sales: z.boolean(),
-  can_tertiary_sales: z.boolean(),
-  can_visits: z.boolean(),
-  can_market_analysis: z.boolean(),
+  can_primary_sales: z.optional(z.boolean()),
+  can_secondary_sales: z.optional(z.boolean()),
+  can_tertiary_sales: z.optional(z.boolean()),
+  can_visits: z.optional(z.boolean()),
+  can_market_analysis: z.optional(z.boolean()),
 });
 
 export const AddCompanyContract = z.extend(
