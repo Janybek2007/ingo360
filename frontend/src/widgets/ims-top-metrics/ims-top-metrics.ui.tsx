@@ -10,6 +10,7 @@ import { LazySection } from '#/shared/components/lazy-section';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { useNoImsPlaceholder } from '#/shared/hooks/use-no-ims-placeholder';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { useSession } from '#/shared/session';
 import type { ISMGroupColumn } from '#/shared/types/ims';
 
 import { IMSMetrics } from '../customer/ims-metrics';
@@ -28,6 +29,7 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
     const [brands, setBrands] = React.useState<string[]>([]);
     const [segments, setSegments] = React.useState<string[]>([]);
 
+    const lastYear = useSession(s => s.lastYear);
     const filterOptions = useFilterOptions(
       isSegmentsEnabled ? ['ims_segment_names'] : []
     );
@@ -56,6 +58,7 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
       views: ['mat', 'ytd', 'year', 'month'],
       defaultPeriod: 'mat',
       isMultiple: false,
+      lastYear: lastYear?.ims ?? undefined,
     });
 
     const queryData = useKeepQuery(

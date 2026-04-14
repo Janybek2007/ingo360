@@ -71,7 +71,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
 
       const { header: activeTabHeader, text: activeTabText } =
         getActiveTabLabels(activeTab);
-
+      console.log(periodFilter.periodCurrent);
       const columns = useMemo<ColumnDef<EntityRow>[]>(
         () => [
           { accessorKey: 'rank', header: 'Место', size: 130 },
@@ -160,6 +160,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               />
               <UsedFilter
                 className="mt-4"
+                isReadOnly
                 periodCurrent={periodFilter.periodCurrent}
                 usedPeriodFilters={getFilterItems([
                   {

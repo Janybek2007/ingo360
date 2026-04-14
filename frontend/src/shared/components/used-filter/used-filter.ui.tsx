@@ -19,6 +19,7 @@ const PATH_TO_LAST_YEAR_KEY: Record<string, keyof IGetLastYear> = {
   [routePaths.customer.secondarySales]: 'secondary',
   [routePaths.customer.tertiarySales]: 'tertiary',
   [routePaths.customer.visitActivity]: 'visits',
+  [routePaths.customer.marketDevelopment]: 'ims',
 };
 
 const getLastYearByPath = (
@@ -27,7 +28,8 @@ const getLastYearByPath = (
 ): number | undefined => {
   if (!lastYear) return undefined;
   const key = PATH_TO_LAST_YEAR_KEY[pathname];
-  return key ? lastYear[key] : undefined;
+  const val = key ? lastYear[key] : undefined;
+  return typeof val === 'number' ? val : undefined;
 };
 
 export const UsedFilter: React.FC<IUsedFilterProperties> = ({

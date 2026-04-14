@@ -133,4 +133,5 @@ export interface IGetLastYear {
   secondary: number;
   tertiary: number;
   visits: number;
+  ims: string; // example: "2025/06"
 }
