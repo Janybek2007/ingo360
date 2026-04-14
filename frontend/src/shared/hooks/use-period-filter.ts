@@ -138,19 +138,16 @@ export const usePeriodFilter = ({
 
   const [selectedValuesState, setSelectedValuesState] = useState<string[]>(
     () => {
-      if (lastYear != null) {
-        return buildAllItemValues(period);
-      }
-      return [];
+      return buildAllItemValues(period);
     }
   );
 
   const selectedValues = useMemo(() => {
-    if (lastYear != null && selectedValuesState.length === 0) {
+    if (selectedValuesState.length === 0) {
       return buildAllItemValues(period);
     }
     return selectedValuesState;
-  }, [lastYear, period, selectedValuesState, buildAllItemValues]);
+  }, [period, selectedValuesState, buildAllItemValues]);
 
   const setSelectedValues = useCallback(
     (values: string[] | ((prev: string[]) => string[])) => {
