@@ -18,11 +18,17 @@ import {
 export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
   switch (type) {
     case 'sales/primary': {
-      return ['clients/distributors', 'products/brands', 'products/skus'];
+      return [
+        'companies_companies',
+        'clients/distributors',
+        'products/brands',
+        'products/skus',
+      ];
     }
     case 'sales/secondary':
     case 'sales/tertiary': {
       return [
+        'companies_companies',
         'clients/pharmacies',
         'clients/distributors',
         'products/brands',
@@ -31,6 +37,7 @@ export const getDbTypeDeps = (type: DbType): FilterOptionsReferencesKey[] => {
     }
     case 'visits': {
       return [
+        'companies_companies',
         'clients/pharmacies',
         'employees/employees',
         'products/product-groups',
@@ -53,6 +60,19 @@ export function getDbWorkColumns(
   filterOptions: FilterOptionsObject
 ) {
   const columns: ColumnDef<IDbItem>[] = [];
+
+  if (type === 'visits' || type.includes('sales/')) {
+    columns.push({
+      id: 'company.id',
+      accessorKey: 'company.name',
+      header: columnHeaderNames.companyName,
+      size: 140,
+      filterType: 'select',
+      filterFn: selectFilter(),
+      enableColumnFilter: true,
+      selectOptions: filterOptions.companies_companies,
+    });
+  }
 
   switch (type) {
     case 'sales/primary': {

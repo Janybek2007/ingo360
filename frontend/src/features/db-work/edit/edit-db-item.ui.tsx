@@ -31,17 +31,9 @@ const EditDbItemModal: React.FC<{
     [type]
   );
 
-  const references = React.useMemo(
-    () =>
-      dependsUrls.map(item =>
-        item.url === 'companies'
-          ? 'companies_companies'
-          : (item.url as FilterOptionsReferencesKey)
-      ),
-    [dependsUrls]
+  const filterOptions = useFilterOptions(
+    dependsUrls.map(du => du.url) as FilterOptionsReferencesKey[]
   );
-
-  const filterOptions = useFilterOptions(references);
 
   const mutation = useEditDatabaseItemMutation(
     type,
