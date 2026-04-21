@@ -13,7 +13,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     env_file:
-      - ../backend/.env
+      - /etc/ingo360/env.backend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/v1/health"]
       interval: 10s
@@ -73,7 +73,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     env_file:
-      - ../backend/.env
+      - /etc/ingo360/env.backend
 
   nginx:
     image: ingo360-nginx:prod
