@@ -1,0 +1,11 @@
+import type { RouteObject } from 'react-router';
+
+import { routePaths } from '#/shared/router';
+
+export const tertiarySalesPageRoute: RouteObject = {
+  path: routePaths.customer.tertiarySales,
+  lazy: async () =>
+    import('./tertiary-sales-page.ui').then(module => ({
+      Component: module.default,
+    })),
+};

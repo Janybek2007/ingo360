@@ -1,0 +1,37 @@
+import type { TCompanyAccessContract } from '#/features/company/company.contract';
+import type { SessionRole } from '#/shared/types';
+import type { PaginationParams, SortParams } from '#/shared/types/global';
+
+export type UserAccess = TCompanyAccessContract;
+
+interface UserCompany extends UserAccess {
+  id: number;
+  name: string;
+}
+
+export interface IUserItem {
+  id: number;
+  email: string;
+  is_active: boolean;
+  is_superuser: boolean;
+  is_verified: boolean;
+  first_name: string;
+  last_name: string;
+  patronymic: string;
+  position?: string;
+  phone_number: string;
+  last_login: string;
+  is_operator: boolean;
+  is_admin: boolean;
+  company_id: number;
+  company: UserCompany;
+  role: SessionRole;
+}
+
+export type GetUserResponse = IUserItem;
+export type GetUsersResponse = GetUserResponse[];
+
+export type GetUsersParams = {
+  search?: string;
+} & PaginationParams &
+  SortParams;

@@ -1,0 +1,99 @@
+import { flexRender } from '@tanstack/react-table';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { useAnchorPosition } from '#/shared/hooks/use-anchor-position';
+import { cn } from '#/shared/utils/cn';
+
+import { LucideFilterIcon } from '../../../assets/icons';
+import type { ITableHeaderProps as ITableHeaderProperties } from '../table.types';
+import { getCommonPinningStyles } from '../utils/get-pinning-style';
+import { FilterPopup } from './filter-popup/filter-popup.ui';
+
+export function TableHeader({ table }: Readonly<ITableHeaderProperties>) {
+  const [popupOpen, setPopupOpen] = useState<string | null>(null);
+  const { position: popupPosition, updatePosition } = useAnchorPosition();
+
+  return (
+    <thead className={cn('sticky top-0 z-20 select-none')}>
+      {table.getHeaderGroups().map((headerGroup, index) => (
+        <tr
+          key={`${headerGroup.id}|${headerGroup.depth}|${headerGroup.headers.length}|${index}`}
+        >
+          {headerGroup.headers.map((header, index) => {
+            const columnDef = header.column.columnDef;
+            const canFilter =
+              columnDef.enableColumnFilter || columnDef.enableSorting;
+
+            return (
+              <th
+                onDoubleClick={() => header.column.resetSize()}
+                key={`${header.id}|${header.depth}|${index}`}
+                className={cn(
+                  'relative py-4 pr-10 pl-4 text-left leading-5 font-medium tracking-[0.1px] whitespace-nowrap',
+                  'group border-r border-b border-[#E4E4E4] bg-gray-50',
+                  columnDef.pinned == 'right' && 'border-l'
+                )}
+                style={{
+                  ...getCommonPinningStyles(header.column),
+                  minWidth: `${header.column.getSize()}px`,
+                  maxWidth: `${header.column.getSize()}px`,
+                }}
+              >
+                {header.column.columnDef.enableResizing && (
+                  <button
+                    type="button"
+                    aria-label="Resize column"
+                    onMouseDown={header.getResizeHandler()}
+                    className={cn(
+                      'absolute top-1 right-1 h-[calc(100%-8px)] w-1.5 touch-manipulation rounded-full select-none',
+                      'bg-transparent transition-colors hover:bg-blue-400/50 active:bg-blue-500'
+                    )}
+                    style={{
+                      padding: 0,
+                      border: 'none',
+                      cursor: 'col-resize',
+                    }}
+                  />
+                )}
+                <div className="flex items-center gap-2">
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+
+                  {canFilter && (
+                    <button
+                      className="rounded p-1 hover:bg-gray-100"
+                      onClick={e => {
+                        e.stopPropagation();
+                        updatePosition(e);
+                        setPopupOpen(
+                          popupOpen === header.id ? null : header.id
+                        );
+                      }}
+                    >
+                      <LucideFilterIcon className="size-[1rem]" />
+                    </button>
+                  )}
+                </div>
+
+                {popupOpen === header.id &&
+                  createPortal(
+                    <FilterPopup
+                      popupPosition={popupPosition}
+                      column={header.column}
+                      onClose={() => setPopupOpen(null)}
+                    />,
+                    document.body
+                  )}
+              </th>
+            );
+          })}
+        </tr>
+      ))}
+    </thead>
+  );
+}
+
+TableHeader.displayName = '_TableHeader_';

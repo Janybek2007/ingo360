@@ -1,0 +1,18 @@
+import type {
+  UseDbFiltersReturn,
+  UseDbFiltersStateReturn,
+} from '#/shared/components/db-filters';
+import type { UsePeriodFilterReturn } from '#/shared/hooks/use-period-filter';
+import type { EntityRow, ISMGroupColumn } from '#/shared/types/ims';
+
+export interface MarketEntityProfileProps {
+  entities: EntityRow[];
+  isLoading?: boolean;
+  queryError?: Error | null;
+  noImsPlaceholder?: boolean;
+  periodFilter: UsePeriodFilterReturn;
+  activeTab: ISMGroupColumn;
+  setActiveTab: React.Dispatch<React.SetStateAction<ISMGroupColumn>>;
+  filters: UseDbFiltersReturn;
+  filtersState: UseDbFiltersStateReturn;
+}

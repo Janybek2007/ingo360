@@ -1,0 +1,30 @@
+export interface ISelectItem<VT = string> {
+  value: VT;
+  label: string;
+}
+
+export interface ISelectProps<ISM extends boolean = false, VT = string> {
+  value: ISM extends false ? VT : VT[];
+  setValue: (value: ISM extends false ? VT : VT[]) => void;
+  items: ISelectItem<VT>[];
+  isMultiple?: ISM;
+  checkbox?: boolean;
+  search?: boolean;
+  leftIcon?: React.ReactNode | ((opened: boolean) => React.ReactNode);
+  rightIcon?: React.ReactNode | ((opened: boolean) => React.ReactNode);
+  triggerText?: string;
+  readOnly?: boolean;
+  isVirtualize?: boolean;
+  labelTemplate?: string;
+  changeTriggerText?: boolean;
+  showToggleAll?: boolean;
+  indeterminate?: boolean;
+  defaultAllSelected?: boolean;
+  classNames?: Partial<{
+    root: string;
+    trigger: string;
+    triggerText: string;
+    menu: string;
+    menuItem: string;
+  }>;
+}

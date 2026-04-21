@@ -1,0 +1,192 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-roboto: 'Roboto', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  /* !Colors */
+
+  --color-primary: #002496;
+  --color-secondary: #e97030;
+  --color-danger: #d34645;
+  --color-default: #f0f0f0;
+
+  --color-c1: #171923;
+  /* default text color */
+  --color-c1__1: #718096;
+  /* secondary text color */
+  --color-c1__2: #1c4532;
+  /* tertiary text color */
+  --color-c1__3: #4a5568;
+  /* placeholder color */
+
+  --color-c2: #f7f7f7;
+  /* default background color */
+
+  --color-c3: #e2e8f0;
+  /* default border color */
+  --color-c3__1: #cbd5e0;
+  /* secondary border color */
+}
+
+:root {
+  font-family: 'Gotham Pro', Arial, Helvetica, sans-serif;
+  color: var(--color-c1);
+}
+
+body {
+  background: var(--color-c2);
+}
+
+button {
+  cursor: pointer;
+}
+
+.ls-base {
+  letter-spacing: -0.7%;
+}
+
+@utility flexCenter {
+  @apply flex items-center justify-center;
+}
+
+@utility b_input {
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: var(--current-color, var(--color-c1));
+    transition: background-color 5000s ease-in-out 0s;
+    box-shadow: inset 0 0 1.4rem 1.4rem transparent;
+  }
+}
+
+@utility leading-full {
+  line-height: 100%;
+}
+
+@utility noscrollbar {
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 290;
+}
+
+.wrapper {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+  overflow: hidden;
+  width: 100%;
+
+  & main {
+    padding: 1.25rem;
+    width: 100%;
+    max-height: calc(100vh - 4.875rem);
+    overflow-y: scroll;
+  }
+}
+
+.wait-cursor,
+.wait-cursor * {
+  cursor: wait !important;
+}
+
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus {
+  outline: none;
+  border: none;
+}
+
+/* Общий стиль scrollbar */
+*::-webkit-scrollbar {
+  width: 8px;
+  /* ширина скроллбара */
+  height: 8px;
+  /* для горизонтального */
+}
+
+/* Ползунок */
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.5);
+  /* цвет ползунка */
+  border-radius: 4px;
+  /* скругление */
+  transition: background-color 0.3s;
+  /* плавное изменение цвета */
+}
+
+/* Hover эффект ползунка */
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 100, 0.8);
+}
+
+/* Фон скроллбара */
+*::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
+  /* легкий фон */
+  border-radius: 4px;
+}
+
+/* Для маленьких треков/ступеней */
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Welcome animation: stars rotation 360° */
+@keyframes welcome-star-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Welcome animation: disperse stars to corners with blur */
+@keyframes welcome-star-disperse {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: var(--disperse-transform);
+    opacity: 0;
+    filter: blur(12px);
+  }
+}
+
+.welcome-star-rotate {
+  animation: welcome-star-rotate 2.5s ease-in-out forwards;
+}
+
+.welcome-star-disperse {
+  animation: welcome-star-disperse 0.5s ease-out 2.5s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}

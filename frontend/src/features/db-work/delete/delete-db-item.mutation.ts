@@ -1,0 +1,43 @@
+import { useMutation } from '@tanstack/react-query';
+
+import { type IDbItem } from '#/entities/db';
+import { http } from '#/shared/api';
+import { toast } from '#/shared/libs/toast/toasts';
+import type { DbType } from '#/shared/types/db.type';
+
+import { updateDbCache as updateDatabaseCache } from '../utils';
+
+export const useDeleteDbItemMutation = (
+  type: DbType,
+  onClose: VoidFunction,
+  id?: number
+) => {
+  return useMutation({
+    mutationKey: ['delet-db-item', type, id],
+    mutationFn: async () => {
+      if (!id) {
+        toast({
+          message: 'Отсутствует id ресурса',
+          type: 'warning',
+        });
+        return null;
+      }
+      return http.delete(`${type}/${id}`).json<IDbItem>();
+    },
+    onSuccess: async () => {
+      updateDatabaseCache(type, (data, { urls }) => {
+        const targetIndex = urls.indexOf(type);
+        if (targetIndex === -1) return data;
+
+        data[targetIndex] = (data[targetIndex] || []).filter(
+          item => item.id !== id
+        );
+
+        return data;
+      });
+
+      toast({ message: 'Ресурс успешно удален' });
+      onClose();
+    },
+  });
+};

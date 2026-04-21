@@ -1,0 +1,57 @@
+import { useMutation } from '@tanstack/react-query';
+import type { HTTPError } from 'ky';
+
+import {
+  type GetUserResponse,
+  type GetUsersResponse,
+  UserQueries,
+} from '#/entities/user';
+import { http } from '#/shared/api';
+import { queryClient } from '#/shared/libs/react-query';
+import { toast } from '#/shared/libs/toast/toasts';
+import { getResponseError } from '#/shared/utils/get-error';
+
+import {
+  type TUpdatePersonalDataContract,
+  UpdatePersonalDataContract,
+} from './personal-data.contract';
+
+export const useUpdatePersonalDataMutation = () => {
+  return useMutation({
+    mutationKey: ['update-personal-data'],
+    mutationFn: async (data: TUpdatePersonalDataContract) => {
+      const parsedData = UpdatePersonalDataContract.parse(data);
+
+      return http
+        .patch('users/me', { json: parsedData })
+        .json<GetUsersResponse>();
+    },
+    onSuccess: async data => {
+      queryClient.setQueryData(
+        UserQueries.queryKeys.getUser,
+        (oldData: GetUserResponse) => ({
+          ...oldData,
+          ...data,
+        })
+      );
+
+      toast({ message: 'Персональные данные успешно обновлены' });
+    },
+    onError: async (error: HTTPError) => {
+      try {
+        const data = await getResponseError(error.response);
+        toast({
+          message: 'Ошибка обновления персональных данных',
+          description: data || 'Произошла ошибка при обновлении данных',
+          type: 'error',
+        });
+      } catch (error_) {
+        console.error('Ошибка разбора ответа', error_);
+        toast({
+          message: 'Произошла ошибка при обновлении данных',
+          type: 'error',
+        });
+      }
+    },
+  });
+};

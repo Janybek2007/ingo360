@@ -1,0 +1,26 @@
+import { type RouteObject } from 'react-router';
+
+import { profilePageRoute } from '#/routes/profile';
+
+import { homePageRoute } from '../pages/home';
+import { marketDevelopmentPageRoute } from '../pages/market-development';
+import { primarySalesPageRoute } from '../pages/primary-sales';
+import { secondarySalesPageRoute } from '../pages/secondary-sales';
+import { tertiarySalesPageRoute } from '../pages/tertiary-sales';
+import { visitActivityPageRoute } from '../pages/visit-activity';
+
+export const customerLayoutRoute: RouteObject = {
+  lazy: async () =>
+    import('./customer-layout.ui').then(module => ({
+      Component: module.default,
+    })),
+  children: [
+    homePageRoute,
+    primarySalesPageRoute,
+    secondarySalesPageRoute,
+    tertiarySalesPageRoute,
+    marketDevelopmentPageRoute,
+    visitActivityPageRoute,
+    profilePageRoute,
+  ],
+};
