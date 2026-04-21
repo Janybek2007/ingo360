@@ -5,6 +5,12 @@ ENV_FILE_FRONTEND ?= /etc/ingo360/env.frontend
 COMPOSE_DEV  = docker/compose.dev.yml
 COMPOSE_PROD = docker/compose.prod.yml
 
+ifeq ($(shell uname 2>/dev/null), Linux)
+  BUILDKIT := DOCKER_BUILDKIT=1
+else
+  BUILDKIT :=
+endif
+
 .PHONY: dev-build dev-up dev-down dev-stop dev-restart dev-logs \
         prod-build prod-up prod-down prod-stop prod-restart prod-logs \
         migrate migrate-dev ps
@@ -12,8 +18,8 @@ COMPOSE_PROD = docker/compose.prod.yml
 # ── Dev ──────────────────────────────────────────────────────────────────────
 
 dev-build:
-	docker build -f docker/Dockerfile.backend.dev  -t ingo360-backend:dev  ./backend
-	docker build -f docker/Dockerfile.frontend.dev -t ingo360-frontend:dev ./frontend
+	$(BUILDKIT) docker build -f docker/Dockerfile.backend.dev  -t ingo360-backend:dev  ./backend
+	$(BUILDKIT) docker build -f docker/Dockerfile.frontend.dev -t ingo360-frontend:dev ./frontend
 
 dev-up: dev-build
 	docker compose -f $(COMPOSE_DEV) --env-file $(ENV_FILE_DEV) up -d
@@ -33,8 +39,8 @@ dev-logs:
 # ── Prod ─────────────────────────────────────────────────────────────────────
 
 prod-build:
-	docker build -f docker/Dockerfile.backend.prod -t ingo360-backend:prod ./backend
-	docker build -f docker/Dockerfile.frontend.prod \
+	$(BUILDKIT) docker build -f docker/Dockerfile.backend.prod -t ingo360-backend:prod ./backend
+	$(BUILDKIT) docker build -f docker/Dockerfile.frontend.prod \
 		$(shell grep -v '^#' $(ENV_FILE_FRONTEND) | grep VITE_ | sed 's/^/--build-arg /') \
 		-t ingo360-nginx:prod ./frontend
 
