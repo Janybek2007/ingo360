@@ -1,0 +1,55 @@
+exclude: |
+  (?x)^(
+    backend/src/db/migrations/.*|
+    backend/\.venv/.*|
+    backend/\.ruff_cache/.*|
+    backend/\.mypy_cache/.*|
+    frontend/node_modules/.*|
+    frontend/dist/.*|
+    \.git/.*|
+    __pycache__/.*|
+  )$
+
+repos:
+  - repo: local
+    hooks:
+      # ── Backend: Python ───────────────────────────────────────────────────
+      - id: ruff-fix
+        name: ruff (backend)
+        entry: bash -c 'cd backend && ruff check . --select F401,I --fix'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+      - id: black
+        name: black (backend)
+        entry: bash -c 'cd backend && black . --exclude src/db/migrations'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+      # ── Frontend: TS/JS ───────────────────────────────────────────────────
+      - id: eslint-frontend
+        name: eslint (frontend)
+        entry: bash -c 'cd frontend && npx eslint --fix src'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+
+      - id: prettier-frontend
+        name: prettier (frontend)
+        entry: bash -c 'cd frontend && npx prettier --write "src/**/*.{ts,tsx,js,jsx,json,css}" "*.{json,md}"'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|json|css|md)$
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: ^frontend/(public|dist)/.*
+      - id: trailing-whitespace
+        exclude: ^frontend/(public|dist)/.*
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
