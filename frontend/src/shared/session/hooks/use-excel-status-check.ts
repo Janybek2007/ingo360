@@ -38,6 +38,8 @@ const handleImportToast = (
 ) => {
   const onRemoveTask = createRemoveHandler(removeTask, taskId);
   const createdAt = formatDateInUTC(result.created_at);
+  const importResult = result.import_result ?? result.result?.import_result;
+  const hasErrors = (importResult?.skipped_records?.length ?? 0) > 0;
 
   toast({
     message: 'Импорт завершён',
@@ -47,10 +49,11 @@ const handleImportToast = (
       'Нажмите «Открыть», чтобы посмотреть детали.'
     ),
     type: 'success',
+    duration: hasErrors ? Infinity : undefined,
     actionLabel: 'Открыть',
     onAction: () => {
       toastImportResponse({
-        response: result.import_result ?? result.result?.import_result,
+        response: importResult,
         fileName:
           (result?.file_name ?? result.result?.file_name) || 'Файл импорта',
         onRemoveTask,
