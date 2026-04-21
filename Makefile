@@ -10,8 +10,8 @@ COMPOSE_PROD = docker/compose.prod.yml
 # ── Dev ──────────────────────────────────────────────────────────────────────
 
 dev-build:
-	DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.backend.dev  -t ingo360-backend:dev  ./backend
-	DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.frontend.dev -t ingo360-frontend:dev ./frontend
+	docker build -f docker/Dockerfile.backend.dev  -t ingo360-backend:dev  ./backend
+	docker build -f docker/Dockerfile.frontend.dev -t ingo360-frontend:dev ./frontend
 
 dev-up: dev-build
 	docker compose -f $(COMPOSE_DEV) --env-file $(ENV_FILE) up -d
@@ -31,8 +31,8 @@ dev-logs:
 # ── Prod ─────────────────────────────────────────────────────────────────────
 
 prod-build:
-	DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.backend.prod  -t ingo360-backend:prod ./backend
-	DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.frontend.prod -t ingo360-nginx:prod   ./frontend
+	docker build -f docker/Dockerfile.backend.prod  -t ingo360-backend:prod ./backend
+	docker build -f docker/Dockerfile.frontend.prod -t ingo360-nginx:prod   ./frontend
 
 prod-up: prod-build
 	docker compose -f $(COMPOSE_PROD) --env-file $(ENV_FILE) up -d

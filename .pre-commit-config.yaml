@@ -16,14 +16,14 @@ repos:
       # ── Backend: Python ───────────────────────────────────────────────────
       - id: ruff-fix
         name: ruff (backend)
-        entry: bash -c 'cd backend && ruff check . --select F401,I --fix'
+        entry: ruff check --select F401,I --fix backend
         language: system
         files: ^backend/.*\.py$
         pass_filenames: false
 
       - id: black
         name: black (backend)
-        entry: bash -c 'cd backend && black . --exclude src/db/migrations'
+        entry: black backend --exclude backend/src/db/migrations
         language: system
         files: ^backend/.*\.py$
         pass_filenames: false
@@ -31,14 +31,14 @@ repos:
       # ── Frontend: TS/JS ───────────────────────────────────────────────────
       - id: eslint-frontend
         name: eslint (frontend)
-        entry: bash -c 'cd frontend && npx eslint --fix src'
+        entry: npm --prefix frontend run lint:fix
         language: system
         files: ^frontend/.*\.(ts|tsx|js|jsx)$
         pass_filenames: false
 
       - id: prettier-frontend
         name: prettier (frontend)
-        entry: bash -c 'cd frontend && npx prettier --write "src/**/*.{ts,tsx,js,jsx,json,css}" "*.{json,md}"'
+        entry: npm --prefix frontend run format
         language: system
         files: ^frontend/.*\.(ts|tsx|js|jsx|json|css|md)$
         pass_filenames: false
