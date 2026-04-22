@@ -30,8 +30,6 @@ services:
     restart: unless-stopped
     env_file:
       - /etc/ingo360/db.env
-    environment:
-      - BACKUP_PASSPHRASE=${BACKUP_PASSPHRASE}
     volumes:
       - postgres:/var/lib/postgresql/data
       - pgbackrest:/var/lib/pgbackrest
