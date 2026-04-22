@@ -84,6 +84,7 @@ services:
       - ../nginx/nginx.ssl.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot:ro
+      - nginx_hooks:/hooks
     depends_on:
       back:
         condition: service_healthy
@@ -95,10 +96,12 @@ services:
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot
+      - nginx_hooks:/hooks
     entrypoint: >
       sh -c "trap exit TERM;
              while :; do
-               certbot renew --webroot --webroot-path=/var/www/certbot --quiet;
+               certbot renew --webroot --webroot-path=/var/www/certbot --quiet
+                 --deploy-hook 'touch /hooks/reload';
                sleep 12h &
                wait $${!};
              done"
@@ -110,3 +113,4 @@ volumes:
   temp:
   pgbackrest:
   pgbackrest_logs:
+  nginx_hooks:

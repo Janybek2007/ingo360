@@ -51,3 +51,7 @@ FROM nginx:1.27-alpine
 COPY --from=nginx-builder /tmp/ngx_http_brotli_filter_module.so /etc/nginx/modules/
 COPY --from=nginx-builder /tmp/ngx_http_brotli_static_module.so /etc/nginx/modules/
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
+
+COPY scripts/nginx-entrypoint.sh /nginx-entrypoint.sh
+RUN chmod +x /nginx-entrypoint.sh
+ENTRYPOINT ["/nginx-entrypoint.sh"]
