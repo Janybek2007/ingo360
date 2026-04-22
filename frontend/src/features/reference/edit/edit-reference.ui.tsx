@@ -1,13 +1,11 @@
 import React from 'react';
 
 import { type IReferenceItem } from '#/entities/reference';
-import { MdiPencilIcon } from '#/shared/assets/icons';
 import { CreateEditModal } from '#/shared/components/create-edit-modal';
 import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
 } from '#/shared/components/db-filters';
-import { useToggle } from '#/shared/hooks/use-toggle';
 import type {
   ReferencesType,
   ReferencesTypeWithDepUrls,
@@ -20,7 +18,7 @@ import { referencesCEFields, referencesDependsUrls } from '../constants';
 import { referenceContractWithType } from '../reference.contracts';
 import { useEditReferenceMutation } from './edit-reference.mutation';
 
-const EditReferenceModal: React.FC<{
+export const EditReferenceModal: React.FC<{
   type: ReferencesType;
   defaultData: IReferenceItem;
   onClose: () => void;
@@ -77,32 +75,4 @@ const EditReferenceModal: React.FC<{
   );
 });
 
-export const EditReferenceWrapper: React.FC<{
-  type: ReferencesType;
-  defaultData: IReferenceItem;
-}> = React.memo(({ type, defaultData }) => {
-  const [open, { toggle, set }] = useToggle();
-
-  return (
-    <>
-      {open && (
-        <EditReferenceModal
-          onClose={() => set(false)}
-          type={type}
-          defaultData={defaultData}
-        />
-      )}
-      <button
-        type="button"
-        className="rounded-full p-1.5 text-blue-400 transition hover:bg-blue-100"
-        title="Редактировать"
-        onClick={toggle}
-      >
-        <MdiPencilIcon className="size-4.5" />
-      </button>
-    </>
-  );
-});
-
-EditReferenceWrapper.displayName = '_EditReferenceWrapper_';
 EditReferenceModal.displayName = '_EditReferenceModal_';

@@ -4,13 +4,14 @@ import React, { useMemo } from 'react';
 import type { IDbItem } from '#/entities/db';
 import { AddDbItemWrapper } from '#/features/db-work/add';
 import { DeleteDbItemWrapper } from '#/features/db-work/delete';
-import { EditDbItemWrapper } from '#/features/db-work/edit';
+import { EditDbItemModal } from '#/features/db-work/edit';
 import { ImportDbItemButton } from '#/features/db-work/import';
 import {
   ExportToExcelButton,
   type ExportToExcelUrl,
 } from '#/features/excel/export';
 import { tabsItems } from '#/routes/operator/pages/db-work/constants';
+import { MdiPencilIcon } from '#/shared/assets/icons';
 import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
@@ -46,6 +47,8 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
       () => getDatabaseTypeDeps(current),
       [current]
     );
+    const [selected, setSelected] = React.useState<IDbItem | null>(null);
+
     const filterOptions = useFilterOptions(
       filterOptionsDeps,
       currentType as FilterOptionsReferencesKey
@@ -62,7 +65,14 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
         size: 160,
         cell: ({ row }) => (
           <div className="flex items-center gap-2 pr-10">
-            <EditDbItemWrapper type={current} defaultData={row.original} />
+            <button
+              type="button"
+              className="rounded-full p-1.5 text-blue-400 transition hover:bg-blue-100"
+              title="Редактировать"
+              onClick={() => setSelected(row.original)}
+            >
+              <MdiPencilIcon className="size-4.5" />
+            </button>
             <DeleteDbItemWrapper data={row.original} type={current} />
           </div>
         ),
@@ -82,6 +92,13 @@ export const DbWork: React.FC<IDatabaseWorkProperties> = React.memo(
 
     return (
       <>
+        {selected && (
+          <EditDbItemModal
+            type={current}
+            defaultData={selected}
+            onClose={() => setSelected(null)}
+          />
+        )}
         <PageSection
           title={
             findCurrentTab(tabsItems, current.replace('/', '_'))?.tab.label

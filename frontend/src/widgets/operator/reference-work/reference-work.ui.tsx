@@ -6,9 +6,10 @@ import { ExportToExcelButton } from '#/features/excel/export';
 import type { ExportToExcelUrl } from '#/features/excel/export/export-excel.types';
 import { AddReferenceWrapper } from '#/features/reference/add';
 import { DeleteReferenceWrapper } from '#/features/reference/delete';
-import { EditReferenceWrapper } from '#/features/reference/edit';
+import { EditReferenceModal } from '#/features/reference/edit';
 import { ImportReferenceButton } from '#/features/reference/import';
 import { tabsItems } from '#/routes/operator/pages/reference-work/constants';
+import { MdiPencilIcon } from '#/shared/assets/icons';
 import {
   type FilterOptionsReferencesKey,
   useFilterOptions,
@@ -39,6 +40,7 @@ const ReferenceWork: React.FC<IReferenceWorkProperties> = React.memo(
       () => getReferenceTypeDeps(current as ReferencesTypeWithMain),
       [current]
     );
+    const [selected, setSelected] = React.useState<IReferenceItem | null>(null);
 
     const filterOptions = useFilterOptions(
       references,
@@ -59,7 +61,14 @@ const ReferenceWork: React.FC<IReferenceWorkProperties> = React.memo(
         size: 160,
         cell: ({ row }) => (
           <div className="flex items-center gap-2 pr-10">
-            <EditReferenceWrapper type={current} defaultData={row.original} />
+            <button
+              type="button"
+              className="rounded-full p-1.5 text-blue-400 transition hover:bg-blue-100"
+              title="Редактировать"
+              onClick={() => setSelected(row.original)}
+            >
+              <MdiPencilIcon className="size-4.5" />
+            </button>
             <DeleteReferenceWrapper data={row.original} type={current} />
           </div>
         ),
@@ -75,6 +84,13 @@ const ReferenceWork: React.FC<IReferenceWorkProperties> = React.memo(
 
     return (
       <>
+        {selected && (
+          <EditReferenceModal
+            defaultData={selected}
+            type={current}
+            onClose={() => setSelected(null)}
+          />
+        )}
         <PageSection
           title={findCurrentTab(tabsItems, current)?.subItem?.label}
           headerEnd={

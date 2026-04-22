@@ -1,0 +1,17 @@
+FROM postgres:15-alpine
+
+RUN apk add --no-cache pgbackrest su-exec
+
+COPY conf/pgbackrest.conf /etc/pgbackrest/pgbackrest.conf
+COPY scripts/db-entrypoint.sh /db-entrypoint.sh
+COPY scripts/init-pgbackrest.sh /docker-entrypoint-initdb.d/init-pgbackrest.sh
+COPY scripts/pg_backup.sh /etc/periodic/daily/pg_backup
+
+RUN chmod +x /db-entrypoint.sh \
+              /docker-entrypoint-initdb.d/init-pgbackrest.sh \
+              /etc/periodic/daily/pg_backup \
+ && mkdir -p /var/lib/pgbackrest /var/log/pgbackrest \
+ && chown postgres:postgres /var/lib/pgbackrest /var/log/pgbackrest
+
+ENTRYPOINT ["/db-entrypoint.sh"]
+CMD ["postgres"]

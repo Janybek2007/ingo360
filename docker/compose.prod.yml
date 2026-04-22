@@ -13,7 +13,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     env_file:
-      - /etc/ingo360/env.backend
+      - /etc/ingo360/backend.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/v1/health"]
       interval: 10s
@@ -22,23 +22,24 @@ services:
       start_period: 40s
 
   db:
-    image: postgres:15-alpine
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.postgres.prod
+    image: ingo360-db:prod
     container_name: ingo360_db
     restart: unless-stopped
+    env_file:
+      - /etc/ingo360/db.env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - BACKUP_PASSPHRASE=${BACKUP_PASSPHRASE}
     volumes:
       - postgres:/var/lib/postgresql/data
+      - pgbackrest:/var/lib/pgbackrest
+      - pgbackrest_logs:/var/log/pgbackrest
     expose:
       - "5432"
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres} -h 127.0.0.1 -p 5432",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres} -h 127.0.0.1 -p 5432"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -73,7 +74,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     env_file:
-      - /etc/ingo360/env.backend
+      - /etc/ingo360/backend.env
 
   nginx:
     image: ingo360-nginx:prod
@@ -83,14 +84,31 @@ services:
       - "443:443"
     volumes:
       - ../nginx/nginx.ssl.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot:ro
     depends_on:
       back:
         condition: service_healthy
     restart: unless-stopped
 
+  certbot:
+    image: certbot/certbot:latest
+    container_name: ingo360_certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/certbot:/var/www/certbot
+    entrypoint: >
+      sh -c "trap exit TERM;
+             while :; do
+               certbot renew --webroot --webroot-path=/var/www/certbot --quiet;
+               sleep 12h &
+               wait $${!};
+             done"
+    restart: unless-stopped
+
 volumes:
   postgres:
   redis:
   temp:
+  pgbackrest:
+  pgbackrest_logs:

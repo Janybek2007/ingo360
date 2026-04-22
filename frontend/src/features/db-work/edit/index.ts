@@ -1,1 +1,1 @@
-export { EditDbItemWrapper } from './edit-db-item.ui.tsx';
+export { EditDbItemModal } from './edit-db-item.ui.tsx';

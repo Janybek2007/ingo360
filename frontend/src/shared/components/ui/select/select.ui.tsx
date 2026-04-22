@@ -305,7 +305,7 @@ export function Select<ISM extends boolean = false, VT = string>({
     } else {
       setAlign('right');
     }
-  }, [open]);
+  }, [open, contentReference]);
 
   const uniqueItems = useMemo(() => {
     return getUniqueItems(items, ['value']);

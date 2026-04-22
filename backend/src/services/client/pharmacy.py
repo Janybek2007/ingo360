@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, AsyncIterator
 
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 
@@ -10,6 +10,7 @@ from src.db.models import (
     Settlement,
     clients,
 )
+from src.db.models.visits import Visit
 from src.import_fields import client
 from src.schemas import client as client_schema
 from src.services.base import BaseService
@@ -30,6 +31,17 @@ class PharmacyService(
         clients.Pharmacy, client_schema.PharmacyCreate, client_schema.PharmacyUpdate
     ]
 ):
+    async def delete(self, session: "AsyncSession", item_id: int) -> None:
+        visit_count = await session.scalar(
+            select(func.count()).where(Visit.pharmacy_id == item_id)
+        )
+        if visit_count:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Невозможно удалить аптеку: существует {visit_count} связанных визитов",
+            )
+        await super().delete(session, item_id)
+
     async def get_multi(
         self,
         session: "AsyncSession",
