@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, AsyncIterator
 
 from fastapi import UploadFile
-from sqlalchemy import func, select
+from sqlalchemy import func, select, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
@@ -777,8 +777,9 @@ class DoctorService(BaseService[clients.Doctor, DoctorCreate, DoctorUpdate]):
         if gd_keys:
             existing = await session.execute(
                 select(GlobalDoctor).where(
-                    GlobalDoctor.full_name.in_([k[0] for k in gd_keys]),
-                    GlobalDoctor.medical_facility_id.in_([k[1] for k in gd_keys]),
+                    tuple_(
+                        GlobalDoctor.full_name, GlobalDoctor.medical_facility_id
+                    ).in_(gd_keys)
                 )
             )
             for gd in existing.scalars().all():
