@@ -164,7 +164,7 @@ class VisitService(
                 stmt = stmt.where(self.model.company_id.in_(filters.company_ids))
 
             if filters.sort_by == "company":
-                stmt = stmt.join(Company, self.model.company_id == Company.id)
+                stmt = stmt.outerjoin(Company, self.model.company_id == Company.id)
 
         # Count before pagination
         count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -682,11 +682,17 @@ class VisitService(
                 func.count(func.distinct(GlobalDoctor.id)).label("total_doctors"),
             )
             .select_from(GlobalDoctor)
+            .join(Doctor, GlobalDoctor.id == Doctor.global_doctor_id)
             .join(Speciality, GlobalDoctor.speciality_id == Speciality.id)
             .join(
                 MedicalFacility, GlobalDoctor.medical_facility_id == MedicalFacility.id
             )
         )
+
+        if company_id:
+            all_doctors_subquery = all_doctors_subquery.where(
+                Doctor.company_id == company_id
+            )
 
         all_doctors_subquery = ListQueryHelper.apply_specs(
             all_doctors_subquery,
@@ -814,7 +820,7 @@ class VisitService(
                 (
                     func.coalesce(doctors_with_visits_subquery.c.doctors_with_visits, 0)
                     * 100.0
-                    / all_doctors_subquery.c.total_doctors
+                    / func.nullif(all_doctors_subquery.c.total_doctors, 0)
                 ).label("coverage_percentage"),
             )
             .select_from(all_doctors_subquery)
@@ -911,9 +917,9 @@ class VisitService(
                 if "requires" in dim_config:
                     for req in dim_config["requires"]:
                         tables_to_join.add(req)
-        if filters.doctor_ids:
+        if filters.doctor_ids or filters.speciality_ids:
             tables_to_join.add("doctor")
-        tables_to_join.add("global_doctor")
+            tables_to_join.add("global_doctor")
 
         join_order = [
             "employee",

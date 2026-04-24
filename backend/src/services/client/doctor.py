@@ -211,7 +211,24 @@ class DoctorService(BaseService[clients.Doctor, DoctorCreate, DoctorUpdate]):
 
                 if existing_global and existing_global.id != current_global.id:
                     # Перепривязываем Doctor к существующему GlobalDoctor
+                    old_global_id = db_obj.global_doctor_id
                     db_obj.global_doctor_id = existing_global.id
+
+                    # Проверяем, не остался ли старый GlobalDoctor без Doctor записей
+                    check_old_stmt = (
+                        select(func.count())
+                        .select_from(Doctor)
+                        .where(Doctor.global_doctor_id == old_global_id)
+                    )
+                    old_count = await session.scalar(check_old_stmt)
+                    if old_count == 0:
+                        old_gd_stmt = select(GlobalDoctor).where(
+                            GlobalDoctor.id == old_global_id
+                        )
+                        old_gd_result = await session.execute(old_gd_stmt)
+                        old_global_obj = old_gd_result.scalar_one_or_none()
+                        if old_global_obj:
+                            await session.delete(old_global_obj)
                 elif not existing_global:
                     # Обновляем текущий GlobalDoctor
                     for field, value in global_data.items():
@@ -383,7 +400,11 @@ class DoctorService(BaseService[clients.Doctor, DoctorCreate, DoctorUpdate]):
             ]
 
             hasPrev = filters.offset > 0
-            hasNext = len(items) == filters.limit if filters.limit else False
+            offset = filters.offset or 0
+            limit = filters.limit
+            hasNext = (
+                (total_count > offset + limit) if (limit and total_count) else False
+            )
 
             return PaginatedResponse(
                 result=response_items,
@@ -552,7 +573,12 @@ class DoctorService(BaseService[clients.Doctor, DoctorCreate, DoctorUpdate]):
             reverse = sort_order.upper() == "DESC" if sort_order else False
             all_rows.sort(key=lambda x: (x[key] is None, x[key] or ""), reverse=reverse)
         else:
-            all_rows.sort(key=lambda x: x["_sort_created_at"] or 0, reverse=True)
+            from datetime import datetime as _dt
+
+            all_rows.sort(
+                key=lambda x: x["_sort_created_at"] or _dt.min,
+                reverse=True,
+            )
 
         total_count = len(all_rows)
 
@@ -565,7 +591,7 @@ class DoctorService(BaseService[clients.Doctor, DoctorCreate, DoctorUpdate]):
             page = all_rows[offset:]
 
         hasPrev = offset > 0
-        hasNext = len(page) == limit if limit else False
+        hasNext = (total_count > offset + limit) if (limit and total_count) else False
 
         return PaginatedResponse(
             result=page,
@@ -651,15 +677,20 @@ class DoctorService(BaseService[clients.Doctor, DoctorCreate, DoctorUpdate]):
             # Проверяем, есть ли другие Doctor записи у этого GlobalDoctor
             gd_id = db_obj.global_doctor_id
             await session.delete(db_obj)
-            await session.flush()
 
             # Если это был последний Doctor - удаляем GlobalDoctor
+            # Используем FOR UPDATE чтобы избежать race condition
             check_stmt = (
+                select(Doctor).where(Doctor.global_doctor_id == gd_id).with_for_update()
+            )
+            await session.execute(check_stmt)
+            # Теперь проверяем count в рамках той же транзакции
+            count_stmt = (
                 select(func.count())
                 .select_from(Doctor)
                 .where(Doctor.global_doctor_id == gd_id)
             )
-            count = await session.scalar(check_stmt)
+            count = await session.scalar(count_stmt)
             if count == 0:
                 gd_stmt = select(GlobalDoctor).where(GlobalDoctor.id == gd_id)
                 gd_result = await session.execute(gd_stmt)
@@ -826,8 +857,10 @@ class DoctorService(BaseService[clients.Doctor, DoctorCreate, DoctorUpdate]):
             existing = await session.execute(
                 select(GlobalDoctor).where(
                     tuple_(
-                        GlobalDoctor.full_name, GlobalDoctor.medical_facility_id
-                    ).in_([(k[0], k[1]) for k in gd_keys])
+                        GlobalDoctor.full_name,
+                        GlobalDoctor.medical_facility_id,
+                        GlobalDoctor.speciality_id,
+                    ).in_(gd_keys)
                 )
             )
             for gd in existing.scalars().all():
