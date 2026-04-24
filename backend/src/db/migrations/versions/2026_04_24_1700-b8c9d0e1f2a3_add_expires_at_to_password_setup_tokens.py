@@ -15,11 +15,27 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "password_setup_tokens",
-        sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
+    conn = op.get_bind()
+    result = conn.execute(
+        sa.text(
+            "SELECT 1 FROM information_schema.columns "
+            "WHERE table_name='password_setup_tokens' AND column_name='expires_at'"
+        )
     )
+    if result.fetchone() is None:
+        op.add_column(
+            "password_setup_tokens",
+            sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
+        )
 
 
 def downgrade() -> None:
-    op.drop_column("password_setup_tokens", "expires_at")
+    conn = op.get_bind()
+    result = conn.execute(
+        sa.text(
+            "SELECT 1 FROM information_schema.columns "
+            "WHERE table_name='password_setup_tokens' AND column_name='expires_at'"
+        )
+    )
+    if result.fetchone() is not None:
+        op.drop_column("password_setup_tokens", "expires_at")
