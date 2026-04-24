@@ -9,6 +9,32 @@ from src.db.session import db_session
 get_async_session_context = contextlib.asynccontextmanager(db_session.get_session)
 
 
+_ALLOWED_TABLES = {
+    "pharmacies",
+    "medical_facilities",
+    "employees",
+    "specialities",
+    "client_categories",
+    "geo_indicators",
+    "distributors",
+    "regions",
+    "settlements",
+    "districts",
+    "brands",
+    "skus",
+    "promotion_types",
+    "dosage_forms",
+    "dosages",
+    "segments",
+    "product_groups",
+    "companies",
+    "ims",
+    "primary_sales_and_stock",
+    "secondary_sales",
+    "tertiary_sales_and_stock",
+}
+
+
 @celery_app.task(bind=True, max_retries=3)
 def delete_import_log_task(self, import_log_id: int, table_name: str):
     async def _delete():
@@ -72,6 +98,8 @@ def delete_import_log_task(self, import_log_id: int, table_name: str):
                     await asyncio.sleep(0.1)
 
             else:
+                if table_name not in _ALLOWED_TABLES:
+                    raise ValueError(f"Недопустимое имя таблицы: {table_name}")
                 while True:
                     result = await session.execute(
                         text(f"""

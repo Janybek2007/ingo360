@@ -27,6 +27,11 @@ const ReportLogsPage: React.FC = () => {
       commonColumns.reportLogUserFullName(),
       commonColumns.reportLogTargetTable(),
       commonColumns.reportLogRecordsCount(),
+      commonColumns.reportLogImportedCount(),
+      commonColumns.reportLogInsertedCount(),
+      commonColumns.reportLogUpdatedCount(),
+      commonColumns.reportLogSkippedCount(),
+      commonColumns.reportLogDeduplicatedCount(),
       commonColumns.reportLogCreatedAt(),
       {
         id: 'actions',

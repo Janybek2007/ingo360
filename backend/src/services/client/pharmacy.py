@@ -10,12 +10,13 @@ from src.db.models import (
     Settlement,
     clients,
 )
+from src.db.models.sales import SecondarySales, TertiarySalesAndStock
 from src.db.models.visits import Visit
 from src.import_fields import client
 from src.schemas import client as client_schema
 from src.services.base import BaseService
 from src.utils.excel_parser import parse_excel_file
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.list_query_helper import InOrNullSpec, ListQueryHelper, StringTypedSpec
 from src.utils.records_resolver import resolve_records_fields
 from src.utils.validate_required_columns import validate_required_columns
@@ -40,6 +41,22 @@ class PharmacyService(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Невозможно удалить аптеку: существует {visit_count} связанных визитов",
             )
+        secondary_count = await session.scalar(
+            select(func.count()).where(SecondarySales.pharmacy_id == item_id)
+        )
+        if secondary_count:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Невозможно удалить аптеку: существует {secondary_count} записей вторичных продаж",
+            )
+        tertiary_count = await session.scalar(
+            select(func.count()).where(TertiarySalesAndStock.pharmacy_id == item_id)
+        )
+        if tertiary_count:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Невозможно удалить аптеку: существует {tertiary_count} записей третичных продаж",
+            )
         await super().delete(session, item_id)
 
     async def get_multi(
@@ -57,7 +74,7 @@ class PharmacyService(
             "name": self.model.name,
             "company": self.model.company_id,
             "distributor": self.model.distributor_id,
-            "responsible_employe": self.model.responsible_employee_id,
+            "responsible_employee": self.model.responsible_employee_id,
             "settlement": self.model.settlement_id,
             "district": self.model.district_id,
             "client_category": self.model.client_category_id,
@@ -197,10 +214,12 @@ class PharmacyService(
         missing_districts = set()
 
         if district_triples:
+            from sqlalchemy import tuple_
+
             stmt = select(District).where(
-                District.name.in_({t[0] for t in district_triples}),
-                District.region_id.in_({t[1] for t in district_triples}),
-                District.company_id.in_({t[2] for t in district_triples}),
+                tuple_(District.name, District.region_id, District.company_id).in_(
+                    district_triples
+                )
             )
             result = await session.execute(stmt)
             districts = result.scalars().all()
@@ -275,17 +294,22 @@ class PharmacyService(
                 stmt = (
                     insert(self.model)
                     .values(batch)
-                    .on_conflict_do_nothing()
+                    .on_conflict_do_nothing(
+                        index_elements=["name", "product_group_id", "company_id"]
+                    )
                     .returning(self.model.id)
                 )
                 result = await session.execute(stmt)
                 inserted_ids.extend(result.scalars().all())
 
-        await session.commit()
-        return build_import_result(
+        result = build_import_result(
             total=len(records),
             imported=len(inserted_ids),
             skipped_records=skipped_records,
             inserted=len(inserted_ids),
             deduplicated=len(data_to_insert) - len(inserted_ids),
         )
+
+        save_import_stats(import_log, result)
+        await session.commit()
+        return result

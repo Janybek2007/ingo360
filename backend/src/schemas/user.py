@@ -1,7 +1,7 @@
 from typing import Literal
 
 from fastapi_users import schemas
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from .base_filter import SortDirection
 from .company import CompanySimpleResponse
@@ -50,18 +50,18 @@ class UserUpdate(BaseModel):
 class UserAdminUpdate(schemas.BaseUserUpdate, UserUpdate):
     position: str | None = None
     company_id: int | None = None
-    is_operator: bool | None = False
-    is_admin: bool | None = False
+    is_operator: bool | None = None
+    is_admin: bool | None = None
 
 
 class PasswordSetup(BaseModel):
     token: str
-    password: str
+    password: str = Field(..., min_length=8)
 
 
 class PasswordChange(BaseModel):
     old_password: str
-    new_password: str
+    new_password: str = Field(..., min_length=8)
 
 
 class UserFilter(BaseModel):

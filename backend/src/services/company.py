@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Any, AsyncIterator, Sequence
 
 from fastapi import HTTPException, UploadFile, status
-from sqlalchemy import func, insert, or_, select, update
+from sqlalchemy import func, or_, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 
 from src.db.models import Company, ImportLogs, RegistrationApplication, User
@@ -15,7 +16,7 @@ from src.schemas.company import (
 )
 from src.utils.excel_parser import parse_excel_file
 from src.utils.format_date import format_date
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.list_query_helper import ListQueryHelper
 from src.utils.mapping import map_record
 from src.websocket.connection_manager import connection_manager
@@ -172,18 +173,28 @@ class CompanyService(BaseService[Company, CompanyCreate, CompanyUpdate]):
                 "import_log_id": import_log.id,
             }
             data_to_insert.append(map_record(r, company_mapping, relation_fields))
+        inserted_ids = []
         if data_to_insert:
-            await session.execute(insert(self.model), data_to_insert)
-        await session.commit()
-
-        imported = len(data_to_insert)
-        return build_import_result(
+            stmt = (
+                pg_insert(self.model)
+                .values(data_to_insert)
+                .on_conflict_do_nothing()
+                .returning(self.model.id)
+            )
+            result = await session.execute(stmt)
+            inserted_ids = result.scalars().all()
+        inserted = len(inserted_ids)
+        result = build_import_result(
             total=len(records),
-            imported=imported,
+            imported=inserted,
             skipped_records=[],
-            inserted=imported,
-            deduplicated=0,
+            inserted=inserted,
+            deduplicated=len(data_to_insert) - inserted,
         )
+
+        save_import_stats(import_log, result)
+        await session.commit()
+        return result
 
     @staticmethod
     async def get_active_company_users(

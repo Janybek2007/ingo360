@@ -1,20 +1,22 @@
 from typing import TYPE_CHECKING, Any, AsyncIterator
 
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 
 from src.db.models import (
     District,
+    GlobalDoctor,
     ImportLogs,
     Settlement,
     clients,
 )
+from src.db.models.visits import Visit
 from src.import_fields import client
 from src.schemas import client as client_schema
 from src.services.base import BaseService
 from src.utils.excel_parser import parse_excel_file
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.list_query_helper import InOrNullSpec, ListQueryHelper, StringTypedSpec
 from src.utils.records_resolver import resolve_records_fields
 from src.utils.validate_required_columns import validate_required_columns
@@ -32,6 +34,25 @@ class MedicalFacilityService(
         client_schema.MedicalFacilityUpdate,
     ]
 ):
+    async def delete(self, session: "AsyncSession", item_id: int) -> None:
+        doctor_count = await session.scalar(
+            select(func.count()).where(GlobalDoctor.medical_facility_id == item_id)
+        )
+        if doctor_count:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Невозможно удалить ЛПУ: существует {doctor_count} связанных врачей",
+            )
+        visit_count = await session.scalar(
+            select(func.count()).where(Visit.medical_facility_id == item_id)
+        )
+        if visit_count:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Невозможно удалить ЛПУ: существует {visit_count} связанных визитов",
+            )
+        await super().delete(session, item_id)
+
     async def get_multi(
         self,
         session: "AsyncSession",
@@ -171,10 +192,12 @@ class MedicalFacilityService(
         missing_districts = set()
 
         if district_triples:
+            from sqlalchemy import tuple_
+
             stmt = select(District).where(
-                District.name.in_({t[0] for t in district_triples}),
-                District.region_id.in_({t[1] for t in district_triples}),
-                District.company_id.in_({t[2] for t in district_triples}),
+                tuple_(District.name, District.region_id, District.company_id).in_(
+                    district_triples
+                )
             )
             result = await session.execute(stmt)
             districts = result.scalars().all()
@@ -226,6 +249,9 @@ class MedicalFacilityService(
                 else:
                     district_id = district_map.get(district_key)
 
+            if settlement_id is None:
+                missing_keys.append("населенный пункт (не найден или не указан)")
+
             if missing_keys:
                 skipped_records.append({"row": idx + 1, "missing": missing_keys})
                 continue
@@ -256,11 +282,14 @@ class MedicalFacilityService(
                 result = await session.execute(stmt)
                 inserted_ids.extend(result.scalars().all())
 
-        await session.commit()
-        return build_import_result(
+        result = build_import_result(
             total=len(records),
             imported=len(inserted_ids),
             skipped_records=skipped_records,
             inserted=len(inserted_ids),
             deduplicated=len(data_to_insert) - len(inserted_ids),
         )
+
+        save_import_stats(import_log, result)
+        await session.commit()
+        return result

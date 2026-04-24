@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies.current_user import (
+    current_active_user,
     current_admin_or_operator_user,
     current_admin_user,
 )
@@ -33,9 +34,10 @@ async def export_companies_excel(
     payload: ExportExcelRequest,
     current_user: Annotated["User", Depends(current_admin_or_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.company.CompanyService",
@@ -47,13 +49,7 @@ async def export_companies_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -109,7 +105,10 @@ async def create_registration_application(
     return await registration_application_service.create(session, application)
 
 
-@router.get("/registration-application/{registration_application_id}")
+@router.get(
+    "/registration-application/{registration_application_id}",
+    dependencies=[Depends(current_active_user)],
+)
 async def get_registration_application(
     registration_application_id: int,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],

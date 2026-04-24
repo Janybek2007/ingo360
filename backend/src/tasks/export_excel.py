@@ -39,6 +39,20 @@ async def create_export_task_record(
     )
 
 
+async def schedule_export_task(
+    *,
+    started_by: int,
+    **task_kwargs,
+) -> str:
+    """Создаёт запись в БД ПЕРВОЙ, затем запускает Celery-задачу с тем же ID."""
+    import uuid
+
+    task_id = str(uuid.uuid4())
+    await create_export_task_record(task_id=task_id, started_by=started_by)
+    export_excel_task.apply_async(kwargs=task_kwargs, task_id=task_id)
+    return task_id
+
+
 def _build_export_file_path(task_id: str, file_name: str) -> str:
     temp_dir = Path(os.getenv("EXPORT_TEMP_DIR", "temp"))
     try:

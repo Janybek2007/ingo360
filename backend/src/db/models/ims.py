@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import ForeignKey, Index
+from sqlalchemy import ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -28,6 +28,16 @@ class IMS(Base):
     import_log: Mapped[Optional["ImportLogs"]] = relationship(back_populates="ims")
 
     __table_args__ = (
+        UniqueConstraint(
+            "company",
+            "brand",
+            "segment",
+            "dosage",
+            "dosage_form",
+            "period",
+            "molecule",
+            name="uq_ims_business_key",
+        ),
         Index("idx_ims_period", "period"),
         Index("idx_ims_company", "company"),
         Index("idx_ims_brand", "brand"),

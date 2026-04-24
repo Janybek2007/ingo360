@@ -10,7 +10,7 @@ from src.import_fields import geography
 from src.schemas import geography as geography_schema
 from src.services.base import BaseService
 from src.utils.excel_parser import parse_excel_file
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.list_query_helper import InOrNullSpec, ListQueryHelper, StringTypedSpec
 from src.utils.records_resolver import resolve_records_fields
 from src.utils.validate_required_columns import validate_required_columns
@@ -81,15 +81,17 @@ class RegionService(
             result = await session.execute(stmt)
             inserted_ids = result.scalars().all()
 
-        await session.commit()
-
-        return build_import_result(
+        result = build_import_result(
             total=len(records),
             imported=len(inserted_ids),
             skipped_records=skipped_records,
             inserted=len(inserted_ids),
             deduplicated=len(data_to_insert) - len(inserted_ids),
         )
+
+        save_import_stats(import_log, result)
+        await session.commit()
+        return result
 
     @staticmethod
     def _parse_csv_ids(value: str | None, field_name: str) -> list[int] | None:

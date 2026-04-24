@@ -73,6 +73,7 @@ class GlobalDoctor(Base):
         UniqueConstraint(
             "full_name",
             "medical_facility_id",
+            "speciality_id",
             name="uq_global_doctor_unique",
         ),
         Index("idx_global_doctor_full_name", "full_name"),
@@ -143,6 +144,7 @@ class Doctor(Base):
         UniqueConstraint(
             "global_doctor_id",
             "company_id",
+            "product_group_id",
             name="uq_doctor_global_company",
         ),
     )
@@ -315,4 +317,7 @@ class GeoIndicator(Base):
     import_log: Mapped[Optional["ImportLogs"]] = relationship(
         back_populates="geo_indicators"
     )
-    __table_args__ = (Index("idx_geo_indicator_name", "name"),)
+    __table_args__ = (
+        UniqueConstraint("name", name="uq_geo_indicator_name"),
+        Index("idx_geo_indicator_name", "name"),
+    )

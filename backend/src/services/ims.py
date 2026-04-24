@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, Any, AsyncIterator
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
-from sqlalchemy import and_, case, distinct, func, insert, literal, or_, select, union
+from sqlalchemy import and_, case, distinct, func, literal, or_, select, union
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from src.db.models import IMS, Brand, Company, ImportLogs
 from src.import_fields import ims
@@ -20,7 +21,7 @@ from src.schemas.ims import (
 from src.services.base import BaseService, ModelType
 from src.utils.build_period_values import build_period_values
 from src.utils.excel_parser import iter_excel_records
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.list_query_helper import (
     InOrNullSpec,
     ListQueryHelper,
@@ -214,24 +215,41 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                     )
 
                     if len(data_to_insert) >= batch_size:
-                        await session.execute(insert(self.model), data_to_insert)
+                        stmt = pg_insert(self.model).values(data_to_insert)
+                        stmt = stmt.on_conflict_do_update(
+                            constraint="uq_ims_business_key",
+                            set_={
+                                "amount": stmt.excluded.amount,
+                                "packages": stmt.excluded.packages,
+                            },
+                        )
+                        await session.execute(stmt)
                         imported_count += len(data_to_insert)
                         data_to_insert = []
 
             if data_to_insert:
-                await session.execute(insert(self.model), data_to_insert)
+                stmt = pg_insert(self.model).values(data_to_insert)
+                stmt = stmt.on_conflict_do_update(
+                    constraint="uq_ims_business_key",
+                    set_={
+                        "amount": stmt.excluded.amount,
+                        "packages": stmt.excluded.packages,
+                    },
+                )
+                await session.execute(stmt)
                 imported_count += len(data_to_insert)
 
-            import_log.records_count = total_records
-            await session.commit()
-
-            return build_import_result(
+            result = build_import_result(
                 total=total_records,
                 imported=imported_count,
                 skipped_records=[],
                 inserted=imported_count,
                 deduplicated=0,
             )
+
+            save_import_stats(import_log, result)
+            await session.commit()
+            return result
         finally:
             pass
 

@@ -63,9 +63,10 @@ async def export_primary_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.sale.PrimarySalesAndStockService",
@@ -78,13 +79,7 @@ async def export_primary_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -290,9 +285,10 @@ async def export_secondary_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.sale.SecondarySalesService",
@@ -310,13 +306,7 @@ async def export_secondary_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -490,9 +480,10 @@ async def export_tertiary_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.sale.TertiarySalesService",
@@ -510,13 +501,7 @@ async def export_tertiary_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(

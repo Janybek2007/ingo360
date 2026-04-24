@@ -60,7 +60,7 @@ class PromotionType(Base):
 class DosageForm(Base):
     __tablename__ = "dosage_forms"
 
-    name: Mapped[str] = mapped_column(String(256))
+    name: Mapped[str] = mapped_column(String(256), unique=True)
     sku: Mapped[list["SKU"]] = relationship(back_populates="dosage_form")
     import_log_id: Mapped[int | None] = mapped_column(
         ForeignKey("import_logs.id", ondelete="CASCADE"), nullable=True
@@ -74,7 +74,7 @@ class DosageForm(Base):
 class Dosage(Base):
     __tablename__ = "dosages"
 
-    name: Mapped[str] = mapped_column(String(256))
+    name: Mapped[str] = mapped_column(String(256), unique=True)
     sku: Mapped[list["SKU"]] = relationship(back_populates="dosage")
     import_log_id: Mapped[int | None] = mapped_column(
         ForeignKey("import_logs.id", ondelete="CASCADE"), nullable=True

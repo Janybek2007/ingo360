@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterator
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
-from sqlalchemy import and_, func, insert, literal, or_, select, tuple_
+from sqlalchemy import and_, distinct, func, insert, literal, or_, select, tuple_
 
 from src.db.models import (
     Company,
@@ -34,7 +34,7 @@ from src.utils.build_period_values import build_period_values
 from src.utils.case_insensitive_dict import CaseInsensitiveDict
 from src.utils.case_insensitive_set import CaseInsensitiveSet
 from src.utils.excel_parser import iter_excel_records
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.list_query_helper import (
     InOrNullSpec,
     ListQueryHelper,
@@ -139,12 +139,19 @@ class VisitService(
                     InOrNullSpec(
                         self.model.medical_facility_id, filters.medical_facility_ids
                     ),
-                    InOrNullSpec(self.model.doctor_id, filters.doctor_ids),
                     InOrNullSpec(self.model.client_type, filters.client_type),
                     InOrNullSpec(self.model.month, filters.months),
                     NumberTypedSpec(self.model.year, filters.year),
                 ],
             )
+            if filters.doctor_ids:
+                doctor_subq = (
+                    select(Doctor.id)
+                    .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
+                    .where(GlobalDoctor.id.in_(filters.doctor_ids))
+                    .scalar_subquery()
+                )
+                stmt = stmt.where(self.model.doctor_id.in_(doctor_subq))
             if filters.doctor_or_pharmacy_ids:
                 stmt = stmt.where(
                     or_(
@@ -171,7 +178,9 @@ class VisitService(
         items = result.unique().scalars().all()
 
         hasPrev = filters.offset > 0 if filters else False
-        hasNext = len(items) == filters.limit if filters and filters.limit else False
+        offset = filters.offset if filters else 0
+        limit = filters.limit if filters and filters.limit else None
+        hasNext = (total_count > offset + limit) if (limit and total_count) else False
 
         return PaginatedResponse(
             result=items,
@@ -239,9 +248,10 @@ class VisitService(
           missing_entirely   - не найдены нигде в системе
         """
         stmt = (
-            select(Doctor.id, GlobalDoctor.full_name)
+            select(func.min(Doctor.id).label("doctor_id"), GlobalDoctor.full_name)
             .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
             .where(GlobalDoctor.full_name.in_(names))
+            .group_by(GlobalDoctor.full_name)
         )
         if company_ids:
             stmt = stmt.where(Doctor.company_id.in_(company_ids))
@@ -489,16 +499,17 @@ class VisitService(
                 await session.execute(insert(self.model), data_to_insert)
                 imported_count += len(data_to_insert)
 
-            import_log.records_count = total_records
-            await session.commit()
-
-            return build_import_result(
+            result = build_import_result(
                 total=total_records,
                 imported=imported_count,
                 skipped_records=skipped_records,
                 inserted=imported_count,
                 deduplicated=0,
             )
+
+            save_import_stats(import_log, result)
+            await session.commit()
+            return result
         finally:
             pass
 
@@ -541,13 +552,22 @@ class VisitService(
         distinct_doctor_key = tuple_(
             GlobalDoctor.full_name,
             GlobalDoctor.medical_facility_id,
+            GlobalDoctor.speciality_id,
         )
 
-        # Всего уникальных врачей по специальности (из global_doctors)
-        total_doctors_subquery = select(
-            GlobalDoctor.speciality_id.label("speciality_id"),
-            func.count(func.distinct(distinct_doctor_key)).label("total_count"),
-        ).select_from(GlobalDoctor)
+        # Всего уникальных врачей по специальности (только в рамках компании)
+        total_doctors_subquery = (
+            select(
+                GlobalDoctor.speciality_id.label("speciality_id"),
+                func.count(distinct(distinct_doctor_key)).label("total_count"),
+            )
+            .select_from(Doctor)
+            .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
+        )
+        if company_id:
+            total_doctors_subquery = total_doctors_subquery.where(
+                Doctor.company_id == company_id
+            )
 
         total_doctors_subquery = ListQueryHelper.apply_specs(
             total_doctors_subquery,
@@ -563,13 +583,11 @@ class VisitService(
             GlobalDoctor.speciality_id
         ).subquery()
 
-        # Врачи с визитами ФК (уник по ФИО+ЛПУ, через doctors → global_doctors)
+        # Врачи с визитами ФК (уник по ФИО+ЛПУ+специальность, через doctors → global_doctors)
         doctors_with_visits_subquery = (
             select(
                 GlobalDoctor.speciality_id,
-                func.count(func.distinct(distinct_doctor_key)).label(
-                    "doctors_with_visits"
-                ),
+                func.count(distinct(distinct_doctor_key)).label("doctors_with_visits"),
             )
             .select_from(Doctor)
             .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
@@ -707,7 +725,7 @@ class VisitService(
             .join(Employee, Visit.employee_id == Employee.id)
             .join(Doctor, Visit.doctor_id == Doctor.id)
             .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
-            .join(Speciality, Doctor.speciality_id == Speciality.id)
+            .join(Speciality, GlobalDoctor.speciality_id == Speciality.id)
             .join(
                 MedicalFacility, GlobalDoctor.medical_facility_id == MedicalFacility.id
             )
@@ -722,7 +740,10 @@ class VisitService(
                 InOrNullSpec(Employee.company_id, [company_id] if company_id else None),
                 InOrNullSpec(Speciality.id, filters.speciality_ids),
                 InOrNullSpec(MedicalFacility.id, filters.medical_facility_ids),
-                InOrNullSpec(Doctor.id, filters.doctor_ids),
+                InOrNullSpec(
+                    Doctor.global_doctor_id,
+                    filters.doctor_ids,
+                ),
             ],
         )
 
@@ -890,8 +911,9 @@ class VisitService(
                 if "requires" in dim_config:
                     for req in dim_config["requires"]:
                         tables_to_join.add(req)
-        if filters.speciality_ids:
-            tables_to_join.add("speciality")
+        if filters.doctor_ids:
+            tables_to_join.add("doctor")
+        tables_to_join.add("global_doctor")
 
         join_order = [
             "employee",
@@ -924,7 +946,7 @@ class VisitService(
                 InOrNullSpec(Position.id, filters.position_ids),
                 InOrNullSpec(Visit.medical_facility_id, filters.medical_facility_ids),
                 InOrNullSpec(Visit.product_group_id, filters.product_group_ids),
-                InOrNullSpec(Visit.doctor_id, filters.doctor_ids),
+                InOrNullSpec(Doctor.global_doctor_id, filters.doctor_ids),
                 InOrNullSpec(Speciality.id, filters.speciality_ids),
             ],
         )
@@ -1044,6 +1066,12 @@ class VisitService(
 
         if company_id:
             stmt = stmt.where(Employee.company_id == company_id)
+
+        if filters and filters.speciality_ids:
+            stmt = stmt.join(Doctor, Visit.doctor_id == Doctor.id, isouter=True).join(
+                GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id, isouter=True
+            )
+
         stmt = ListQueryHelper.apply_specs(
             stmt,
             [
@@ -1075,6 +1103,10 @@ class VisitService(
                 InOrNullSpec(Visit.employee_id, filters.employee_ids),
                 InOrNullSpec(Visit.medical_facility_id, filters.medical_facility_ids),
                 InOrNullSpec(Visit.product_group_id, filters.product_group_ids),
+                InOrNullSpec(
+                    GlobalDoctor.speciality_id,
+                    filters.speciality_ids if filters else None,
+                ),
             ],
         )
 

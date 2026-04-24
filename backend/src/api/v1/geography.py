@@ -49,9 +49,10 @@ async def export_countries_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.geography.country.CountryService",
@@ -63,13 +64,7 @@ async def export_countries_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get("/countries/{country_id}", response_model=geography.CountryResponse)
@@ -122,9 +117,10 @@ async def export_regions_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.geography.region.RegionService",
@@ -137,13 +133,7 @@ async def export_regions_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/regions/import-excel")
@@ -216,9 +206,10 @@ async def export_settlements_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.geography.settlement.SettlementService",
@@ -231,13 +222,7 @@ async def export_settlements_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/settlements/import-excel")
@@ -320,9 +305,10 @@ async def export_districts_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.geography.district.DistrictService",
@@ -335,13 +321,7 @@ async def export_districts_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/districts/import-excel")

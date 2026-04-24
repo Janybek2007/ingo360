@@ -19,10 +19,15 @@ class ImportLogBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    user_first_name: str
-    user_last_name: str
+    user_first_name: str | None = None
+    user_last_name: str | None = None
     target_table: str
     records_count: int
+    imported_count: int | None = None
+    inserted_count: int | None = None
+    updated_count: int | None = None
+    skipped_count: int | None = None
+    deduplicated_count: int | None = None
 
 
 class ImportLogResponse(ImportLogBase):

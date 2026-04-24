@@ -33,7 +33,7 @@ class ImportLogService(BaseService[ImportLogs, ImportLogCreate, ImportLogUpdate]
                 User.first_name.label("user_first_name"),
                 User.last_name.label("user_last_name"),
             )
-            .join(User, self.model.uploaded_by == User.id)
+            .outerjoin(User, self.model.uploaded_by == User.id)
             .order_by(ImportLogs.created_at.desc())
         )
 
@@ -58,7 +58,7 @@ class ImportLogService(BaseService[ImportLogs, ImportLogCreate, ImportLogUpdate]
                 User.first_name.label("user_first_name"),
                 User.last_name.label("user_last_name"),
             )
-            .join(User, self.model.uploaded_by == User.id)
+            .outerjoin(User, self.model.uploaded_by == User.id)
             .order_by(ImportLogs.created_at.desc())
         )
 

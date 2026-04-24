@@ -9,7 +9,7 @@ from src.db.models import SKU
 from src.utils.case_insensitive_dict import CaseInsensitiveDict
 from src.utils.case_insensitive_set import CaseInsensitiveSet
 from src.utils.excel_parser import iter_excel_records
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.indicator_resolver import (
     normalize_primary_indicator,
     normalize_secondary_indicator,
@@ -46,11 +46,14 @@ async def create_or_update_sale(
     sale_type: SaleType,
     key_fields: tuple[str, ...],
     constraint_name: str,
+    load_options: list[Any] | None = None,
 ) -> Any:
     """
     Upsert одной записи продажи с нормализацией индикатора.
     Возвращает объект из БД после вставки/обновления.
     """
+    from sqlalchemy import select as sa_select
+
     if "indicator" in data and data["indicator"] is not None:
         data["indicator"] = normalize_indicator_for_sale(
             sale_type, str(data["indicator"])
@@ -69,7 +72,11 @@ async def create_or_update_sale(
     row_id = result.scalar_one()
     await session.commit()
 
-    obj = await session.get(model, row_id)
+    if load_options:
+        obj_stmt = sa_select(model).options(*load_options).where(model.id == row_id)
+        obj = (await session.execute(obj_stmt)).scalar_one()
+    else:
+        obj = await session.get(model, row_id)
     return obj
 
 
@@ -307,10 +314,7 @@ async def import_sales_from_excel(
         updated += batch_updated
         deduplicated += batch_deduplicated
 
-    import_log.records_count = total_records
-    await session.commit()
-
-    return build_import_result(
+    result = build_import_result(
         total=total_records,
         imported=imported,
         skipped_records=skipped_records,
@@ -318,6 +322,10 @@ async def import_sales_from_excel(
         inserted=inserted,
         deduplicated=deduplicated,
     )
+
+    save_import_stats(import_log, result)
+    await session.commit()
+    return result
 
 
 def _deduplicate_batch_rows(

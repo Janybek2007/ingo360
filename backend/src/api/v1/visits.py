@@ -55,9 +55,10 @@ async def export_visits_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.visit.VisitService",
@@ -77,13 +78,7 @@ async def export_visits_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -95,6 +90,18 @@ async def create_visit(
     new_visit: VisitCreate,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
 ):
+    from sqlalchemy import select as _select
+
+    if new_visit.doctor_id is not None:
+        doctor = await session.scalar(
+            _select(Doctor).where(Doctor.id == new_visit.doctor_id)
+        )
+        if doctor is None:
+            from fastapi import HTTPException
+
+            raise HTTPException(status_code=404, detail="Врач не найден")
+        new_visit.company_id = doctor.company_id
+
     load_options = [
         joinedload(Visit.pharmacy).joinedload(Pharmacy.geo_indicator),
         joinedload(Visit.pharmacy).joinedload(Pharmacy.distributor),

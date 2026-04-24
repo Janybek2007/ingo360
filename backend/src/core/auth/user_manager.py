@@ -1,6 +1,8 @@
 import logging
 import secrets
-from typing import TYPE_CHECKING, Any, Optional, Sequence
+from collections.abc import Sequence
+from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING, Any, Optional
 
 from fastapi import HTTPException, status
 from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions
@@ -313,12 +315,21 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         self, user_id: int, session: "AsyncSession"
     ) -> str:
         token = secrets.token_urlsafe(32)
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
 
-        password_token = PasswordSetupToken(token=token, user_id=user_id)
+        password_token = PasswordSetupToken(
+            token=token,
+            user_id=user_id,
+            expires_at=expires_at,
+        )
         session.add(password_token)
         await session.commit()
 
-        log.info("Password setup token generated for user %r", user_id)
+        log.info(
+            "Password setup token generated for user %r (expires at %s)",
+            user_id,
+            expires_at,
+        )
         return token
 
     async def send_password_setup_email(
@@ -350,16 +361,18 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         token: str, session: "AsyncSession"
     ) -> PasswordSetupToken:
         stmt = select(PasswordSetupToken).where(
-            PasswordSetupToken.token == token, ~PasswordSetupToken.is_used
+            PasswordSetupToken.token == token,
+            ~PasswordSetupToken.is_used,
+            PasswordSetupToken.expires_at > datetime.now(timezone.utc),
         )
         result = await session.execute(stmt)
         token_record = result.scalar_one_or_none()
 
         if not token_record:
-            log.warning("Invalid or already used password setup token")
+            log.warning("Invalid, already used, or expired password setup token")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Неверный или использованный токен",
+                detail="Неверный, использованный или просроченный токен",
             )
 
         return token_record

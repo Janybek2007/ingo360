@@ -63,9 +63,10 @@ async def export_regions_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.product.product_group.ProductGroupService",
@@ -78,13 +79,7 @@ async def export_regions_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get(
@@ -103,7 +98,9 @@ async def get_product_group(
 
 
 @router.patch(
-    "/product-groups/{product_group_id}", response_model=product.ProductGroupResponse
+    "/product-groups/{product_group_id}",
+    response_model=product.ProductGroupResponse,
+    dependencies=[Depends(current_operator_user)],
 )
 async def update_product_group(
     product_group_id: int,
@@ -169,9 +166,10 @@ async def export_brands_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.product.brand.BrandService",
@@ -184,13 +182,7 @@ async def export_brands_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/brands/import-excel")
@@ -291,9 +283,10 @@ async def export_promotion_types_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.product.promotion_type.PromotionTypeService",
@@ -305,13 +298,7 @@ async def export_promotion_types_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get(
@@ -383,9 +370,10 @@ async def export_dosage_forms_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.product.dosage_form.DosageFormService",
@@ -397,13 +385,7 @@ async def export_dosage_forms_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get(
@@ -484,9 +466,10 @@ async def export_dosages_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.product.dosage.DosageService",
@@ -498,13 +481,7 @@ async def export_dosages_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/dosages/import-excel")
@@ -579,9 +556,10 @@ async def export_segments_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.product.segment.SegmentService",
@@ -593,13 +571,7 @@ async def export_segments_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/segments/import-excel")
@@ -696,9 +668,10 @@ async def export_skus_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.product.sku.SKUService",
@@ -719,13 +692,7 @@ async def export_skus_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/skus/import-excel")

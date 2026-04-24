@@ -38,6 +38,7 @@ class SecondarySalesCreate(BaseModel):
 
 class TertiarySalesCreate(BaseModel):
     pharmacy_id: int
+    distributor_id: int
     sku_id: int
     month: int
     year: int
@@ -72,6 +73,7 @@ class SecondarySalesUpdate(BaseModel):
 
 class TertiarySalesUpdate(BaseModel):
     pharmacy_id: int | None = None
+    distributor_id: int | None = None
     sku_id: int | None = None
     month: int | None = None
     year: int | None = None

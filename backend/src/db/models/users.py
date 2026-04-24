@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
-from sqlalchemy import Boolean, ForeignKey, Index, Integer, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -46,3 +46,4 @@ class PasswordSetupToken(Base):
     )
     token: Mapped[str] = mapped_column(String, unique=True, index=True)
     is_used: Mapped[bool] = mapped_column(Boolean, server_default="false")
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

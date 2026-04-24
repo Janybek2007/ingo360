@@ -70,6 +70,7 @@ class SecondarySalesService(
             sale_type="secondary",
             key_fields=("pharmacy_id", "sku_id", "month", "year", "indicator"),
             constraint_name="uq_secondary_sales_business_key",
+            load_options=load_options,
         )
 
     async def update(
@@ -175,6 +176,7 @@ class SecondarySalesService(
                     ),
                 ],
                 get_id_map=self.get_id_map,
+                normalize_indicator=normalize_secondary_indicator,
             )
         finally:
             pass
@@ -667,6 +669,11 @@ class SecondarySalesService(
             .outerjoin(Distributor, SecondarySales.distributor_id == Distributor.id)
             .join(SKU, SecondarySales.sku_id == SKU.id)
         )
+
+        if filters.geo_indicator_ids:
+            base_stmt = base_stmt.join(
+                Pharmacy, SecondarySales.pharmacy_id == Pharmacy.id
+            )
 
         base_stmt = ListQueryHelper.apply_specs(
             base_stmt,

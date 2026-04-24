@@ -41,9 +41,7 @@ async def create_user(
 ):
     company_id = user_create.company_id
 
-    if company_id is not None and (
-        not user_create.is_admin or not user_create.is_operator
-    ):
+    if company_id is not None and not (user_create.is_admin or user_create.is_operator):
         try:
             await user_manager.check_company_limit(session, company_id)
         except Exception:
@@ -118,9 +116,10 @@ async def export_clients_excel(
     session: Annotated["AsyncSession", Depends(db_session.get_session)],
     current_user: Annotated["User", Depends(current_admin_or_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.user_exports.UserClientsExportService",
@@ -132,13 +131,7 @@ async def export_clients_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get(
@@ -166,9 +159,10 @@ async def export_admins_operators_excel(
     session: Annotated["AsyncSession", Depends(db_session.get_session)],
     current_user: Annotated["User", Depends(current_admin_or_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.user_exports.UserAdminsOperatorsExportService",
@@ -180,13 +174,7 @@ async def export_admins_operators_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get("/me", response_model=UserRead)

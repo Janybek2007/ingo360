@@ -35,9 +35,10 @@ async def export_client_categories_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.client.client_category.ClientCategoryService",
@@ -49,13 +50,7 @@ async def export_client_categories_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -158,9 +153,10 @@ async def export_doctors_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.client.doctor.DoctorService",
@@ -181,13 +177,7 @@ async def export_doctors_excel(
         custom_map={"mode": {"company": "компания", "global": "общий"}},
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -253,7 +243,7 @@ async def get_doctor(
 
 @router.patch(
     "/doctors/{doctor_id}",
-    response_model=None,
+    response_model=client.DoctorResponse,
     dependencies=[Depends(current_operator_user)],
 )
 async def update_doctor(
@@ -311,9 +301,10 @@ async def export_pharmacies_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.client.pharmacy.PharmacyService",
@@ -335,13 +326,7 @@ async def export_pharmacies_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -454,9 +439,10 @@ async def export_specialities_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.client.speciality.SpecialityService",
@@ -468,13 +454,7 @@ async def export_specialities_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post("/specialities/import-excel")
@@ -548,9 +528,9 @@ async def get_medical_facilities(
     filters: client.MedicalFacilityListRequest,
 ):
     load_options = [
-        joinedload(MedicalFacility.settlement),
-        joinedload(MedicalFacility.district),
-        joinedload(MedicalFacility.geo_indicator),
+        selectinload(MedicalFacility.settlement),
+        selectinload(MedicalFacility.district),
+        selectinload(MedicalFacility.geo_indicator),
     ]
     return await client_service.medical_facility_service.get_multi(
         session, load_options=load_options, filters=filters
@@ -562,9 +542,10 @@ async def export_medical_facilities_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.client.medical_facility.MedicalFacilityService",
@@ -577,13 +558,7 @@ async def export_medical_facilities_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -686,9 +661,10 @@ async def export_distributors_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.client.distributor.DistributorService",
@@ -700,13 +676,7 @@ async def export_distributors_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(
@@ -789,13 +759,14 @@ async def export_geo_indicators_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_operator_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.client.geo_indicator.GeoIndicatorService",
-        model_path="src.db.models.GeoIndicator",
+        model_path="src.db.models.clients.GeoIndicator",
         serializer_path="src.schemas.client.GeoIndicatorResponse",
         header_map=payload.header_map,
         fields_map=payload.fields_map,
@@ -803,13 +774,7 @@ async def export_geo_indicators_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.post(

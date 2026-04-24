@@ -60,7 +60,7 @@ pharmacy_fields = [
 
 medical_facility_fields = [
     name.as_required(),
-    company.as_required(),
+    company,
     region.as_required(),
     settlement.as_required(),
     geo_indicator,

@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from src.schemas.base_filter import BaseReferenceFilter
 from src.schemas.company import CompanyMinimalResponse
@@ -36,6 +36,15 @@ class DoctorCreate(BaseModel):
     product_group_id: int | None = None
     company_id: int | None = None
     mode: Literal["company", "global"] = "company"
+
+    @model_validator(mode="after")
+    def validate_company_fields(self):
+        if self.mode == "company":
+            if self.product_group_id is None:
+                raise ValueError("product_group_id обязателен для mode=company")
+            if self.company_id is None:
+                raise ValueError("company_id обязателен для mode=company")
+        return self
 
 
 class PharmacyCreate(BaseModel):
@@ -172,7 +181,7 @@ class GlobalDoctorResponse(BaseModel):
     id: int
     full_name: str
     medical_facility: MedicalFacilitySimpleResponse | None
-    speciality: SpecialityResponse
+    speciality: SpecialityResponse | None
 
 
 class DoctorResponse(BaseModel):
@@ -262,7 +271,7 @@ class PharmacyListRequest(BaseReferenceFilter):
             "name",
             "company",
             "distributor",
-            "responsible_employe",
+            "responsible_employee",
             "settlement",
             "district",
             "client_category",

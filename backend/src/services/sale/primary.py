@@ -67,6 +67,7 @@ class PrimarySalesAndStockService(
             sale_type="primary",
             key_fields=("distributor_id", "sku_id", "month", "year", "indicator"),
             constraint_name="uq_primary_sales_business_key",
+            load_options=load_options,
         )
 
     async def update(

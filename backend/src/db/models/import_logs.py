@@ -49,6 +49,11 @@ class ImportLogs(Base):
     target_table: Mapped[str]
     records_count: Mapped[int]
     target_table_name: Mapped[str | None]
+    imported_count: Mapped[int | None] = mapped_column(nullable=True)
+    inserted_count: Mapped[int | None] = mapped_column(nullable=True)
+    updated_count: Mapped[int | None] = mapped_column(nullable=True)
+    skipped_count: Mapped[int | None] = mapped_column(nullable=True)
+    deduplicated_count: Mapped[int | None] = mapped_column(nullable=True)
 
     user: Mapped[Optional["User"]] = relationship(back_populates="import_logs")
 

@@ -15,13 +15,14 @@ from src.schemas.product import ProductGroupSimpleResponse
 
 class VisitCreate(BaseModel):
     product_group_id: int
-    employee_id: int | None = None
+    employee_id: int
     client_type: str
     month: int
     year: int
     doctor_id: int | None = None
     medical_facility_id: int | None = None
     pharmacy_id: int | None = None
+    company_id: int | None = None
 
 
 class VisitUpdate(BaseModel):

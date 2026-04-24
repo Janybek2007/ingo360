@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Any
 
 from fastapi import UploadFile
 from sqlalchemy import func, select
@@ -12,7 +13,7 @@ from src.db.models import (
 from src.import_fields import employee
 from src.schemas import employee as employee_schema
 from src.utils.excel_parser import parse_excel_file
-from src.utils.import_result import build_import_result
+from src.utils.import_result import build_import_result, save_import_stats
 from src.utils.list_query_helper import InOrNullSpec, ListQueryHelper, StringTypedSpec
 from src.utils.records_resolver import resolve_records_fields
 from src.utils.validate_required_columns import validate_required_columns
@@ -63,7 +64,7 @@ class EmployeeService(
                 stmt,
                 [
                     StringTypedSpec(self.model.full_name, filters.full_name),
-                    StringTypedSpec(self.model.position_id, filters.position_ids),
+                    InOrNullSpec(self.model.position_id, filters.position_ids),
                     InOrNullSpec(
                         self.model.product_group_id, filters.product_group_ids
                     ),
@@ -210,29 +211,32 @@ class EmployeeService(
             )
 
         inserted_ids = []
+        result: dict[str, Any] | None = None
         try:
             if data_to_insert:
                 stmt = (
                     insert(self.model)
                     .values(data_to_insert)
-                    .on_conflict_do_nothing()
+                    .on_conflict_do_nothing(index_elements=["full_name", "company_id"])
                     .returning(self.model.id)
                 )
-                result = await session.execute(stmt)
-                inserted_ids = result.scalars().all()
+                db_result = await session.execute(stmt)
+                inserted_ids = db_result.scalars().all()
 
+            result = build_import_result(
+                total=len(records),
+                imported=len(inserted_ids),
+                skipped_records=skipped_records,
+                inserted=len(inserted_ids),
+                deduplicated=len(data_to_insert) - len(inserted_ids),
+            )
+            save_import_stats(import_log, result)
             await session.commit()
         except Exception:
             await session.rollback()
             raise
 
-        return build_import_result(
-            total=len(records),
-            imported=len(inserted_ids),
-            skipped_records=skipped_records,
-            inserted=len(inserted_ids),
-            deduplicated=len(data_to_insert) - len(inserted_ids),
-        )
+        return result
 
 
 class PositionService(
@@ -336,29 +340,32 @@ class PositionService(
         ]
 
         inserted_ids = []
+        result: dict[str, Any] | None = None
         try:
             if data_to_insert:
                 stmt = (
                     insert(self.model)
                     .values(data_to_insert)
-                    .on_conflict_do_nothing()
+                    .on_conflict_do_nothing(index_elements=["name"])
                     .returning(self.model.id)
                 )
-                result = await session.execute(stmt)
-                inserted_ids = result.scalars().all()
+                db_result = await session.execute(stmt)
+                inserted_ids = db_result.scalars().all()
 
+            result = build_import_result(
+                total=len(records),
+                imported=len(inserted_ids),
+                skipped_records=[],
+                inserted=len(inserted_ids),
+                deduplicated=len(data_to_insert) - len(inserted_ids),
+            )
+            save_import_stats(import_log, result)
             await session.commit()
         except Exception:
             await session.rollback()
             raise
 
-        return build_import_result(
-            total=len(records),
-            imported=len(inserted_ids),
-            skipped_records=[],
-            inserted=len(inserted_ids),
-            deduplicated=len(data_to_insert) - len(inserted_ids),
-        )
+        return result
 
 
 employee_service = EmployeeService(employees.Employee)

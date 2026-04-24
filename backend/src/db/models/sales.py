@@ -112,6 +112,7 @@ class SecondarySales(Base):
             "month",
             "year",
             "indicator",
+            "distributor_id",
             name="uq_secondary_sales_business_key",
         ),
         Index("idx_secondary_sales_year_month", "year", "month"),

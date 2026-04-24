@@ -57,9 +57,10 @@ async def export_employees_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.employee.EmployeeService",
@@ -78,13 +79,7 @@ async def export_employees_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get("/employees/{employee_id}", response_model=employee_schema.EmployeeResponse)
@@ -165,9 +160,10 @@ async def export_positions_excel(
     payload: ExportExcelRequest,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    from src.tasks.export_excel import create_export_task_record, export_excel_task
+    from src.tasks.export_excel import schedule_export_task
 
-    task = export_excel_task.delay(
+    task_id = await schedule_export_task(
+        started_by=current_user.id,
         user_id=current_user.id,
         file_name=payload.file_name,
         service_path="src.services.employee.PositionService",
@@ -179,13 +175,7 @@ async def export_positions_excel(
         custom_map=payload.custom_map,
     )
 
-    await create_export_task_record(
-        task_id=task.id,
-        started_by=current_user.id,
-        file_path="",
-    )
-
-    return {"task_id": task.id}
+    return {"task_id": task_id}
 
 
 @router.get("/positions/{position_id}", response_model=employee_schema.PositionResponse)

@@ -1,5 +1,4 @@
 import os
-import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, AsyncIterator
 from uuid import uuid4
@@ -75,6 +74,7 @@ class TertiarySalesService(
             sale_type="tertiary",
             key_fields=("pharmacy_id", "sku_id", "month", "year", "indicator"),
             constraint_name="uq_tertiary_sales_business_key",
+            load_options=load_options,
         )
 
     async def update(
@@ -317,7 +317,6 @@ class TertiarySalesService(
         company_id: int | None = None,
         explain: ExplainArguments | None = None,
     ):
-        _t0 = time.perf_counter()
         period_key = build_period_key(filters.group_by_period, TertiarySalesAndStock)
         period_values = build_period_values(
             filters.group_by_period, filters.period_values
@@ -426,20 +425,12 @@ class TertiarySalesService(
             final_stmt, filters.limit, filters.offset
         )
 
-        _t1 = time.perf_counter()
-        print(f"[TIMER] build query: {(_t1 - _t0) * 1000:.0f}ms")
-
         if explain is not None:
             from src.utils.explain_analyze import explain_analyze
 
             return await explain_analyze(session, final_stmt, explain)
 
         rows = (await session.execute(final_stmt)).mappings().all()
-
-        _t2 = time.perf_counter()
-        print(
-            f"[TIMER] DB execute + fetch: {(_t2 - _t1) * 1000:.0f}ms, rows={len(rows)}"
-        )
 
         if not filters.group_by_dimensions:
             return rows
@@ -462,9 +453,6 @@ class TertiarySalesService(
                 "packages": float(row["packages"]),
                 "amount": float(row["amount"]),
             }
-
-        _t3 = time.perf_counter()
-        print(f"[TIMER] Python grouping: {(_t3 - _t2) * 1000:.0f}ms")
 
         return [grouped[k] for k in order]
 
@@ -740,7 +728,6 @@ class TertiarySalesService(
         company_id: int | None = None,
         explain: ExplainArguments | None = None,
     ):
-        _t0 = time.perf_counter()
         period_key = build_period_key(filters.group_by_period, TertiarySalesAndStock)
         period_values = build_period_values(
             filters.group_by_period, filters.period_values
@@ -853,20 +840,12 @@ class TertiarySalesService(
             final_stmt, filters.limit, filters.offset
         )
 
-        _t1 = time.perf_counter()
-        print(f"[TIMER] build query: {(_t1 - _t0) * 1000:.0f}ms")
-
         if explain is not None:
             from src.utils.explain_analyze import explain_analyze
 
             return await explain_analyze(session, final_stmt, explain)
 
         rows = (await session.execute(final_stmt)).mappings().all()
-
-        _t2 = time.perf_counter()
-        print(
-            f"[TIMER] DB execute + fetch: {(_t2 - _t1) * 1000:.0f}ms, rows={len(rows)}"
-        )
 
         if not filters.group_by_dimensions:
             return rows
@@ -889,8 +868,5 @@ class TertiarySalesService(
                 "packages": float(row["packages"]),
                 "amount": float(row["amount"]),
             }
-
-        _t3 = time.perf_counter()
-        print(f"[TIMER] Python grouping: {(_t3 - _t2) * 1000:.0f}ms")
 
         return [grouped[k] for k in order]
