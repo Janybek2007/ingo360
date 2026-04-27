@@ -234,50 +234,68 @@ class VisitService(
     @staticmethod
     async def _get_doctor_id_map(
         session: "AsyncSession",
-        names: set[str],
+        name_group_pairs: set[tuple[str, str]],
         company_ids: set[int] | None = None,
-    ) -> tuple[CaseInsensitiveDict, CaseInsensitiveSet, CaseInsensitiveSet]:
-        """Ищет Doctor.id по GlobalDoctor.full_name через JOIN.
-        Doctor.full_name - @property, не колонка SQLAlchemy.
-        company_ids фильтрует по компании, чтобы не смешивать врачей
-        с одинаковым именем из разных компаний.
+    ) -> tuple[dict[tuple[str, str], int], set[tuple[str, str]], set[str]]:
+        """Ищет Doctor.id по (GlobalDoctor.full_name, ProductGroup.name).
 
         Возвращает:
-          obj_map            - найдены (name → doctor_id)
-          missing_in_company - есть в системе, но не в справочнике компании
-          missing_entirely   - не найдены нигде в системе
+          obj_map            - найдены {(lower_name, lower_pg) → doctor_id}
+          missing_in_company - пары есть в системе, но не в справочнике компании
+          missing_entirely   - имена не найдены нигде (только ФИО, lower)
         """
+        if not name_group_pairs:
+            return {}, set(), set()
+
+        lower_pairs = [(n.lower(), pg.lower()) for n, pg in name_group_pairs]
+
         stmt = (
-            select(func.min(Doctor.id).label("doctor_id"), GlobalDoctor.full_name)
+            select(
+                Doctor.id.label("doctor_id"),
+                GlobalDoctor.full_name,
+                ProductGroup.name.label("pg_name"),
+            )
             .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
-            .where(GlobalDoctor.full_name.in_(names))
-            .group_by(GlobalDoctor.full_name)
+            .join(ProductGroup, Doctor.product_group_id == ProductGroup.id)
+            .where(
+                tuple_(
+                    func.lower(GlobalDoctor.full_name),
+                    func.lower(ProductGroup.name),
+                ).in_(lower_pairs)
+            )
         )
         if company_ids:
             stmt = stmt.where(Doctor.company_id.in_(company_ids))
+
         result = await session.execute(stmt)
         rows = result.all()
-        obj_map = CaseInsensitiveDict(
-            {full_name: doctor_id for doctor_id, full_name in rows}
+
+        obj_map: dict[tuple[str, str], int] = {
+            (full_name.lower(), pg_name.lower()): doctor_id
+            for doctor_id, full_name, pg_name in rows
+        }
+
+        missing_pairs = {(n.lower(), pg.lower()) for n, pg in name_group_pairs} - set(
+            obj_map.keys()
         )
+        if not missing_pairs:
+            return obj_map, set(), set()
 
-        not_found = CaseInsensitiveSet(v for v in names if v not in obj_map)
-        if not not_found:
-            return obj_map, CaseInsensitiveSet(), CaseInsensitiveSet()
-
-        # Проверяем: есть ли врач в системе вообще (без фильтра по компании)
+        # Проверяем: есть ли врач в системе вообще (без фильтра по компании/группе)
+        missing_names = {name for name, _ in missing_pairs}
         global_stmt = select(GlobalDoctor.full_name).where(
-            GlobalDoctor.full_name.in_(not_found)
+            func.lower(GlobalDoctor.full_name).in_(list(missing_names))
         )
         global_result = await session.execute(global_stmt)
-        global_names = CaseInsensitiveSet(row[0] for row in global_result.all())
+        global_names_lower = {row[0].lower() for row in global_result.all()}
 
-        missing_in_company = CaseInsensitiveSet(
-            v for v in not_found if v in global_names
-        )
-        missing_entirely = CaseInsensitiveSet(
-            v for v in not_found if v not in global_names
-        )
+        missing_in_company = {
+            pair for pair in missing_pairs if pair[0] in global_names_lower
+        }
+        missing_entirely = {
+            name for name in missing_names if name not in global_names_lower
+        }
+
         return obj_map, missing_in_company, missing_entirely
 
     async def _import_excel_from_file(
@@ -315,14 +333,14 @@ class VisitService(
             pg_cache: CaseInsensitiveDict = CaseInsensitiveDict()
             emp_cache: CaseInsensitiveDict = CaseInsensitiveDict()
             emp_company_cache: CaseInsensitiveDict = CaseInsensitiveDict()
-            doc_cache: CaseInsensitiveDict = CaseInsensitiveDict()
+            doc_cache: dict[tuple[str, str], int] = {}
             mf_cache: CaseInsensitiveDict = CaseInsensitiveDict()
             ph_cache: CaseInsensitiveDict = CaseInsensitiveDict()
 
             missing_pgs: CaseInsensitiveSet = CaseInsensitiveSet()
             missing_emps: CaseInsensitiveSet = CaseInsensitiveSet()
-            missing_docs_in_company: CaseInsensitiveSet = CaseInsensitiveSet()
-            missing_docs_entirely: CaseInsensitiveSet = CaseInsensitiveSet()
+            missing_docs_in_company: set[tuple[str, str]] = set()
+            missing_docs_entirely: set[str] = set()
             missing_mfs: CaseInsensitiveSet = CaseInsensitiveSet()
             missing_phs: CaseInsensitiveSet = CaseInsensitiveSet()
 
@@ -331,7 +349,7 @@ class VisitService(
             pending_records: list[tuple[int, dict[str, Any]]] = []
             pending_pgs: set[str] = set()
             pending_emps: set[str] = set()
-            pending_docs: set[str] = set()
+            pending_docs: set[tuple[str, str]] = set()
             pending_mfs: set[str] = set()
             pending_phs: set[str] = set()
             imported_count = 0
@@ -363,7 +381,7 @@ class VisitService(
                     doc_cache.update(m)
                     missing_docs_in_company.update(miss_company)
                     missing_docs_entirely.update(miss_entirely)
-                    pending_docs.clear()
+                    pending_docs.clear()  # contains (name, pg) tuples
 
                 if pending_mfs:
                     m, miss = await self.get_id_map(
@@ -404,17 +422,19 @@ class VisitService(
                             f"сотрудник: {r['сотрудник']} - не найден в справочнике сотрудников компании. "
                             f"Добавьте сотрудника в справочник компании перед импортом."
                         )
-                    if r.get("врач") and r.get("врач") in missing_docs_in_company:
-                        missing_keys.append(
-                            f"врач: {r['врач']} - найден в системе, но не добавлен "
-                            f"в справочник врачей вашей компании."
-                        )
-                    elif r.get("врач") and r.get("врач") in missing_docs_entirely:
-                        missing_keys.append(
-                            f"врач: {r['врач']} - не найден в системе. "
-                            f"Сначала добавьте врача в глобальный справочник, "
-                            f"затем в справочник вашей компании."
-                        )
+                    if r.get("врач") and r.get("группа"):
+                        doc_key = (r["врач"].lower(), r["группа"].lower())
+                        if doc_key in missing_docs_in_company:
+                            missing_keys.append(
+                                f"врач: {r['врач']} (группа: {r['группа']}) - найден в системе, "
+                                f"но не добавлен в справочник врачей вашей компании."
+                            )
+                        elif r["врач"].lower() in missing_docs_entirely:
+                            missing_keys.append(
+                                f"врач: {r['врач']} - не найден в системе. "
+                                f"Сначала добавьте врача в глобальный справочник, "
+                                f"затем в справочник вашей компании."
+                            )
 
                     m_facility_id = None
                     p_id = None
@@ -438,9 +458,15 @@ class VisitService(
                         )
                         continue
 
+                    врач = r.get("врач")
+                    группа = r.get("группа")
                     relation_fields = {
-                        "product_group_id": pg_cache.get(r.get("группа")),
-                        "doctor_id": doc_cache.get(r.get("врач")),
+                        "product_group_id": pg_cache.get(группа),
+                        "doctor_id": (
+                            doc_cache.get((врач.lower(), группа.lower()))
+                            if врач and группа
+                            else None
+                        ),
                         "employee_id": emp_cache.get(r.get("сотрудник")),
                         "company_id": emp_company_cache.get(r.get("сотрудник")),
                         "medical_facility_id": m_facility_id,
@@ -475,13 +501,14 @@ class VisitService(
                         and r["сотрудник"] not in missing_emps
                     ):
                         pending_emps.add(r["сотрудник"])
-                    if (
-                        r.get("врач")
-                        and r["врач"] not in doc_cache
-                        and r["врач"] not in missing_docs_in_company
-                        and r["врач"] not in missing_docs_entirely
-                    ):
-                        pending_docs.add(r["врач"])
+                    if r.get("врач") and r.get("группа"):
+                        doc_key = (r["врач"].lower(), r["группа"].lower())
+                        if (
+                            doc_key not in doc_cache
+                            and doc_key not in missing_docs_in_company
+                            and r["врач"].lower() not in missing_docs_entirely
+                        ):
+                            pending_docs.add((r["врач"], r["группа"]))
                     if r.get("тип клиента") == "Врач" and r.get("учреждение"):
                         if (
                             r["учреждение"] not in mf_cache

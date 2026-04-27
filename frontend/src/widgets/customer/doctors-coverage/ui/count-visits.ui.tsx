@@ -74,7 +74,7 @@ export const DoctorsCountVisits: React.FC<DoctorCountVisitsProperties> =
                 defaultAllSelected
                 showToggleAll
                 items={specialityItems}
-                triggerText="Специальность"
+                triggerText="Спепиальности"
                 rightIcon={
                   <LucideArrowIcon type="chevron-down" className="size-4.5" />
                 }
