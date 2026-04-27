@@ -21,7 +21,7 @@ dev-build:
 
 dev-up: dev-build
 	docker compose -f $(COMPOSE_DEV) up -d
-    docker compose -f $(COMPOSE_DEV) restart nginx
+	docker compose -f $(COMPOSE_DEV) restart nginx
 
 dev-down:
 	docker compose -f $(COMPOSE_DEV) down
@@ -48,7 +48,7 @@ prod-build: db-build
 
 prod-up: prod-build
 	docker compose -f $(COMPOSE_PROD) up -d
-    docker compose -f $(COMPOSE_PROD) restart nginx
+	docker compose -f $(COMPOSE_PROD) restart nginx
 
 prod-down:
 	docker compose -f $(COMPOSE_PROD) down
