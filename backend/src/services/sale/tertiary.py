@@ -1,6 +1,7 @@
 import os
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from sqlalchemy import Float, Numeric, and_, case, func, select

@@ -705,10 +705,15 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 entity_filter = IMS.company == _company_ims_name
             else:
                 if not _company_brands:
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="У компании нет IMS названия и нет брендов",
-                    )
+                    response["metrics"] = {
+                        "sales": "-",
+                        "market_sales": "-",
+                        "market_share": "-",
+                        "growth_vs_previous": "-",
+                        "market_growth": "-",
+                        "growth_vs_market": "-",
+                    }
+                    return response
 
                 entity_filter = IMS.brand.in_(_company_brands)
         else:
