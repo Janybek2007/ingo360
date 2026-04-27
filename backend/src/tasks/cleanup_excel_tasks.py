@@ -46,5 +46,5 @@ async def _cleanup_excel_tasks(days: int) -> dict[str, int]:
 
 @celery_app.task(bind=True)
 def cleanup_excel_tasks(self, days: int = 1) -> dict[str, int]:
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(_cleanup_excel_tasks(days=days))
+    db_session.engine.sync_engine.dispose(close=False)
+    return asyncio.run(_cleanup_excel_tasks(days=days))

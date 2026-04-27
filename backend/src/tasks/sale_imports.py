@@ -54,11 +54,11 @@ def import_sales_task(
     if "_" in file_name:
         file_name = file_name.split("_", 1)[1]
 
+    from src.db.session import db_session
+
+    db_session.engine.sync_engine.dispose(close=False)
+
     async def _run():
-        from src.db.session import db_session
-
-        await db_session.engine.dispose()
-
         service_cls = import_class(service_path)
         model_cls = import_class(model_path)
 

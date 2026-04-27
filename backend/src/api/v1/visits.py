@@ -70,6 +70,7 @@ async def export_visits_excel(
             "doctor.global_doctor",
             "product_group",
             "employee",
+            "company",
             "medical_facility.geo_indicator",
         ],
         header_map=payload.header_map,

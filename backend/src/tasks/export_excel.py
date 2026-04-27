@@ -223,10 +223,11 @@ def export_excel_task(
 ):
     task_id = self.request.id
 
-    async def _run():
-        from src.db.session import db_session
+    from src.db.session import db_session
 
-        await db_session.engine.dispose()
+    db_session.engine.sync_engine.dispose(close=False)
+
+    async def _run():
 
         saved_file_path = _build_export_file_path(task_id, file_name)
         try:

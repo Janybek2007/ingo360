@@ -392,9 +392,14 @@ class VisitService(
                 for row_index, r in pending_records:
                     missing_keys = []
 
-                    if r.get("группа") in missing_pgs:
+                    if not r.get("группа"):
+                        missing_keys.append("группа: (пусто)")
+                    elif r.get("группа") in missing_pgs:
                         missing_keys.append(f"группа: {r['группа']}")
-                    if r.get("сотрудник") in missing_emps:
+
+                    if not r.get("сотрудник"):
+                        missing_keys.append("сотрудник: (пусто)")
+                    elif r.get("сотрудник") in missing_emps:
                         missing_keys.append(
                             f"сотрудник: {r['сотрудник']} - не найден в справочнике сотрудников компании. "
                             f"Добавьте сотрудника в справочник компании перед импортом."
@@ -555,19 +560,11 @@ class VisitService(
             GlobalDoctor.speciality_id,
         )
 
-        # Всего уникальных врачей по специальности (только в рамках компании)
-        total_doctors_subquery = (
-            select(
-                GlobalDoctor.speciality_id.label("speciality_id"),
-                func.count(distinct(distinct_doctor_key)).label("total_count"),
-            )
-            .select_from(Doctor)
-            .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
-        )
-        if company_id:
-            total_doctors_subquery = total_doctors_subquery.where(
-                Doctor.company_id == company_id
-            )
+        # Всего уникальных общих-врачей по специальности (все, без фильтра по компании)
+        total_doctors_subquery = select(
+            GlobalDoctor.speciality_id.label("speciality_id"),
+            func.count(distinct(distinct_doctor_key)).label("total_count"),
+        ).select_from(GlobalDoctor)
 
         total_doctors_subquery = ListQueryHelper.apply_specs(
             total_doctors_subquery,

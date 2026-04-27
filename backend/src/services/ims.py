@@ -5,7 +5,17 @@ from typing import TYPE_CHECKING, Any, AsyncIterator
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
-from sqlalchemy import and_, case, distinct, func, literal, or_, select, union
+from sqlalchemy import (
+    and_,
+    case,
+    distinct,
+    func,
+    literal,
+    literal_column,
+    or_,
+    select,
+    union,
+)
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from src.db.models import IMS, Brand, Company, ImportLogs
@@ -202,32 +212,16 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             await session.flush()
 
             data_to_insert = []
-            imported_count = 0
+            skipped_records = []
+            inserted_count = 0
+            updated_count = 0
 
-            with open(file_path, "rb") as f:
-                for _, record in iter_excel_records(f):
-                    total_records += 1
-                    normalize_record(record, ims.ims_fields)
+            _REQUIRED_IMS_FIELDS = ("компания", "бренд", "период")
 
-                    relation_fields = {"import_log_id": import_log.id}
-                    data_to_insert.append(
-                        map_record(record, ims_mapping, relation_fields)
-                    )
-
-                    if len(data_to_insert) >= batch_size:
-                        stmt = pg_insert(self.model).values(data_to_insert)
-                        stmt = stmt.on_conflict_do_update(
-                            constraint="uq_ims_business_key",
-                            set_={
-                                "amount": stmt.excluded.amount,
-                                "packages": stmt.excluded.packages,
-                            },
-                        )
-                        await session.execute(stmt)
-                        imported_count += len(data_to_insert)
-                        data_to_insert = []
-
-            if data_to_insert:
+            async def _flush_ims_batch():
+                nonlocal inserted_count, updated_count, data_to_insert
+                if not data_to_insert:
+                    return
                 stmt = pg_insert(self.model).values(data_to_insert)
                 stmt = stmt.on_conflict_do_update(
                     constraint="uq_ims_business_key",
@@ -235,16 +229,47 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                         "amount": stmt.excluded.amount,
                         "packages": stmt.excluded.packages,
                     },
-                )
-                await session.execute(stmt)
-                imported_count += len(data_to_insert)
+                ).returning(literal_column("xmax = 0").label("inserted"))
+                result = await session.execute(stmt)
+                flags = result.scalars().all()
+                inserted_count += sum(1 for f in flags if f)
+                updated_count += sum(1 for f in flags if not f)
+                data_to_insert = []
 
+            with open(file_path, "rb") as f:
+                for row_index, record in iter_excel_records(f):
+                    total_records += 1
+                    normalize_record(record, ims.ims_fields)
+
+                    missing_keys = [
+                        f"{field}: (пусто)"
+                        for field in _REQUIRED_IMS_FIELDS
+                        if not record.get(field)
+                        or str(record[field]).strip() in ("", "-")
+                    ]
+                    if missing_keys:
+                        skipped_records.append(
+                            {"row": row_index, "missing": missing_keys}
+                        )
+                        continue
+
+                    relation_fields = {"import_log_id": import_log.id}
+                    data_to_insert.append(
+                        map_record(record, ims_mapping, relation_fields)
+                    )
+
+                    if len(data_to_insert) >= batch_size:
+                        await _flush_ims_batch()
+
+            await _flush_ims_batch()
+
+            imported_count = inserted_count + updated_count
             result = build_import_result(
                 total=total_records,
                 imported=imported_count,
-                skipped_records=[],
-                inserted=imported_count,
-                deduplicated=0,
+                skipped_records=skipped_records,
+                inserted=inserted_count,
+                deduplicated=updated_count,
             )
 
             save_import_stats(import_log, result)

@@ -122,6 +122,9 @@ def delete_import_log_task(self, import_log_id: int, table_name: str):
             )
             await session.commit()
 
+    from src.db.session import db_session
+
+    db_session.engine.sync_engine.dispose(close=False)
     try:
         asyncio.run(_delete())
     except Exception as exc:
