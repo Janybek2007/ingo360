@@ -24,6 +24,7 @@ import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
 import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
+import { useSession } from '#/shared/session';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getFilterItems } from '#/shared/utils/get-used-items';
 import {
@@ -44,6 +45,8 @@ export const MarketInsights: React.FC = React.memo(() => {
   const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
+  const lastYear = useSession(s => s.lastYear);
+
   const filtersState = useDbFiltersState({
     brands: { enabled: false },
     groups: { enabled: false },
@@ -57,6 +60,7 @@ export const MarketInsights: React.FC = React.memo(() => {
 
   const periodFilter = usePeriodFilter({
     views: ['year', 'month', 'quarter'],
+    lastYear: lastYear?.ims,
   });
 
   const queryData = useKeepQuery(

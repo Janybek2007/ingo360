@@ -676,13 +676,48 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
 
             response = {"entities": entities}
 
+            previous_periods = self._get_previous_periods_from_values(
+                period_values, group_by_period
+            )
+
+            all_periods = list(set(periods) | set(previous_periods))
+            segment_filter = (
+                IMS.segment.in_(filters.segments) if filters.segments else True
+            )
+
+            market_metrics_stmt = select(
+                func.sum(case((IMS.period.in_(periods), IMS.amount), else_=0)).label(
+                    "market_sales"
+                ),
+                func.sum(
+                    case((IMS.period.in_(previous_periods), IMS.amount), else_=0)
+                ).label("prev_market_sales"),
+            ).where(
+                and_(
+                    IMS.period.in_(all_periods),
+                    segment_filter,
+                )
+            )
+
+            market_metrics_result = await session.execute(market_metrics_stmt)
+            market_metrics_row = market_metrics_result.mappings().one()
+
+            market_sales = float(market_metrics_row["market_sales"] or 0)
+            prev_market_sales = float(market_metrics_row["prev_market_sales"] or 0)
+
+            market_growth = (
+                ((market_sales - prev_market_sales) / prev_market_sales * 100)
+                if prev_market_sales > 0
+                else 0.0
+            )
+
             response["metrics"] = {
-                "sales": "-",
-                "market_sales": "-",
-                "market_share": "-",
-                "growth_vs_previous": "-",
-                "market_growth": "-",
-                "growth_vs_market": "-",
+                "sales": round(market_sales),
+                "market_sales": round(market_sales),
+                "market_share": 100.0,
+                "growth_vs_previous": round(market_growth, 2),
+                "market_growth": round(market_growth, 2),
+                "growth_vs_market": 0.0,
             }
 
             return response
