@@ -1,11 +1,9 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies.current_user import current_active_user
 from src.db.models import User
-from src.db.session import db_session
 from src.schemas.filter_options import (
     GroupedFilterOptionsRequest,
     GroupedFilterOptionsResponse,
@@ -25,7 +23,6 @@ router = APIRouter()
 )
 async def get_grouped_filter_options(
     body: GroupedFilterOptionsRequest,
-    session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
     include_values = body.references
@@ -48,7 +45,6 @@ async def get_grouped_filter_options(
         )
 
     payload = await get_grouped_filter_options_service(
-        session=session,
         include_values=include_values,
         scope=scope,
         company_id=current_user.company_id,

@@ -91,7 +91,7 @@ VISITS_SUM_FOR_PERIOD_DIMENSTIONS_MAPPING = {
         "id_label": "speciality_id",
         "name_label": "speciality_name",
         "join_table": Speciality,
-        "join_condition": lambda: Doctor.speciality_id == Speciality.id,
+        "join_condition": lambda: GlobalDoctor.speciality_id == Speciality.id,
         "join_type": "outerjoin",
         "requires": ["doctor"],
     },

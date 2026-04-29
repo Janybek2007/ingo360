@@ -1,5 +1,9 @@
+import asyncio
+import hashlib
+
+import orjson
 from sqlalchemy import distinct, func, select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.db.models import (
     SKU,
@@ -541,43 +545,38 @@ def apply_dynamic_filters(
     return stmt
 
 
-async def get_grouped_filter_options(
-    session: AsyncSession,
-    include_values: list[ReferencesType],
-    scope: ScopeType | None,
+_CACHE_TTL = 600  # 10 минут
+
+
+def _make_cache_key(
     company_id: int | None,
-    filters: dict[str, list[int] | str] | None = None,
-) -> dict[str, list[FilterOption]]:
-    payload: dict[str, list[FilterOption]] = {}
+    scope_ref: str,
+    include_values: list[str],
+    filters: dict | None,
+) -> str:
+    refs = ",".join(sorted(include_values))
+    filters_part = ""
+    if filters:
+        normalized = {
+            k: sorted(v) if isinstance(v, list) else v
+            for k, v in sorted(filters.items())
+        }
+        filters_part = orjson.dumps(normalized).decode()
+    raw = f"{company_id}:{scope_ref}:{refs}:{filters_part}"
+    return f"filter_options:{hashlib.md5(raw.encode()).hexdigest()}"
 
-    scope_ref = scope or "all"
 
-    _product_refs = {
-        "products_skus",
-        "products_brands",
-        "products_product_groups",
-        "products_promotion_types",
-        "products_segments",
-    }
-    prefetched_sku_ids: list[int] | None = None
-    if scope_ref in ("sales_primary", "sales_secondary", "sales_tertiary") and any(
-        k in _product_refs for k in include_values
-    ):
-        if scope_ref == "sales_primary":
-            sku_stmt = select(distinct(PrimarySalesAndStock.sku_id))
-        elif scope_ref == "sales_secondary":
-            sku_stmt = select(distinct(SecondarySales.sku_id))
-        else:
-            sku_stmt = select(distinct(TertiarySalesAndStock.sku_id))
-        sku_result = await session.execute(sku_stmt)
-        prefetched_sku_ids = sku_result.scalars().all()
-
-    for key in include_values:
+async def _fetch_one(
+    session_factory: async_sessionmaker,
+    key: ReferencesType,
+    company_id: int | None,
+    scope_ref: ScopeType,
+    filters: dict[str, list[int] | str] | None,
+) -> tuple[str, list[FilterOption]]:
+    async with session_factory() as session:
         stmt = build_reference_stmt(key, company_id)
-
         if key not in IMS_REFERENCE_CONFIG:
-            stmt = apply_scope_filter(stmt, key, scope_ref, prefetched_sku_ids, filters)
-
+            stmt = apply_scope_filter(stmt, key, scope_ref, None, filters)
         if filters and key not in IMS_REFERENCE_CONFIG:
             stmt = apply_dynamic_filters(
                 stmt,
@@ -588,9 +587,40 @@ async def get_grouped_filter_options(
                     if isinstance(v, list) and all(isinstance(x, int) for x in v)
                 },
             )
+        rows = (await session.execute(stmt)).mappings().all()
+        return REFERENCE_ALIASES[key], normalize_options(rows)
 
-        rows_result = await session.execute(stmt)
-        rows = rows_result.mappings().all()
-        payload[REFERENCE_ALIASES[key]] = normalize_options(rows)
+
+async def get_grouped_filter_options(
+    include_values: list[ReferencesType],
+    scope: ScopeType | None,
+    company_id: int | None,
+    filters: dict[str, list[int] | str] | None = None,
+) -> dict:
+    from src.core.cache import redis_client
+    from src.db.session import db_session
+
+    scope_ref = scope or "all"
+    cache_key = _make_cache_key(company_id, scope_ref, include_values, filters)
+
+    try:
+        cached = await redis_client.get(cache_key)
+        if cached:
+            return orjson.loads(cached)
+    except Exception:
+        pass
+
+    tasks = [
+        _fetch_one(db_session.session_factory, key, company_id, scope_ref, filters)
+        for key in include_values
+    ]
+    results = await asyncio.gather(*tasks)
+    payload = dict(results)
+
+    try:
+        serializable = {k: [o.model_dump() for o in v] for k, v in payload.items()}
+        await redis_client.setex(cache_key, _CACHE_TTL, orjson.dumps(serializable))
+    except Exception:
+        pass
 
     return payload

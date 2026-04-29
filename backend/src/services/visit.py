@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterator
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
-from sqlalchemy import and_, distinct, func, insert, literal, or_, select, tuple_
+from sqlalchemy import and_, func, insert, or_, select, tuple_
 
 from src.db.models import (
     Company,
@@ -178,9 +178,9 @@ class VisitService(
         items = result.unique().scalars().all()
 
         hasPrev = filters.offset > 0 if filters else False
+        limit = filters.limit if filters else None
         offset = filters.offset if filters else 0
-        limit = filters.limit if filters and filters.limit else None
-        hasNext = (total_count > offset + limit) if (limit and total_count) else False
+        hasNext = (offset + limit < total_count) if (limit and total_count) else False
 
         return PaginatedResponse(
             result=items,
@@ -581,16 +581,10 @@ class VisitService(
 
         base_visits_subq = base_visits.subquery()
 
-        distinct_doctor_key = tuple_(
-            GlobalDoctor.full_name,
-            GlobalDoctor.medical_facility_id,
-            GlobalDoctor.speciality_id,
-        )
-
         # Всего уникальных общих-врачей по специальности (все, без фильтра по компании)
         total_doctors_subquery = select(
             GlobalDoctor.speciality_id.label("speciality_id"),
-            func.count(distinct(distinct_doctor_key)).label("total_count"),
+            func.count(func.distinct(GlobalDoctor.id)).label("total_count"),
         ).select_from(GlobalDoctor)
 
         total_doctors_subquery = ListQueryHelper.apply_specs(
@@ -607,11 +601,11 @@ class VisitService(
             GlobalDoctor.speciality_id
         ).subquery()
 
-        # Врачи с визитами ФК (уник по ФИО+ЛПУ+специальность, через doctors → global_doctors)
+        # Врачи с визитами ФК (уник по GlobalDoctor.id)
         doctors_with_visits_subquery = (
             select(
                 GlobalDoctor.speciality_id,
-                func.count(distinct(distinct_doctor_key)).label("doctors_with_visits"),
+                func.count(func.distinct(GlobalDoctor.id)).label("doctors_with_visits"),
             )
             .select_from(Doctor)
             .join(GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id)
@@ -672,12 +666,8 @@ class VisitService(
             search_term = f"%{filters.search}%"
             stmt = stmt.where(Speciality.name.ilike(search_term))
 
-        stmt = stmt.group_by(
-            Speciality.id,
-            Speciality.name,
-            total_doctors_subquery.c.total_count,
-            doctors_with_visits_subquery.c.doctors_with_visits,
-        )
+        stmt = stmt.group_by(Speciality.id, Speciality.name)
+        stmt = ListQueryHelper.apply_pagination(stmt, filters.limit, filters.offset)
 
         result = await session.execute(stmt)
         return [
@@ -834,6 +824,12 @@ class VisitService(
                 ]
             )
 
+        if not join_conditions:
+            raise ValueError(
+                "group_by_dimensions должен содержать хотя бы одно измерение "
+                "(medical_facility или speciality)"
+            )
+
         stmt = (
             select(
                 *final_select_fields,
@@ -850,7 +846,7 @@ class VisitService(
             .select_from(all_doctors_subquery)
             .outerjoin(
                 doctors_with_visits_subquery,
-                and_(*join_conditions) if join_conditions else literal(True),
+                and_(*join_conditions),
             )
         )
 
@@ -1098,8 +1094,8 @@ class VisitService(
             stmt = stmt.where(Employee.company_id == company_id)
 
         if filters and filters.speciality_ids:
-            stmt = stmt.join(Doctor, Visit.doctor_id == Doctor.id, isouter=True).join(
-                GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id, isouter=True
+            stmt = stmt.join(Doctor, Visit.doctor_id == Doctor.id).join(
+                GlobalDoctor, Doctor.global_doctor_id == GlobalDoctor.id
             )
 
         stmt = ListQueryHelper.apply_specs(

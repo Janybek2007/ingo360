@@ -1,7 +1,7 @@
 from typing import Annotated
 
 import orjson
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -364,24 +364,6 @@ async def get_secondary_sales_report(
 ):
     result = await secondary_sales_service.get_sales_report(
         session, filters=filters, company_id=current_user.company_id
-    )
-    body = orjson.dumps(result)
-    return Response(content=body, media_type="application/json")
-
-
-@router.get(
-    "/secondary/reports/sales-by-distributors",
-    dependencies=[Depends(can_view_secondary_sales)],
-)
-async def get_sales_report_by_distributors(
-    session: Annotated[AsyncSession, Depends(db_session.get_session)],
-    current_user: Annotated[User, Depends(current_active_user)],
-    filters: Annotated[sale.SalesByDistributorFilter, Query()],
-):
-    result = await secondary_sales_service.get_sales_by_distributor_report(
-        session=session,
-        company_id=current_user.company_id,
-        filters=filters,
     )
     body = orjson.dumps(result)
     return Response(content=body, media_type="application/json")

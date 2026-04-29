@@ -218,6 +218,11 @@ class Pharmacy(Base):
         Index("idx_pharmacy_company", "company_id"),
         Index("idx_pharmacy_distributor", "distributor_id"),
         Index("idx_pharmacy_geo_indicator", "geo_indicator_id"),
+        Index(
+            "idx_pharmacies_covering_report",
+            "id",
+            postgresql_include=["name", "geo_indicator_id"],
+        ),
     )
 
 

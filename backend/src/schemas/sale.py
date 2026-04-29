@@ -307,21 +307,6 @@ class PeriodSalesResponse(BaseModel):
     packages: float
 
 
-class SalesByDistributorFilter(BaseModel):
-    limit: int | None = None
-    offset: int = 0
-    group_by_period: Literal["year", "quarter", "month"] = "month"
-    period_values: list[str] | None = None
-    search: str | None = None
-    distributor_ids: list[int] | None = None
-    brand_ids: list[int] | None = None
-    product_group_ids: list[int] | None = None
-    geo_indicator_ids: list[int] | None = None
-    group_by_dimensions: (
-        list[Literal["distributor", "brand", "product_group"]] | None
-    ) = None
-
-
 class ChartSalesByDistributorFilter(BaseModel):
     group_by_period: Literal["year", "quarter", "month"] = "month"
     search: str | None = None

@@ -227,39 +227,44 @@ class ListQueryHelper:
         if not values:
             return stmt
 
-        # проверяем тип значений
         is_string = any(isinstance(v, str) for v in values)
-
         include_null = 0 in values if not is_string else any(v is None for v in values)
 
         if is_string:
-            # нормализуем строки
             normalized_values = [
                 v.lower() for v in values if isinstance(v, str) and v.strip() != ""
             ]
 
             if include_null and normalized_values:
-                return stmt.where(
-                    or_(
-                        func.lower(column).in_(normalized_values),
-                        column.is_(None),
-                    )
+                str_cond = (
+                    func.lower(column) == normalized_values[0]
+                    if len(normalized_values) == 1
+                    else func.lower(column).in_(normalized_values)
                 )
+                return stmt.where(or_(str_cond, column.is_(None)))
 
             if include_null:
                 return stmt.where(column.is_(None))
 
+            if len(normalized_values) == 1:
+                return stmt.where(func.lower(column) == normalized_values[0])
             return stmt.where(func.lower(column).in_(normalized_values))
 
-        # старое поведение для чисел
         non_zero_values = [value for value in values if value != 0]
 
         if include_null and non_zero_values:
-            return stmt.where(or_(column.in_(non_zero_values), column.is_(None)))
+            num_cond = (
+                column == non_zero_values[0]
+                if len(non_zero_values) == 1
+                else column.in_(non_zero_values)
+            )
+            return stmt.where(or_(num_cond, column.is_(None)))
 
         if include_null:
             return stmt.where(column.is_(None))
 
+        if len(non_zero_values) == 1:
+            return stmt.where(column == non_zero_values[0])
         return stmt.where(column.in_(non_zero_values))
 
     @staticmethod
@@ -277,14 +282,21 @@ class ListQueryHelper:
         group_by_period = (period_values.group_by_period or "month").strip().lower()
 
         if group_by_period == "year":
-            if period_values.years:
-                return stmt.where(year_col.in_(period_values.years))
-            return stmt
+            if not period_values.years:
+                return stmt
+            years = period_values.years
+            if len(years) == 1:
+                return stmt.where(year_col == years[0])
+            return stmt.where(year_col.in_(years))
 
         if group_by_period == "quarter":
             if not period_values.quarters or quarter_col is None:
                 return stmt
-            return stmt.where(tuple_(year_col, quarter_col).in_(period_values.quarters))
+            quarters = period_values.quarters
+            if len(quarters) == 1:
+                y, q = quarters[0]
+                return stmt.where((year_col == y) & (quarter_col == q))
+            return stmt.where(tuple_(year_col, quarter_col).in_(quarters))
 
         if not period_values.months or month_col is None:
             return stmt
@@ -298,8 +310,14 @@ class ListQueryHelper:
 
         # If all 12 months are selected for every year, only filter by year
         if all(len(m) == 12 for m in months_by_year.values()):
-            return stmt.where(year_col.in_(months_by_year.keys()))
+            years = list(months_by_year.keys())
+            if len(years) == 1:
+                return stmt.where(year_col == years[0])
+            return stmt.where(year_col.in_(years))
 
+        if len(months) == 1:
+            y, m = months[0]
+            return stmt.where((year_col == y) & (month_col == m))
         return stmt.where(tuple_(year_col, month_col).in_(months))
 
     @staticmethod

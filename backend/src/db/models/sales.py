@@ -1,8 +1,10 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import ForeignKey, Index, Numeric, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, Numeric, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from src.utils.indicator_resolver import TERTIARY_STOCK_VALUE
 
 from .base import Base
 
@@ -207,5 +209,15 @@ class TertiarySalesAndStock(Base):
             "pharmacy_id",
             "distributor_id",
             postgresql_include=["packages", "amount"],
+        ),
+        Index(
+            "idx_tertiary_stock_covering_partial",
+            "year",
+            "sku_id",
+            "pharmacy_id",
+            "distributor_id",
+            "month",
+            postgresql_include=["packages", "amount"],
+            postgresql_where=text(f"indicator = '{TERTIARY_STOCK_VALUE}'"),
         ),
     )

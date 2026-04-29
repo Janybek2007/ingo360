@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy import literal_column
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from src.db.models import SKU
+from src.db.models import SKU, Company
 from src.utils.case_insensitive_dict import CaseInsensitiveDict
 from src.utils.case_insensitive_set import CaseInsensitiveSet
 from src.utils.excel_parser import iter_excel_records
@@ -137,12 +137,12 @@ async def import_sales_from_excel(
     normalize_indicator: Callable[[str], str] | None = None,
 ) -> dict[str, Any]:
     with open(file_path, "rb") as f:
-        first_row = next(iter_excel_records(f), None)
+        raw_rows = list(iter_excel_records(f))
 
-    if first_row is None:
+    if not raw_rows:
         raise HTTPException(status_code=400, detail="Файл пустой")
 
-    _, first_record = first_row
+    _, first_record = raw_rows[0]
     try:
         validate_required_columns(
             [first_record], required_fields, raise_exception=False
@@ -261,26 +261,25 @@ async def import_sales_from_excel(
                 data_to_insert = []
         records.clear()
 
-    with open(file_path, "rb") as f:
-        for row_index, record in iter_excel_records(f):
-            total_records += 1
-            normalize_record(record, required_fields)
-            sku_name = record.get("sku")
-            month_value = record.get("месяц")
-            record["квартал"] = (int(month_value) - 1) // 3 + 1 if month_value else None
+    for row_index, record in raw_rows:
+        total_records += 1
+        normalize_record(record, required_fields)
+        sku_name = record.get("sku")
+        month_value = record.get("месяц")
+        record["квартал"] = (int(month_value) - 1) // 3 + 1 if month_value else None
 
-            if normalize_indicator and "indicator" in record:
-                raw = record.get("indicator")
-                if raw is not None:
-                    record["indicator"] = normalize_indicator(str(raw))
+        if normalize_indicator and "indicator" in record:
+            raw = record.get("indicator")
+            if raw is not None:
+                record["indicator"] = normalize_indicator(str(raw))
 
-            records.append((row_index, record))
-            for rel in relations:
-                relation_name = record.get(rel.name_key)
-                if not is_missing_value(relation_name):
-                    relation_names_by_key[rel.name_key].add(relation_name)
-            if not is_missing_value(sku_name):
-                sku_names.add(sku_name)
+        records.append((row_index, record))
+        for rel in relations:
+            relation_name = record.get(rel.name_key)
+            if not is_missing_value(relation_name):
+                relation_names_by_key[rel.name_key].add(relation_name)
+        if not is_missing_value(sku_name):
+            sku_names.add(sku_name)
 
     for rel in relations:
         names = relation_names_by_key[rel.name_key]
@@ -381,3 +380,49 @@ async def upsert_batch_with_stats(
     deduplicated = file_duplicates + updated
 
     return imported, inserted, updated, deduplicated
+
+
+def apply_sale_sku_company_filters(
+    stmt,
+    filters: Any,
+    model: Any,
+    normalize_indicator_fn: Callable[[str], str],
+) -> Any:
+    """Общая логика JOIN/фильтрации для get_multi в primary/secondary/tertiary.
+
+    Обрабатывает: brand_ids, company_ids, indicators, sort_by='company'.
+    Возвращает stmt с применёнными JOIN-ами и условиями.
+    """
+    from src.utils.list_query_helper import ListQueryHelper
+
+    joined_sku = False
+    joined_company = False
+
+    if getattr(filters, "brand_ids", None):
+        stmt = stmt.join(SKU, model.sku_id == SKU.id)
+        joined_sku = True
+        stmt = ListQueryHelper.apply_in_or_null(stmt, SKU.brand_id, filters.brand_ids)
+
+    if getattr(filters, "company_ids", None):
+        if not joined_sku:
+            stmt = stmt.join(SKU, model.sku_id == SKU.id)
+            joined_sku = True
+        stmt = stmt.join(Company, SKU.company_id == Company.id)
+        joined_company = True
+        stmt = stmt.where(Company.id.in_(filters.company_ids))
+
+    if getattr(filters, "indicators", None):
+        raw = (
+            filters.indicators
+            if isinstance(filters.indicators, list)
+            else [filters.indicators]
+        )
+        normalized = [normalize_indicator_fn(v) for v in raw]
+        stmt = stmt.where(model.indicator.in_(normalized))
+
+    if getattr(filters, "sort_by", None) == "company" and not joined_company:
+        if not joined_sku:
+            stmt = stmt.join(SKU, model.sku_id == SKU.id)
+        stmt = stmt.join(Company, SKU.company_id == Company.id)
+
+    return stmt

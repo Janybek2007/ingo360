@@ -27,7 +27,6 @@ import { useGenerateColumns } from '#/shared/hooks/use-generate-columns';
 import { useKeepQuery } from '#/shared/hooks/use-keep-query';
 import { usePeriodFilter } from '#/shared/hooks/use-period-filter';
 import { useSession } from '#/shared/session';
-import type { ExtraDbType } from '#/shared/types/db.type';
 import { calcPeriodTotals } from '#/shared/utils/calculate';
 import { getPeriodLabel } from '#/shared/utils/get-period-label';
 import { getFilterItems } from '#/shared/utils/get-used-items';
@@ -79,31 +78,28 @@ export const PharmacyBalance: React.FC = React.memo(() => {
   });
 
   const queryData = useKeepQuery(
-    DbQueries.GetDbItemsQuery<TDbItem[]>(
-      ['sales/tertiary/reports/stock' as ExtraDbType],
-      {
-        ...transformColumnFiltersToPayload(
-          filters,
-          COMMON_COLUMNS_FILTER_KEY_MAP,
-          {
-            brand_ids: filtersState.brands,
-            product_group_ids: filtersState.groups,
-          }
-        ),
-        ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
+    DbQueries.GetDbItemsQuery<TDbItem[]>(['sales/tertiary/reports/stock'], {
+      ...transformColumnFiltersToPayload(
+        filters,
+        COMMON_COLUMNS_FILTER_KEY_MAP,
+        {
+          brand_ids: filtersState.brands,
+          product_group_ids: filtersState.groups,
+        }
+      ),
+      ...transformSortingToPayload(sorting, COMMON_COLUMNS_FILTER_KEY_MAP),
 
-        limit:
-          filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
-        search: filtersState.search,
+      limit:
+        filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
+      search: filtersState.search,
 
-        group_by_dimensions: filtersState.groupBy,
-        period_values: periodFilter.selectedValues,
-        group_by_period: periodFilter.period,
+      group_by_dimensions: filtersState.groupBy,
+      period_values: periodFilter.selectedValues,
+      group_by_period: periodFilter.period,
 
-        enabled: !filterOptions.isLoading,
-        method: 'POST',
-      }
-    )
+      enabled: !filterOptions.isLoading,
+      method: 'POST',
+    })
   );
 
   const sales = useMemo(

@@ -26,6 +26,27 @@ from src.services.visit import visit_service
 
 router = APIRouter()
 
+# Полный набор для списка визитов (включает company и global_doctor)
+_VISIT_LIST_LOAD_OPTIONS = [
+    joinedload(Visit.pharmacy).joinedload(Pharmacy.geo_indicator),
+    joinedload(Visit.pharmacy).joinedload(Pharmacy.distributor),
+    joinedload(Visit.doctor).joinedload(Doctor.global_doctor),
+    joinedload(Visit.product_group),
+    joinedload(Visit.employee),
+    joinedload(Visit.company),
+    joinedload(Visit.medical_facility).joinedload(MedicalFacility.geo_indicator),
+]
+
+# Для create/get/update одного визита
+_VISIT_SINGLE_LOAD_OPTIONS = [
+    joinedload(Visit.pharmacy).joinedload(Pharmacy.geo_indicator),
+    joinedload(Visit.pharmacy).joinedload(Pharmacy.distributor),
+    joinedload(Visit.doctor),
+    joinedload(Visit.product_group),
+    joinedload(Visit.employee),
+    joinedload(Visit.medical_facility).joinedload(MedicalFacility.geo_indicator),
+]
+
 
 @router.post(
     "",
@@ -36,17 +57,8 @@ async def get_visits(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     filters: VisitsRequest,
 ):
-    load_options = [
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.geo_indicator),
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.distributor),
-        joinedload(Visit.doctor).joinedload(Doctor.global_doctor),
-        joinedload(Visit.product_group),
-        joinedload(Visit.employee),
-        joinedload(Visit.company),
-        joinedload(Visit.medical_facility).joinedload(MedicalFacility.geo_indicator),
-    ]
     return await visit_service.get_multi(
-        session, load_options=load_options, filters=filters
+        session, load_options=_VISIT_LIST_LOAD_OPTIONS, filters=filters
     )
 
 
@@ -103,15 +115,9 @@ async def create_visit(
             raise HTTPException(status_code=404, detail="Врач не найден")
         new_visit.company_id = doctor.company_id
 
-    load_options = [
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.geo_indicator),
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.distributor),
-        joinedload(Visit.doctor),
-        joinedload(Visit.product_group),
-        joinedload(Visit.employee),
-        joinedload(Visit.medical_facility).joinedload(MedicalFacility.geo_indicator),
-    ]
-    return await visit_service.create(session, new_visit, load_options=load_options)
+    return await visit_service.create(
+        session, new_visit, load_options=_VISIT_SINGLE_LOAD_OPTIONS
+    )
 
 
 @router.get(
@@ -122,15 +128,9 @@ async def create_visit(
 async def get_visit(
     visit_id: int, session: Annotated[AsyncSession, Depends(db_session.get_session)]
 ):
-    load_options = [
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.geo_indicator),
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.distributor),
-        joinedload(Visit.doctor),
-        joinedload(Visit.product_group),
-        joinedload(Visit.employee),
-        joinedload(Visit.medical_facility).joinedload(MedicalFacility.geo_indicator),
-    ]
-    return await visit_service.get(session, visit_id, load_options=load_options)
+    return await visit_service.get(
+        session, visit_id, load_options=_VISIT_SINGLE_LOAD_OPTIONS
+    )
 
 
 @router.patch(
@@ -143,16 +143,8 @@ async def update_visit(
     visit_update: VisitUpdate,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
 ):
-    load_options = [
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.geo_indicator),
-        joinedload(Visit.pharmacy).joinedload(Pharmacy.distributor),
-        joinedload(Visit.doctor),
-        joinedload(Visit.product_group),
-        joinedload(Visit.employee),
-        joinedload(Visit.medical_facility).joinedload(MedicalFacility.geo_indicator),
-    ]
     return await visit_service.update(
-        session, visit_id, visit_update, load_options=load_options
+        session, visit_id, visit_update, load_options=_VISIT_SINGLE_LOAD_OPTIONS
     )
 
 

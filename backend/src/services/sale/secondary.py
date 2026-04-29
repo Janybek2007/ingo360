@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, AsyncIterator
 from uuid import uuid4
 
-from sqlalchemy import Float, func, or_, select
+from sqlalchemy import Float, and_, case, func, select, text
 
 from src.db.models import (
     SKU,
@@ -27,6 +27,7 @@ from src.schemas.base_filter import PaginatedResponse
 from src.services.base import BaseService, ModelType
 from src.services.sale.utils import (
     RelationSpec,
+    apply_sale_sku_company_filters,
     create_or_update_sale,
     import_sales_from_excel,
     normalize_indicator_for_sale,
@@ -227,38 +228,9 @@ class SecondarySalesService(
                 ],
             )
 
-            joined_sku = False
-            joined_company = False
-
-            if filters.brand_ids:
-                stmt = stmt.join(SKU, self.model.sku_id == SKU.id)
-                joined_sku = True
-                stmt = ListQueryHelper.apply_in_or_null(
-                    stmt, SKU.brand_id, filters.brand_ids
-                )
-
-            if filters.company_ids:
-                if not joined_sku:
-                    stmt = stmt.join(SKU, self.model.sku_id == SKU.id)
-                    joined_sku = True
-                stmt = stmt.join(Company, SKU.company_id == Company.id)
-                joined_company = True
-                stmt = stmt.where(Company.id.in_(filters.company_ids))
-
-            if filters.indicators:
-                raw = (
-                    filters.indicators
-                    if isinstance(filters.indicators, list)
-                    else [filters.indicators]
-                )
-                normalized = [normalize_secondary_indicator(v) for v in raw]
-                stmt = stmt.where(self.model.indicator.in_(normalized))
-
-            if filters.sort_by == "company" and not joined_company:
-                if not joined_sku:
-                    stmt = stmt.join(SKU, self.model.sku_id == SKU.id)
-                    joined_sku = True
-                stmt = stmt.join(Company, SKU.company_id == Company.id)
+            stmt = apply_sale_sku_company_filters(
+                stmt, filters, self.model, normalize_secondary_indicator
+            )
 
             # Count before pagination
             count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -370,37 +342,6 @@ class SecondarySalesService(
         group_by_fields.append(period_key)
         period_agg = base_stmt.group_by(*group_by_fields).cte("period_agg")
 
-        final_select_fields = []
-        final_group_by_fields = []
-
-        if filters.group_by_dimensions:
-            for dim in filters.group_by_dimensions:
-                final_select_fields.extend(
-                    [
-                        getattr(period_agg.c, f"{dim}_id"),
-                        getattr(period_agg.c, f"{dim}_name"),
-                    ]
-                )
-                final_group_by_fields.extend(
-                    [
-                        getattr(period_agg.c, f"{dim}_id"),
-                        getattr(period_agg.c, f"{dim}_name"),
-                    ]
-                )
-
-        final_stmt = select(
-            *final_select_fields,
-            period_agg.c.period,
-            func.cast(period_agg.c.packages, Float).label("packages"),
-            func.cast(period_agg.c.amount, Float).label("amount"),
-        ).select_from(period_agg)
-
-        group_by_cols = list(final_group_by_fields) if final_group_by_fields else []
-        group_by_cols.extend(
-            [period_agg.c.period, period_agg.c.packages, period_agg.c.amount]
-        )
-        final_stmt = final_stmt.group_by(*group_by_cols)
-
         sort_map = {
             "sku": getattr(period_agg.c, "sku_name", None),
             "brand": getattr(period_agg.c, "brand_name", None),
@@ -411,42 +352,183 @@ class SecondarySalesService(
             "pharmacy": getattr(period_agg.c, "pharmacy_name", None),
         }
 
-        final_stmt = ListQueryHelper.apply_sorting_with_default(
-            final_stmt,
+        if not filters.group_by_dimensions:
+            flat_stmt = select(
+                period_agg.c.period,
+                period_agg.c.packages,
+                period_agg.c.amount,
+            ).select_from(period_agg)
+            flat_stmt = ListQueryHelper.apply_sorting_with_default(
+                flat_stmt,
+                getattr(filters, "sort_by", None),
+                getattr(filters, "sort_order", None),
+                sort_map,
+            )
+            flat_stmt = ListQueryHelper.apply_pagination(
+                flat_stmt, filters.limit, filters.offset
+            )
+            return (await session.execute(flat_stmt)).mappings().all()
+
+        sales_months = (period_values.months or []) if period_values else []
+        sales_period_keys = [(y, m, f"{y}-{m:02d}") for y, m in sales_months]
+
+        pivot_sort_map_full = {
+            "sku": None,
+            "brand": None,
+            "promotion": None,
+            "product_group": None,
+            "distributor": None,
+            "geo_indicator": None,
+            "pharmacy": None,
+        }
+
+        if not sales_period_keys:
+            # CTE + json_object_agg для quarter/year периодов
+            pivot_select: list = []
+            pivot_group_by: list = []
+            for dim in filters.group_by_dimensions:
+                id_col = getattr(period_agg.c, f"{dim}_id")
+                name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(
+                    f"{dim}_name"
+                )
+                pivot_select.extend([id_col, name_min])
+                pivot_group_by.append(id_col)
+                pivot_sort_map_full[dim] = name_min
+
+            pivot_stmt = (
+                select(
+                    *pivot_select,
+                    func.json_object_agg(
+                        period_agg.c.period,
+                        func.json_build_object(
+                            "packages",
+                            func.cast(period_agg.c.packages, Float),
+                            "amount",
+                            func.cast(period_agg.c.amount, Float),
+                        ),
+                    ).label("periods_data"),
+                )
+                .select_from(period_agg)
+                .group_by(*pivot_group_by)
+            )
+
+            pivot_stmt = ListQueryHelper.apply_sorting_with_default(
+                pivot_stmt,
+                getattr(filters, "sort_by", None),
+                getattr(filters, "sort_order", None),
+                pivot_sort_map_full,
+            )
+            pivot_stmt = ListQueryHelper.apply_pagination(
+                pivot_stmt, filters.limit, filters.offset
+            )
+            rows = (await session.execute(pivot_stmt)).mappings().all()
+            return list(rows)
+
+        # CASE-пивот для месячных периодов
+        period_cols: list = []
+        for y, m, _key in sales_period_keys:
+            period_cond = and_(SecondarySales.year == y, SecondarySales.month == m)
+            period_cols.extend(
+                [
+                    func.sum(
+                        case(
+                            (period_cond, func.cast(SecondarySales.packages, Float)),
+                            else_=0.0,
+                        )
+                    ).label(f"pkg_{y}_{m}"),
+                    func.round(
+                        func.sum(
+                            case(
+                                (period_cond, func.cast(SecondarySales.amount, Float)),
+                                else_=0.0,
+                            )
+                        )
+                    ).label(f"amt_{y}_{m}"),
+                ]
+            )
+
+        case_select: list = []
+        case_group_by: list = []
+        for dim in filters.group_by_dimensions:
+            cfg = BASE_SALE_DIMENSTION_MAPPING_WITH_GEO_INDICATOR[dim]
+            id_labeled = cfg["id"]
+            name_min = func.min(cfg["name"].element).label(cfg["name"].key)
+            case_select.extend([id_labeled, name_min])
+            case_group_by.append(id_labeled.element)
+            pivot_sort_map_full[dim] = name_min
+
+        pivot_stmt = (
+            select(*case_select, *period_cols)
+            .select_from(SecondarySales)
+            .join(SKU, SecondarySales.sku_id == SKU.id)
+            .join(Brand, SKU.brand_id == Brand.id)
+            .join(PromotionType, SKU.promotion_type_id == PromotionType.id)
+            .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
+            .join(Pharmacy, SecondarySales.pharmacy_id == Pharmacy.id)
+            .outerjoin(Distributor, SecondarySales.distributor_id == Distributor.id)
+            .outerjoin(GeoIndicator, Pharmacy.geo_indicator_id == GeoIndicator.id)
+            .where(SecondarySales.indicator.in_(SECONDARY_SALES_VALUES))
+        )
+
+        if company_id is not None:
+            pivot_stmt = pivot_stmt.where(SKU.company_id == company_id)
+
+        pivot_stmt = ListQueryHelper.apply_specs(
+            pivot_stmt,
+            [
+                InOrNullSpec(Brand.id, filters.brand_ids),
+                InOrNullSpec(ProductGroup.id, filters.product_group_ids),
+                InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
+                InOrNullSpec(SecondarySales.distributor_id, filters.distributor_ids),
+                InOrNullSpec(SKU.id, filters.sku_ids),
+                InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
+                InOrNullSpec(SecondarySales.pharmacy_id, filters.pharmacy_ids),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
+            ],
+        )
+
+        pivot_stmt = ListQueryHelper.apply_period_values(
+            pivot_stmt,
+            period_values,
+            year_col=SecondarySales.year,
+            month_col=SecondarySales.month,
+            quarter_col=SecondarySales.quarter,
+        )
+
+        pivot_stmt = pivot_stmt.group_by(*case_group_by)
+
+        pivot_stmt = ListQueryHelper.apply_sorting_with_default(
+            pivot_stmt,
             getattr(filters, "sort_by", None),
             getattr(filters, "sort_order", None),
-            sort_map,
+            pivot_sort_map_full,
+        )
+        pivot_stmt = ListQueryHelper.apply_pagination(
+            pivot_stmt, filters.limit, filters.offset
         )
 
-        final_stmt = ListQueryHelper.apply_pagination(
-            final_stmt, filters.limit, filters.offset
-        )
+        await session.execute(text("SET LOCAL jit = off"))
 
-        rows = (await session.execute(final_stmt)).mappings().all()
+        rows = (await session.execute(pivot_stmt)).mappings().all()
 
-        if not filters.group_by_dimensions:
-            return rows
-
-        dims = filters.group_by_dimensions
-        grouped: dict[tuple, dict] = {}
-        order: list[tuple] = []
-
+        result = []
         for row in rows:
-            key = tuple(row[f"{d}_id"] for d in dims)
-            if key not in grouped:
-                entry = {}
-                for d in dims:
-                    entry[f"{d}_id"] = row[f"{d}_id"]
-                    entry[f"{d}_name"] = row[f"{d}_name"]
-                entry["periods_data"] = {}
-                grouped[key] = entry
-                order.append(key)
-            grouped[key]["periods_data"][row["period"]] = {
-                "packages": float(row["packages"]),
-                "amount": float(row["amount"]),
-            }
+            dim_data: dict = {}
+            for dim in filters.group_by_dimensions:
+                dim_data[f"{dim}_id"] = row[f"{dim}_id"]
+                dim_data[f"{dim}_name"] = row[f"{dim}_name"]
+            periods_data: dict = {}
+            for y, m, key_str in sales_period_keys:
+                periods_data[key_str] = {
+                    "packages": float(row[f"pkg_{y}_{m}"] or 0),
+                    "amount": float(row[f"amt_{y}_{m}"] or 0),
+                }
+            dim_data["periods_data"] = periods_data
+            result.append(dim_data)
 
-        return [grouped[k] for k in order]
+        return result
 
     @staticmethod
     async def get_period_totals(
@@ -500,153 +582,6 @@ class SecondarySalesService(
         return result.mappings().all()
 
     @staticmethod
-    async def get_sales_by_distributor_report(
-        session: "AsyncSession",
-        company_id: int | None,
-        filters: sale_schema.SalesByDistributorFilter,
-    ):
-        period_key = build_period_key(filters.group_by_period, SecondarySales)
-        period_values = build_period_values(
-            filters.group_by_period, filters.period_values
-        )
-
-        dimension_mapping = {
-            "distributor": {
-                "id": Distributor.id.label("distributor_id"),
-                "name": Distributor.name.label("distributor_name"),
-                "group_fields": [Distributor.id, Distributor.name],
-            },
-            "brand": {
-                "id": Brand.id.label("brand_id"),
-                "name": Brand.name.label("brand_name"),
-                "group_fields": [Brand.id, Brand.name],
-            },
-            "product_group": {
-                "id": ProductGroup.id.label("product_group_id"),
-                "name": ProductGroup.name.label("product_group_name"),
-                "group_fields": [ProductGroup.id, ProductGroup.name],
-            },
-        }
-
-        select_fields = []
-        group_by_fields = []
-
-        if filters.group_by_dimensions:
-            for dim in filters.group_by_dimensions:
-                dim_config = dimension_mapping[dim]
-                select_fields.extend([dim_config["id"], dim_config["name"]])
-                group_by_fields.extend(dim_config["group_fields"])
-
-        base_stmt = (
-            select(
-                *select_fields,
-                period_key.label("period"),
-                func.sum(SecondarySales.packages).label("total_packages"),
-                func.round(func.sum(SecondarySales.amount)).label("total_amount"),
-            )
-            .select_from(SecondarySales)
-            .outerjoin(Distributor, SecondarySales.distributor_id == Distributor.id)
-            .join(SKU, SecondarySales.sku_id == SKU.id)
-            .join(Brand, SKU.brand_id == Brand.id)
-            .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
-        )
-
-        if company_id is not None:
-            base_stmt = base_stmt.where(SKU.company_id == company_id)
-
-        base_stmt = ListQueryHelper.apply_period_values(
-            base_stmt,
-            period_values,
-            year_col=SecondarySales.year,
-            month_col=SecondarySales.month,
-            quarter_col=SecondarySales.quarter,
-        )
-
-        if filters.distributor_ids:
-            base_stmt = base_stmt.where(
-                SecondarySales.distributor_id.in_(filters.distributor_ids)
-            )
-
-        if filters.brand_ids:
-            base_stmt = base_stmt.where(Brand.id.in_(filters.brand_ids))
-
-        if filters.product_group_ids:
-            base_stmt = base_stmt.where(ProductGroup.id.in_(filters.product_group_ids))
-
-        if filters.search and filters.group_by_dimensions:
-            search_term = f"%{filters.search}%"
-            search_conditions = []
-            if "distributor" in filters.group_by_dimensions:
-                search_conditions.append(Distributor.name.ilike(search_term))
-            if "brand" in filters.group_by_dimensions:
-                search_conditions.append(Brand.name.ilike(search_term))
-            if "product_group" in filters.group_by_dimensions:
-                search_conditions.append(ProductGroup.name.ilike(search_term))
-
-            if search_conditions:
-                base_stmt = base_stmt.where(or_(*search_conditions))
-
-        group_by_fields.append(period_key)
-        base_stmt = base_stmt.group_by(*group_by_fields).cte("period_agg")
-
-        final_select_fields = []
-        final_group_by_fields = []
-
-        if filters.group_by_dimensions:
-            for dim in filters.group_by_dimensions:
-                final_select_fields.extend(
-                    [
-                        getattr(base_stmt.c, f"{dim}_id"),
-                        getattr(base_stmt.c, f"{dim}_name"),
-                    ]
-                )
-                final_group_by_fields.extend(
-                    [
-                        getattr(base_stmt.c, f"{dim}_id"),
-                        getattr(base_stmt.c, f"{dim}_name"),
-                    ]
-                )
-
-        final_stmt = select(
-            *final_select_fields,
-            func.json_object_agg(
-                base_stmt.c.period,
-                func.json_build_object(
-                    "total_packages",
-                    func.cast(base_stmt.c.total_packages, Float),
-                    "total_amount",
-                    func.cast(base_stmt.c.total_amount, Float),
-                ),
-            ).label("periods_data"),
-        )
-
-        if final_group_by_fields:
-            final_stmt = final_stmt.group_by(*final_group_by_fields)
-
-        sort_map = {
-            "sku": getattr(base_stmt.c, "sku_name", None),
-            "brand": getattr(base_stmt.c, "brand_name", None),
-            "promotion": getattr(base_stmt.c, "promotion_type_name", None),
-            "product_group": getattr(base_stmt.c, "product_group_name", None),
-            "distributor": getattr(base_stmt.c, "distributor_name", None),
-            "geo_indicator": getattr(base_stmt.c, "geo_indicator_name", None),
-        }
-
-        final_stmt = ListQueryHelper.apply_sorting_with_default(
-            final_stmt,
-            filters.sort_by,
-            filters.sort_order,
-            sort_map,
-        )
-
-        final_stmt = ListQueryHelper.apply_pagination(
-            final_stmt, filters.limit, filters.offset
-        )
-
-        result = await session.execute(final_stmt)
-        return result.mappings().all()
-
-    @staticmethod
     async def get_total_sales_by_distributor(
         session: "AsyncSession",
         company_id: int | None,
@@ -670,20 +605,19 @@ class SecondarySalesService(
             .join(SKU, SecondarySales.sku_id == SKU.id)
         )
 
+        specs = [
+            InOrNullSpec(SKU.brand_id, filters.brand_ids),
+            InOrNullSpec(SKU.product_group_id, filters.product_group_ids),
+            InOrNullSpec(SecondarySales.distributor_id, filters.distributor_ids),
+        ]
         if filters.geo_indicator_ids:
             base_stmt = base_stmt.join(
                 Pharmacy, SecondarySales.pharmacy_id == Pharmacy.id
             )
-
-        base_stmt = ListQueryHelper.apply_specs(
-            base_stmt,
-            [
-                InOrNullSpec(SKU.brand_id, filters.brand_ids),
-                InOrNullSpec(SKU.product_group_id, filters.product_group_ids),
-                InOrNullSpec(SecondarySales.distributor_id, filters.distributor_ids),
-                InOrNullSpec(Pharmacy.geo_indicator_id, filters.geo_indicator_ids),
-            ],
-        )
+            specs.append(
+                InOrNullSpec(Pharmacy.geo_indicator_id, filters.geo_indicator_ids)
+            )
+        base_stmt = ListQueryHelper.apply_specs(base_stmt, specs)
 
         base_stmt = ListQueryHelper.apply_period_values(
             base_stmt,

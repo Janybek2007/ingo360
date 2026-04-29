@@ -519,6 +519,11 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
         group_by_period = (filters.group_by_period or "month").strip().lower()
         periods = self._expand_period_values(period_values, group_by_period)
 
+        if not periods:
+            return []
+
+        segment_filter = IMS.segment.in_(filters.segments) if filters.segments else True
+
         if filters.group_column == "company":
             group_column = IMS.company
         elif filters.group_column == "brand":
@@ -541,23 +546,26 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 select(
                     Company.ims_name.label("company_ims_name"),
                     Company.name.label("company_name"),
-                    Brand.ims_name.label("brand_ims_name"),
+                    func.array_agg(Brand.ims_name)
+                    .filter(Brand.ims_name.is_not(None))
+                    .label("brand_ims_names"),
                 )
                 .where(Company.id == company_id)
                 .outerjoin(Brand, Brand.company_id == Company.id)
+                .group_by(Company.id, Company.ims_name, Company.name)
             )
             company_info_result = await session.execute(company_info_stmt)
-            company_info_rows = company_info_result.mappings().all()
+            company_info_row = company_info_result.mappings().one_or_none()
 
             _company_ims_name = (
-                company_info_rows[0]["company_ims_name"] if company_info_rows else None
+                company_info_row["company_ims_name"] if company_info_row else None
             )
             _company_name = (
-                company_info_rows[0]["company_name"] if company_info_rows else None
+                company_info_row["company_name"] if company_info_row else None
             )
-            _company_brands = [
-                r["brand_ims_name"] for r in company_info_rows if r["brand_ims_name"]
-            ]
+            _company_brands = (
+                company_info_row["brand_ims_names"] or [] if company_info_row else []
+            )
 
         ranked_inner = (
             select(
@@ -568,7 +576,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 .label("rank"),
             )
             .where(IMS.period.in_(periods))
-            .where(IMS.segment.in_(filters.segments) if filters.segments else True)
+            .where(segment_filter)
             .group_by(group_column)
         )
 
@@ -681,9 +689,6 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             )
 
             all_periods = list(set(periods) | set(previous_periods))
-            segment_filter = (
-                IMS.segment.in_(filters.segments) if filters.segments else True
-            )
 
             market_metrics_stmt = select(
                 func.sum(case((IMS.period.in_(periods), IMS.amount), else_=0)).label(
@@ -758,7 +763,6 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             )
 
         all_periods = list(set(periods) | set(previous_periods))
-        segment_filter = IMS.segment.in_(filters.segments) if filters.segments else True
 
         metrics_stmt = select(
             func.sum(
@@ -929,11 +933,9 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
         result = await session.execute(stmt)
         return result.mappings().all()
 
-    async def get_field(self, session: "AsyncSession", field: str):
-        stmt = select(distinct(getattr(self.model, field)))
-
+    async def get_field(self, session: "AsyncSession", field: str, limit: int = 1000):
+        stmt = select(distinct(getattr(self.model, field))).limit(limit)
         result = await session.execute(stmt)
-
         return result.scalars().all()
 
 

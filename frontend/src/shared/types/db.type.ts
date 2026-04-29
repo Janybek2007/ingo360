@@ -16,7 +16,6 @@ export type ExtraDbType =
   | 'sales/primary/reports/distributor-shares/chart'
   | 'sales/secondary/reports/sales'
   | 'sales/secondary/reports/chart'
-  | 'sales/secondary/reports/sales-by-distributors'
   | 'sales/secondary/reports/sales-by-distributors/chart'
   | 'sales/tertiary/reports/sales'
   | 'sales/tertiary/reports/chart'
