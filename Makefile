@@ -17,7 +17,6 @@ endif
 
 dev-build:
 	$(BUILDKIT) docker build -f docker/Dockerfile.backend.dev  -t ingo360-backend:dev  ./backend
-	$(BUILDKIT) docker build -f docker/Dockerfile.frontend.dev -t ingo360-frontend:dev ./frontend
 
 dev-up: dev-build
 	docker compose -f $(COMPOSE_DEV) up -d

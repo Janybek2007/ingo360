@@ -118,3 +118,6 @@ segment = FC(
     keys.SEGMENT_KEY, Segment, "name", error_label="сегмент", db_field="segment_id"
 )
 ims_name = FC(keys.IMS_NAME_KEY)
+
+packages = FC(keys.PACKAGES_KEY)
+amount = FC(keys.AMOUNT_KEY)

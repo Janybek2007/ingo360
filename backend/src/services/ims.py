@@ -1,7 +1,8 @@
 import os
 import re
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
@@ -253,10 +254,27 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                         )
                         continue
 
+                    # Validate period format
+                    period_value = record.get("период")
+                    if not self._validate_period_format(period_value):
+                        skipped_records.append(
+                            {
+                                "row": row_index,
+                                "missing": [
+                                    "период: неверный формат (ожидалось YYYY/MM Месяц)"
+                                ],
+                            }
+                        )
+                        continue
+
                     relation_fields = {"import_log_id": import_log.id}
-                    data_to_insert.append(
-                        map_record(record, ims_mapping, relation_fields)
-                    )
+                    mapped_record = map_record(record, ims_mapping, relation_fields)
+                    # Handle null numeric fields by setting to 0.0
+                    if mapped_record.get("packages") is None:
+                        mapped_record["packages"] = 0.0
+                    if mapped_record.get("amount") is None:
+                        mapped_record["amount"] = 0.0
+                    data_to_insert.append(mapped_record)
 
                     if len(data_to_insert) >= batch_size:
                         await _flush_ims_batch()
@@ -299,6 +317,44 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
     @staticmethod
     def _normalize_year(year: int) -> int:
         return 2000 + year if year < 100 else year
+
+    @staticmethod
+    def _validate_period_format(period_str: str) -> bool:
+        """Validate period format: YYYY/MM MonthName"""
+        import re
+
+        if not period_str or not isinstance(period_str, str):
+            return False
+
+        period_str = period_str.strip()
+        # Expected format: 2024/10 Октябрь
+        pattern = r"^\d{4}/\d{1,2}\s+[А-Яа-яA-Za-z]+$"
+        if not re.match(pattern, period_str):
+            return False
+
+        # Split into year/month and month name
+        parts = period_str.split("/", 1)
+        if len(parts) != 2:
+            return False
+
+        year_str, rest = parts
+        month_name_parts = rest.split(" ", 1)
+        if len(month_name_parts) != 2:
+            return False
+
+        month_str, name = month_name_parts
+
+        try:
+            year = int(year_str)
+            month = int(month_str)
+            if month < 1 or month > 12:
+                return False
+            if year < 2000 or year > 2100:  # reasonable range
+                return False
+        except ValueError:
+            return False
+
+        return True
 
     def _parse_month_year(self, period_str: str) -> tuple[int, int]:
         parts = period_str.split("-")

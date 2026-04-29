@@ -1,3 +1,4 @@
+from src.import_fields import base
 from src.import_fields import record_keys as keys
 from src.utils.records_resolver import FieldResolverConfig as FC
 
@@ -7,8 +8,6 @@ month = FC(keys.MONTH_KEY)
 year = FC(keys.YEAR_KEY)
 indicator = FC(keys.INDICATOR_KEY)
 pharmacy = FC(keys.PHARMACY_KEY)
-packages = FC(keys.PACKAGES_KEY)
-amount = FC(keys.AMOUNT_KEY)
 
 primary_sales_fields = [
     distributor.as_required(),
@@ -16,8 +15,8 @@ primary_sales_fields = [
     month.as_required(),
     year.as_required(),
     indicator.as_required(),
-    packages,
-    amount,
+    base.packages,
+    base.amount,
 ]
 
 secondary_sales_fields = [
@@ -27,8 +26,8 @@ secondary_sales_fields = [
     year.as_required(),
     indicator.as_required(),
     distributor.as_required(),
-    packages,
-    amount,
+    base.packages,
+    base.amount,
 ]
 
 tertiary_sales_fields = [
@@ -38,6 +37,6 @@ tertiary_sales_fields = [
     year.as_required(),
     indicator.as_required(),
     distributor.as_required(),
-    packages,
-    amount,
+    base.packages,
+    base.amount,
 ]
