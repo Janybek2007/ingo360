@@ -666,7 +666,12 @@ class VisitService(
             search_term = f"%{filters.search}%"
             stmt = stmt.where(Speciality.name.ilike(search_term))
 
-        stmt = stmt.group_by(Speciality.id, Speciality.name)
+        stmt = stmt.group_by(
+            Speciality.id,
+            Speciality.name,
+            total_doctors_subquery.c.total_count,
+            doctors_with_visits_subquery.c.doctors_with_visits,
+        )
         stmt = ListQueryHelper.apply_pagination(stmt, filters.limit, filters.offset)
 
         result = await session.execute(stmt)
