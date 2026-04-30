@@ -232,6 +232,10 @@ class EmployeeService(
             )
             save_import_stats(import_log, result)
             await session.commit()
+
+            from src.utils.cache_utils import invalidate_filter_options_cache
+
+            await invalidate_filter_options_cache()
         except Exception:
             await session.rollback()
             raise
@@ -361,6 +365,10 @@ class PositionService(
             )
             save_import_stats(import_log, result)
             await session.commit()
+
+            from src.utils.cache_utils import invalidate_filter_options_cache
+
+            await invalidate_filter_options_cache()
         except Exception:
             await session.rollback()
             raise

@@ -63,6 +63,8 @@ class TertiarySalesService(
         sale_schema.TertiarySalesUpdate,
     ]
 ):
+    _invalidate_last_year = True
+
     async def create(
         self,
         session: "AsyncSession",
@@ -89,7 +91,9 @@ class TertiarySalesService(
         db_obj = await self.get_or_404(session, item_id)
         update_data = obj_in.model_dump(exclude_unset=True)
         if "indicator" in update_data and update_data["indicator"] is not None:
-            update_data["indicator"] = normalize_indicator_for_sale("tertiary", update_data["indicator"])
+            update_data["indicator"] = normalize_indicator_for_sale(
+                "tertiary", update_data["indicator"]
+            )
         for field, value in update_data.items():
             setattr(db_obj, field, value)
         await session.commit()
@@ -232,7 +236,9 @@ class TertiarySalesService(
                 ],
             )
 
-            stmt = apply_sale_sku_company_filters(stmt, filters, self.model, normalize_tertiary_indicator)
+            stmt = apply_sale_sku_company_filters(
+                stmt, filters, self.model, normalize_tertiary_indicator
+            )
 
             # Count before pagination
             count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -273,7 +279,9 @@ class TertiarySalesService(
             self.model.created_at.desc(),
         )
 
-        stream = await session.stream_scalars(stmt.execution_options(yield_per=chunk_size))
+        stream = await session.stream_scalars(
+            stmt.execution_options(yield_per=chunk_size)
+        )
         async for item in stream:
             yield item
 
@@ -285,7 +293,9 @@ class TertiarySalesService(
         explain: ExplainArguments | None = None,
     ):
         period_key = build_period_key(filters.group_by_period, TertiarySalesAndStock)
-        period_values = build_period_values(filters.group_by_period, filters.period_values)
+        period_values = build_period_values(
+            filters.group_by_period, filters.period_values
+        )
 
         select_fields, group_by_fields, search_cols = build_dimensions(
             BASE_SALE_DIMENSTION_MAPPING_WITH_GEO_INDICATOR, filters.group_by_dimensions
@@ -306,7 +316,9 @@ class TertiarySalesService(
             .join(PromotionType, SKU.promotion_type_id == PromotionType.id)
             .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
             .join(Pharmacy, TertiarySalesAndStock.pharmacy_id == Pharmacy.id)
-            .outerjoin(Distributor, TertiarySalesAndStock.distributor_id == Distributor.id)
+            .outerjoin(
+                Distributor, TertiarySalesAndStock.distributor_id == Distributor.id
+            )
             .outerjoin(GeoIndicator, Pharmacy.geo_indicator_id == GeoIndicator.id)
             .where(indicator_filter)
         )
@@ -320,11 +332,15 @@ class TertiarySalesService(
                 InOrNullSpec(Brand.id, filters.brand_ids),
                 InOrNullSpec(ProductGroup.id, filters.product_group_ids),
                 InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
-                InOrNullSpec(TertiarySalesAndStock.distributor_id, filters.distributor_ids),
+                InOrNullSpec(
+                    TertiarySalesAndStock.distributor_id, filters.distributor_ids
+                ),
                 InOrNullSpec(SKU.id, filters.sku_ids),
                 InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
                 InOrNullSpec(TertiarySalesAndStock.pharmacy_id, filters.pharmacy_ids),
-                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
             ],
         )
 
@@ -361,7 +377,9 @@ class TertiarySalesService(
                 getattr(filters, "sort_order", None),
                 sort_map,
             )
-            flat_stmt = ListQueryHelper.apply_pagination(flat_stmt, filters.limit, filters.offset)
+            flat_stmt = ListQueryHelper.apply_pagination(
+                flat_stmt, filters.limit, filters.offset
+            )
             if explain is not None:
                 from src.utils.explain_analyze import explain_analyze
 
@@ -388,7 +406,9 @@ class TertiarySalesService(
             pivot_group_by: list = []
             for dim in getattr(filters, "group_by_dimensions", []):
                 id_col = getattr(period_agg.c, f"{dim}_id")
-                name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(f"{dim}_name")
+                name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(
+                    f"{dim}_name"
+                )
                 pivot_select.extend([id_col, name_min])
                 pivot_group_by.append(id_col)
                 pivot_sort_map_full[dim] = name_min
@@ -416,7 +436,9 @@ class TertiarySalesService(
                 getattr(filters, "sort_order", None),
                 pivot_sort_map_full,
             )
-            pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
+            pivot_stmt = ListQueryHelper.apply_pagination(
+                pivot_stmt, filters.limit, filters.offset
+            )
 
             if explain is not None:
                 from src.utils.explain_analyze import explain_analyze
@@ -476,7 +498,9 @@ class TertiarySalesService(
             .join(PromotionType, SKU.promotion_type_id == PromotionType.id)
             .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
             .join(Pharmacy, TertiarySalesAndStock.pharmacy_id == Pharmacy.id)
-            .outerjoin(Distributor, TertiarySalesAndStock.distributor_id == Distributor.id)
+            .outerjoin(
+                Distributor, TertiarySalesAndStock.distributor_id == Distributor.id
+            )
             .outerjoin(GeoIndicator, Pharmacy.geo_indicator_id == GeoIndicator.id)
             .where(indicator_filter)
         )
@@ -490,11 +514,15 @@ class TertiarySalesService(
                 InOrNullSpec(Brand.id, filters.brand_ids),
                 InOrNullSpec(ProductGroup.id, filters.product_group_ids),
                 InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
-                InOrNullSpec(TertiarySalesAndStock.distributor_id, filters.distributor_ids),
+                InOrNullSpec(
+                    TertiarySalesAndStock.distributor_id, filters.distributor_ids
+                ),
                 InOrNullSpec(SKU.id, filters.sku_ids),
                 InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
                 InOrNullSpec(TertiarySalesAndStock.pharmacy_id, filters.pharmacy_ids),
-                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
             ],
         )
 
@@ -514,7 +542,9 @@ class TertiarySalesService(
             getattr(filters, "sort_order", None),
             pivot_sort_map_full,
         )
-        pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
+        pivot_stmt = ListQueryHelper.apply_pagination(
+            pivot_stmt, filters.limit, filters.offset
+        )
 
         await session.execute(text("SET LOCAL jit = off"))
 
@@ -551,7 +581,9 @@ class TertiarySalesService(
         period_key, period_columns = build_period_key(
             filters.group_by_period, TertiarySalesAndStock, with_group_fields=True
         )
-        period_values = build_period_values(filters.group_by_period, filters.period_values)
+        period_values = build_period_values(
+            filters.group_by_period, filters.period_values
+        )
 
         sales_packages = func.sum(
             case(
@@ -593,7 +625,9 @@ class TertiarySalesService(
         stmt = ListQueryHelper.apply_specs(
             stmt,
             [
-                InOrNullSpec(TertiarySalesAndStock.distributor_id, filters.distributor_ids),
+                InOrNullSpec(
+                    TertiarySalesAndStock.distributor_id, filters.distributor_ids
+                ),
                 (
                     InOrNullSpec(Pharmacy.geo_indicator_id, filters.geo_indicator_ids)
                     if need_pharmacy_join
@@ -613,7 +647,11 @@ class TertiarySalesService(
             quarter_col=TertiarySalesAndStock.quarter,
         )
 
-        stmt = stmt.group_by(*period_columns).having(sales_packages > 0).order_by(period_key.desc())
+        stmt = (
+            stmt.group_by(*period_columns)
+            .having(sales_packages > 0)
+            .order_by(period_key.desc())
+        )
 
         result = await session.execute(stmt)
         return result.mappings().all()
@@ -625,13 +663,17 @@ class TertiarySalesService(
         company_id: int | None = None,
     ):
         period_key = build_period_key(filters.group_by_period, TertiarySalesAndStock)
-        period_values = build_period_values(filters.group_by_period, filters.period_values)
+        period_values = build_period_values(
+            filters.group_by_period, filters.period_values
+        )
         total_pharmacies_cte = (
             select(
                 period_key.label("period"),
                 TertiarySalesAndStock.distributor_id.label("distributor_id"),
                 Pharmacy.geo_indicator_id.label("geo_indicator_id"),
-                func.count(func.distinct(TertiarySalesAndStock.pharmacy_id)).label("total_pharmacies"),
+                func.count(func.distinct(TertiarySalesAndStock.pharmacy_id)).label(
+                    "total_pharmacies"
+                ),
             )
             .select_from(TertiarySalesAndStock)
             .join(SKU, TertiarySalesAndStock.sku_id == SKU.id)
@@ -639,7 +681,9 @@ class TertiarySalesService(
         )
 
         if company_id is not None:
-            total_pharmacies_cte = total_pharmacies_cte.where(SKU.company_id == company_id)
+            total_pharmacies_cte = total_pharmacies_cte.where(
+                SKU.company_id == company_id
+            )
 
         total_pharmacies_cte = ListQueryHelper.apply_period_values(
             total_pharmacies_cte,
@@ -664,11 +708,15 @@ class TertiarySalesService(
             select(
                 *select_fields,
                 period_key.label("period"),
-                func.count(func.distinct(TertiarySalesAndStock.pharmacy_id)).label("pharmacies_with_sku"),
+                func.count(func.distinct(TertiarySalesAndStock.pharmacy_id)).label(
+                    "pharmacies_with_sku"
+                ),
                 total_pharmacies_cte.c.total_pharmacies,
                 func.cast(
                     (
-                        func.count(func.distinct(TertiarySalesAndStock.pharmacy_id)).cast(Float)
+                        func.count(
+                            func.distinct(TertiarySalesAndStock.pharmacy_id)
+                        ).cast(Float)
                         / func.nullif(total_pharmacies_cte.c.total_pharmacies, 0)
                         * 100
                     ),
@@ -686,7 +734,8 @@ class TertiarySalesService(
             .join(
                 total_pharmacies_cte,
                 and_(
-                    TertiarySalesAndStock.distributor_id == total_pharmacies_cte.c.distributor_id,
+                    TertiarySalesAndStock.distributor_id
+                    == total_pharmacies_cte.c.distributor_id,
                     func.coalesce(Pharmacy.geo_indicator_id, 0)
                     == func.coalesce(total_pharmacies_cte.c.geo_indicator_id, 0),
                     period_key == total_pharmacies_cte.c.period,
@@ -707,10 +756,14 @@ class TertiarySalesService(
                 InOrNullSpec(Brand.id, filters.brand_ids),
                 InOrNullSpec(ProductGroup.id, filters.product_group_ids),
                 InOrNullSpec(Segment.id, filters.segment_ids),
-                InOrNullSpec(TertiarySalesAndStock.distributor_id, filters.distributor_ids),
+                InOrNullSpec(
+                    TertiarySalesAndStock.distributor_id, filters.distributor_ids
+                ),
                 InOrNullSpec(SKU.id, filters.sku_ids),
                 InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
-                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
             ],
         )
 
@@ -757,7 +810,9 @@ class TertiarySalesService(
             *final_select_fields,
             func.json_object_agg(
                 period_agg.c.period,
-                func.json_build_object("nd_percent", func.cast(period_agg.c.nd_percent, Float)),
+                func.json_build_object(
+                    "nd_percent", func.cast(period_agg.c.nd_percent, Float)
+                ),
             ).label("periods_data"),
         )
 
@@ -780,7 +835,9 @@ class TertiarySalesService(
             sort_map,
         )
 
-        final_stmt = ListQueryHelper.apply_pagination(final_stmt, filters.limit, filters.offset)
+        final_stmt = ListQueryHelper.apply_pagination(
+            final_stmt, filters.limit, filters.offset
+        )
         result = await session.execute(final_stmt)
         return result.mappings().all()
 
@@ -792,7 +849,9 @@ class TertiarySalesService(
         explain: ExplainArguments | None = None,
     ):
         period_key = build_period_key(filters.group_by_period, TertiarySalesAndStock)
-        period_values = build_period_values(filters.group_by_period, filters.period_values)
+        period_values = build_period_values(
+            filters.group_by_period, filters.period_values
+        )
 
         select_fields, group_by_fields, search_cols = build_dimensions(
             BASE_SALE_DIMENSTION_MAPPING_WITH_GEO_INDICATOR, filters.group_by_dimensions
@@ -813,7 +872,9 @@ class TertiarySalesService(
             .join(PromotionType, SKU.promotion_type_id == PromotionType.id)
             .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
             .join(Pharmacy, TertiarySalesAndStock.pharmacy_id == Pharmacy.id)
-            .outerjoin(Distributor, TertiarySalesAndStock.distributor_id == Distributor.id)
+            .outerjoin(
+                Distributor, TertiarySalesAndStock.distributor_id == Distributor.id
+            )
             .outerjoin(GeoIndicator, Pharmacy.geo_indicator_id == GeoIndicator.id)
             .where(indicator_filter)
         )
@@ -827,11 +888,15 @@ class TertiarySalesService(
                 InOrNullSpec(Brand.id, filters.brand_ids),
                 InOrNullSpec(ProductGroup.id, filters.product_group_ids),
                 InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
-                InOrNullSpec(TertiarySalesAndStock.distributor_id, filters.distributor_ids),
+                InOrNullSpec(
+                    TertiarySalesAndStock.distributor_id, filters.distributor_ids
+                ),
                 InOrNullSpec(SKU.id, filters.sku_ids),
                 InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
                 InOrNullSpec(TertiarySalesAndStock.pharmacy_id, filters.pharmacy_ids),
-                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
             ],
         )
 
@@ -868,7 +933,9 @@ class TertiarySalesService(
                 getattr(filters, "sort_order", None),
                 sort_map,
             )
-            flat_stmt = ListQueryHelper.apply_pagination(flat_stmt, filters.limit, filters.offset)
+            flat_stmt = ListQueryHelper.apply_pagination(
+                flat_stmt, filters.limit, filters.offset
+            )
             if explain is not None:
                 from src.utils.explain_analyze import explain_analyze
 
@@ -894,7 +961,9 @@ class TertiarySalesService(
             pivot_group_by: list = []
             for dim in filters.group_by_dimensions:
                 id_col = getattr(period_agg.c, f"{dim}_id")
-                name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(f"{dim}_name")
+                name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(
+                    f"{dim}_name"
+                )
                 pivot_select.extend([id_col, name_min])
                 pivot_group_by.append(id_col)
                 pivot_sort_map_full[dim] = name_min
@@ -922,7 +991,9 @@ class TertiarySalesService(
                 getattr(filters, "sort_order", None),
                 pivot_sort_map_full,
             )
-            pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
+            pivot_stmt = ListQueryHelper.apply_pagination(
+                pivot_stmt, filters.limit, filters.offset
+            )
 
             if explain is not None:
                 from src.utils.explain_analyze import explain_analyze
@@ -983,7 +1054,9 @@ class TertiarySalesService(
             .join(PromotionType, SKU.promotion_type_id == PromotionType.id)
             .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
             .join(Pharmacy, TertiarySalesAndStock.pharmacy_id == Pharmacy.id)
-            .outerjoin(Distributor, TertiarySalesAndStock.distributor_id == Distributor.id)
+            .outerjoin(
+                Distributor, TertiarySalesAndStock.distributor_id == Distributor.id
+            )
             .outerjoin(GeoIndicator, Pharmacy.geo_indicator_id == GeoIndicator.id)
             .where(indicator_filter)
         )
@@ -997,11 +1070,15 @@ class TertiarySalesService(
                 InOrNullSpec(Brand.id, filters.brand_ids),
                 InOrNullSpec(ProductGroup.id, filters.product_group_ids),
                 InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
-                InOrNullSpec(TertiarySalesAndStock.distributor_id, filters.distributor_ids),
+                InOrNullSpec(
+                    TertiarySalesAndStock.distributor_id, filters.distributor_ids
+                ),
                 InOrNullSpec(SKU.id, filters.sku_ids),
                 InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
                 InOrNullSpec(TertiarySalesAndStock.pharmacy_id, filters.pharmacy_ids),
-                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
             ],
         )
 
@@ -1021,7 +1098,9 @@ class TertiarySalesService(
             getattr(filters, "sort_order", None),
             pivot_sort_map_full,
         )
-        pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
+        pivot_stmt = ListQueryHelper.apply_pagination(
+            pivot_stmt, filters.limit, filters.offset
+        )
 
         await session.execute(text("SET LOCAL jit = off"))
 

@@ -17,8 +17,19 @@ CreateSchemaType = TypeVar("CreateSchemaType")
 UpdateSchemaType = TypeVar("UpdateSchemaType")
 FilterSchemaType = TypeVar("FilterSchemaType")
 
+SALE_MODELS = {
+    "PrimarySalesAndStock",
+    "SecondarySales",
+    "TertiarySalesAndStock",
+    "Visit",
+    "IMS",
+}
+
 
 class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+    _invalidate_filter_options = True
+    _invalidate_last_year = False
+
     def __init__(self, model: type[ModelType]):
         self.model = model
 
@@ -65,6 +76,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 stmt = stmt.where(self.model.id == int(db_obj.id))
                 result = await session.execute(stmt)
                 db_obj = result.unique().scalar_one()
+
+            await self._invalidate_caches()
 
             return db_obj
         except IntegrityError as e:
@@ -129,6 +142,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if load_options:
                 db_obj = await self.get(session, item_id, load_options)
 
+            await self._invalidate_caches()
+
             return db_obj
         except IntegrityError as e:
             await session.rollback()
@@ -146,6 +161,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
             await session.delete(db_obj)
             await session.commit()
+
+            await self._invalidate_caches()
 
         except IntegrityError as e:
             await session.rollback()
@@ -229,3 +246,15 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         result = await session.execute(stmt)
         return result.mappings().all()
+
+    async def _invalidate_caches(self) -> None:
+        from src.utils.cache_utils import (
+            invalidate_filter_options_cache,
+            invalidate_last_year_cache,
+        )
+
+        if self._invalidate_filter_options:
+            await invalidate_filter_options_cache()
+
+        if self._invalidate_last_year:
+            await invalidate_last_year_cache()

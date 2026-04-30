@@ -58,6 +58,8 @@ from src.schemas.base_filter import PaginatedResponse
 class VisitService(
     BaseService[Visit, visit_schema.VisitCreate, visit_schema.VisitUpdate]
 ):
+    _invalidate_last_year = True
+
     async def import_sales(
         self,
         session: "AsyncSession",
@@ -542,6 +544,15 @@ class VisitService(
 
             save_import_stats(import_log, result)
             await session.commit()
+
+            from src.utils.cache_utils import (
+                invalidate_filter_options_cache,
+                invalidate_last_year_cache,
+            )
+
+            await invalidate_filter_options_cache()
+            await invalidate_last_year_cache()
+
             return result
         finally:
             pass

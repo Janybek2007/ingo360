@@ -28,6 +28,8 @@ from src.schemas.user import (
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
+_USER_CACHE_TTL = 300
+
 
 router = APIRouter()
 
@@ -182,7 +184,21 @@ async def get_me(
     current_user: Annotated["User", Depends(current_active_user)],
     session: Annotated["AsyncSession", Depends(db_session.get_session)],
 ):
+    from src.utils.cache_utils import get, set
+
+    cache_key = f"user:me:{current_user.id}"
+
+    cached = await get(cache_key)
+    if cached:
+        return cached
+
     await session.refresh(current_user, ["company"])
+
+    await set(
+        cache_key,
+        UserRead.model_validate(current_user).model_dump(mode="json"),
+        _USER_CACHE_TTL,
+    )
 
     return current_user
 
@@ -195,11 +211,16 @@ async def update_me(
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     request: Request,
 ):
+    from src.utils.cache_utils import delete
+
     try:
         updated_user = await user_manager.update(
             user_update, current_user, request=request
         )
         await session.refresh(updated_user, ["company"])
+
+        cache_key = f"user:me:{current_user.id}"
+        await delete(cache_key)
 
         return updated_user
 

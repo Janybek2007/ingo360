@@ -91,6 +91,11 @@ class RegionService(
 
         save_import_stats(import_log, result)
         await session.commit()
+
+        from src.utils.cache_utils import invalidate_filter_options_cache
+
+        await invalidate_filter_options_cache()
+
         return result
 
     @staticmethod

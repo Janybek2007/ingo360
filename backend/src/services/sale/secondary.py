@@ -59,6 +59,8 @@ class SecondarySalesService(
         sale_schema.SecondarySalesUpdate,
     ]
 ):
+    _invalidate_last_year = True
+
     async def create(
         self,
         session: "AsyncSession",
@@ -85,7 +87,9 @@ class SecondarySalesService(
         db_obj = await self.get_or_404(session, item_id)
         update_data = obj_in.model_dump(exclude_unset=True)
         if "indicator" in update_data and update_data["indicator"] is not None:
-            update_data["indicator"] = normalize_indicator_for_sale("secondary", update_data["indicator"])
+            update_data["indicator"] = normalize_indicator_for_sale(
+                "secondary", update_data["indicator"]
+            )
         for field, value in update_data.items():
             setattr(db_obj, field, value)
         await session.commit()
@@ -227,7 +231,9 @@ class SecondarySalesService(
                 ],
             )
 
-            stmt = apply_sale_sku_company_filters(stmt, filters, self.model, normalize_secondary_indicator)
+            stmt = apply_sale_sku_company_filters(
+                stmt, filters, self.model, normalize_secondary_indicator
+            )
 
             # Count before pagination
             count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -268,7 +274,9 @@ class SecondarySalesService(
             self.model.created_at.desc(),
         )
 
-        stream = await session.stream_scalars(stmt.execution_options(yield_per=chunk_size))
+        stream = await session.stream_scalars(
+            stmt.execution_options(yield_per=chunk_size)
+        )
         async for item in stream:
             yield item
 
@@ -279,7 +287,9 @@ class SecondarySalesService(
         filters: sale_schema.SecTerSalesReportFilter | None = None,
     ):
         period_key = build_period_key(filters.group_by_period, SecondarySales)
-        period_values = build_period_values(filters.group_by_period, filters.period_values)
+        period_values = build_period_values(
+            filters.group_by_period, filters.period_values
+        )
 
         select_fields, group_by_fields, search_cols = build_dimensions(
             BASE_SALE_DIMENSTION_MAPPING_WITH_GEO_INDICATOR, filters.group_by_dimensions
@@ -318,7 +328,9 @@ class SecondarySalesService(
                 InOrNullSpec(SKU.id, filters.sku_ids),
                 InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
                 InOrNullSpec(SecondarySales.pharmacy_id, filters.pharmacy_ids),
-                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
             ],
         )
 
@@ -355,7 +367,9 @@ class SecondarySalesService(
                 getattr(filters, "sort_order", None),
                 sort_map,
             )
-            flat_stmt = ListQueryHelper.apply_pagination(flat_stmt, filters.limit, filters.offset)
+            flat_stmt = ListQueryHelper.apply_pagination(
+                flat_stmt, filters.limit, filters.offset
+            )
             result = (await session.execute(flat_stmt)).mappings().all()
             return [dict(row) for row in rows]
 
@@ -378,7 +392,9 @@ class SecondarySalesService(
             pivot_group_by: list = []
             for dim in getattr(filters, "group_by_dimensions", []):
                 id_col = getattr(period_agg.c, f"{dim}_id")
-                name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(f"{dim}_name")
+                name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(
+                    f"{dim}_name"
+                )
                 pivot_select.extend([id_col, name_min])
                 pivot_group_by.append(id_col)
                 pivot_sort_map_full[dim] = name_min
@@ -406,7 +422,9 @@ class SecondarySalesService(
                 getattr(filters, "sort_order", None),
                 pivot_sort_map_full,
             )
-            pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
+            pivot_stmt = ListQueryHelper.apply_pagination(
+                pivot_stmt, filters.limit, filters.offset
+            )
             rows = (await session.execute(pivot_stmt)).mappings().all()
             return list(rows)
 
@@ -469,7 +487,9 @@ class SecondarySalesService(
                 InOrNullSpec(SKU.id, filters.sku_ids),
                 InOrNullSpec(GeoIndicator.id, filters.geo_indicator_ids),
                 InOrNullSpec(SecondarySales.pharmacy_id, filters.pharmacy_ids),
-                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
+                SearchSpec(
+                    filters.search if filters.group_by_dimensions else None, search_cols
+                ),
             ],
         )
 
@@ -489,7 +509,9 @@ class SecondarySalesService(
             getattr(filters, "sort_order", None),
             pivot_sort_map_full,
         )
-        pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
+        pivot_stmt = ListQueryHelper.apply_pagination(
+            pivot_stmt, filters.limit, filters.offset
+        )
 
         await session.execute(text("SET LOCAL jit = off"))
 
@@ -521,7 +543,9 @@ class SecondarySalesService(
         period_key, period_columns = build_period_key(
             filters.group_by_period, SecondarySales, with_group_fields=True
         )
-        period_values = build_period_values(filters.group_by_period, filters.period_values)
+        period_values = build_period_values(
+            filters.group_by_period, filters.period_values
+        )
         stmt = (
             select(
                 period_key.label("period"),
@@ -568,7 +592,9 @@ class SecondarySalesService(
         filters: sale_schema.ChartSalesByDistributorFilter | None = None,
     ):
         period_key = build_period_key(filters.group_by_period, SecondarySales)
-        period_values = build_period_values(filters.group_by_period, filters.period_values)
+        period_values = build_period_values(
+            filters.group_by_period, filters.period_values
+        )
 
         base_stmt = (
             select(
@@ -589,8 +615,12 @@ class SecondarySalesService(
             InOrNullSpec(SecondarySales.distributor_id, filters.distributor_ids),
         ]
         if getattr(filters, "geo_indicator_ids", None):
-            base_stmt = base_stmt.join(Pharmacy, SecondarySales.pharmacy_id == Pharmacy.id)
-            specs.append(InOrNullSpec(Pharmacy.geo_indicator_id, filters.geo_indicator_ids))
+            base_stmt = base_stmt.join(
+                Pharmacy, SecondarySales.pharmacy_id == Pharmacy.id
+            )
+            specs.append(
+                InOrNullSpec(Pharmacy.geo_indicator_id, filters.geo_indicator_ids)
+            )
         base_stmt = ListQueryHelper.apply_specs(base_stmt, specs)
 
         base_stmt = ListQueryHelper.apply_period_values(
@@ -601,7 +631,9 @@ class SecondarySalesService(
             quarter_col=SecondarySales.quarter,
         )
 
-        base_stmt = base_stmt.group_by(Distributor.id, Distributor.name, period_key).cte("base_agg")
+        base_stmt = base_stmt.group_by(
+            Distributor.id, Distributor.name, period_key
+        ).cte("base_agg")
 
         final_stmt = select(
             base_stmt.c.distributor_id,

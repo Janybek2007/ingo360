@@ -324,6 +324,15 @@ async def import_sales_from_excel(
 
     save_import_stats(import_log, result)
     await session.commit()
+
+    from src.utils.cache_utils import (
+        invalidate_filter_options_cache,
+        invalidate_last_year_cache,
+    )
+
+    await invalidate_filter_options_cache()
+    await invalidate_last_year_cache()
+
     return result
 
 
