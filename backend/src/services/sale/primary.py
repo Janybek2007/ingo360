@@ -1,6 +1,7 @@
 import os
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from sqlalchemy import Float, Numeric, case, cast, func, or_, select
@@ -81,9 +82,7 @@ class PrimarySalesAndStockService(
         db_obj = await self.get_or_404(session, item_id)
         update_data = obj_in.model_dump(exclude_unset=True)
         if "indicator" in update_data and update_data["indicator"] is not None:
-            update_data["indicator"] = normalize_indicator_for_sale(
-                "primary", update_data["indicator"]
-            )
+            update_data["indicator"] = normalize_indicator_for_sale("primary", update_data["indicator"])
         for field, value in update_data.items():
             setattr(db_obj, field, value)
         await session.commit()
@@ -216,9 +215,7 @@ class PrimarySalesAndStockService(
                 ],
             )
 
-            stmt = apply_sale_sku_company_filters(
-                stmt, filters, self.model, normalize_primary_indicator
-            )
+            stmt = apply_sale_sku_company_filters(stmt, filters, self.model, normalize_primary_indicator)
 
             # Count before pagination
             count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -259,9 +256,7 @@ class PrimarySalesAndStockService(
             self.model.created_at.desc(),
         )
 
-        stream = await session.stream_scalars(
-            stmt.execution_options(yield_per=chunk_size)
-        )
+        stream = await session.stream_scalars(stmt.execution_options(yield_per=chunk_size))
         async for item in stream:
             yield item
 
@@ -273,12 +268,10 @@ class PrimarySalesAndStockService(
         filters: sale_schema.ShipmentStockFilter | None = None,
     ):
         period_key = build_period_key(filters.group_by_period, PrimarySalesAndStock)
-        period_values = build_period_values(
-            filters.group_by_period, filters.period_values
-        )
+        period_values = build_period_values(filters.group_by_period, filters.period_values)
 
         select_fields, group_by_fields, search_cols = build_dimensions(
-            BASE_SALE_DIMENSTION_MAPPING, filters.group_by_dimensions
+            BASE_SALE_DIMENSTION_MAPPING, getattr(filters, "group_by_dimensions", None)
         )
 
         base_stmt = (
@@ -295,9 +288,7 @@ class PrimarySalesAndStockService(
             .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
             .join(Distributor, PrimarySalesAndStock.distributor_id == Distributor.id)
             .where(
-                PrimarySalesAndStock.indicator.in_(
-                    [normalize_primary_indicator(v) for v in indicator]
-                ),
+                PrimarySalesAndStock.indicator.in_([normalize_primary_indicator(v) for v in indicator]),
             )
         )
 
@@ -312,9 +303,7 @@ class PrimarySalesAndStockService(
                 InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
                 InOrNullSpec(Distributor.id, filters.distributor_ids),
                 InOrNullSpec(SKU.id, filters.sku_ids),
-                SearchSpec(
-                    filters.search if filters.group_by_dimensions else None, search_cols
-                ),
+                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
             ],
         )
 
@@ -337,7 +326,7 @@ class PrimarySalesAndStockService(
             "distributor": getattr(period_agg.c, "distributor_name", None),
         }
 
-        if not filters.group_by_dimensions:
+        if not getattr(filters, "group_by_dimensions", None):
             flat_stmt = select(
                 period_agg.c.period,
                 period_agg.c.packages,
@@ -349,20 +338,17 @@ class PrimarySalesAndStockService(
                 getattr(filters, "sort_order", None),
                 sort_map,
             )
-            flat_stmt = ListQueryHelper.apply_pagination(
-                flat_stmt, filters.limit, filters.offset
-            )
-            return (await session.execute(flat_stmt)).mappings().all()
+            flat_stmt = ListQueryHelper.apply_pagination(flat_stmt, filters.limit, filters.offset)
+            result = (await session.execute(flat_stmt)).mappings().all()
+            return [dict(row) for row in result]
 
         # SQL pivot: GROUP BY только по ID, имена через MIN()
         pivot_select: list = []
         pivot_group_by: list = []
         pivot_sort_map: dict = {}
-        for dim in filters.group_by_dimensions:
+        for dim in getattr(filters, "group_by_dimensions", []):
             id_col = getattr(period_agg.c, f"{dim}_id")
-            name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(
-                f"{dim}_name"
-            )
+            name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(f"{dim}_name")
             pivot_select.extend([id_col, name_min])
             pivot_group_by.append(id_col)
             pivot_sort_map[dim] = name_min
@@ -398,12 +384,10 @@ class PrimarySalesAndStockService(
             getattr(filters, "sort_order", None),
             pivot_sort_map_full,
         )
-        pivot_stmt = ListQueryHelper.apply_pagination(
-            pivot_stmt, filters.limit, filters.offset
-        )
+        pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
 
         rows = (await session.execute(pivot_stmt)).mappings().all()
-        return list(rows)
+        return [dict(row) for row in rows]
 
     @staticmethod
     async def get_period_totals(
@@ -412,9 +396,7 @@ class PrimarySalesAndStockService(
         company_id: int | None,
     ):
         period_key = build_period_key(filters.group_by_period, PrimarySalesAndStock)
-        period_values = build_period_values(
-            filters.group_by_period, filters.period_values
-        )
+        period_values = build_period_values(filters.group_by_period, filters.period_values)
 
         if filters.group_by_period == "quarter":
             divisor_factor = 3.0
@@ -436,11 +418,7 @@ class PrimarySalesAndStockService(
             )
             .select_from(PrimarySalesAndStock)
             .join(SKU, PrimarySalesAndStock.sku_id == SKU.id)
-            .where(
-                PrimarySalesAndStock.indicator.in_(
-                    PRIMARY_SALES_VALUES + PRIMARY_STOCK_VALUES
-                )
-            )
+            .where(PrimarySalesAndStock.indicator.in_(PRIMARY_SALES_VALUES + PRIMARY_STOCK_VALUES))
         )
 
         if company_id is not None:
@@ -451,9 +429,7 @@ class PrimarySalesAndStockService(
             [
                 InOrNullSpec(SKU.brand_id, filters.brand_ids),
                 InOrNullSpec(SKU.product_group_id, filters.product_group_ids),
-                InOrNullSpec(
-                    PrimarySalesAndStock.distributor_id, filters.distributor_ids
-                ),
+                InOrNullSpec(PrimarySalesAndStock.distributor_id, filters.distributor_ids),
                 InOrNullSpec(SKU.id, filters.sku_ids),
             ],
         )
@@ -485,8 +461,7 @@ class PrimarySalesAndStockService(
                 case(
                     (
                         func.sum(case((is_sales, b.c.amount), else_=0)) > 0,
-                        func.sum(case((is_stock, b.c.amount), else_=0))
-                        / sales_divisor_amount,
+                        func.sum(case((is_stock, b.c.amount), else_=0)) / sales_divisor_amount,
                     ),
                     else_=None,
                 ),
@@ -496,8 +471,7 @@ class PrimarySalesAndStockService(
                 case(
                     (
                         func.sum(case((is_sales, b.c.packages), else_=0)) > 0,
-                        func.sum(case((is_stock, b.c.packages), else_=0))
-                        / sales_divisor_packages,
+                        func.sum(case((is_stock, b.c.packages), else_=0)) / sales_divisor_packages,
                     ),
                     else_=None,
                 ),
@@ -508,23 +482,15 @@ class PrimarySalesAndStockService(
         if filters.group_by_period not in ("quarter", "year"):
             select_cols.extend(
                 [
-                    func.sum(case((is_stock, b.c.packages), else_=0)).label(
-                        "stock_packages"
-                    ),
-                    func.round(func.sum(case((is_stock, b.c.amount), else_=0))).label(
-                        "stock_amount"
-                    ),
+                    func.sum(case((is_stock, b.c.packages), else_=0)).label("stock_packages"),
+                    func.round(func.sum(case((is_stock, b.c.amount), else_=0))).label("stock_amount"),
                 ]
             )
 
         select_cols.extend(
             [
-                func.sum(case((is_sales, b.c.packages), else_=0)).label(
-                    "sales_packages"
-                ),
-                func.round(func.sum(case((is_sales, b.c.amount), else_=0))).label(
-                    "sales_amount"
-                ),
+                func.sum(case((is_sales, b.c.packages), else_=0)).label("sales_packages"),
+                func.round(func.sum(case((is_sales, b.c.amount), else_=0))).label("sales_amount"),
             ]
         )
 
@@ -550,9 +516,7 @@ class PrimarySalesAndStockService(
         company_id: int | None = None,
     ):
         period_key = build_period_key(filters.group_by_period, PrimarySalesAndStock)
-        period_values = build_period_values(
-            filters.group_by_period, filters.period_values
-        )
+        period_values = build_period_values(filters.group_by_period, filters.period_values)
 
         select_fields, group_by_fields, search_cols = build_dimensions(
             BASE_SALE_DIMENSTION_MAPPING, filters.group_by_dimensions
@@ -572,9 +536,7 @@ class PrimarySalesAndStockService(
                         func.sum(
                             case(
                                 (
-                                    PrimarySalesAndStock.indicator.in_(
-                                        PRIMARY_SALES_VALUES
-                                    ),
+                                    PrimarySalesAndStock.indicator.in_(PRIMARY_SALES_VALUES),
                                     sales_col,
                                 ),
                                 else_=0,
@@ -584,9 +546,7 @@ class PrimarySalesAndStockService(
                         func.sum(
                             case(
                                 (
-                                    PrimarySalesAndStock.indicator.in_(
-                                        PRIMARY_STOCK_VALUES
-                                    ),
+                                    PrimarySalesAndStock.indicator.in_(PRIMARY_STOCK_VALUES),
                                     stock_col,
                                 ),
                                 else_=0,
@@ -596,9 +556,7 @@ class PrimarySalesAndStockService(
                             func.sum(
                                 case(
                                     (
-                                        PrimarySalesAndStock.indicator.in_(
-                                            PRIMARY_SALES_VALUES
-                                        ),
+                                        PrimarySalesAndStock.indicator.in_(PRIMARY_SALES_VALUES),
                                         sales_col,
                                     ),
                                     else_=0,
@@ -633,9 +591,7 @@ class PrimarySalesAndStockService(
             .join(ProductGroup, SKU.product_group_id == ProductGroup.id)
             .join(Distributor, PrimarySalesAndStock.distributor_id == Distributor.id)
             .where(
-                PrimarySalesAndStock.indicator.in_(
-                    PRIMARY_SALES_VALUES + PRIMARY_STOCK_VALUES
-                ),
+                PrimarySalesAndStock.indicator.in_(PRIMARY_SALES_VALUES + PRIMARY_STOCK_VALUES),
             )
         )
 
@@ -650,9 +606,7 @@ class PrimarySalesAndStockService(
                 InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
                 InOrNullSpec(Distributor.id, filters.distributor_ids),
                 InOrNullSpec(SKU.id, filters.sku_ids),
-                SearchSpec(
-                    filters.search if filters.group_by_dimensions else None, search_cols
-                ),
+                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
             ],
         )
 
@@ -675,7 +629,7 @@ class PrimarySalesAndStockService(
             "distributor": getattr(period_agg.c, "distributor_name", None),
         }
 
-        if not filters.group_by_dimensions:
+        if not getattr(filters, "group_by_dimensions", None):
             flat_stmt = select(
                 period_agg.c.period,
                 period_agg.c.coverage_months_amount,
@@ -687,20 +641,17 @@ class PrimarySalesAndStockService(
                 getattr(filters, "sort_order", None),
                 sort_map,
             )
-            flat_stmt = ListQueryHelper.apply_pagination(
-                flat_stmt, filters.limit, filters.offset
-            )
-            return (await session.execute(flat_stmt)).mappings().all()
+            flat_stmt = ListQueryHelper.apply_pagination(flat_stmt, filters.limit, filters.offset)
+            result = (await session.execute(flat_stmt)).mappings().all()
+            return [dict(row) for row in result]
 
         # SQL pivot: GROUP BY только по ID, имена через MIN()
         pivot_select: list = []
         pivot_group_by: list = []
         pivot_sort_map: dict = {}
-        for dim in filters.group_by_dimensions:
+        for dim in getattr(filters, "group_by_dimensions", []):
             id_col = getattr(period_agg.c, f"{dim}_id")
-            name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(
-                f"{dim}_name"
-            )
+            name_min = func.min(getattr(period_agg.c, f"{dim}_name")).label(f"{dim}_name")
             pivot_select.extend([id_col, name_min])
             pivot_group_by.append(id_col)
             pivot_sort_map[dim] = name_min
@@ -736,12 +687,10 @@ class PrimarySalesAndStockService(
             getattr(filters, "sort_order", None),
             pivot_sort_map_full,
         )
-        pivot_stmt = ListQueryHelper.apply_pagination(
-            pivot_stmt, filters.limit, filters.offset
-        )
+        pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
 
         rows = (await session.execute(pivot_stmt)).mappings().all()
-        return list(rows)
+        return [dict(row) for row in rows]
 
     @staticmethod
     async def get_distributor_share_report(
@@ -750,9 +699,7 @@ class PrimarySalesAndStockService(
         company_id: int | None,
     ):
         period_key = build_period_key(filters.group_by_period, PrimarySalesAndStock)
-        period_values = build_period_values(
-            filters.group_by_period, filters.period_values
-        )
+        period_values = build_period_values(filters.group_by_period, filters.period_values)
 
         select_fields, group_by_fields, search_cols = build_dimensions(
             BASE_SALE_DIMENSTION_MAPPING, filters.group_by_dimensions
@@ -786,9 +733,7 @@ class PrimarySalesAndStockService(
                 InOrNullSpec(PromotionType.id, filters.promotion_type_ids),
                 InOrNullSpec(Distributor.id, filters.distributor_ids),
                 InOrNullSpec(SKU.id, filters.sku_ids),
-                SearchSpec(
-                    filters.search if filters.group_by_dimensions else None, search_cols
-                ),
+                SearchSpec(filters.search if filters.group_by_dimensions else None, search_cols),
             ],
         )
 
@@ -806,15 +751,13 @@ class PrimarySalesAndStockService(
         period_totals = (
             select(
                 period_agg.c.period,
-                cast(func.sum(period_agg.c.amount), Numeric(18, 2)).label(
-                    "total_amount"
-                ),
+                cast(func.sum(period_agg.c.amount), Numeric(18, 2)).label("total_amount"),
             ).group_by(period_agg.c.period)
         ).cte("period_totals")
 
         percentage_select_fields = []
-        if filters.group_by_dimensions:
-            for dim in filters.group_by_dimensions:
+        if getattr(filters, "group_by_dimensions", None):
+            for dim in getattr(filters, "group_by_dimensions", []):
                 percentage_select_fields.extend(
                     [
                         getattr(period_agg.c, f"{dim}_id"),
@@ -860,9 +803,7 @@ class PrimarySalesAndStockService(
             flat_stmt = select(
                 with_percentages.c.period,
                 func.cast(with_percentages.c.amount, Float).label("amount"),
-                func.cast(with_percentages.c.share_percent, Float).label(
-                    "share_percent"
-                ),
+                func.cast(with_percentages.c.share_percent, Float).label("share_percent"),
             ).select_from(with_percentages)
             flat_stmt = ListQueryHelper.apply_sorting_with_default(
                 flat_stmt,
@@ -870,20 +811,17 @@ class PrimarySalesAndStockService(
                 getattr(filters, "sort_order", None),
                 sort_map,
             )
-            flat_stmt = ListQueryHelper.apply_pagination(
-                flat_stmt, filters.limit, filters.offset
-            )
-            return (await session.execute(flat_stmt)).mappings().all()
+            flat_stmt = ListQueryHelper.apply_pagination(flat_stmt, filters.limit, filters.offset)
+            result = (await session.execute(flat_stmt)).mappings().all()
+            return [dict(row) for row in result]
 
         # SQL pivot: GROUP BY только по ID, имена через MIN()
         pivot_select: list = []
         pivot_group_by: list = []
         pivot_sort_map: dict = {}
-        for dim in filters.group_by_dimensions:
+        for dim in getattr(filters, "group_by_dimensions", []):
             id_col = getattr(with_percentages.c, f"{dim}_id")
-            name_min = func.min(getattr(with_percentages.c, f"{dim}_name")).label(
-                f"{dim}_name"
-            )
+            name_min = func.min(getattr(with_percentages.c, f"{dim}_name")).label(f"{dim}_name")
             pivot_select.extend([id_col, name_min])
             pivot_group_by.append(id_col)
             pivot_sort_map[dim] = name_min
@@ -919,12 +857,10 @@ class PrimarySalesAndStockService(
             getattr(filters, "sort_order", None),
             pivot_sort_map_full,
         )
-        pivot_stmt = ListQueryHelper.apply_pagination(
-            pivot_stmt, filters.limit, filters.offset
-        )
+        pivot_stmt = ListQueryHelper.apply_pagination(pivot_stmt, filters.limit, filters.offset)
 
         rows = (await session.execute(pivot_stmt)).mappings().all()
-        return list(rows)
+        return [dict(row) for row in rows]
 
     @staticmethod
     async def get_distributor_share_chart(
@@ -933,9 +869,7 @@ class PrimarySalesAndStockService(
         company_id: int | None,
     ):
         period_key = build_period_key(filters.group_by_period, PrimarySalesAndStock)
-        period_values = build_period_values(
-            filters.group_by_period, filters.period_values
-        )
+        period_values = build_period_values(filters.group_by_period, filters.period_values)
 
         period_totals = (
             select(
@@ -951,9 +885,7 @@ class PrimarySalesAndStockService(
             period_totals = period_totals.where(SKU.company_id == company_id)
 
         if filters.promotion_type_ids:
-            period_totals = period_totals.join(
-                PromotionType, SKU.promotion_type_id == PromotionType.id
-            )
+            period_totals = period_totals.join(PromotionType, SKU.promotion_type_id == PromotionType.id)
 
         period_totals = ListQueryHelper.apply_specs(
             period_totals,
@@ -1007,16 +939,13 @@ class PrimarySalesAndStockService(
             quarter_col=PrimarySalesAndStock.quarter,
         )
 
-        base_stmt = base_stmt.group_by(
-            Distributor.id, Distributor.name, period_key
-        ).cte("period_agg")
+        base_stmt = base_stmt.group_by(Distributor.id, Distributor.name, period_key).cte("period_agg")
 
         share_chart_expr = func.round(
             case(
                 (
                     period_totals.c.total_amount > 0,
-                    (base_stmt.c.amount * 100.0)
-                    / func.nullif(period_totals.c.total_amount, 0),
+                    (base_stmt.c.amount * 100.0) / func.nullif(period_totals.c.total_amount, 0),
                 ),
                 else_=0,
             )
@@ -1047,13 +976,10 @@ class PrimarySalesAndStockService(
                     func.cast(with_percentages.c.share_percent, Float),
                 ),
             ).label("periods_data"),
-        ).group_by(
-            with_percentages.c.distributor_id, with_percentages.c.distributor_name
-        )
+        ).group_by(with_percentages.c.distributor_id, with_percentages.c.distributor_name)
 
-        final_stmt = ListQueryHelper.apply_pagination(
-            final_stmt, filters.limit, filters.offset
-        )
+        final_stmt = ListQueryHelper.apply_pagination(final_stmt, filters.limit, filters.offset)
 
         result = await session.execute(final_stmt)
-        return result.mappings().all()
+        rows = result.mappings().all()
+        return [dict(row) for row in rows]
