@@ -71,7 +71,6 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
 
       const { header: activeTabHeader, text: activeTabText } =
         getActiveTabLabels(activeTab);
-      console.log(periodFilter.periodCurrent);
       const columns = useMemo<ColumnDef<EntityRow>[]>(
         () => [
           { accessorKey: 'rank', header: 'Место', size: 130 },
@@ -160,14 +159,12 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               />
               <UsedFilter
                 className="mt-4"
-                isReadOnly
                 periodCurrent={periodFilter.periodCurrent}
                 usedPeriodFilters={getFilterItems([
                   {
                     value: periodFilter.selectedValues,
                     getLabelFromValue: getPeriodLabel,
                     onDelete: periodFilter.onDelete,
-                    isReadOnly: true,
                   },
                 ])}
                 usedFilterItems={databaseFilters.usedFilterItems}
@@ -203,7 +200,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
               </div>
               <div></div>
             </div>
-            <div className="w-full overflow-hidden">{tableContent}</div>;
+            <div className="w-full overflow-hidden">{tableContent}</div>
           </div>
         </PageSection>
       );

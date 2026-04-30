@@ -42,10 +42,7 @@ export const RetailSales: React.FC = React.memo(() => {
   const filtersState = useDbFiltersState({
     geoIndicators: { enabled: true },
     groupBy: {
-      defaultValue:
-        'sku,pharmacy,brand,promotion_type,product_group,distributor,geo_indicator'.split(
-          ','
-        ),
+      defaultValue: 'sku,pharmacy,brand,distributor'.split(','),
     },
   });
   const filterOptions = useFilterOptions(
@@ -108,7 +105,6 @@ export const RetailSales: React.FC = React.memo(() => {
     () => (queryData.data ? queryData.data[0] : []),
     [queryData.data]
   );
-  console.log(sales);
 
   const allColumns = useGenerateColumns<TDbItem>({
     filterOptions: filterOptions.options,

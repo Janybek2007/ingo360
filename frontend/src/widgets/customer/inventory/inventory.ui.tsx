@@ -50,9 +50,7 @@ export const Inventory: React.FC = React.memo(() => {
       ],
     },
     groupBy: {
-      defaultValue: 'sku,brand,promotion_type,product_group,distributor'.split(
-        ','
-      ),
+      defaultValue: 'sku,brand,distributor'.split(','),
     },
   });
 

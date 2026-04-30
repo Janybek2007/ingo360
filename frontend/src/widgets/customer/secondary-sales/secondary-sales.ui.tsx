@@ -42,10 +42,7 @@ export const SecondarySales: React.FC = React.memo(() => {
   const filtersState = useDbFiltersState({
     geoIndicators: { enabled: true },
     groupBy: {
-      defaultValue:
-        'sku,brand,promotion_type,product_group,distributor,geo_indicator'.split(
-          ','
-        ),
+      defaultValue: 'sku,brand,distributor'.split(','),
     },
   });
   const filterOptions = useFilterOptions(

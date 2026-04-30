@@ -59,7 +59,7 @@ export const MarketInsights: React.FC = React.memo(() => {
   const databaseFilters = useDbFilters({ state: filtersState });
 
   const periodFilter = usePeriodFilter({
-    views: ['year', 'month', 'quarter'],
+    views: ['year', 'month', 'quarter', 'mat', 'ytd'],
     lastYear: lastYear?.ims,
   });
 

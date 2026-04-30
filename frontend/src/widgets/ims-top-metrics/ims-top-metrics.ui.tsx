@@ -66,9 +66,15 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
         group_column: isMarketDevelopmentPage ? activeTab : 'company',
-        segment_name: String(filtersState.segments[0]) ?? undefined,
-        segments: filtersState.segments ?? undefined,
-        brand_name: String(filtersState.brands[0]) ?? undefined,
+        segment_name: filtersState.segments[0]
+          ? String(filtersState.segments[0])
+          : undefined,
+        segments: filtersState.segments?.length
+          ? filtersState.segments
+          : undefined,
+        brand_name: filtersState.brands[0]
+          ? String(filtersState.brands[0])
+          : undefined,
         //
         method: 'POST',
         enabled: !filterOptions.isLoading,

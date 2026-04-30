@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Generic, Sequence, Type, TypeVar
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -18,7 +19,7 @@ FilterSchemaType = TypeVar("FilterSchemaType")
 
 
 class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: Type[ModelType]):
+    def __init__(self, model: type[ModelType]):
         self.model = model
 
     async def _rollback_and_raise_integrity(self, e: IntegrityError) -> None:
@@ -186,7 +187,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     @staticmethod
     async def get_id_map(
         session: "AsyncSession",
-        model: Type[ModelType],
+        model: type[ModelType],
         field: str,
         values: set[str] | set[tuple[str, int]],
         filter_field: str | None = None,

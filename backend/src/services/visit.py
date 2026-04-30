@@ -1,6 +1,7 @@
 import os
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
@@ -831,8 +832,7 @@ class VisitService(
 
         if not join_conditions:
             raise ValueError(
-                "group_by_dimensions должен содержать хотя бы одно измерение "
-                "(medical_facility или speciality)"
+                "group_by_dimensions должен содержать хотя бы одно измерение (medical_facility или speciality)"
             )
 
         stmt = (
@@ -897,6 +897,7 @@ class VisitService(
         group_by_dimensions = list(filters.group_by_dimensions or [])
         if "employee" in group_by_dimensions and "position" not in group_by_dimensions:
             group_by_dimensions.append("position")
+
         select_fields = []
         group_by_fields = []
 
@@ -928,11 +929,14 @@ class VisitService(
         stmt = select(*select_fields).select_from(Visit)
 
         if company_id:
-            stmt = stmt.where(
-                Visit.employee_id.in_(
-                    select(Employee.id).where(Employee.company_id == company_id)
+            if "employee" in group_by_dimensions:
+                stmt = stmt.where(Employee.company_id == company_id)
+            else:
+                stmt = stmt.where(
+                    Visit.employee_id.in_(
+                        select(Employee.id).where(Employee.company_id == company_id)
+                    )
                 )
-            )
 
         tables_to_join = set()
         for dim in group_by_dimensions:
@@ -942,9 +946,13 @@ class VisitService(
                 if "requires" in dim_config:
                     for req in dim_config["requires"]:
                         tables_to_join.add(req)
+
         if filters.doctor_ids or filters.speciality_ids:
             tables_to_join.add("doctor")
             tables_to_join.add("global_doctor")
+
+        if company_id and "employee" in group_by_dimensions:
+            tables_to_join.add("employee")
 
         join_order = [
             "employee",
@@ -1006,6 +1014,8 @@ class VisitService(
                 search_conditions.append(Position.name.ilike(search_term))
             if "speciality" in group_by_dimensions:
                 search_conditions.append(Speciality.name.ilike(search_term))
+            if "doctor" in group_by_dimensions:
+                search_conditions.append(GlobalDoctor.full_name.ilike(search_term))
 
             if search_conditions:
                 stmt = stmt.where(or_(*search_conditions))
@@ -1019,6 +1029,8 @@ class VisitService(
             "group": ProductGroup.name,
             "employee_visits": func.count(Visit.id),
             "position": Position.name,
+            "doctor": GlobalDoctor.full_name,
+            "speciality": Speciality.name,
         }
 
         allowed_dim_sorts = {
@@ -1027,7 +1039,10 @@ class VisitService(
             "employee",
             "group",
             "position",
+            "doctor",
+            "speciality",
         }
+
         if filters.sort_by in allowed_dim_sorts and filters.sort_by not in (
             group_by_dimensions or []
         ):
@@ -1052,6 +1067,8 @@ class VisitService(
             default_sort.append(Pharmacy.name.nulls_last())
         if "medical_facility" in g:
             default_sort.append(MedicalFacility.name.nulls_last())
+        if "doctor" in g:
+            default_sort.append(GlobalDoctor.full_name.nulls_last())
 
         stmt = ListQueryHelper.apply_sorting_with_default(
             stmt,

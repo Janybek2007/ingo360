@@ -111,24 +111,16 @@ class IMSTableFilter(BaseModel):
     segment_names: list[str] | None = None
     dosage_form_names: list[str] | None = None
     search: str | None = None
-    period_values: list[str] = Field(
-        default_factory=lambda: [datetime.now().strftime("%-m-%y")]
-    )
+    period_values: list[str] | None = None
     group_by_period: Literal["month", "quarter", "year", "mat", "ytd"] = "ytd"
     limit: int | None = None
     offset: int = 0
-    group_by_dimensions: list[
-        Literal["company", "brand", "segment", "dosage_form", "dosage", "molecule"]
-    ] = Field(
-        default_factory=lambda: [
-            "company",
-            "brand",
-            "segment",
-            "dosage_form",
-            "dosage",
-            "molecule",
+    group_by_dimensions: (
+        list[
+            Literal["company", "brand", "segment", "dosage_form", "dosage", "molecule"]
         ]
-    )
+        | None
+    ) = None
     sort_by: (
         Literal["company", "brand", "segment", "dosage_form", "dosage", "molecule"]
         | None

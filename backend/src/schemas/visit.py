@@ -160,31 +160,22 @@ class VisitSumForPeriodFilter(BaseModel):
     speciality_ids: list[int] | None = None
     months: list[int] | None = None
     year: str | None = None
-    group_by_dimensions: list[
-        Literal[
-            "pharmacy",
-            "medical_facility",
-            "year",
-            "month",
-            "employee",
-            "product_group",
-            "speciality",
-            "doctor",
-            "position",
+    group_by_dimensions: (
+        list[
+            Literal[
+                "pharmacy",
+                "medical_facility",
+                "year",
+                "month",
+                "employee",
+                "product_group",
+                "speciality",
+                "doctor",
+                "position",
+            ]
         ]
-    ] = Field(
-        default_factory=lambda: [
-            "pharmacy",
-            "medical_facility",
-            "year",
-            "month",
-            "employee",
-            "product_group",
-            "speciality",
-            "doctor",
-            "position",
-        ]
-    )
+        | None
+    ) = None
     sort_by: (
         Literal[
             "medical_facility",

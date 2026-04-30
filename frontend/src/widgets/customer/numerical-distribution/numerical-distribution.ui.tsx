@@ -39,7 +39,7 @@ export const NumericalDistribution: React.FC = React.memo(() => {
     rowsCount: { enabled: true },
     geoIndicators: { enabled: true },
     groupBy: {
-      defaultValue: 'brand,segment,product_group,geo_indicator'.split(','),
+      defaultValue: 'sku,brand,distributor'.split(','),
     },
   });
 

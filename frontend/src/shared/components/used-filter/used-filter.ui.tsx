@@ -29,7 +29,14 @@ const getLastYearByPath = (
   if (!lastYear) return undefined;
   const key = PATH_TO_LAST_YEAR_KEY[pathname];
   const val = key ? lastYear[key] : undefined;
-  return typeof val === 'number' ? val : undefined;
+
+  if (typeof val === 'number') {
+    return val;
+  }
+  if (typeof val === 'string') {
+    return Number(val.split('/')[0]);
+  }
+  return undefined;
 };
 
 export const UsedFilter: React.FC<IUsedFilterProperties> = ({
@@ -98,7 +105,7 @@ export const UsedFilter: React.FC<IUsedFilterProperties> = ({
           {item.label}{' '}
           {(item.subItems?.length as number) === 1 && item.subItems?.[0].label}
         </span>
-        {!isReadOnly && (
+        {!isPeriodItem && !isReadOnly && !item.isReadOnly && (
           <button
             type="button"
             onClick={item.onDelete}

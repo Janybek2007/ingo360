@@ -18,6 +18,6 @@ ims_fields = [
     dosage,
     dosage_form,
     molecule,
-    base.packages,
-    base.amount,
+    base.packages.as_required(),
+    base.amount.as_required(),
 ]

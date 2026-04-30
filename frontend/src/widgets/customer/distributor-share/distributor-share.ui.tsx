@@ -50,9 +50,7 @@ export const DistributorShare: React.FC = React.memo(() => {
   const filtersState = useDbFiltersState({
     indicator: { enabled: false },
     groupBy: {
-      defaultValue: 'sku,brand,promotion_type,product_group,distributor'.split(
-        ','
-      ),
+      defaultValue: 'sku,brand,distributor'.split(','),
     },
   });
   const databaseFilters = useDbFilters({

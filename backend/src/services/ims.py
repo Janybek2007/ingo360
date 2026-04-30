@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy import (
+    Numeric,
     and_,
     case,
     distinct,
@@ -46,6 +47,7 @@ from src.utils.validate_required_columns import validate_required_columns
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.constants.month_names import MONTH_NAMES_EN, MONTH_NAMES_RU
 from src.schemas.base_filter import PaginatedResponse
 
 
@@ -217,7 +219,9 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             inserted_count = 0
             updated_count = 0
 
-            _REQUIRED_IMS_FIELDS = ("компания", "бренд", "период")
+            _REQUIRED_IMS_FIELDS = tuple(
+                f.primary_key for f in ims.ims_fields if f.required
+            )
 
             async def _flush_ims_batch():
                 nonlocal inserted_count, updated_count, data_to_insert
@@ -269,11 +273,6 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
 
                     relation_fields = {"import_log_id": import_log.id}
                     mapped_record = map_record(record, ims_mapping, relation_fields)
-                    # Handle null numeric fields by setting to 0.0
-                    if mapped_record.get("packages") is None:
-                        mapped_record["packages"] = 0.0
-                    if mapped_record.get("amount") is None:
-                        mapped_record["amount"] = 0.0
                     data_to_insert.append(mapped_record)
 
                     if len(data_to_insert) >= batch_size:
@@ -298,21 +297,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
 
     @staticmethod
     def _format_db_period(year: int, month: int) -> str:
-        month_names = {
-            1: "Январь",
-            2: "Февраль",
-            3: "Март",
-            4: "Апрель",
-            5: "Май",
-            6: "Июнь",
-            7: "Июль",
-            8: "Август",
-            9: "Сентябрь",
-            10: "Октябрь",
-            11: "Ноябрь",
-            12: "Декабрь",
-        }
-        return f"{year}/{month:02d} {month_names[month]}"
+        return f"{year}/{month:02d} {MONTH_NAMES_RU[month - 1]}"
 
     @staticmethod
     def _normalize_year(year: int) -> int:
@@ -320,14 +305,14 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
 
     @staticmethod
     def _validate_period_format(period_str: str) -> bool:
-        """Validate period format: YYYY/MM MonthName"""
+        """Validate period format: YYYY/MM MonthName (RU or EN)"""
         import re
 
         if not period_str or not isinstance(period_str, str):
             return False
 
         period_str = period_str.strip()
-        # Expected format: 2024/10 Октябрь
+        # Expected format: 2024/10 Октябрь or 2024/10 October
         pattern = r"^\d{4}/\d{1,2}\s+[А-Яа-яA-Za-z]+$"
         if not re.match(pattern, period_str):
             return False
@@ -354,6 +339,14 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
         except ValueError:
             return False
 
+        # Validate month name matches month number (RU or EN)
+        valid_names = {
+            MONTH_NAMES_RU[month - 1].lower(),
+            MONTH_NAMES_EN[month - 1].lower(),
+        }
+        if name.strip().lower() not in valid_names:
+            return False
+
         return True
 
     def _parse_month_year(self, period_str: str) -> tuple[int, int]:
@@ -371,7 +364,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Неверный формат периода: {period_str}",
-            )
+            ) from None
 
         if month < 1 or month > 12:
             raise HTTPException(
@@ -592,7 +585,6 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 detail=f"Неизвестный тип сущности: {filters.group_column}",
             )
 
-        # Pre-fetch company info once - reused for ranked stmt and entity_filter
         _company_ims_name: str | None = None
         _company_name: str | None = None
         _company_brands: list[str] = []
@@ -626,13 +618,13 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
         ranked_inner = (
             select(
                 group_column.label("entity"),
-                func.round(func.sum(IMS.amount)).label("sales"),
+                func.round(func.sum(IMS.amount).cast(Numeric), 2).label("sales"),
                 func.row_number()
                 .over(order_by=func.sum(IMS.amount).desc())
                 .label("rank"),
             )
             .where(IMS.period.in_(periods))
-            .where(segment_filter)
+            .where(segment_filter if filters.group_column != "segment" else True)
             .group_by(group_column)
         )
 
@@ -644,6 +636,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
         else:
             ranked_subquery = ranked_inner.cte("ranked")
 
+        # --- Build stmt ---
         if company_id is not None and filters.group_column == "company":
             company_ims_name = _company_ims_name
             company_name = _company_name
@@ -702,50 +695,106 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                         ranked_subquery.c.sales,
                         literal(False).label("is_user_company"),
                     ).order_by(ranked_subquery.c.rank)
-        elif filters.segment_name and filters.group_column == "segment":
+
+        elif filters.group_column == "segment":
             stmt = select(
                 ranked_subquery.c.rank,
                 ranked_subquery.c.entity,
                 ranked_subquery.c.sales,
-                case(
-                    {
-                        func.upper(ranked_subquery.c.entity)
-                        == func.upper(filters.segment_name): True
-                    },
-                    else_=False,
-                ).label("is_user_entity"),
+                (
+                    case(
+                        {
+                            func.upper(ranked_subquery.c.entity)
+                            == func.upper(filters.segment_name): True
+                        },
+                        else_=False,
+                    ).label("is_user_entity")
+                    if filters.segment_name
+                    else literal(False).label("is_user_entity")
+                ),
             ).order_by(ranked_subquery.c.rank)
-        elif filters.brand_name and filters.group_column == "brand":
+
+        elif filters.group_column == "brand":
             stmt = select(
                 ranked_subquery.c.rank,
                 ranked_subquery.c.entity,
                 ranked_subquery.c.sales,
-                case(
-                    {
-                        func.upper(ranked_subquery.c.entity)
-                        == func.upper(filters.brand_name): True
-                    },
-                    else_=False,
-                ).label("is_user_entity"),
+                (
+                    case(
+                        {
+                            func.upper(ranked_subquery.c.entity)
+                            == func.upper(filters.brand_name): True
+                        },
+                        else_=False,
+                    ).label("is_user_entity")
+                    if filters.brand_name
+                    else literal(False).label("is_user_entity")
+                ),
             ).order_by(ranked_subquery.c.rank)
+
         else:
             stmt = select(
                 ranked_subquery.c.rank,
                 ranked_subquery.c.entity,
                 ranked_subquery.c.sales,
+                literal(False).label("is_user_entity"),
             ).order_by(ranked_subquery.c.rank)
 
-            result = await session.execute(stmt)
-            entities = result.mappings().all()
+        # --- Execute ---
+        result = await session.execute(stmt)
+        entities = result.mappings().all()
 
-            response = {"entities": entities}
+        response = {"entities": entities}
 
-            previous_periods = self._get_previous_periods_from_values(
-                period_values, group_by_period
-            )
+        previous_periods = self._get_previous_periods_from_values(
+            period_values, group_by_period
+        )
+        all_periods = list(set(periods) | set(previous_periods))
 
-            all_periods = list(set(periods) | set(previous_periods))
+        # --- entity_filter for metrics ---
+        if filters.group_column == "segment" and filters.segment_name:
+            entity_filter = func.upper(IMS.segment) == func.upper(filters.segment_name)
+        elif filters.group_column == "brand" and filters.brand_name:
+            entity_filter = func.upper(IMS.brand) == func.upper(filters.brand_name)
+        elif company_id is not None and filters.group_column == "company":
+            if _company_ims_name:
+                entity_filter = IMS.company == _company_ims_name
+            elif _company_brands:
+                entity_filter = IMS.brand.in_(_company_brands)
+            else:
+                # компании нет в IMS — продажи прочерк, но рынок считаем
+                market_metrics_stmt = select(
+                    func.sum(
+                        case((IMS.period.in_(periods), IMS.amount), else_=0)
+                    ).label("market_sales"),
+                    func.sum(
+                        case((IMS.period.in_(previous_periods), IMS.amount), else_=0)
+                    ).label("prev_market_sales"),
+                ).where(IMS.period.in_(all_periods))
 
+                market_metrics_result = await session.execute(market_metrics_stmt)
+                market_metrics_row = market_metrics_result.mappings().one()
+
+                market_sales = float(market_metrics_row["market_sales"] or 0)
+                prev_market_sales = float(market_metrics_row["prev_market_sales"] or 0)
+
+                market_growth = (
+                    ((market_sales - prev_market_sales) / prev_market_sales * 100)
+                    if prev_market_sales > 0
+                    else 0.0
+                )
+
+                response["metrics"] = {
+                    "sales": "-",  # продаж компании нет
+                    "market_sales": round(market_sales),  # рынок есть
+                    "market_share": "-",
+                    "growth_vs_previous": "-",
+                    "market_growth": round(market_growth, 2),  # рост рынка есть
+                    "growth_vs_market": "-",
+                }
+                return response
+        else:
+            # segment/brand без имени - метрики по всему рынку
             market_metrics_stmt = select(
                 func.sum(case((IMS.period.in_(periods), IMS.amount), else_=0)).label(
                     "market_sales"
@@ -753,12 +802,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 func.sum(
                     case((IMS.period.in_(previous_periods), IMS.amount), else_=0)
                 ).label("prev_market_sales"),
-            ).where(
-                and_(
-                    IMS.period.in_(all_periods),
-                    segment_filter,
-                )
-            )
+            ).where(IMS.period.in_(all_periods))
 
             market_metrics_result = await session.execute(market_metrics_stmt)
             market_metrics_row = market_metrics_result.mappings().one()
@@ -780,69 +824,44 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 "market_growth": round(market_growth, 2),
                 "growth_vs_market": 0.0,
             }
-
             return response
 
-        result = await session.execute(stmt)
-        entities = result.mappings().all()
-
-        response = {"entities": entities}
-
-        previous_periods = self._get_previous_periods_from_values(
-            period_values, group_by_period
-        )
-
-        if filters.segment_name and filters.group_column == "segment":
-            entity_filter = func.upper(IMS.segment) == func.upper(filters.segment_name)
-        elif filters.brand_name and filters.group_column == "brand":
-            entity_filter = func.upper(IMS.brand) == func.upper(filters.brand_name)
-        elif company_id is not None:
-            if _company_ims_name:
-                entity_filter = IMS.company == _company_ims_name
-            else:
-                if not _company_brands:
-                    response["metrics"] = {
-                        "sales": "-",
-                        "market_sales": "-",
-                        "market_share": "-",
-                        "growth_vs_previous": "-",
-                        "market_growth": "-",
-                        "growth_vs_market": "-",
-                    }
-                    return response
-
-                entity_filter = IMS.brand.in_(_company_brands)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Необходимо указать company_id, segment_name или brand_name",
-            )
-
-        all_periods = list(set(periods) | set(previous_periods))
-
+        # --- Metrics ---
+        # entity_sales / prev_entity_sales - с entity_filter (конкретный сегмент/бренд/компания)
+        # market_sales / prev_market_sales - весь рынок, без segment_filter
         metrics_stmt = select(
             func.sum(
                 case(
                     (and_(entity_filter, IMS.period.in_(periods)), IMS.amount), else_=0
                 )
             ).label("entity_sales"),
-            func.sum(case((IMS.period.in_(periods), IMS.amount), else_=0)).label(
-                "market_sales"
-            ),
             func.sum(
                 case(
-                    (and_(entity_filter, IMS.period.in_(previous_periods)), IMS.amount),
+                    (
+                        and_(entity_filter, IMS.period.in_(periods)),
+                        IMS.amount.cast(Numeric(20, 2)),
+                    ),
+                    else_=0,
+                )
+            ).label("market_sales"),
+            func.sum(
+                case(
+                    (
+                        and_(entity_filter, IMS.period.in_(previous_periods)),
+                        IMS.amount.cast(Numeric(20, 2)),
+                    ),
                     else_=0,
                 )
             ).label("prev_entity_sales"),
             func.sum(
-                case((IMS.period.in_(previous_periods), IMS.amount), else_=0)
+                case(
+                    (IMS.period.in_(previous_periods), IMS.amount.cast(Numeric(20, 2))),
+                    else_=0,
+                )
             ).label("prev_market_sales"),
         ).where(
-            and_(
-                IMS.period.in_(all_periods),
-                segment_filter,
-            )
+            IMS.period.in_(all_periods)
+            # segment_filter намеренно не применяем - market_sales должен быть весь рынок
         )
 
         metrics_result = await session.execute(metrics_stmt)
@@ -866,7 +885,6 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
         )
 
         growth_vs_market = growth_vs_previous - market_growth
-
         market_share = entity_sales / market_sales * 100 if market_sales > 0 else 0.0
 
         response["metrics"] = {
@@ -897,10 +915,13 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
         select_fields = []
         group_by_fields = []
 
-        for dim in filters.group_by_dimensions:
+        for dim in getattr(filters, "group_by_dimensions", []):
             column = dimension_mapping[dim]
             select_fields.append(column)
             group_by_fields.append(column)
+
+        if filters.period_values is None:
+            return []
 
         period_columns = []
         group_by_period = (filters.group_by_period or "month").strip().lower()
@@ -917,11 +938,16 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 period_label = self._format_period_label(single_values, group_by_period)
 
                 period_amount = func.round(
-                    func.sum(case((IMS.period.in_(db_periods), IMS.amount), else_=0))
+                    func.sum(
+                        case((IMS.period.in_(db_periods), IMS.amount), else_=0)
+                    ).cast(Numeric),
+                    2,
                 )
-
                 period_packages = func.round(
-                    func.sum(case((IMS.period.in_(db_periods), IMS.packages), else_=0))
+                    func.sum(
+                        case((IMS.period.in_(db_periods), IMS.packages), else_=0)
+                    ).cast(Numeric),
+                    2,
                 )
 
                 period_json = func.json_build_object(

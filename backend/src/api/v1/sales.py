@@ -53,7 +53,9 @@ async def list_primary_sales(
         joinedload(PrimarySalesAndStock.sku).joinedload(SKU.company),
         joinedload(PrimarySalesAndStock.distributor),
     ]
-    return await primary_sales_service.get_multi(session, payload, load_options=load_options)
+    return await primary_sales_service.get_multi(
+        session, payload, load_options=load_options
+    )
 
 
 @router.post("/primary/export-excel")
@@ -93,7 +95,9 @@ async def create_primary_sales(
         joinedload(PrimarySalesAndStock.sku).joinedload(SKU.brand),
         joinedload(PrimarySalesAndStock.distributor),
     ]
-    return await primary_sales_service.create(session, new_primary_sales, load_options=load_options)
+    return await primary_sales_service.create(
+        session, new_primary_sales, load_options=load_options
+    )
 
 
 @router.post("/primary/import-excel", dependencies=[Depends(current_operator_user)])
@@ -102,11 +106,15 @@ async def bulk_insert_primary_sales(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    result = await primary_sales_service.import_sales(session, file, user_id=current_user.id)
+    result = await primary_sales_service.import_sales(
+        session, file, user_id=current_user.id
+    )
     return result
 
 
-@router.post("/primary/reports/stock-levels", dependencies=[Depends(can_view_primary_sales)])
+@router.post(
+    "/primary/reports/stock-levels", dependencies=[Depends(can_view_primary_sales)]
+)
 async def get_primary_stock(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     filters: sale.ShipmentStockFilter,
@@ -146,10 +154,14 @@ async def get_primary_sales_chart(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    return await primary_sales_service.get_period_totals(session, filters, company_id=current_user.company_id)
+    return await primary_sales_service.get_period_totals(
+        session, filters, company_id=current_user.company_id
+    )
 
 
-@router.post("/primary/reports/stock-coverages", dependencies=[Depends(can_view_primary_sales)])
+@router.post(
+    "/primary/reports/stock-coverages", dependencies=[Depends(can_view_primary_sales)]
+)
 async def get_inventory(
     filters: sale.StockCoverageFilter,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
@@ -217,7 +229,9 @@ async def get_primary_sale(
         joinedload(PrimarySalesAndStock.sku).joinedload(SKU.brand),
         joinedload(PrimarySalesAndStock.distributor),
     ]
-    return await primary_sales_service.get_or_404(session, primary_sales_id, load_options=load_options)
+    return await primary_sales_service.get_or_404(
+        session, primary_sales_id, load_options=load_options
+    )
 
 
 @router.patch(
@@ -239,7 +253,9 @@ async def update_primary_sales(
     )
 
 
-@router.delete("/primary/{primary_sales_id}", dependencies=[Depends(current_operator_user)])
+@router.delete(
+    "/primary/{primary_sales_id}", dependencies=[Depends(current_operator_user)]
+)
 async def delete_primary_sales(
     primary_sales_id: int,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
@@ -264,7 +280,9 @@ async def list_secondary_sales(
         joinedload(SecondarySales.sku).joinedload(SKU.company),
     ]
 
-    return await secondary_sales_service.get_multi(session, payload, load_options=load_options)
+    return await secondary_sales_service.get_multi(
+        session, payload, load_options=load_options
+    )
 
 
 @router.post("/secondary/export-excel")
@@ -311,7 +329,9 @@ async def create_secondary_sales(
         joinedload(SecondarySales.pharmacy).joinedload(Pharmacy.distributor),
         joinedload(SecondarySales.sku).joinedload(SKU.brand),
     ]
-    return await secondary_sales_service.create(session, new_secondary_sales, load_options=load_options)
+    return await secondary_sales_service.create(
+        session, new_secondary_sales, load_options=load_options
+    )
 
 
 @router.post("/secondary/import-excel", dependencies=[Depends(current_operator_user)])
@@ -320,20 +340,28 @@ async def bulk_insert_secondary_sales(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    result = await secondary_sales_service.import_sales(session, file, user_id=current_user.id)
+    result = await secondary_sales_service.import_sales(
+        session, file, user_id=current_user.id
+    )
     return result
 
 
-@router.post("/secondary/reports/chart", dependencies=[Depends(can_view_secondary_sales)])
+@router.post(
+    "/secondary/reports/chart", dependencies=[Depends(can_view_secondary_sales)]
+)
 async def get_secondary_sales_chart(
     filters: sale.SecTerSalesPeriodFilter,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    return await secondary_sales_service.get_period_totals(session, filters, company_id=current_user.company_id)
+    return await secondary_sales_service.get_period_totals(
+        session, filters, company_id=current_user.company_id
+    )
 
 
-@router.post("/secondary/reports/sales", dependencies=[Depends(can_view_secondary_sales)])
+@router.post(
+    "/secondary/reports/sales", dependencies=[Depends(can_view_secondary_sales)]
+)
 async def get_secondary_sales_report(
     filters: sale.SecTerSalesReportFilter,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
@@ -342,7 +370,9 @@ async def get_secondary_sales_report(
     result = await secondary_sales_service.get_sales_report(
         session, filters=filters, company_id=current_user.company_id
     )
-    serializable_result = [dict(row) if hasattr(row, "_mapping") else row for row in result]
+    serializable_result = [
+        dict(row) if hasattr(row, "_mapping") else row for row in result
+    ]
     body = orjson.dumps(serializable_result)
     return Response(content=body, media_type="application/json")
 
@@ -381,7 +411,9 @@ async def get_secondary_sales(
         joinedload(SecondarySales.pharmacy).joinedload(Pharmacy.distributor),
         joinedload(SecondarySales.sku).joinedload(SKU.brand),
     ]
-    return await secondary_sales_service.get_or_404(session, secondary_sales_id, load_options=load_options)
+    return await secondary_sales_service.get_or_404(
+        session, secondary_sales_id, load_options=load_options
+    )
 
 
 @router.patch(
@@ -404,7 +436,9 @@ async def update_secondary_sales(
     )
 
 
-@router.delete("/secondary/{secondary_sales_id}", dependencies=[Depends(current_operator_user)])
+@router.delete(
+    "/secondary/{secondary_sales_id}", dependencies=[Depends(current_operator_user)]
+)
 async def delete_secondary_sales(
     secondary_sales_id: int,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
@@ -428,7 +462,9 @@ async def list_tertiary_sales(
         joinedload(TertiarySalesAndStock.sku).joinedload(SKU.company),
         joinedload(TertiarySalesAndStock.distributor),
     ]
-    return await tertiary_sales_service.get_multi(session, payload, load_options=load_options)
+    return await tertiary_sales_service.get_multi(
+        session, payload, load_options=load_options
+    )
 
 
 @router.post("/tertiary/export-excel")
@@ -475,7 +511,9 @@ async def create_tertiary_sales(
         joinedload(TertiarySalesAndStock.pharmacy).joinedload(Pharmacy.distributor),
         joinedload(TertiarySalesAndStock.sku).joinedload(SKU.brand),
     ]
-    return await tertiary_sales_service.create(session, new_tertiary_sales, load_options=load_options)
+    return await tertiary_sales_service.create(
+        session, new_tertiary_sales, load_options=load_options
+    )
 
 
 @router.post("/tertiary/import-excel", dependencies=[Depends(current_operator_user)])
@@ -484,7 +522,9 @@ async def bulk_insert_tertiary_sales(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    result = await tertiary_sales_service.import_sales(session, file, user_id=current_user.id)
+    result = await tertiary_sales_service.import_sales(
+        session, file, user_id=current_user.id
+    )
     return result
 
 
@@ -497,7 +537,9 @@ async def get_tertiary_sales_report(
     result = await tertiary_sales_service.get_sales_report(
         session, filters=filters, company_id=current_user.company_id
     )
-    serializable_result = [dict(row) if hasattr(row, "_mapping") else row for row in result]
+    serializable_result = [
+        dict(row) if hasattr(row, "_mapping") else row for row in result
+    ]
     body = orjson.dumps(serializable_result)
     return Response(content=body, media_type="application/json")
 
@@ -508,7 +550,9 @@ async def get_tertiary_sales_chart(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    return await tertiary_sales_service.get_period_totals(session, filters, company_id=current_user.company_id)
+    return await tertiary_sales_service.get_period_totals(
+        session, filters, company_id=current_user.company_id
+    )
 
 
 @router.get(
@@ -525,7 +569,9 @@ async def get_tertiary_sales(
         joinedload(TertiarySalesAndStock.pharmacy).joinedload(Pharmacy.distributor),
         joinedload(TertiarySalesAndStock.sku).joinedload(SKU.brand),
     ]
-    return await tertiary_sales_service.get_or_404(session, tertiary_sales_id, load_options=load_options)
+    return await tertiary_sales_service.get_or_404(
+        session, tertiary_sales_id, load_options=load_options
+    )
 
 
 @router.patch(
@@ -548,7 +594,9 @@ async def update_tertiary_sales(
     )
 
 
-@router.delete("/tertiary/{tertiary_sales_id}", dependencies=[Depends(current_operator_user)])
+@router.delete(
+    "/tertiary/{tertiary_sales_id}", dependencies=[Depends(current_operator_user)]
+)
 async def delete_tertiary_sales(
     tertiary_sales_id: int,
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
@@ -597,7 +645,9 @@ async def get_last_year(
     stmt = select(
         select(func.max(PrimarySalesAndStock.year)).scalar_subquery().label("primary"),
         select(func.max(SecondarySales.year)).scalar_subquery().label("secondary"),
-        select(func.max(TertiarySalesAndStock.year)).scalar_subquery().label("tertiary"),
+        select(func.max(TertiarySalesAndStock.year))
+        .scalar_subquery()
+        .label("tertiary"),
         select(func.max(Visit.year)).scalar_subquery().label("visits"),
         select(func.left(func.max(IMS.period), 7)).scalar_subquery().label("ims"),
     )

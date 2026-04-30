@@ -76,5 +76,6 @@ function buildFlatItems(
       label: resolveLabel(value, filter),
       value,
       onDelete: () => filter.onDelete?.(value),
+      isReadOnly: filter.isReadOnly,
     }));
 }

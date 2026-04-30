@@ -43,9 +43,7 @@ export const Stocks: React.FC = React.memo(() => {
 
   const filtersState = useDbFiltersState({
     groupBy: {
-      defaultValue: 'sku,brand,promotion_type,product_group,distributor'.split(
-        ','
-      ),
+      defaultValue: 'sku,brand,distributor'.split(','),
     },
   });
 

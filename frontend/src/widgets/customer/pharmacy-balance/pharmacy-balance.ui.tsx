@@ -41,10 +41,7 @@ export const PharmacyBalance: React.FC = React.memo(() => {
 
   const filtersState = useDbFiltersState({
     groupBy: {
-      defaultValue:
-        'sku,pharmacy,brand,promotion_type,product_group,distributor,geo_indicator'.split(
-          ','
-        ),
+      defaultValue: 'sku,pharmacy,brand,distributor'.split(','),
     },
   });
 

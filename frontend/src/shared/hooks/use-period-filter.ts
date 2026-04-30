@@ -40,6 +40,30 @@ export type PeriodFiltersProps = Omit<
 type YM = { y: number; m: number };
 type YQ = { y: number; q: number };
 
+const resolveLastYM = (
+  lastYear?: number | string,
+  current?: YM
+): YM | undefined => {
+  if (lastYear == null) return undefined;
+
+  // строка "2024/03"
+  if (typeof lastYear === 'string') {
+    const [yearStr, monthStr] = lastYear.split('/');
+    const y = Number.parseInt(yearStr, 10);
+    const m = Number.parseInt(monthStr, 10);
+    if (!Number.isNaN(y) && !Number.isNaN(m)) return { y, m };
+    return undefined;
+  }
+
+  // число — только год, месяц берём текущий или 12
+  if (typeof lastYear === 'number') {
+    const m = lastYear === current?.y ? (current?.m ?? 12) : 12;
+    return { y: lastYear, m };
+  }
+
+  return undefined;
+};
+
 const toMonth = (d: Date): YM => ({ y: d.getFullYear(), m: d.getMonth() + 1 });
 
 const addMonths = (ym: YM, delta: number): YM => {
@@ -66,7 +90,7 @@ const formatMonth = (month: number) => `${month}`.padStart(2, '0');
 export const usePeriodFilter = ({
   views = ['year', 'month', 'quarter'],
   defaultPeriod = 'month',
-  isMultiple = true,
+  isMultiple: isMultipleProp = true,
   lastYear,
 }: Partial<IUsePeriodFilter>): UsePeriodFilterReturn => {
   const [period, setPeriodState] = useState<UsePeriodType>(defaultPeriod);
@@ -74,6 +98,11 @@ export const usePeriodFilter = ({
   const now = useMemo(() => new Date(), []);
   const current = useMemo(() => toMonth(now), [now]);
   const currentYQ = useMemo(() => quarterFromYM(current), [current]);
+
+  const isMultiple = useMemo(() => {
+    if (period === 'mat' || period === 'ytd') return false;
+    return isMultipleProp;
+  }, [period, isMultipleProp]);
 
   const lastYM = useMemo<YM | null>(() => {
     if (typeof lastYear === 'string') {
@@ -124,7 +153,13 @@ export const usePeriodFilter = ({
           );
         }
         case 'quarter': {
-          return buildQuarterValues(isMultiple, currentYQ, lastYear, quarters4);
+          return buildQuarterValues(
+            isMultiple,
+            currentYQ,
+            lastYear,
+            quarters4,
+            current
+          );
         }
         case 'mat': {
           return buildCumulativeValues(
@@ -308,19 +343,20 @@ const buildMonthValues = (
   current: YM,
   lastYear?: number | string,
   months12: YM[] = [],
-  lastYM?: YM
+  _lastYM?: YM
 ) => {
+  const ref = resolveLastYM(lastYear, current);
+
   if (!isMultiple) {
-    const ref = lastYM ?? current;
-    return [`month-${ref.y}-${formatMonth(ref.m)}`];
+    const point = ref ?? current;
+    return [`month-${point.y}-${formatMonth(point.m)}`];
   }
 
-  const lastYearNum = typeof lastYear === 'number' ? lastYear : undefined;
-  if (lastYearNum != null) {
-    const maxMonth = lastYearNum === current.y ? current.m : 12;
+  if (ref) {
+    const maxMonth = ref.y === current.y ? ref.m : 12;
     return Array.from(
       { length: maxMonth },
-      (_, i) => `month-${lastYearNum}-${formatMonth(i + 1)}`
+      (_, i) => `month-${ref.y}-${formatMonth(i + 1)}`
     );
   }
 
@@ -331,17 +367,20 @@ const buildQuarterValues = (
   isMultiple: boolean,
   currentYQ: YQ,
   lastYear?: number | string,
-  quarters4: YQ[] = []
+  quarters4: YQ[] = [],
+  current?: YM
 ) => {
-  if (!isMultiple) return [`quarter-${currentYQ.y}-${currentYQ.q}`];
+  const ref = resolveLastYM(lastYear, current);
 
-  const lastYearNum = typeof lastYear === 'number' ? lastYear : undefined;
-  if (lastYearNum != null) {
-    const maxQ = lastYearNum === currentYQ.y ? currentYQ.q : 4;
-    return Array.from(
-      { length: maxQ },
-      (_, i) => `quarter-${lastYearNum}-${i + 1}`
-    );
+  if (!isMultiple) {
+    const point = ref ? { y: ref.y, q: currentQuarter(ref.m) } : currentYQ;
+    return [`quarter-${point.y}-${point.q}`];
+  }
+
+  if (ref) {
+    const refQ = currentQuarter(ref.m);
+    const maxQ = ref.y === current?.y ? refQ : 4;
+    return Array.from({ length: maxQ }, (_, i) => `quarter-${ref.y}-${i + 1}`);
   }
 
   return quarters4.map(x => `quarter-${x.y}-${x.q}`);
@@ -353,19 +392,20 @@ const buildCumulativeValues = (
   current: YM,
   lastYear?: number | string,
   months12: YM[] = [],
-  lastYM?: YM
+  _lastYM?: YM
 ) => {
+  const ref = resolveLastYM(lastYear, current);
+
   if (!isMultiple) {
-    const ref = lastYM ?? current;
-    return [`${prefix}-${ref.y}-${formatMonth(ref.m)}`];
+    const point = ref ?? current;
+    return [`${prefix}-${point.y}-${formatMonth(point.m)}`];
   }
 
-  const lastYearNum = typeof lastYear === 'number' ? lastYear : undefined;
-  if (lastYearNum != null) {
-    const maxMonth = lastYearNum === current.y ? current.m : 12;
+  if (ref) {
+    const maxMonth = ref.y === current.y ? ref.m : 12;
     return Array.from(
       { length: maxMonth },
-      (_, i) => `${prefix}-${lastYearNum}-${formatMonth(i + 1)}`
+      (_, i) => `${prefix}-${ref.y}-${formatMonth(i + 1)}`
     );
   }
 
@@ -376,13 +416,15 @@ const buildYearValues = (
   isMultiple: boolean,
   current: YM,
   lastYear?: number | string,
-  lastYM?: YM
+  _lastYM?: YM
 ) => {
+  const ref = resolveLastYM(lastYear, current);
+
   if (!isMultiple) {
-    const ref = lastYM ?? current;
-    return [`${ref.y}`];
+    const point = ref ?? current;
+    return [`${point.y}`];
   }
-  const lastYearNum = typeof lastYear === 'number' ? lastYear : undefined;
-  if (lastYearNum != null) return [`${lastYearNum}`, `${lastYearNum - 1}`];
+
+  if (ref) return [`${ref.y}`, `${ref.y - 1}`];
   return [`${current.y}`, `${current.y - 1}`];
 };

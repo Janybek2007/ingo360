@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 @dataclass
 class FieldResolverConfig:
     record_key: str
-    model: Type | None = None
+    model: type | None = None
     lookup_field: str = ""
     required: bool = False
     db_field: str = ""
@@ -76,12 +76,15 @@ class ResolvedFields:
 
 
 def normalize_record(record: dict, configs: list[FieldResolverConfig]) -> None:
-    """Нормализация одной записи - используется при батчинге"""
+    record_lower = {k.lower(): k for k in record}
     for cfg in configs:
+        if cfg.primary_key in record:
+            continue
         for alias in cfg.aliases:
-            if alias in record and cfg.primary_key not in record:
-                val = record[alias]
-                record[cfg.primary_key] = str(val) if val is not None else val
+            original_key = record_lower.get(alias.lower())
+            if original_key is not None:
+                val = record[original_key]
+                record[cfg.primary_key] = val
                 break
 
 
