@@ -77,7 +77,7 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
           : undefined,
         //
         method: 'POST',
-        enabled: !filterOptions.isLoading,
+        enabled: !filterOptions.isLoading && lastYear != undefined,
       })
     );
     const metricData = React.useMemo(() => {

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { MonthFull } from '#/shared/constants/months';
 
@@ -194,21 +194,15 @@ export const usePeriodFilter = ({
     [current, currentYQ, months12, quarters4, isMultiple, lastYear, lastYM]
   );
 
-  const [selectedValuesState, setSelectedValuesState] = useState<string[]>(
-    () => {
-      if (lastYear != null) {
-        return buildAllItemValues(period);
-      }
-      return [];
-    }
-  );
+  const [selectedValuesState, setSelectedValuesState] = useState<string[]>([]);
 
-  const selectedValues = useMemo(() => {
-    if (lastYear != null && selectedValuesState.length === 0) {
-      return buildAllItemValues(period);
+  useEffect(() => {
+    if (lastYear != null) {
+      setSelectedValuesState(buildAllItemValues(period));
     }
-    return selectedValuesState;
-  }, [lastYear, period, selectedValuesState, buildAllItemValues]);
+  }, [lastYear, period, buildAllItemValues]);
+
+  const selectedValues = selectedValuesState;
 
   const setSelectedValues = useCallback(
     (values: string[] | ((prev: string[]) => string[])) => {

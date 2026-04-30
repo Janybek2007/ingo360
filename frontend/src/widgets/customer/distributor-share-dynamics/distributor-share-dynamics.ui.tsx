@@ -75,7 +75,7 @@ export const DistributorShareDynamics: React.FC = React.memo(() => {
         group_by_period: periodFilter.period,
         period_values: periodFilter.selectedValues,
 
-        enabled: !filterOptions.isLoading,
+        enabled: !filterOptions.isLoading && lastYear != undefined,
         method: 'POST',
       }
     )

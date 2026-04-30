@@ -94,7 +94,7 @@ export const Stocks: React.FC = React.memo(() => {
         period_values: periodFilter.selectedValues,
         group_by_period: periodFilter.period,
 
-        enabled: !filterOptions.isLoading,
+        enabled: !filterOptions.isLoading && lastYear != undefined,
         method: 'POST',
       }
     )

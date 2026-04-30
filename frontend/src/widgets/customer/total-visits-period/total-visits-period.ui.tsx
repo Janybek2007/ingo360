@@ -100,7 +100,7 @@ export const TotalVisitsPeriod: React.FC = React.memo(() => {
           filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
         search: filtersState.search,
 
-        enabled: !filterOptions.isLoading,
+        enabled: !filterOptions.isLoading && lastYear != undefined,
         method: 'POST',
       }
     )

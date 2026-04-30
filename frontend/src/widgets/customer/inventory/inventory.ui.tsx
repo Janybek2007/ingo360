@@ -102,7 +102,7 @@ export const Inventory: React.FC = React.memo(() => {
         group_by_period: periodFilter.period,
 
         method: 'POST',
-        enabled: !filterOptions.isLoading,
+        enabled: !filterOptions.isLoading && lastYear != undefined,
       }
     )
   );

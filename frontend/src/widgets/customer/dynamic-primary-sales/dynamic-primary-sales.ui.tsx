@@ -63,7 +63,7 @@ export const DynamicPrimarySales: React.FC<{ as?: 'line' | 'mixed' }> =
           product_group_ids: filtersState.groups,
 
           method: 'POST',
-          enabled: !filterOptions.isLoading,
+          enabled: !filterOptions.isLoading && lastYear != undefined,
         }
       )
     );

@@ -80,6 +80,7 @@ export const MarketInsights: React.FC = React.memo(() => {
       search: filtersState.search,
 
       method: 'POST',
+      enabled: lastYear != undefined,
     })
   );
 
