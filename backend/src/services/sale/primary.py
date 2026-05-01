@@ -289,7 +289,9 @@ class PrimarySalesAndStockService(
                 *select_fields,
                 period_key.label("period"),
                 func.sum(PrimarySalesAndStock.packages).label("packages"),
-                func.round(func.sum(PrimarySalesAndStock.amount)).label("amount"),
+                func.round(func.sum(PrimarySalesAndStock.amount))
+                .cast(Float)
+                .label("amount"),
             )
             .select_from(PrimarySalesAndStock)
             .join(SKU, PrimarySalesAndStock.sku_id == SKU.id)
@@ -515,9 +517,9 @@ class PrimarySalesAndStockService(
                     func.sum(case((is_stock, b.c.packages), else_=0)).label(
                         "stock_packages"
                     ),
-                    func.round(func.sum(case((is_stock, b.c.amount), else_=0))).label(
-                        "stock_amount"
-                    ),
+                    func.round(func.sum(case((is_stock, b.c.amount), else_=0)))
+                    .cast(Float)
+                    .label("stock_amount"),
                 ]
             )
 
@@ -526,9 +528,9 @@ class PrimarySalesAndStockService(
                 func.sum(case((is_sales, b.c.packages), else_=0)).label(
                     "sales_packages"
                 ),
-                func.round(func.sum(case((is_sales, b.c.amount), else_=0))).label(
-                    "sales_amount"
-                ),
+                func.round(func.sum(case((is_sales, b.c.amount), else_=0)))
+                .cast(Float)
+                .label("sales_amount"),
             ]
         )
 
@@ -768,7 +770,9 @@ class PrimarySalesAndStockService(
             select(
                 *select_fields,
                 period_key.label("period"),
-                func.round(func.sum(PrimarySalesAndStock.amount)).label("amount"),
+                func.round(func.sum(PrimarySalesAndStock.amount))
+                .cast(Float)
+                .label("amount"),
             )
             .select_from(PrimarySalesAndStock)
             .join(SKU, PrimarySalesAndStock.sku_id == SKU.id)
@@ -986,7 +990,9 @@ class PrimarySalesAndStockService(
                 Distributor.id.label("distributor_id"),
                 Distributor.name.label("distributor_name"),
                 period_key.label("period"),
-                func.round(func.sum(PrimarySalesAndStock.amount)).label("amount"),
+                func.round(func.sum(PrimarySalesAndStock.amount))
+                .cast(Float)
+                .label("amount"),
             )
             .select_from(PrimarySalesAndStock)
             .join(Distributor, PrimarySalesAndStock.distributor_id == Distributor.id)

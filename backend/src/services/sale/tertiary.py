@@ -308,7 +308,9 @@ class TertiarySalesService(
                 *select_fields,
                 period_key.label("period"),
                 func.sum(TertiarySalesAndStock.packages).label("packages"),
-                func.round(func.sum(TertiarySalesAndStock.amount)).label("amount"),
+                func.round(func.sum(TertiarySalesAndStock.amount))
+                .cast(Float)
+                .label("amount"),
             )
             .select_from(TertiarySalesAndStock)
             .join(SKU, TertiarySalesAndStock.sku_id == SKU.id)
@@ -608,7 +610,7 @@ class TertiarySalesService(
             select(
                 period_key.label("period"),
                 sales_packages.label("sales_packages"),
-                func.round(sales_amount).label("sales_amount"),
+                func.round(sales_amount).cast(Float).label("sales_amount"),
             )
             .select_from(TertiarySalesAndStock)
             .join(SKU, TertiarySalesAndStock.sku_id == SKU.id)
@@ -866,7 +868,9 @@ class TertiarySalesService(
                 *select_fields,
                 period_key.label("period"),
                 func.sum(TertiarySalesAndStock.packages).label("packages"),
-                func.round(func.sum(TertiarySalesAndStock.amount)).label("amount"),
+                func.round(func.sum(TertiarySalesAndStock.amount))
+                .cast(Float)
+                .label("amount"),
             )
             .select_from(TertiarySalesAndStock)
             .join(SKU, TertiarySalesAndStock.sku_id == SKU.id)

@@ -601,7 +601,15 @@ class MarketInsightsDynamicPeriods {
       header: this.formatHeader(key),
       aggregate: 'sum' as const,
       custom: {
-        cell: ({ row }: any) => row.original[key],
+        cell: ({ row }: any) => {
+          const value = row.original[key];
+          return typeof value === 'number'
+            ? value.toLocaleString('ru-RU', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })
+            : value;
+        },
       },
     }));
   };

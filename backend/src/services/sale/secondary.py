@@ -300,7 +300,7 @@ class SecondarySalesService(
                 *select_fields,
                 period_key.label("period"),
                 func.sum(SecondarySales.packages).label("packages"),
-                func.round(func.sum(SecondarySales.amount)).label("amount"),
+                func.round(func.sum(SecondarySales.amount)).cast(Float).label("amount"),
             )
             .select_from(SecondarySales)
             .join(SKU, SecondarySales.sku_id == SKU.id)
@@ -550,7 +550,7 @@ class SecondarySalesService(
             select(
                 period_key.label("period"),
                 func.sum(SecondarySales.packages).label("packages"),
-                func.round(func.sum(SecondarySales.amount)).label("sales"),
+                func.round(func.sum(SecondarySales.amount)).cast(Float).label("sales"),
             )
             .select_from(SecondarySales)
             .join(SKU, SecondarySales.sku_id == SKU.id)
@@ -603,7 +603,9 @@ class SecondarySalesService(
                 Distributor.name.label("distributor_name"),
                 period_key.label("period"),
                 func.sum(SecondarySales.packages).label("total_packages"),
-                func.round(func.sum(SecondarySales.amount)).label("total_amount"),
+                func.round(func.sum(SecondarySales.amount))
+                .cast(Float)
+                .label("total_amount"),
             )
             .select_from(SecondarySales)
             .outerjoin(Distributor, SecondarySales.distributor_id == Distributor.id)
