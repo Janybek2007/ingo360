@@ -99,6 +99,17 @@ export const transformColumnFiltersToPayload = (
     else payload[k] = cleaned;
   }
 
+  const periodFilters: Record<string, TFilterPayloadValue> = {};
+  for (const k of Object.keys(payload)) {
+    if (/^\d{4}(-\d{2}|-Q\d+)?$/.test(k)) {
+      periodFilters[k] = payload[k];
+      delete payload[k];
+    }
+  }
+  if (Object.keys(periodFilters).length > 0) {
+    payload['period_filters'] = periodFilters as any;
+  }
+
   return payload;
 };
 

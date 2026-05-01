@@ -1,7 +1,8 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable, Tuple
+from typing import Any
 
-from sqlalchemy import asc, desc, func, or_, tuple_
+from sqlalchemy import Numeric, asc, desc, func, literal, or_, tuple_
 
 
 @dataclass(frozen=True)
@@ -124,57 +125,117 @@ class ListQueryHelper:
         return stmt
 
     @staticmethod
-    def apply_number_typed_filter(stmt, column, expr: str | None):
-        """
-        Поддержка:
-          =:10, >:10, >=:10, <:10, <=:10
-          between:10,20  (включительно)
-        """
+    def _build_number_condition(column, expr: str | None):
+        """Возвращает SQLAlchemy-условие для числового фильтра или None."""
         if not expr:
-            return stmt
+            return None
 
         parsed = parse_typed_filter(expr)
         if not parsed:
-            return stmt
+            return None
 
         op, raw = parsed
 
-        def to_int(x: str) -> int | None:
+        def to_num(x: str):
             x = x.strip()
             if x == "":
                 return None
             try:
                 return int(x)
             except ValueError:
-                return None
+                try:
+                    return float(x)
+                except ValueError:
+                    return None
 
         if op == "between":
             parts = [p.strip() for p in raw.split(",")]
             if len(parts) != 2:
-                return stmt
-            a = to_int(parts[0])
-            b = to_int(parts[1])
+                return None
+            a, b = to_num(parts[0]), to_num(parts[1])
             if a is None or b is None:
-                return stmt
+                return None
             lo, hi = (a, b) if a <= b else (b, a)
-            return stmt.where(column.between(lo, hi))
+            return column.between(lo, hi)
 
-        n = to_int(raw)
+        n = to_num(raw)
         if n is None:
-            return stmt
+            return None
 
         if op == "=":
-            return stmt.where(column == n)
+            return column == n
         if op == ">":
-            return stmt.where(column > n)
+            return column > n
         if op == ">=":
-            return stmt.where(column >= n)
+            return column >= n
         if op == "<":
-            return stmt.where(column < n)
+            return column < n
         if op == "<=":
-            return stmt.where(column <= n)
+            return column <= n
+
+        return None
+
+    @staticmethod
+    def _build_string_condition(column, expr: str | None):
+        """Возвращает SQLAlchemy-условие для строкового фильтра или None."""
+        if not expr:
+            return None
+
+        parsed = parse_typed_filter(expr)
+        if not parsed:
+            return None
+
+        op, raw = parsed
+        raw = raw.strip()
+        if raw == "":
+            return None
+
+        if op == "contains":
+            return column.ilike(f"%{raw}%")
+        if op == "startsWith":
+            return column.ilike(f"{raw}%")
+        if op == "equals":
+            return column == raw
+        if op == "doesNotEqual":
+            return (column.is_(None)) | (column != raw)
+
+        return None
+
+    @staticmethod
+    def apply_number_typed_filter(stmt, column, expr: str | None):
+        cond = ListQueryHelper._build_number_condition(column, expr)
+        return stmt.where(cond) if cond is not None else stmt
+
+    @staticmethod
+    def apply_having_specs(stmt, specs: Iterable[Any]):
+        """Аналог apply_specs, но применяет условия через HAVING."""
+        for spec in specs:
+            if spec is None:
+                continue
+
+            if isinstance(spec, NumberTypedSpec):
+                cond = ListQueryHelper._build_number_condition(spec.column, spec.expr)
+                if cond is not None:
+                    stmt = stmt.having(cond)
+                continue
+
+            if isinstance(spec, StringTypedSpec):
+                cond = ListQueryHelper._build_string_condition(spec.column, spec.expr)
+                if cond is not None:
+                    stmt = stmt.having(cond)
+                continue
 
         return stmt
+
+    @staticmethod
+    def period_json_sort_expr(periods_data_col, period_key: str, indicator: str):
+        """CAST(json_extract_path_text(periods_data, period_key, indicator) AS NUMERIC) для ORDER BY / WHERE."""
+        return func.cast(
+            func.json_extract_path_text(
+                periods_data_col, literal(period_key), literal(indicator)
+            ),
+            Numeric,
+        )
 
     @staticmethod
     def build_sort_payload(sort_by: str | None, sort_order: str | None):
@@ -360,7 +421,7 @@ class ListQueryHelper:
         return stmt.where(or_(*(column == b for b in set(bools))))
 
 
-def parse_typed_filter(expr: str) -> Tuple[str, str] | None:
+def parse_typed_filter(expr: str) -> tuple[str, str] | None:
     """
     expr: "contains:натрий" | ">=:2024" | "between:10,20"
     returns: (op, raw)

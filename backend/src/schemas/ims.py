@@ -124,6 +124,8 @@ class IMSTableFilter(BaseModel):
     ) = None
     sort_by: (
         Literal["company", "brand", "segment", "dosage_form", "dosage", "molecule"]
+        | str
         | None
     ) = None
     sort_order: SortDirection | None = None
+    period_filters: dict[str, str] | None = None

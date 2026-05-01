@@ -230,9 +230,13 @@ class DistributorShareFilter(SalesReportFilter):
         | None
     ) = None
     sort_by: (
-        Literal["sku", "brand", "promotion", "product_group", "distributor"] | None
+        Literal["sku", "brand", "promotion", "product_group", "distributor"]
+        | str
+        | None
     ) = None
     sort_order: SortDirection | None = None
+    period_filters: dict[str, str] | None = None
+    indicator: str = "share_percent"
 
 
 class StockCoverageFilter(SalesReportFilter):
@@ -241,9 +245,13 @@ class StockCoverageFilter(SalesReportFilter):
         | None
     ) = None
     sort_by: (
-        Literal["sku", "brand", "promotion", "product_group", "distributor"] | None
+        Literal["sku", "brand", "promotion", "product_group", "distributor"]
+        | str
+        | None
     ) = None
     sort_order: SortDirection | None = None
+    period_filters: dict[str, str] | None = None
+    indicator: str = "coverage_months_amount"
 
 
 class ShipmentStockFilter(SalesReportFilter):
@@ -252,9 +260,13 @@ class ShipmentStockFilter(SalesReportFilter):
         | None
     ) = None
     sort_by: (
-        Literal["sku", "brand", "promotion", "product_group", "distributor"] | None
+        Literal["sku", "brand", "promotion", "product_group", "distributor"]
+        | str
+        | None
     ) = None
     sort_order: SortDirection | None = None
+    period_filters: dict[str, str] | None = None
+    indicator: str = "amount"
 
 
 class SecTerSalesReportFilter(SalesReportFilter):
@@ -284,9 +296,12 @@ class SecTerSalesReportFilter(SalesReportFilter):
             "geo_indicator",
             "pharmacy",
         ]
+        | str
         | None
     ) = None
     sort_order: SortDirection | None = None
+    period_filters: dict[str, str] | None = None
+    indicator: str = "amount"
 
 
 class PeriodFilter(BaseModel):
@@ -351,9 +366,11 @@ class NumericDistributionFilter(BaseModel):
             "distributor",
             "geo_indicator",
         ]
+        | str
         | None
     ) = None
     sort_order: SortDirection | None = None
+    period_filters: dict[str, str] | None = None
 
 
 class SalesReportResponse(BaseModel):

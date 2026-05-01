@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
-from sqlalchemy import Float, Numeric, case, cast, func, or_, select
+from sqlalchemy import Float, Numeric, asc, case, cast, desc, func, or_, select
 
 from src.db.models import (
     SKU,
@@ -390,25 +390,48 @@ class PrimarySalesAndStockService(
             .group_by(*pivot_group_by)
         )
 
-        pivot_sort_map_full = {
-            "sku": pivot_sort_map.get("sku"),
-            "brand": pivot_sort_map.get("brand"),
-            "promotion": pivot_sort_map.get("promotion_type"),
-            "product_group": pivot_sort_map.get("product_group"),
-            "distributor": pivot_sort_map.get("distributor"),
+        pivot_sub = pivot_stmt.subquery("pivot_data")
+        outer = select(pivot_sub)
+
+        outer_sort_map = {
+            "sku": getattr(pivot_sub.c, "sku_name", None),
+            "brand": getattr(pivot_sub.c, "brand_name", None),
+            "promotion": getattr(pivot_sub.c, "promotion_type_name", None),
+            "product_group": getattr(pivot_sub.c, "product_group_name", None),
+            "distributor": getattr(pivot_sub.c, "distributor_name", None),
         }
 
-        pivot_stmt = ListQueryHelper.apply_sorting_with_default(
-            pivot_stmt,
-            getattr(filters, "sort_by", None),
-            getattr(filters, "sort_order", None),
-            pivot_sort_map_full,
-        )
-        pivot_stmt = ListQueryHelper.apply_pagination(
-            pivot_stmt, filters.limit, filters.offset
-        )
+        sort_by = getattr(filters, "sort_by", None)
+        sort_order = getattr(filters, "sort_order", None)
 
-        rows = (await session.execute(pivot_stmt)).mappings().all()
+        if sort_by and sort_by not in outer_sort_map:
+            period_expr = ListQueryHelper.period_json_sort_expr(
+                pivot_sub.c.periods_data, sort_by, filters.indicator
+            )
+            outer = outer.order_by(
+                asc(period_expr) if sort_order == "ASC" else desc(period_expr)
+            )
+        else:
+            outer = ListQueryHelper.apply_sorting_with_default(
+                outer, sort_by, sort_order, outer_sort_map
+            )
+
+        if getattr(filters, "period_filters", None):
+            outer = ListQueryHelper.apply_specs(
+                outer,
+                [
+                    NumberTypedSpec(
+                        ListQueryHelper.period_json_sort_expr(
+                            pivot_sub.c.periods_data, k, filters.indicator
+                        ),
+                        v,
+                    )
+                    for k, v in filters.period_filters.items()
+                ],
+            )
+
+        outer = ListQueryHelper.apply_pagination(outer, filters.limit, filters.offset)
+        rows = (await session.execute(outer)).mappings().all()
         return [dict(row) for row in rows]
 
     @staticmethod
@@ -730,25 +753,48 @@ class PrimarySalesAndStockService(
             .group_by(*pivot_group_by)
         )
 
-        pivot_sort_map_full = {
-            "sku": pivot_sort_map.get("sku"),
-            "brand": pivot_sort_map.get("brand"),
-            "promotion": pivot_sort_map.get("promotion_type"),
-            "product_group": pivot_sort_map.get("product_group"),
-            "distributor": pivot_sort_map.get("distributor"),
+        pivot_sub = pivot_stmt.subquery("pivot_data")
+        outer = select(pivot_sub)
+
+        outer_sort_map = {
+            "sku": getattr(pivot_sub.c, "sku_name", None),
+            "brand": getattr(pivot_sub.c, "brand_name", None),
+            "promotion": getattr(pivot_sub.c, "promotion_type_name", None),
+            "product_group": getattr(pivot_sub.c, "product_group_name", None),
+            "distributor": getattr(pivot_sub.c, "distributor_name", None),
         }
 
-        pivot_stmt = ListQueryHelper.apply_sorting_with_default(
-            pivot_stmt,
-            getattr(filters, "sort_by", None),
-            getattr(filters, "sort_order", None),
-            pivot_sort_map_full,
-        )
-        pivot_stmt = ListQueryHelper.apply_pagination(
-            pivot_stmt, filters.limit, filters.offset
-        )
+        sort_by = getattr(filters, "sort_by", None)
+        sort_order = getattr(filters, "sort_order", None)
 
-        rows = (await session.execute(pivot_stmt)).mappings().all()
+        if sort_by and sort_by not in outer_sort_map:
+            period_expr = ListQueryHelper.period_json_sort_expr(
+                pivot_sub.c.periods_data, sort_by, filters.indicator
+            )
+            outer = outer.order_by(
+                asc(period_expr) if sort_order == "ASC" else desc(period_expr)
+            )
+        else:
+            outer = ListQueryHelper.apply_sorting_with_default(
+                outer, sort_by, sort_order, outer_sort_map
+            )
+
+        if getattr(filters, "period_filters", None):
+            outer = ListQueryHelper.apply_specs(
+                outer,
+                [
+                    NumberTypedSpec(
+                        ListQueryHelper.period_json_sort_expr(
+                            pivot_sub.c.periods_data, k, filters.indicator
+                        ),
+                        v,
+                    )
+                    for k, v in filters.period_filters.items()
+                ],
+            )
+
+        outer = ListQueryHelper.apply_pagination(outer, filters.limit, filters.offset)
+        rows = (await session.execute(outer)).mappings().all()
         return [dict(row) for row in rows]
 
     @staticmethod
@@ -916,25 +962,48 @@ class PrimarySalesAndStockService(
             .group_by(*pivot_group_by)
         )
 
-        pivot_sort_map_full = {
-            "sku": pivot_sort_map.get("sku"),
-            "brand": pivot_sort_map.get("brand"),
-            "promotion": pivot_sort_map.get("promotion_type"),
-            "product_group": pivot_sort_map.get("product_group"),
-            "distributor": pivot_sort_map.get("distributor"),
+        pivot_sub = pivot_stmt.subquery("pivot_data")
+        outer = select(pivot_sub)
+
+        outer_sort_map = {
+            "sku": getattr(pivot_sub.c, "sku_name", None),
+            "brand": getattr(pivot_sub.c, "brand_name", None),
+            "promotion": getattr(pivot_sub.c, "promotion_type_name", None),
+            "product_group": getattr(pivot_sub.c, "product_group_name", None),
+            "distributor": getattr(pivot_sub.c, "distributor_name", None),
         }
 
-        pivot_stmt = ListQueryHelper.apply_sorting_with_default(
-            pivot_stmt,
-            getattr(filters, "sort_by", None),
-            getattr(filters, "sort_order", None),
-            pivot_sort_map_full,
-        )
-        pivot_stmt = ListQueryHelper.apply_pagination(
-            pivot_stmt, filters.limit, filters.offset
-        )
+        sort_by = getattr(filters, "sort_by", None)
+        sort_order = getattr(filters, "sort_order", None)
 
-        rows = (await session.execute(pivot_stmt)).mappings().all()
+        if sort_by and sort_by not in outer_sort_map:
+            period_expr = ListQueryHelper.period_json_sort_expr(
+                pivot_sub.c.periods_data, sort_by, filters.indicator
+            )
+            outer = outer.order_by(
+                asc(period_expr) if sort_order == "ASC" else desc(period_expr)
+            )
+        else:
+            outer = ListQueryHelper.apply_sorting_with_default(
+                outer, sort_by, sort_order, outer_sort_map
+            )
+
+        if getattr(filters, "period_filters", None):
+            outer = ListQueryHelper.apply_specs(
+                outer,
+                [
+                    NumberTypedSpec(
+                        ListQueryHelper.period_json_sort_expr(
+                            pivot_sub.c.periods_data, k, filters.indicator
+                        ),
+                        v,
+                    )
+                    for k, v in filters.period_filters.items()
+                ],
+            )
+
+        outer = ListQueryHelper.apply_pagination(outer, filters.limit, filters.offset)
+        rows = (await session.execute(outer)).mappings().all()
         return [dict(row) for row in rows]
 
     @staticmethod

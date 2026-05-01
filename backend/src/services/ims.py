@@ -935,6 +935,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             return []
 
         period_columns = []
+        period_expr_map: dict[str, dict[str, Any]] = {}
         group_by_period = (filters.group_by_period or "month").strip().lower()
         period_values = build_period_values(
             filters.group_by_period, filters.period_values
@@ -966,6 +967,10 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 ).label(period_label)
 
                 period_columns.append(period_json)
+                period_expr_map[period_label] = {
+                    "amount": period_amount,
+                    "packages": period_packages,
+                }
 
         stmt = select(*select_fields, *period_columns).group_by(*group_by_fields)
 
@@ -1006,6 +1011,16 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                 InOrNullSpec(IMS.molecule, getattr(filters, "molecule_names", None)),
             ],
         )
+
+        if filters.period_filters:
+            stmt = ListQueryHelper.apply_having_specs(
+                stmt,
+                [
+                    NumberTypedSpec(period_expr_map[k][filters.indicator], v)
+                    for k, v in filters.period_filters.items()
+                    if k in period_expr_map and filters.indicator in period_expr_map[k]
+                ],
+            )
 
         sort_map = {
             "company": IMS.company,

@@ -4,7 +4,17 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
-from sqlalchemy import Float, Numeric, and_, case, func, select, text
+from sqlalchemy import (
+    Float,
+    Numeric,
+    and_,
+    asc,
+    case,
+    desc,
+    func,
+    select,
+    text,
+)
 
 from src.db.models import (
     SKU,
@@ -432,55 +442,91 @@ class TertiarySalesService(
                 .group_by(*pivot_group_by)
             )
 
-            pivot_stmt = ListQueryHelper.apply_sorting_with_default(
-                pivot_stmt,
-                getattr(filters, "sort_by", None),
-                getattr(filters, "sort_order", None),
-                pivot_sort_map_full,
+            pivot_sub = pivot_stmt.subquery("pivot_data")
+            outer = select(pivot_sub)
+
+            outer_sort_map = {
+                k: getattr(pivot_sub.c, f"{k}_name", None)
+                for k in [
+                    "sku",
+                    "brand",
+                    "product_group",
+                    "distributor",
+                    "geo_indicator",
+                    "pharmacy",
+                ]
+            }
+            outer_sort_map["promotion"] = getattr(
+                pivot_sub.c, "promotion_type_name", None
             )
-            pivot_stmt = ListQueryHelper.apply_pagination(
-                pivot_stmt, filters.limit, filters.offset
+
+            sort_by = getattr(filters, "sort_by", None)
+            sort_order = getattr(filters, "sort_order", None)
+
+            if sort_by and sort_by not in outer_sort_map:
+                period_expr = ListQueryHelper.period_json_sort_expr(
+                    pivot_sub.c.periods_data, sort_by, filters.indicator
+                )
+                outer = outer.order_by(
+                    asc(period_expr) if sort_order == "ASC" else desc(period_expr)
+                )
+            else:
+                outer = ListQueryHelper.apply_sorting_with_default(
+                    outer, sort_by, sort_order, outer_sort_map
+                )
+
+            if getattr(filters, "period_filters", None):
+                outer = ListQueryHelper.apply_specs(
+                    outer,
+                    [
+                        NumberTypedSpec(
+                            ListQueryHelper.period_json_sort_expr(
+                                pivot_sub.c.periods_data, k, filters.indicator
+                            ),
+                            v,
+                        )
+                        for k, v in filters.period_filters.items()
+                    ],
+                )
+
+            outer = ListQueryHelper.apply_pagination(
+                outer, filters.limit, filters.offset
             )
 
             if explain is not None:
                 from src.utils.explain_analyze import explain_analyze
 
-                return await explain_analyze(session, pivot_stmt, explain)
+                return await explain_analyze(session, outer, explain)
 
-            rows = (await session.execute(pivot_stmt)).mappings().all()
+            rows = (await session.execute(outer)).mappings().all()
             return [dict(row) for row in rows]
 
         # CASE-пивот для месячных периодов — один проход без сортировки CTE
         period_cols: list = []
+        period_expr_map: dict[str, dict[str, Any]] = {}
         for y, m, _key in sales_period_keys:
             period_cond = and_(
                 TertiarySalesAndStock.year == y,
                 TertiarySalesAndStock.month == m,
             )
-            period_cols.extend(
-                [
-                    func.sum(
-                        case(
-                            (
-                                period_cond,
-                                func.cast(TertiarySalesAndStock.packages, Float),
-                            ),
-                            else_=0.0,
-                        )
-                    ).label(f"pkg_{y}_{m}"),
-                    func.round(
-                        func.sum(
-                            case(
-                                (
-                                    period_cond,
-                                    func.cast(TertiarySalesAndStock.amount, Float),
-                                ),
-                                else_=0.0,
-                            )
-                        )
-                    ).label(f"amt_{y}_{m}"),
-                ]
+            pkg_expr = func.sum(
+                case(
+                    (period_cond, func.cast(TertiarySalesAndStock.packages, Float)),
+                    else_=0.0,
+                )
             )
+            amt_expr = func.round(
+                func.sum(
+                    case(
+                        (period_cond, func.cast(TertiarySalesAndStock.amount, Float)),
+                        else_=0.0,
+                    )
+                )
+            )
+            period_cols.extend(
+                [pkg_expr.label(f"pkg_{y}_{m}"), amt_expr.label(f"amt_{y}_{m}")]
+            )
+            period_expr_map[f"{y}-{m:02d}"] = {"packages": pkg_expr, "amount": amt_expr}
 
         case_select: list = []
         case_group_by: list = []
@@ -537,6 +583,26 @@ class TertiarySalesService(
         )
 
         pivot_stmt = pivot_stmt.group_by(*case_group_by)
+
+        for period_label, exprs in period_expr_map.items():
+            pivot_sort_map_full[period_label] = exprs.get(
+                filters.indicator, exprs["amount"]
+            )
+
+        if getattr(filters, "period_filters", None):
+            pivot_stmt = ListQueryHelper.apply_having_specs(
+                pivot_stmt,
+                [
+                    NumberTypedSpec(
+                        period_expr_map[k].get(
+                            filters.indicator, period_expr_map[k]["amount"]
+                        ),
+                        v,
+                    )
+                    for k, v in filters.period_filters.items()
+                    if k in period_expr_map
+                ],
+            )
 
         pivot_stmt = ListQueryHelper.apply_sorting_with_default(
             pivot_stmt,
@@ -822,27 +888,49 @@ class TertiarySalesService(
         if final_group_by_fields:
             final_stmt = final_stmt.group_by(*final_group_by_fields)
 
-        sort_map = {
-            "sku": getattr(period_agg.c, "sku_name", None),
-            "brand": getattr(period_agg.c, "brand_name", None),
-            "promotion": getattr(period_agg.c, "promotion_type_name", None),
-            "product_group": getattr(period_agg.c, "product_group_name", None),
-            "distributor": getattr(period_agg.c, "distributor_name", None),
-            "geo_indicator": getattr(period_agg.c, "geo_indicator_name", None),
+        nd_sub = final_stmt.subquery("nd_data")
+        outer = select(nd_sub)
+
+        outer_sort_map = {
+            "sku": getattr(nd_sub.c, "sku_name", None),
+            "brand": getattr(nd_sub.c, "brand_name", None),
+            "promotion": getattr(nd_sub.c, "promotion_type_name", None),
+            "product_group": getattr(nd_sub.c, "product_group_name", None),
+            "distributor": getattr(nd_sub.c, "distributor_name", None),
+            "geo_indicator": getattr(nd_sub.c, "geo_indicator_name", None),
         }
 
-        final_stmt = ListQueryHelper.apply_sorting_with_default(
-            final_stmt,
-            getattr(filters, "sort_by", None),
-            getattr(filters, "sort_order", None),
-            sort_map,
-        )
+        sort_by = getattr(filters, "sort_by", None)
+        sort_order = getattr(filters, "sort_order", None)
 
-        final_stmt = ListQueryHelper.apply_pagination(
-            final_stmt, filters.limit, filters.offset
-        )
-        result = await session.execute(final_stmt)
-        rows = result.mappings().all()
+        if sort_by and sort_by not in outer_sort_map:
+            period_expr = ListQueryHelper.period_json_sort_expr(
+                nd_sub.c.periods_data, sort_by, "nd_percent"
+            )
+            outer = outer.order_by(
+                asc(period_expr) if sort_order == "ASC" else desc(period_expr)
+            )
+        else:
+            outer = ListQueryHelper.apply_sorting_with_default(
+                outer, sort_by, sort_order, outer_sort_map
+            )
+
+        if getattr(filters, "period_filters", None):
+            outer = ListQueryHelper.apply_specs(
+                outer,
+                [
+                    NumberTypedSpec(
+                        ListQueryHelper.period_json_sort_expr(
+                            nd_sub.c.periods_data, k, "nd_percent"
+                        ),
+                        v,
+                    )
+                    for k, v in filters.period_filters.items()
+                ],
+            )
+
+        outer = ListQueryHelper.apply_pagination(outer, filters.limit, filters.offset)
+        rows = (await session.execute(outer)).mappings().all()
         return [dict(row) for row in rows]
 
     @staticmethod
@@ -993,56 +1081,95 @@ class TertiarySalesService(
                 .group_by(*pivot_group_by)
             )
 
-            pivot_stmt = ListQueryHelper.apply_sorting_with_default(
-                pivot_stmt,
-                getattr(filters, "sort_by", None),
-                getattr(filters, "sort_order", None),
-                pivot_sort_map_full,
+            pivot_sub = pivot_stmt.subquery("pivot_data")
+            outer = select(pivot_sub)
+
+            outer_sort_map = {
+                k: getattr(pivot_sub.c, f"{k}_name", None)
+                for k in [
+                    "sku",
+                    "brand",
+                    "product_group",
+                    "distributor",
+                    "geo_indicator",
+                    "pharmacy",
+                ]
+            }
+            outer_sort_map["promotion"] = getattr(
+                pivot_sub.c, "promotion_type_name", None
             )
-            pivot_stmt = ListQueryHelper.apply_pagination(
-                pivot_stmt, filters.limit, filters.offset
+
+            sort_by = getattr(filters, "sort_by", None)
+            sort_order = getattr(filters, "sort_order", None)
+
+            if sort_by and sort_by not in outer_sort_map:
+                period_expr = ListQueryHelper.period_json_sort_expr(
+                    pivot_sub.c.periods_data, sort_by, filters.indicator
+                )
+                outer = outer.order_by(
+                    asc(period_expr) if sort_order == "ASC" else desc(period_expr)
+                )
+            else:
+                outer = ListQueryHelper.apply_sorting_with_default(
+                    outer, sort_by, sort_order, outer_sort_map
+                )
+
+            if getattr(filters, "period_filters", None):
+                outer = ListQueryHelper.apply_specs(
+                    outer,
+                    [
+                        NumberTypedSpec(
+                            ListQueryHelper.period_json_sort_expr(
+                                pivot_sub.c.periods_data, k, filters.indicator
+                            ),
+                            v,
+                        )
+                        for k, v in filters.period_filters.items()
+                    ],
+                )
+
+            outer = ListQueryHelper.apply_pagination(
+                outer, filters.limit, filters.offset
             )
 
             if explain is not None:
                 from src.utils.explain_analyze import explain_analyze
 
-                return await explain_analyze(session, pivot_stmt, explain)
+                return await explain_analyze(session, outer, explain)
 
-            rows = (await session.execute(pivot_stmt)).mappings().all()
+            rows = (await session.execute(outer)).mappings().all()
             return [dict(row) for row in rows]
 
         # Одноуровневый пивот: CASE-выражение на каждый период вместо двухуровневого CTE.
-        # Устраняет Incremental Sort 383K строк по 8 ключам (~3s) и внешний json_object_agg.
+        # Устраняет Incremental Sort 383К строк по 8 ключам (~3s) и внешний json_object_agg.
         period_cols: list = []
+        period_expr_map_stock: dict[str, dict[str, Any]] = {}
         for y, m, _key in period_keys_list:
             period_cond = and_(
                 TertiarySalesAndStock.year == y,
                 TertiarySalesAndStock.month == m,
             )
-            period_cols.extend(
-                [
-                    func.sum(
-                        case(
-                            (
-                                period_cond,
-                                func.cast(TertiarySalesAndStock.packages, Float),
-                            ),
-                            else_=0.0,
-                        )
-                    ).label(f"pkg_{y}_{m}"),
-                    func.round(
-                        func.sum(
-                            case(
-                                (
-                                    period_cond,
-                                    func.cast(TertiarySalesAndStock.amount, Float),
-                                ),
-                                else_=0.0,
-                            )
-                        )
-                    ).label(f"amt_{y}_{m}"),
-                ]
+            pkg_expr = func.sum(
+                case(
+                    (period_cond, func.cast(TertiarySalesAndStock.packages, Float)),
+                    else_=0.0,
+                )
             )
+            amt_expr = func.round(
+                func.sum(
+                    case(
+                        (period_cond, func.cast(TertiarySalesAndStock.amount, Float)),
+                        else_=0.0,
+                    )
+                )
+            )
+            period_cols.extend(
+                [pkg_expr.label(f"pkg_{y}_{m}"), amt_expr.label(f"amt_{y}_{m}")]
+            )
+            period_expr_map_stock[f"{y}-{m:02d}"] = {
+                "packages": pkg_expr,
+                "amount": amt_expr,
+            }
 
         case_pivot_select: list = []
         case_pivot_group_by: list = []
@@ -1099,6 +1226,26 @@ class TertiarySalesService(
         )
 
         pivot_stmt = pivot_stmt.group_by(*case_pivot_group_by)
+
+        for period_label, exprs in period_expr_map_stock.items():
+            pivot_sort_map_full[period_label] = exprs.get(
+                filters.indicator, exprs["amount"]
+            )
+
+        if getattr(filters, "period_filters", None):
+            pivot_stmt = ListQueryHelper.apply_having_specs(
+                pivot_stmt,
+                [
+                    NumberTypedSpec(
+                        period_expr_map_stock[k].get(
+                            filters.indicator, period_expr_map_stock[k]["amount"]
+                        ),
+                        v,
+                    )
+                    for k, v in filters.period_filters.items()
+                    if k in period_expr_map_stock
+                ],
+            )
 
         pivot_stmt = ListQueryHelper.apply_sorting_with_default(
             pivot_stmt,
