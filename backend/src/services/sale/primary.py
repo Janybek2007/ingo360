@@ -514,9 +514,9 @@ class PrimarySalesAndStockService(
         if filters.group_by_period not in ("quarter", "year"):
             select_cols.extend(
                 [
-                    func.sum(case((is_stock, b.c.packages), else_=0)).label(
-                        "stock_packages"
-                    ),
+                    func.sum(case((is_stock, b.c.packages), else_=0))
+                    .cast(Float)
+                    .label("stock_packages"),
                     func.round(func.sum(case((is_stock, b.c.amount), else_=0)))
                     .cast(Float)
                     .label("stock_amount"),
@@ -525,9 +525,9 @@ class PrimarySalesAndStockService(
 
         select_cols.extend(
             [
-                func.sum(case((is_sales, b.c.packages), else_=0)).label(
-                    "sales_packages"
-                ),
+                func.sum(case((is_sales, b.c.packages), else_=0))
+                .cast(Float)
+                .label("sales_packages"),
                 func.round(func.sum(case((is_sales, b.c.amount), else_=0)))
                 .cast(Float)
                 .label("sales_amount"),
