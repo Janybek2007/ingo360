@@ -56,18 +56,21 @@ const appendExtraDataIfArray = (
   return result;
 };
 
+const PERIOD_KEY_REGEX = /^\d{4}(-\d{2}|-Q\d+)?$/;
+
 export const transformColumnFiltersToPayload = (
   columnFilters: ColumnFiltersState,
   keyMap: Record<string, string> = {},
-  extraDataMap: TExtraDataMap = {}
-  // excludeKeys: string[] = [],
+  extraDataMap: TExtraDataMap = {},
+  excludePeriods = false
 ): Record<string, TFilterPayloadValue> => {
   const payload: Record<string, TFilterPayloadValue> = {};
 
-  // @
-  // const columnFilters = _columnFilters.filter(f => !excludeKeys.includes(f.id));
+  const activeFilters = excludePeriods
+    ? columnFilters.filter(f => !PERIOD_KEY_REGEX.test(f.id))
+    : columnFilters;
 
-  for (const filter of columnFilters) {
+  for (const filter of activeFilters) {
     const mappedKey = keyMap[filter.id] ?? filter.id;
     const rawValue = filter.value as TableFilterValue;
 
@@ -101,7 +104,7 @@ export const transformColumnFiltersToPayload = (
 
   const periodFilters: Record<string, TFilterPayloadValue> = {};
   for (const k of Object.keys(payload)) {
-    if (/^\d{4}(-\d{2}|-Q\d+)?$/.test(k)) {
+    if (PERIOD_KEY_REGEX.test(k)) {
       periodFilters[k] = payload[k];
       delete payload[k];
     }

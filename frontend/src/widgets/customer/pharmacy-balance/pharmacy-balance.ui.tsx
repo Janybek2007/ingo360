@@ -56,10 +56,15 @@ export const PharmacyBalance: React.FC = React.memo(() => {
       'clients/geo-indicators',
     ],
     'sales_tertiary',
-    transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
-      brand_ids: filtersState.brands,
-      product_group_ids: filtersState.groups,
-    })
+    transformColumnFiltersToPayload(
+      filters,
+      COMMON_COLUMNS_FILTER_KEY_MAP,
+      {
+        brand_ids: filtersState.brands,
+        product_group_ids: filtersState.groups,
+      },
+      true
+    )
   );
 
   const lastYear = useSession(s => s.lastYear);

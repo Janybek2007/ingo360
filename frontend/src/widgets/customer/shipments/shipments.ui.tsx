@@ -56,10 +56,15 @@ export const Shipments: React.FC = React.memo(() => {
       'clients/distributors',
     ],
     'sales_primary',
-    transformColumnFiltersToPayload(filters, COMMON_COLUMNS_FILTER_KEY_MAP, {
-      brand_ids: filtersState.brands,
-      product_group_ids: filtersState.groups,
-    })
+    transformColumnFiltersToPayload(
+      filters,
+      COMMON_COLUMNS_FILTER_KEY_MAP,
+      {
+        brand_ids: filtersState.brands,
+        product_group_ids: filtersState.groups,
+      },
+      true
+    )
   );
 
   const databaseFilters = useDbFilters({
