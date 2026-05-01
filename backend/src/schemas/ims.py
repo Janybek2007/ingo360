@@ -113,6 +113,7 @@ class IMSTableFilter(BaseModel):
     search: str | None = None
     period_values: list[str] | None = None
     group_by_period: Literal["month", "quarter", "year", "mat", "ytd"] = "ytd"
+    indicator: Literal["amount", "packages"] = "amount"
     limit: int | None = None
     offset: int = 0
     group_by_dimensions: (

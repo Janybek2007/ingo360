@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { MonthFull } from '#/shared/constants/months';
 
@@ -194,16 +194,21 @@ export const usePeriodFilter = ({
     [current, currentYQ, months12, quarters4, isMultiple, lastYear, lastYM]
   );
 
-  const [selectedValuesState, setSelectedValuesState] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (lastYear != null) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedValuesState(buildAllItemValues(period));
+  const [selectedValuesState, setSelectedValuesState] = useState<string[]>(
+    () => {
+      if (lastYear != null) {
+        return buildAllItemValues(period);
+      }
+      return [];
     }
-  }, [lastYear, period, buildAllItemValues]);
+  );
 
-  const selectedValues = selectedValuesState;
+  const selectedValues = useMemo(() => {
+    if (lastYear != null && selectedValuesState.length === 0) {
+      return buildAllItemValues(period);
+    }
+    return selectedValuesState;
+  }, [lastYear, period, selectedValuesState, buildAllItemValues]);
 
   const setSelectedValues = useCallback(
     (values: string[] | ((prev: string[]) => string[])) => {

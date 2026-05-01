@@ -14,10 +14,7 @@ import { PeriodFilters } from '#/shared/components/period-filters';
 import { Table } from '#/shared/components/table';
 import { Select } from '#/shared/components/ui/select';
 import { columnHeaderNames } from '#/shared/constants/column-header-names';
-import {
-  commonColumns,
-  marketInsightsDynamicPeriods,
-} from '#/shared/constants/common-columns';
+import { commonColumns } from '#/shared/constants/common-columns';
 import { COMMON_COLUMNS_FILTER_KEY_MAP } from '#/shared/constants/filters-key-map';
 import { FiltersContext } from '#/shared/context/filters';
 import { useColumnVisibility } from '#/shared/hooks/use-column-visibility';
@@ -31,6 +28,8 @@ import {
   transformColumnFiltersToPayload,
   transformSortingToPayload,
 } from '#/shared/utils/transform';
+
+import { marketInsightsDynamicPeriods } from './utils';
 
 interface MarketRow {
   brand: string;
@@ -78,6 +77,8 @@ export const MarketInsights: React.FC = React.memo(() => {
       limit:
         filtersState.rowsCount === 'all' ? undefined : filtersState.rowsCount,
       search: filtersState.search,
+
+      indicator: filtersState.indicator,
 
       method: 'POST',
       enabled: lastYear != undefined,

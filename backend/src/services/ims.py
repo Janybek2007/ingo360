@@ -1016,9 +1016,23 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             "molecule": IMS.molecule,
         }
 
+        for period_col in period_columns:
+            period_key = period_col.key
+            sort_map[period_key] = func.json_extract_path_text(
+                period_col, literal(filters.indicator)
+            ).cast(Numeric)
+
+        sort_by = filters.sort_by
+        sort_order = filters.sort_order
+
+        if not sort_by and period_columns:
+            newest_period = period_columns[-1].key
+            sort_by = newest_period
+            sort_order = "DESC"
+
         stmt = ListQueryHelper.apply_sorting(
             stmt,
-            ListQueryHelper.build_sort_payload(filters.sort_by, filters.sort_order),
+            ListQueryHelper.build_sort_payload(sort_by, sort_order),
             sort_map,
         )
         stmt = ListQueryHelper.apply_pagination(stmt, filters.limit, filters.offset)
