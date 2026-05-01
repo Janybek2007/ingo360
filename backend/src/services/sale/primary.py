@@ -496,7 +496,7 @@ class PrimarySalesAndStockService(
                     ),
                     else_=None,
                 ),
-                Numeric(10, 2),
+                Float,
             ).label("coverage_months_amount"),
             func.cast(
                 case(
@@ -507,7 +507,7 @@ class PrimarySalesAndStockService(
                     ),
                     else_=None,
                 ),
-                Numeric(10, 2),
+                Float,
             ).label("coverage_months_packages"),
         ]
 
