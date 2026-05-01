@@ -654,7 +654,8 @@ class TertiarySalesService(
         )
 
         result = await session.execute(stmt)
-        return result.mappings().all()
+        rows = result.mappings().all()
+        return [dict(row) for row in rows]
 
     @staticmethod
     async def get_numeric_distribution(
@@ -839,7 +840,8 @@ class TertiarySalesService(
             final_stmt, filters.limit, filters.offset
         )
         result = await session.execute(final_stmt)
-        return result.mappings().all()
+        rows = result.mappings().all()
+        return [dict(row) for row in rows]
 
     @staticmethod
     async def get_stock_report(
@@ -940,7 +942,9 @@ class TertiarySalesService(
                 from src.utils.explain_analyze import explain_analyze
 
                 return await explain_analyze(session, flat_stmt, explain)
-            return (await session.execute(flat_stmt)).mappings().all()
+            result = await session.execute(flat_stmt)
+            rows = result.mappings().all()
+            return [dict(row) for row in rows]
 
         months = (period_values.months or []) if period_values else []
         period_keys_list = [(y, m, f"{y}-{m:02d}") for y, m in months]

@@ -92,7 +92,7 @@ export const MarketEntityProfile: React.FC<MarketEntityProfileProperties> =
             cell: ({ row }) =>
               row.original.sales.toLocaleString('ru-RU', {
                 minimumFractionDigits: 0,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               }),
           },
         ],

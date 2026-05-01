@@ -371,7 +371,7 @@ class SecondarySalesService(
                 flat_stmt, filters.limit, filters.offset
             )
             result = (await session.execute(flat_stmt)).mappings().all()
-            return [dict(row) for row in rows]
+            return [dict(row) for row in result]
 
         sales_months = (period_values.months or []) if period_values else []
         sales_period_keys = [(y, m, f"{y}-{m:02d}") for y, m in sales_months]
@@ -583,7 +583,8 @@ class SecondarySalesService(
         stmt = stmt.group_by(*period_columns).order_by(period_key.desc())
 
         result = await session.execute(stmt)
-        return result.mappings().all()
+        rows = result.mappings().all()
+        return [dict(row) for row in rows]
 
     @staticmethod
     async def get_total_sales_by_distributor(

@@ -154,9 +154,11 @@ async def get_primary_sales_chart(
     session: Annotated[AsyncSession, Depends(db_session.get_session)],
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    return await primary_sales_service.get_period_totals(
+    result = await primary_sales_service.get_period_totals(
         session, filters, company_id=current_user.company_id
     )
+    body = orjson.dumps(result)
+    return Response(content=body, media_type="application/json")
 
 
 @router.post(
@@ -603,9 +605,11 @@ async def get_numeric_distribution_report(
     filters: sale.NumericDistributionFilter,
     current_user: Annotated[User, Depends(current_active_user)],
 ):
-    return await tertiary_sales_service.get_numeric_distribution(
+    result = await tertiary_sales_service.get_numeric_distribution(
         session, filters, company_id=current_user.company_id
     )
+    body = orjson.dumps(result)
+    return Response(content=body, media_type="application/json")
 
 
 @router.post(

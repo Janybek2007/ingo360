@@ -545,7 +545,8 @@ class PrimarySalesAndStockService(
             stmt = stmt.having(func.sum(case((is_sales, b.c.packages), else_=0)) > 0)
 
         result = await session.execute(stmt)
-        return result.mappings().all()
+        rows = result.mappings().all()
+        return [dict(row) for row in rows]
 
     @staticmethod
     async def get_stock_coverage(

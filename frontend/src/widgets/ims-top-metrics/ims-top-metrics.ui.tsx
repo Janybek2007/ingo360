@@ -69,8 +69,8 @@ export const IMSTopMetrics: React.FC<{ isMarketDevelopmentPage?: boolean }> =
         segment_name: filtersState.segments[0]
           ? String(filtersState.segments[0])
           : undefined,
-        segments: filtersState.segments?.length
-          ? filtersState.segments
+        segments: filtersState.segments
+          ? filtersState.segments.filter(segment => typeof segment === 'string')
           : undefined,
         brand_name: filtersState.brands[0]
           ? String(filtersState.brands[0])

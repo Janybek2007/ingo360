@@ -630,8 +630,14 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             select(
                 group_column.label("entity"),
                 func.round(func.sum(IMS.amount).cast(Numeric), 2).label("sales"),
+                func.max(IMS.created_at).label("entity_created_at"),
                 func.row_number()
-                .over(order_by=func.sum(IMS.amount).desc())
+                .over(
+                    order_by=[
+                        func.sum(IMS.amount).desc(),
+                        func.max(IMS.created_at).desc(),
+                    ]
+                )
                 .label("rank"),
             )
             .where(IMS.period.in_(periods))
@@ -839,7 +845,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
 
         # --- Metrics ---
         # entity_sales / prev_entity_sales - с entity_filter (конкретный сегмент/бренд/компания)
-        # market_sales / prev_market_sales - весь рынок, без segment_filter
+        # market_sales / prev_market_sales - весь рынок, без entity_filter
         metrics_stmt = select(
             func.sum(
                 case(
@@ -848,10 +854,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
             ).label("entity_sales"),
             func.sum(
                 case(
-                    (
-                        and_(entity_filter, IMS.period.in_(periods)),
-                        IMS.amount.cast(Numeric(20, 2)),
-                    ),
+                    (IMS.period.in_(periods), IMS.amount.cast(Numeric(20, 2))),
                     else_=0,
                 )
             ).label("market_sales"),
@@ -870,10 +873,7 @@ class IMSMetricsService(BaseService[IMS, IMSCreate, IMSUpdate]):
                     else_=0,
                 )
             ).label("prev_market_sales"),
-        ).where(
-            IMS.period.in_(all_periods)
-            # segment_filter намеренно не применяем - market_sales должен быть весь рынок
-        )
+        ).where(IMS.period.in_(all_periods))
 
         metrics_result = await session.execute(metrics_stmt)
         metrics_row = metrics_result.mappings().one()

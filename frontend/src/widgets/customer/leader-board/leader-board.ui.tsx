@@ -36,7 +36,7 @@ export const LeaderBoard: React.FC<LeaderboardProperties> = React.memo(
           cell: ({ row }) =>
             row.original.sales.toLocaleString('ru-RU', {
               minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
+              maximumFractionDigits: 0,
             }),
         },
       ],

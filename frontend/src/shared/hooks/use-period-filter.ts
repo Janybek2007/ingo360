@@ -198,6 +198,7 @@ export const usePeriodFilter = ({
 
   useEffect(() => {
     if (lastYear != null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedValuesState(buildAllItemValues(period));
     }
   }, [lastYear, period, buildAllItemValues]);
